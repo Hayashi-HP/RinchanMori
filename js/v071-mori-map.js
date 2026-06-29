@@ -1,5 +1,6 @@
-const RINCHAN_V071='v0.7.2';
+const RINCHAN_V071='v0.7.3';
 function v071ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
+function v071SaveJson(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function v071Num(n){return Number(n||0).toLocaleString('ja-JP')}
 function v071Level(count,steps){if(count>=100||steps>=500000)return 7;if(count>=60||steps>=300000)return 6;if(count>=40||steps>=200000)return 5;if(count>=25||steps>=100000)return 4;if(count>=10||steps>=50000)return 3;if(count>=3||steps>=10000)return 2;return 1}
 function v071Tree(level){return ['','🌱','🌿','🌳','🌸🌳','🌳🐦','🌳🦋','🌳🐿️'][level]||'🌱'}
@@ -32,14 +33,14 @@ function buildLocalMembersV071(){
   const p=v071ReadJson('rinchanParticipant',{})||{};
   const acts=v071ReadJson('rinchanActivities',[]);
   const total=acts.reduce((s,a)=>s+Number(a.steps||0),0);
-  const me={name:p.name||p.nick||'あなた',nick:p.nick||'',dept:p.dept||'未設定',activityCount:acts.length,totalSteps:total};
+  const me={id:p.id||p.employeeId||'me',name:p.name||p.nick||'あなた',nick:p.nick||'',dept:p.dept||'未設定',activityCount:acts.length,totalSteps:total};
   const samples=[
-    {name:'看護部の木',dept:'看護部',activityCount:18,totalSteps:82000},
-    {name:'リハ部の木',dept:'リハビリテーション部',activityCount:32,totalSteps:142000},
-    {name:'事務部の木',dept:'事務部',activityCount:8,totalSteps:36000},
-    {name:'介護部の木',dept:'介護部',activityCount:14,totalSteps:62000},
-    {name:'医局の木',dept:'医局',activityCount:7,totalSteps:28000},
-    {name:'栄養科の木',dept:'栄養科',activityCount:11,totalSteps:47000}
+    {id:'sample-nurse',name:'看護部の木',dept:'看護部',activityCount:18,totalSteps:82000},
+    {id:'sample-reha',name:'リハ部の木',dept:'リハビリテーション部',activityCount:32,totalSteps:142000},
+    {id:'sample-office',name:'事務部の木',dept:'事務部',activityCount:8,totalSteps:36000},
+    {id:'sample-care',name:'介護部の木',dept:'介護部',activityCount:14,totalSteps:62000},
+    {id:'sample-doctor',name:'医局の木',dept:'医局',activityCount:7,totalSteps:28000},
+    {id:'sample-nutrition',name:'栄養科の木',dept:'栄養科',activityCount:11,totalSteps:47000}
   ];
   return [me].concat(samples);
 }
@@ -47,7 +48,11 @@ function openTreeCardV071(u,level,rank,area){
   const card=document.getElementById('treeInfoCard');if(!card)return;
   card.classList.remove('hidden');
   const rankText=rank&&rank<=3?' / 🏆 ランキング '+rank+'位':'';
-  card.innerHTML='<button class="tree-card-close" onclick="closeTreeCardV071()">×</button><p class="label">杜の木'+rankText+'</p><div class="tree-card-icon">'+v071Tree(level)+'</div><h2>'+v071Mask(u.name||u.nick)+'</h2><p>'+((u.dept||'所属未設定'))+'・'+area+'</p><div class="mini-stats"><div><strong>Lv.'+level+'</strong><small>木レベル</small></div><div><strong>'+v071Num(u.totalSteps)+'</strong><small>歩</small></div><div><strong>'+v071Num(u.activityCount)+'</strong><small>記録</small></div></div>';
+  const thanksCount=getThanksCountV073(u.id||u.name);
+  card.innerHTML='<button class="tree-card-close" onclick="closeTreeCardV071()">×</button><p class="label">杜の木'+rankText+'</p><div class="tree-card-icon">'+v071Tree(level)+'</div><h2>'+v071Mask(u.name||u.nick)+'</h2><p>'+((u.dept||'所属未設定'))+'・'+area+'</p><div class="mini-stats"><div><strong>Lv.'+level+'</strong><small>木レベル</small></div><div><strong>'+v071Num(u.totalSteps)+'</strong><small>歩</small></div><div><strong>'+v071Num(u.activityCount)+'</strong><small>記録</small></div></div><button class="submit pill-button thanks-button" onclick="sendThanksV073(\''+String(u.id||u.name).replace(/'/g,'')+'\')">❤️ ありがとうを送る</button><p class="thanks-count">受け取ったありがとう：<strong id="thanksCount">'+thanksCount+'</strong>件</p>';
   card.scrollIntoView({behavior:'smooth',block:'center'});
 }
 function closeTreeCardV071(){const card=document.getElementById('treeInfoCard');if(card)card.classList.add('hidden')}
+function getThanksCountV073(id){const data=v071ReadJson('rinchanThanks',{});return Number(data[id]||0)}
+function sendThanksV073(id){const data=v071ReadJson('rinchanThanks',{});data[id]=Number(data[id]||0)+1;v071SaveJson('rinchanThanks',data);const el=document.getElementById('thanksCount');if(el)el.textContent=data[id];runThanksHeartV073();}
+function runThanksHeartV073(){const layer=document.createElement('div');layer.className='thanks-heart-layer';['❤️','💚','💛','❤️','✨'].forEach((h,i)=>{const s=document.createElement('span');s.textContent=h;s.style.left=(20+i*14)+'%';s.style.animationDelay=(i*.08)+'s';layer.appendChild(s)});document.body.appendChild(layer);setTimeout(()=>layer.remove(),1800)}
