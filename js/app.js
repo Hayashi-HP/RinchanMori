@@ -1,11 +1,12 @@
-document.addEventListener('DOMContentLoaded',()=>{home();register();activity();dateDefault();mypage();initHomeExperience();});
+document.addEventListener('DOMContentLoaded',()=>{home();register();activity();dateDefault();mypage();initHomeExperience();setupPage();retryPendingOnStart();});
 
-const RINCHAN_VERSION='v0.2.1-A';
+const RINCHAN_VERSION='v0.2.3';
 const LS={participant:'rinchanParticipant',activities:'rinchanActivities',device:'rinchanDeviceId',pending:'rinchanPendingSaves'};
 
 function participant(){return readJson(LS.participant,null)}
 function saveParticipant(p){localStorage.setItem(LS.participant,JSON.stringify(p))}
 function activities(){return readJson(LS.activities,[])}
+function pendingSaves(){return readJson(LS.pending,[])}
 function readJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function page(path){const here=location.pathname;return here.includes('/pages/')?path:'pages/'+path}
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
@@ -52,13 +53,14 @@ function mypage(){
   const p=participant();const a=activities();
   if(p){name.textContent=(p.nick||p.name)+'さん';setText('myDept',p.dept||'');const pd=document.getElementById('plantedDate');if(pd)pd.textContent='🌱 '+formatDateJP(p.createdAt)+'にあなたの木を植えました。';setText('declarationText',p.declaration||'まだ登録されていません。');setText('weeklyGoalText',p.weeklyGoal||'まずは無理なく続ける');setText('profileSummary',(p.name||'未登録')+' / '+(p.dept||'所属未設定')+' / '+(p.nick||'ニックネーム未設定'));}
   setText('activityCount',a.length+'回');
+  setText('pendingCount',pendingSaves().length+'件');
 }
 
 function showEdit(id){document.querySelectorAll('.form').forEach(el=>el.classList.add('hidden'));const p=participant()||{};if(id==='profileEdit'){document.getElementById('editName').value=p.name||'';document.getElementById('editDept').value=p.dept||'';document.getElementById('editNick').value=p.nick||'';}if(id==='declarationEdit')document.getElementById('editDeclaration').value=p.declaration||'';if(id==='goalEdit')document.getElementById('editGoal').value=p.weeklyGoal||'';document.getElementById(id).classList.remove('hidden')}
-async function saveProfile(){const p=participant()||baseParticipant();p.name=value('editName')||p.name||'ゲスト';p.dept=value('editDept');p.nick=value('editNick');p.updatedAt=new Date().toISOString();saveParticipant(p);await saveRemote('saveUser',p);alert('プロフィールを保存しました。');location.reload()}
-async function saveDeclaration(){const p=participant()||baseParticipant();p.declaration=value('editDeclaration');p.updatedAt=new Date().toISOString();saveParticipant(p);await saveRemote('saveUser',p);alert('健康宣言を保存しました。');location.reload()}
-async function saveGoal(){const p=participant()||baseParticipant();p.weeklyGoal=value('editGoal');p.updatedAt=new Date().toISOString();saveParticipant(p);await saveRemote('saveUser',p);alert('今週の目標を保存しました。');location.reload()}
-function baseParticipant(){return {id:getParticipantId(),deviceId:getDeviceId(),name:'ゲスト',dept:'',nick:'',declaration:'',weeklyGoal:'まずは無理なく続ける',createdAt:new Date().toISOString(),version:RINCHAN_VERSION}}
+async function saveProfile(){const p=participant()||baseParticipant();p.name=value('editName')||p.name||'ゲスト';p.dept=value('editDept');p.nick=value('editNick');p.updatedAt=new Date().toISOString();p.version=RINCHAN_VERSION;saveParticipant(p);await saveRemote('saveUser',p);alert('プロフィールを保存しました。');location.reload()}
+async function saveDeclaration(){const p=participant()||baseParticipant();p.declaration=value('editDeclaration');p.updatedAt=new Date().toISOString();p.version=RINCHAN_VERSION;saveParticipant(p);await saveRemote('saveUser',p);alert('健康宣言を保存しました。');location.reload()}
+async function saveGoal(){const p=participant()||baseParticipant();p.weeklyGoal=value('editGoal');p.updatedAt=new Date().toISOString();p.version=RINCHAN_VERSION;saveParticipant(p);await saveRemote('saveUser',p);alert('今週の目標を保存しました。');location.reload()}
+function baseParticipant(){return {id:getParticipantId(),deviceId:getDeviceId(),name:'ゲスト',dept:'',nick:'',declaration:'',weeklyGoal:'まずは無理なく続ける',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),version:RINCHAN_VERSION}}
 
 function openNews(id){document.querySelector('.news-list').classList.add('hidden');document.getElementById(id).classList.remove('hidden')}
 function closeNews(){document.querySelectorAll('.letter').forEach(el=>el.classList.add('hidden'));document.querySelector('.news-list').classList.remove('hidden')}
@@ -78,10 +80,53 @@ function initHomeExperience(){
   if(icon)icon.textContent=stage.icon;if(title)title.textContent=stage.title;if(text)text.textContent=stage.text;if(bar)bar.style.width=stage.pct+'%';if(note)note.textContent=stage.next;
 }
 
+function setupPage(){
+  const status=document.getElementById('apiStatus');if(!status)return;
+  setText('appVersion',RINCHAN_VERSION);
+  setText('apiUrlStatus',apiUrl()?'設定済み':'未設定');
+  setText('deviceIdText',getDeviceId());
+  setText('pendingCount',pendingSaves().length+'件');
+  const test=document.getElementById('testApiButton');if(test)test.addEventListener('click',testApiConnection);
+  const retry=document.getElementById('retryPendingButton');if(retry)retry.addEventListener('click',retryPendingManual);
+}
+
+async function testApiConnection(){
+  const status=document.getElementById('apiStatus');setStatus(status,'確認中...','');
+  const result=await rinchanApi('setup',{});
+  if(result.ok){setStatus(status,'接続OK：Google Sheets に保存できます。','ok')}
+  else{setStatus(status,'接続NG：'+(result.reason||result.error||'API URLを確認してください。'),'ng')}
+}
+
+async function retryPendingManual(){
+  const status=document.getElementById('apiStatus');setStatus(status,'未送信データを再送中...','');
+  const result=await retryPendingSaves();
+  setText('pendingCount',pendingSaves().length+'件');
+  if(result.failed===0)setStatus(status,'再送完了：'+result.sent+'件送信しました。','ok');
+  else setStatus(status,'一部未送信：送信 '+result.sent+'件 / 未送信 '+result.failed+'件','ng');
+}
+
+async function retryPendingOnStart(){
+  if(!apiUrl()||pendingSaves().length===0)return;
+  await retryPendingSaves();
+}
+
+async function retryPendingSaves(){
+  const queue=pendingSaves();
+  const failed=[];let sent=0;
+  for(const item of queue){
+    const result=await rinchanApi(item.action,item.payload);
+    if(result.ok)sent++;else failed.push(Object.assign({},item,{lastReason:result.reason||result.error||'retry_failed',lastTriedAt:new Date().toISOString()}));
+  }
+  localStorage.setItem(LS.pending,JSON.stringify(failed));
+  return {sent,failed:failed.length};
+}
+
 function getParticipantId(){const p=participant();return p&&p.id?p.id:'R'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function getDeviceId(){let id=localStorage.getItem(LS.device);if(!id){id='D'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem(LS.device,id)}return id}
 function value(id){const el=document.getElementById(id);return el?String(el.value||'').trim():''}
 function setBusy(btn,busy,label){if(!btn)return;btn.disabled=busy;if(label)btn.textContent=label}
+function apiUrl(){return (typeof RINCHAN_CONFIG!=='undefined'&&RINCHAN_CONFIG.API_URL)?String(RINCHAN_CONFIG.API_URL).trim():''}
+function setStatus(el,msg,state){if(!el)return;el.textContent=msg;el.classList.remove('ok','ng');if(state)el.classList.add(state)}
 
 async function saveRemote(action,payload){
   const result=await rinchanApi(action,payload);
@@ -89,7 +134,7 @@ async function saveRemote(action,payload){
   return result;
 }
 async function rinchanApi(action,payload){
-  const url=(typeof RINCHAN_CONFIG!=='undefined')?RINCHAN_CONFIG.API_URL:'';
+  const url=apiUrl();
   if(!url)return {ok:false,localOnly:true,reason:'api_url_empty'};
   try{
     const body=Object.assign({action,deviceId:getDeviceId(),appVersion:RINCHAN_VERSION},payload||{});
@@ -97,4 +142,4 @@ async function rinchanApi(action,payload){
     const json=await res.json();return json&&json.ok?json:{ok:false,reason:(json&&json.error)||'api_error'};
   }catch(e){return {ok:false,reason:e.message}}
 }
-function queuePending(action,payload,reason){const q=readJson(LS.pending,[]);q.push({action,payload,reason,queuedAt:new Date().toISOString()});localStorage.setItem(LS.pending,JSON.stringify(q))}
+function queuePending(action,payload,reason){const q=pendingSaves();q.push({action,payload,reason,queuedAt:new Date().toISOString()});localStorage.setItem(LS.pending,JSON.stringify(q))}
