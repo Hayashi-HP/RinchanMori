@@ -1,1 +1,39 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>参加登録</title><link rel="stylesheet" href="../css/style.css"></head><body><main class="app"><header class="top"><a href="../index.html" class="back">←</a><div class="page-title">参加登録</div><span class="spacer"></span></header><section class="intro"><div class="rin small">😊</div><h1>ようこそ<br>りんちゃんの杜へ</h1><p>まずは、あなたの木を植える準備だけします。</p></section><form class="form" id="registerForm"><label>氏名<input id="userName" required placeholder="例：花田 博実"></label><label>所属<select id="dept" required><option value="">選択してください</option><option>看護部</option><option>リハビリテーション部</option><option>介護部</option><option>医局</option><option>薬剤部</option><option>栄養科</option><option>事務部</option><option>その他</option></select></label><label>ニックネーム（任意）<input id="nick" placeholder="例：はなだ"></label><button class="submit">登録する</button></form><section class="card"><p class="label">健康宣言について</p><h2>登録後に設定できます</h2><p>健康宣言は、マイページからいつでも登録・編集できます。</p></section></main><script src="../js/config.js"></script><script src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>参加登録</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/ui-v042.css">
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <a href="../index.html" class="back">←</a>
+    <div class="page-title">参加登録</div>
+    <span class="spacer"></span>
+  </header>
+
+  <section class="intro">
+    <div class="rin small">😊</div>
+    <h1>ようこそ<br>りんちゃんの杜へ</h1>
+    <p>まずは、あなたの木を植える準備だけします。</p>
+  </section>
+
+  <form class="form register-form" id="registerForm">
+    <label>氏名<input id="userName" required placeholder="例：花田 博実"></label>
+    <label>所属<select id="dept" required><option value="">選択してください</option><option>看護部</option><option>リハビリテーション部</option><option>介護部</option><option>医局</option><option>薬剤部</option><option>栄養科</option><option>事務部</option><option>その他</option></select></label>
+    <label>ニックネーム（任意）<input id="nick" placeholder="例：はなだ"></label>
+    <button class="submit pill-button" type="submit">登録する</button>
+  </form>
+
+  <section class="card">
+    <p class="label">健康宣言について</p>
+    <h2>登録後に設定できます</h2>
+    <p>健康宣言は、マイページからいつでも登録・編集できます。</p>
+  </section>
+</main>
+<script src="../js/config.js"></script><script src="../js/app.js"></script>
+</body>
+</html>
