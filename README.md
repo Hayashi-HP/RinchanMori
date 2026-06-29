@@ -1,14 +1,18 @@
-# RinchanMori v0.4.2
+# RinchanMori v0.5.2
 
 みんなで育てる、健康と笑顔の杜。
 
-## v0.4.2 内容
+## v0.5.2 内容
 
-- ホームの「活動を記録する」ボタンを1行表示に修正
-- ホームの「今日も30秒」表示を削除
-- ホームボタンのアイコンを文字の左先頭へ配置
-- 初回登録画面の「登録する」ボタンを丸型に統一
-- UIブラッシュアップ用CSS `css/ui-v042.css` を追加
+- 全画面の読み込みバージョンを `v052` に統一
+- 社員番号をユーザーIDとして利用
+- 初回登録に社員番号・メールアドレス・誕生日4桁を追加
+- ログイン画面を追加
+- 未登録ユーザーの歩数記録をブロック
+- 未登録ユーザーのマイページ編集をブロック
+- 下部メニューを `👟 歩数記録` に統一
+- お知らせの未読・既読管理を追加
+- ホーム右上ベルに未読バッジを追加
 
 ## 構成
 
@@ -18,27 +22,27 @@
 ├── pages/
 │   ├── activity.html
 │   ├── admin.html
+│   ├── login.html
 │   ├── mori.html
 │   ├── mypage.html
 │   ├── news.html
-│   └── register.html
+│   ├── register.html
+│   └── welcome.html
 ├── css/
 │   ├── style.css
 │   └── ui-v042.css
 ├── js/
 │   ├── admin.js
 │   ├── app.js
-│   └── config.js
+│   ├── config.js
+│   ├── v051-auth.js
+│   └── v051-news.js
 ├── apps-script/
 │   ├── Code.gs
 │   └── appsscript.json
 └── docs/
     └── google-sheets.md
 ```
-
-## GitHub Pages 設定
-
-GitHub Pages は `main` ブランチのルートを公開します。
 
 ## API URL 設定
 
@@ -50,26 +54,16 @@ const RINCHAN_CONFIG = {
 };
 ```
 
-## Google Sheets / Apps Script
+## ユーザー管理
 
-設定手順は `docs/google-sheets.md` を参照してください。
+社員番号を主キーにします。
+
+- 初回登録：社員番号・氏名・所属・メールアドレス・誕生日4桁
+- ログイン：社員番号・誕生日4桁
+- 歩数記録：登録済みユーザーのみ利用可能
 
 ## データ保存
 
-### 初回登録
-
-`saveUser` で `users` シートに保存します。
-
-### 活動記録
-
-`saveActivity` で `activities` シートに保存します。
-
-### 杜ダッシュボード
-
-`dashboard` でランキング、参加者数、活動数、総歩数を取得します。
-
-### 管理者画面
-
-`adminStats` で部署別集計、月別集計、CSV出力用データを取得します。
-
-管理者画面：`pages/admin.html`
+- `users`: 職員登録情報
+- `activities`: 歩数記録
+- `logs`: APIログ
