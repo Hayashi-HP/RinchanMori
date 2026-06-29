@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>歩数記録</title>
-  <link rel="stylesheet" href="../css/style.css?v=063">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=063">
+  <title>歩数記録｜りんちゃんの杜 v0.9.11</title>
+  <link rel="stylesheet" href="../css/style.css?v=0911">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=0911">
 </head>
 <body>
 <main class="app">
@@ -14,8 +14,8 @@
   <section id="activityIntro" class="intro"><div class="rin small">😊</div><h1>今日も<br>おつかれさまです</h1><p>30秒で歩数を記録できます。</p></section>
   <form class="form" id="activityForm"><label>活動日<input id="activityDate" type="date" required></label><label>歩数<input id="steps" type="number" placeholder="例：6230" required></label><label>スクリーンショット<input type="file" accept="image/*"></label><label class="check"><input id="challenge" type="checkbox">今週のチャレンジ：階段を使った</label><label>ひとこと（任意）<textarea id="comment" rows="3" placeholder="例：少し歩けました"></textarea></label><button class="submit pill-button" type="submit">記録する</button></form>
   <section id="complete" class="complete hidden"><div class="tree-large">🌳✨</div><h1>あなたの木に<br>新しい葉っぱが増えました</h1><p>今日もありがとうございました。</p><a class="submit link-submit" href="../index.html">ホームへ戻る</a></section>
-  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus active" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📖<small>お知らせ</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus active" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
-<script src="../js/config.js?v=063"></script><script src="../js/app.js?v=063"></script><script src="../js/v051-auth.js?v=063"></script><script src="../js/v063-complete.js?v=063"></script><script>(function(){function p(){try{return JSON.parse(localStorage.getItem('rinchanParticipant')||'null')}catch(e){return null}}document.addEventListener('DOMContentLoaded',function(){var user=p();if(!user||!user.id){document.getElementById('guestActivityLock').classList.remove('hidden');document.getElementById('activityIntro').classList.add('hidden');document.getElementById('activityForm').classList.add('hidden');}});})();</script>
+<script src="../js/config.js?v=0911"></script><script src="../js/app.js?v=0911"></script><script src="../js/v051-auth.js?v=0911"></script><script src="../js/v063-complete.js?v=0911"></script><script>(function(){function p(){try{return JSON.parse(localStorage.getItem('rinchanParticipant')||'null')}catch(e){return null}}document.addEventListener('DOMContentLoaded',function(){var user=p();if(!user||!user.id){document.getElementById('guestActivityLock').classList.remove('hidden');document.getElementById('activityIntro').classList.add('hidden');document.getElementById('activityForm').classList.add('hidden');}});})();</script>
 </body>
 </html>
