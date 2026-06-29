@@ -1,1 +1,24 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>お知らせ</title><link rel="stylesheet" href="../css/style.css"></head><body><main class="app"><header class="top"><a href="../index.html" class="back">←</a><div class="page-title">お知らせ</div><span class="spacer"></span></header><section class="intro compact"><h1>りんちゃんの杜だより</h1><p>過去のお知らせもここから確認できます。</p></section><section class="news-list"><button class="news-row unread" onclick="openNews('news1')"><span class="dot">●</span><div><strong>杜だより Vol.1</strong><small>春のはじまり号</small></div><em>未読</em></button><button class="news-row read" onclick="openNews('news2')"><span class="dot">●</span><div><strong>準備号</strong><small>りんちゃんの杜が始まります</small></div><em>既読</em></button></section><section id="news1" class="letter hidden"><p class="label">杜だより Vol.1</p><h2>花壇に春の花が咲きました</h2><p>職員のみなさんの健康づくりで、りんちゃんの杜に最初の花壇ができました。</p><button class="submit pill-button" onclick="closeNews()">一覧へ戻る</button></section><section id="news2" class="letter hidden"><p class="label">準備号</p><h2>りんちゃんの杜が始まります</h2><p>50周年をきっかけに、職員みんなで健康を育てるプロジェクトが始まります。</p><button class="submit pill-button" onclick="closeNews()">一覧へ戻る</button></section><nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">＋<small>記録</small></a><a class="active" href="news.html">📖<small>お知らせ</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav></main><script src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>お知らせ</title>
+<link rel="stylesheet" href="../css/style.css?v=051">
+<link rel="stylesheet" href="../css/ui-v042.css?v=051">
+</head>
+<body>
+<main class="app">
+<header class="top"><a href="../index.html" class="back">←</a><div class="page-title">お知らせ</div><span class="spacer"></span></header>
+<section class="intro compact"><h1>りんちゃんの杜だより</h1><p>お知らせを開くと既読になります。</p></section>
+<section class="news-list">
+<button class="news-row unread" data-news-id="news1" onclick="openNews('news1')"><span class="dot">●</span><div><strong>杜だより Vol.1</strong><small>春のはじまり号</small></div><em>未読</em></button>
+<button class="news-row unread" data-news-id="news2" onclick="openNews('news2')"><span class="dot">●</span><div><strong>準備号</strong><small>りんちゃんの杜が始まります</small></div><em>未読</em></button>
+</section>
+<section id="news1" class="letter hidden"><p class="label">杜だより Vol.1</p><h2>花壇に春の花が咲きました</h2><p>職員のみなさんの健康づくりで、りんちゃんの杜に最初の花壇ができました。</p><button class="submit pill-button" onclick="closeNews()">一覧へ戻る</button></section>
+<section id="news2" class="letter hidden"><p class="label">準備号</p><h2>りんちゃんの杜が始まります</h2><p>職員みんなで健康を育てるプロジェクトが始まります。</p><button class="submit pill-button" onclick="closeNews()">一覧へ戻る</button></section>
+<nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a class="active" href="news.html">📖<small>お知らせ</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
+</main>
+<script src="../js/v051-news.js?v=051"></script><script src="../js/v051-auth.js?v=051"></script>
+</body>
+</html>
