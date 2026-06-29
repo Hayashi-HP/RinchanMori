@@ -1,7 +1,8 @@
-const RINCHAN_V071='v0.7.4';
+const RINCHAN_V071='v0.7.7';
 function v071ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function v071SaveJson(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function v071Num(n){return Number(n||0).toLocaleString('ja-JP')}
+function v071Today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function v071Level(count,steps){if(count>=100||steps>=500000)return 7;if(count>=60||steps>=300000)return 6;if(count>=40||steps>=200000)return 5;if(count>=25||steps>=100000)return 4;if(count>=10||steps>=50000)return 3;if(count>=3||steps>=10000)return 2;return 1}
 function v071Tree(level){return ['','🌱','🌿','🌳','🌸🌳','🌳🐦','🌳🦋','🌳🐿️'][level]||'🌱'}
 function v071Mask(name){if(!name)return 'ゲスト';if(name.length<=2)return name;return name.slice(0,1)+'＊'+name.slice(-1)}
@@ -49,13 +50,18 @@ function openTreeCardV071(u,level,rank,area){
   window.rinchanSelectedTree=u;
   const card=document.getElementById('treeInfoCard');if(!card)return;
   card.classList.remove('hidden');
+  const id=String(u.id||u.name).replace(/'/g,'');
   const rankText=rank&&rank<=3?' / 🏆 ランキング '+rank+'位':'';
-  const thanksCount=getThanksCountV073(u.id||u.name);
-  card.innerHTML='<button class="tree-card-close" onclick="closeTreeCardV071()">×</button><p class="label">杜の木'+rankText+'</p><div class="tree-card-icon">'+v071Tree(level)+'</div><h2>'+v071Mask(u.name||u.nick)+'</h2><p>'+((u.dept||'所属未設定'))+'・'+area+'</p><div class="mini-stats"><div><strong>Lv.'+level+'</strong><small>木レベル</small></div><div><strong>'+v071Num(u.totalSteps)+'</strong><small>歩</small></div><div><strong>'+v071Num(u.activityCount)+'</strong><small>記録</small></div></div><button class="submit pill-button thanks-button" onclick="sendThanksV073(\''+String(u.id||u.name).replace(/'/g,'')+'\')">❤️ ありがとうを送る</button><p class="thanks-count">受け取ったありがとう：<strong id="thanksCount">'+thanksCount+'</strong>件</p>';
+  const thanksCount=getThanksCountV073(id);
+  const already=hasThanksTodayV077(id);
+  const buttonLabel=already?'今日は送信済み':'❤️ ありがとうを送る';
+  const buttonDisabled=already?' disabled':'';
+  card.innerHTML='<button class="tree-card-close" onclick="closeTreeCardV071()">×</button><p class="label">杜の木'+rankText+'</p><div class="tree-card-icon">'+v071Tree(level)+'</div><h2>'+v071Mask(u.name||u.nick)+'</h2><p>'+((u.dept||'所属未設定'))+'・'+area+'</p><div class="mini-stats"><div><strong>Lv.'+level+'</strong><small>木レベル</small></div><div><strong>'+v071Num(u.totalSteps)+'</strong><small>歩</small></div><div><strong>'+v071Num(u.activityCount)+'</strong><small>記録</small></div></div><button class="submit pill-button thanks-button" id="thanksButton" onclick="sendThanksV073(\''+id+'\')"'+buttonDisabled+'>'+buttonLabel+'</button><p class="thanks-count">受け取ったありがとう：<strong id="thanksCount">'+thanksCount+'</strong>件</p><p class="thanks-limit-note">ありがとうは同じ木に1日1回まで送れます。</p>';
   card.scrollIntoView({behavior:'smooth',block:'center'});
 }
 function closeTreeCardV071(){const card=document.getElementById('treeInfoCard');if(card)card.classList.add('hidden')}
 function getThanksCountV073(id){const data=v071ReadJson('rinchanThanks',{});return Number(data[id]||0)}
-function sendThanksV073(id){const data=v071ReadJson('rinchanThanks',{});data[id]=Number(data[id]||0)+1;v071SaveJson('rinchanThanks',data);const el=document.getElementById('thanksCount');if(el)el.textContent=data[id];runRinchanDeliveryV074(window.rinchanSelectedTree);runThanksHeartV073();}
+function hasThanksTodayV077(id){const log=v071ReadJson('rinchanThanksDaily',{});return log[id]===v071Today()}
+function sendThanksV073(id){if(hasThanksTodayV077(id)){alert('この木へのありがとうは今日は送信済みです。');return;}const data=v071ReadJson('rinchanThanks',{});data[id]=Number(data[id]||0)+1;v071SaveJson('rinchanThanks',data);const daily=v071ReadJson('rinchanThanksDaily',{});daily[id]=v071Today();v071SaveJson('rinchanThanksDaily',daily);const el=document.getElementById('thanksCount');if(el)el.textContent=data[id];const btn=document.getElementById('thanksButton');if(btn){btn.textContent='今日は送信済み';btn.disabled=true;}runRinchanDeliveryV074(window.rinchanSelectedTree);runThanksHeartV073();}
 function runRinchanDeliveryV074(tree){const map=document.getElementById('moriMap');const r=document.getElementById('rinchanWalker');if(!map||!r||!tree)return;r.classList.add('walking');r.style.left='8%';r.style.top='82%';setTimeout(()=>{r.style.left=(tree._x||50)+'%';r.style.top=(tree._y||50)+'%';},80);setTimeout(()=>{const h=document.createElement('span');h.className='delivered-heart';h.textContent='❤️';h.style.left=(tree._x||50)+'%';h.style.top=(tree._y||50)+'%';map.appendChild(h);setTimeout(()=>h.remove(),1500);},1100);setTimeout(()=>r.classList.remove('walking'),1600)}
 function runThanksHeartV073(){const layer=document.createElement('div');layer.className='thanks-heart-layer';['❤️','💚','💛','❤️','✨'].forEach((h,i)=>{const s=document.createElement('span');s.textContent=h;s.style.left=(20+i*14)+'%';s.style.animationDelay=(i*.08)+'s';layer.appendChild(s)});document.body.appendChild(layer);setTimeout(()=>layer.remove(),1800)}
