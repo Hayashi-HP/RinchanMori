@@ -1,4 +1,4 @@
-const RINCHAN_V071='v0.7.3';
+const RINCHAN_V071='v0.7.4';
 function v071ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function v071SaveJson(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function v071Num(n){return Number(n||0).toLocaleString('ja-JP')}
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded',()=>{renderV071Map();});
 function renderV071Map(){
   const map=document.getElementById('moriMap');if(!map)return;
   const users=(v071ReadJson('rinchanMoriMembers',null)||buildLocalMembersV071()).sort((a,b)=>Number(b.totalSteps||0)-Number(a.totalSteps||0));
-  map.innerHTML='<span class="map-bg sun">☀️</span><span class="map-bg cloud-a">☁️</span><span class="map-bg cloud-b">☁️</span><span class="map-bg bench">🪑</span><span class="map-bg flower">🌻</span><div class="dept-area area-nurse">看護部</div><div class="dept-area area-reha">リハビリ</div><div class="dept-area area-care">介護部</div><div class="dept-area area-office">事務部</div>';
+  map.innerHTML='<span class="map-bg sun">☀️</span><span class="map-bg cloud-a">☁️</span><span class="map-bg cloud-b">☁️</span><span class="map-bg bench">🪑</span><span class="map-bg flower">🌻</span><span class="rinchan-walker" id="rinchanWalker">😊</span><div class="dept-area area-nurse">看護部</div><div class="dept-area area-reha">リハビリ</div><div class="dept-area area-care">介護部</div><div class="dept-area area-office">事務部</div>';
   const offset={};
   users.forEach((u,i)=>{
     const level=v071Level(u.activityCount,u.totalSteps);
@@ -21,9 +21,10 @@ function renderV071Map(){
     const n=offset[key];
     const x=(u.x||area.x)+((n%3)-1)*7;
     const y=(u.y||area.y)+Math.floor((n-1)/3)*8;
+    u._x=Math.max(8,Math.min(88,x));u._y=Math.max(18,Math.min(78,y));
     const btn=document.createElement('button');
     btn.className='mori-tree-node level-'+level+(i<3?' top-tree rank-'+(i+1):'');
-    btn.style.left=Math.max(8,Math.min(88,x))+'%';btn.style.top=Math.max(18,Math.min(78,y))+'%';
+    btn.style.left=u._x+'%';btn.style.top=u._y+'%';
     btn.innerHTML='<span>'+v071Tree(level)+'</span><small>'+(i<3?'🏆 ':'')+v071Mask(u.name||u.nick)+'</small>';
     btn.onclick=()=>openTreeCardV071(u,level,i+1,area.label);
     map.appendChild(btn);
@@ -45,6 +46,7 @@ function buildLocalMembersV071(){
   return [me].concat(samples);
 }
 function openTreeCardV071(u,level,rank,area){
+  window.rinchanSelectedTree=u;
   const card=document.getElementById('treeInfoCard');if(!card)return;
   card.classList.remove('hidden');
   const rankText=rank&&rank<=3?' / 🏆 ランキング '+rank+'位':'';
@@ -54,5 +56,6 @@ function openTreeCardV071(u,level,rank,area){
 }
 function closeTreeCardV071(){const card=document.getElementById('treeInfoCard');if(card)card.classList.add('hidden')}
 function getThanksCountV073(id){const data=v071ReadJson('rinchanThanks',{});return Number(data[id]||0)}
-function sendThanksV073(id){const data=v071ReadJson('rinchanThanks',{});data[id]=Number(data[id]||0)+1;v071SaveJson('rinchanThanks',data);const el=document.getElementById('thanksCount');if(el)el.textContent=data[id];runThanksHeartV073();}
+function sendThanksV073(id){const data=v071ReadJson('rinchanThanks',{});data[id]=Number(data[id]||0)+1;v071SaveJson('rinchanThanks',data);const el=document.getElementById('thanksCount');if(el)el.textContent=data[id];runRinchanDeliveryV074(window.rinchanSelectedTree);runThanksHeartV073();}
+function runRinchanDeliveryV074(tree){const map=document.getElementById('moriMap');const r=document.getElementById('rinchanWalker');if(!map||!r||!tree)return;r.classList.add('walking');r.style.left='8%';r.style.top='82%';setTimeout(()=>{r.style.left=(tree._x||50)+'%';r.style.top=(tree._y||50)+'%';},80);setTimeout(()=>{const h=document.createElement('span');h.className='delivered-heart';h.textContent='❤️';h.style.left=(tree._x||50)+'%';h.style.top=(tree._y||50)+'%';map.appendChild(h);setTimeout(()=>h.remove(),1500);},1100);setTimeout(()=>r.classList.remove('walking'),1600)}
 function runThanksHeartV073(){const layer=document.createElement('div');layer.className='thanks-heart-layer';['❤️','💚','💛','❤️','✨'].forEach((h,i)=>{const s=document.createElement('span');s.textContent=h;s.style.left=(20+i*14)+'%';s.style.animationDelay=(i*.08)+'s';layer.appendChild(s)});document.body.appendChild(layer);setTimeout(()=>layer.remove(),1800)}
