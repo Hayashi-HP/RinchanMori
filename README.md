@@ -1,17 +1,14 @@
-# RinchanMori v0.4.1
+# RinchanMori v0.4.2
 
 みんなで育てる、健康と笑顔の杜。
 
-## v0.4.1 内容
+## v0.4.2 内容
 
-- 管理者画面UI追加
-- CSVダウンロード追加
-- 部署別ランキング表示
-- 月別集計表示
-- 個人ランキング管理表示
-- 管理API `adminStats` 対応
-- GitHub Pages 対応
-- Apps Script + Google Sheets 保存対応
+- ホームの「活動を記録する」ボタンを1行表示に修正
+- ホームの「今日も30秒」表示を削除
+- ホームボタンのアイコンを文字の左先頭へ配置
+- 初回登録画面の「登録する」ボタンを丸型に統一
+- UIブラッシュアップ用CSS `css/ui-v042.css` を追加
 
 ## 構成
 
@@ -26,7 +23,8 @@
 │   ├── news.html
 │   └── register.html
 ├── css/
-│   └── style.css
+│   ├── style.css
+│   └── ui-v042.css
 ├── js/
 │   ├── admin.js
 │   ├── app.js
