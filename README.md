@@ -1,17 +1,17 @@
-# RinchanMori v0.2.2
+# RinchanMori v0.4.1
 
 みんなで育てる、健康と笑顔の杜。
 
-## v0.2.2 内容
+## v0.4.1 内容
 
-- Apps Script バックエンド追加
-- Google Sheets 自動初期化対応
-- `saveUser` 完成
-- `saveActivity` 完成
-- `users` / `activities` / `logs` シート対応
-- GitHub Pages から Apps Script Web アプリへ保存
-- 初回登録データ保存
-- 活動記録データ保存
+- 管理者画面UI追加
+- CSVダウンロード追加
+- 部署別ランキング表示
+- 月別集計表示
+- 個人ランキング管理表示
+- 管理API `adminStats` 対応
+- GitHub Pages 対応
+- Apps Script + Google Sheets 保存対応
 
 ## 構成
 
@@ -19,8 +19,16 @@
 .
 ├── index.html
 ├── pages/
+│   ├── activity.html
+│   ├── admin.html
+│   ├── mori.html
+│   ├── mypage.html
+│   ├── news.html
+│   └── register.html
 ├── css/
+│   └── style.css
 ├── js/
+│   ├── admin.js
 │   ├── app.js
 │   └── config.js
 ├── apps-script/
@@ -36,7 +44,7 @@ GitHub Pages は `main` ブランチのルートを公開します。
 
 ## API URL 設定
 
-`js/config.js` に Apps Script の Web アプリ URL を設定します。
+`js/config.js` に Apps Script の Web アプリ URLを設定します。
 
 ```js
 const RINCHAN_CONFIG = {
@@ -58,6 +66,12 @@ const RINCHAN_CONFIG = {
 
 `saveActivity` で `activities` シートに保存します。
 
-### ログ
+### 杜ダッシュボード
 
-処理結果は `logs` シートに保存します。
+`dashboard` でランキング、参加者数、活動数、総歩数を取得します。
+
+### 管理者画面
+
+`adminStats` で部署別集計、月別集計、CSV出力用データを取得します。
+
+管理者画面：`pages/admin.html`
