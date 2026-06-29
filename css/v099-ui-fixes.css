@@ -1,0 +1,206 @@
+/* v0.9.9 header, Mori card controls, and mypage modal unification */
+.top{
+  position:sticky!important;
+  top:0!important;
+  z-index:5000!important;
+  background:#fff!important;
+  border-bottom:1px solid rgba(80,120,90,.14)!important;
+  box-shadow:0 6px 20px rgba(36,64,56,.06)!important;
+  isolation:isolate!important;
+}
+.top .back,
+.top .icon-button{
+  width:48px!important;
+  height:48px!important;
+  min-width:48px!important;
+  min-height:48px!important;
+  font-size:24px!important;
+  font-weight:800!important;
+  background:#e8f8fb!important;
+}
+.top .page-title{
+  position:relative!important;
+  z-index:1!important;
+}
+.mori-visual,
+.mori-game-map{
+  position:relative!important;
+  z-index:1!important;
+}
+.tree-info-card{
+  position:relative!important;
+  padding-top:64px!important;
+}
+.tree-card-close,
+.thanks-sheet-close,
+.mypage-modal-close{
+  position:absolute!important;
+  top:16px!important;
+  left:16px!important;
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  min-height:46px!important;
+  border:0!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#244038!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:28px!important;
+  font-weight:750!important;
+  line-height:1!important;
+  box-shadow:0 8px 22px rgba(36,64,56,.14)!important;
+  z-index:30!important;
+  cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.tree-card-close:active,
+.thanks-sheet-close:active,
+.mypage-modal-close:active{
+  transform:scale(.96)!important;
+}
+.thanks-sheet{
+  padding-top:74px!important;
+}
+.edit-panel{
+  display:none!important;
+}
+.mypage-edit-layer{
+  position:fixed!important;
+  inset:0!important;
+  z-index:6000!important;
+  background:rgba(35,60,46,.42)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:22px!important;
+}
+.mypage-edit-card{
+  position:relative!important;
+  width:min(390px,100%)!important;
+  max-height:calc(100vh - 44px)!important;
+  overflow:auto!important;
+  border-radius:34px!important;
+  background:#fff!important;
+  padding:76px 24px 24px!important;
+  box-shadow:0 24px 70px rgba(30,70,50,.26)!important;
+}
+.mypage-edit-card .label{
+  margin-bottom:8px!important;
+}
+.mypage-edit-card h2{
+  margin:0 0 18px!important;
+  font-size:24px!important;
+  line-height:1.35!important;
+  color:#244038!important;
+}
+.mypage-edit-form{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:16px!important;
+}
+.mypage-edit-form label{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  color:#244038!important;
+  font-weight:900!important;
+}
+.mypage-edit-form input,
+.mypage-edit-form select,
+.mypage-edit-form textarea{
+  width:100%!important;
+  min-height:56px!important;
+  border:1px solid #e1f0e8!important;
+  border-radius:18px!important;
+  padding:14px 16px!important;
+  background:#fff!important;
+  color:#244038!important;
+  font-size:18px!important;
+  font-family:inherit!important;
+  line-height:1.5!important;
+}
+.mypage-edit-form textarea{
+  min-height:132px!important;
+  resize:vertical!important;
+}
+.mypage-modal-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1.55fr!important;
+  gap:10px!important;
+  margin-top:2px!important;
+}
+.mypage-modal-cancel,
+.mypage-modal-save{
+  min-height:56px!important;
+  border:0!important;
+  border-radius:999px!important;
+  font-size:18px!important;
+  font-weight:900!important;
+  font-family:inherit!important;
+}
+.mypage-modal-cancel{
+  background:#f3f6ef!important;
+  color:#607569!important;
+}
+.mypage-modal-save{
+  background:linear-gradient(90deg,#28b8d2,#69c47d)!important;
+  color:#fff!important;
+}
+.mypage-save-toast{
+  position:fixed!important;
+  left:50%!important;
+  bottom:96px!important;
+  transform:translateX(-50%)!important;
+  z-index:6500!important;
+  min-width:220px!important;
+  max-width:calc(100% - 32px)!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#244038!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:15px 20px!important;
+  font-size:16px!important;
+  font-weight:900!important;
+  box-shadow:0 16px 42px rgba(36,64,56,.2)!important;
+  animation:mypageToastPop .22s ease both!important;
+}
+@keyframes mypageToastPop{
+  from{opacity:0;transform:translateX(-50%) translateY(12px) scale(.96)}
+  to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+}
+@media(max-width:480px){
+  .top{
+    background:#fff!important;
+  }
+  .top .back,
+  .top .icon-button{
+    width:50px!important;
+    height:50px!important;
+    min-width:50px!important;
+    min-height:50px!important;
+    font-size:25px!important;
+  }
+  .tree-card-close,
+  .thanks-sheet-close,
+  .mypage-modal-close{
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+    min-height:46px!important;
+    font-size:28px!important;
+    font-weight:750!important;
+  }
+  .tree-info-card{
+    padding-top:66px!important;
+  }
+  .mypage-edit-card{
+    border-radius:30px!important;
+    padding:76px 22px 24px!important;
+  }
+}
