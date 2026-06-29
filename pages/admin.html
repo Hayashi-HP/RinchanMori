@@ -4,68 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>管理者画面</title>
-  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/style.css?v=052">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=052">
 </head>
 <body>
 <main class="app admin-app">
-  <header class="top">
-    <a href="../index.html" class="back">←</a>
-    <div class="page-title">管理者画面</div>
-    <button class="icon-button" id="adminRefreshButton" type="button">↻</button>
-  </header>
-
-  <section class="intro compact admin-hero">
-    <p class="label">RinchanMori Admin</p>
-    <h1>集計とCSV出力</h1>
-    <p id="adminUpdatedAt">読み込み中...</p>
-  </section>
-
-  <section class="stats-grid admin-stats">
-    <div class="stat-card"><small>参加者</small><strong id="adminTotalUsers">-</strong></div>
-    <div class="stat-card"><small>記録</small><strong id="adminTotalActivities">-</strong></div>
-    <div class="stat-card wide"><small>総歩数</small><strong id="adminTotalSteps">-</strong></div>
-  </section>
-
-  <section class="card admin-actions">
-    <p class="label">出力</p>
-    <h2>CSVダウンロード</h2>
-    <p>活動記録をCSVで出力します。Excelで開ける UTF-8 BOM 付きです。</p>
-    <button class="submit pill-button" id="downloadCsvButton" type="button">CSVをダウンロード</button>
-  </section>
-
-  <section class="card admin-card">
-    <p class="label">部署別ランキング</p>
-    <h2>部署ごとの総歩数</h2>
-    <div id="deptChart" class="bar-chart"><p class="empty-note">読み込み中...</p></div>
-  </section>
-
-  <section class="card admin-card">
-    <p class="label">月別集計</p>
-    <h2>月ごとの活動</h2>
-    <div id="monthlyChart" class="bar-chart"><p class="empty-note">読み込み中...</p></div>
-  </section>
-
-  <section class="card admin-card">
-    <p class="label">個人ランキング</p>
-    <h2>全体ランキング</h2>
-    <div id="adminRankingList" class="ranking-list"><p class="empty-note">読み込み中...</p></div>
-  </section>
-
-  <section class="card admin-card">
-    <p class="label">状態</p>
-    <h2>管理API</h2>
-    <p id="adminStatus">確認中...</p>
-  </section>
-
-  <nav class="nav">
-    <a href="../index.html">🏠<small>ホーム</small></a>
-    <a href="mori.html">🌳<small>杜</small></a>
-    <a class="plus" href="activity.html">＋<small>記録</small></a>
-    <a href="news.html">📖<small>お知らせ</small></a>
-    <a class="active" href="admin.html">⚙️<small>管理</small></a>
-  </nav>
+  <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">管理者画面</div><button class="icon-button" id="adminRefreshButton" type="button">↻</button></header>
+  <section class="intro compact admin-hero"><p class="label">RinchanMori Admin</p><h1>集計とCSV出力</h1><p id="adminUpdatedAt">読み込み中...</p></section>
+  <section class="stats-grid admin-stats"><div class="stat-card"><small>参加者</small><strong id="adminTotalUsers">-</strong></div><div class="stat-card"><small>記録</small><strong id="adminTotalActivities">-</strong></div><div class="stat-card wide"><small>総歩数</small><strong id="adminTotalSteps">-</strong></div></section>
+  <section class="card admin-actions"><p class="label">出力</p><h2>CSVダウンロード</h2><p>活動記録をCSVで出力します。Excelで開ける UTF-8 BOM 付きです。</p><button class="submit pill-button" id="downloadCsvButton" type="button">CSVをダウンロード</button></section>
+  <section class="card admin-card"><p class="label">部署別ランキング</p><h2>部署ごとの総歩数</h2><div id="deptChart" class="bar-chart"><p class="empty-note">読み込み中...</p></div></section>
+  <section class="card admin-card"><p class="label">月別集計</p><h2>月ごとの活動</h2><div id="monthlyChart" class="bar-chart"><p class="empty-note">読み込み中...</p></div></section>
+  <section class="card admin-card"><p class="label">個人ランキング</p><h2>全体ランキング</h2><div id="adminRankingList" class="ranking-list"><p class="empty-note">読み込み中...</p></div></section>
+  <section class="card admin-card"><p class="label">状態</p><h2>管理API</h2><p id="adminStatus">確認中...</p></section>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📖<small>お知らせ</small></a><a class="active" href="admin.html">⚙️<small>管理</small></a></nav>
 </main>
-<script src="../js/config.js"></script>
-<script src="../js/admin.js"></script>
+<script src="../js/config.js?v=052"></script><script src="../js/admin.js?v=052"></script><script src="../js/v051-auth.js?v=052"></script>
 </body>
 </html>
