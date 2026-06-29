@@ -1,7 +1,7 @@
-document.addEventListener('DOMContentLoaded',()=>{home();register();activity();dateDefault();mypage();initHomeExperience();setupPage();retryPendingOnStart();});
+document.addEventListener('DOMContentLoaded',()=>{home();register();activity();dateDefault();mypage();initHomeExperience();setupPage();initMoriDashboard();retryPendingOnStart();});
 
-const RINCHAN_VERSION='v0.2.3';
-const LS={participant:'rinchanParticipant',activities:'rinchanActivities',device:'rinchanDeviceId',pending:'rinchanPendingSaves'};
+const RINCHAN_VERSION='v0.3.2';
+const LS={participant:'rinchanParticipant',activities:'rinchanActivities',device:'rinchanDeviceId',pending:'rinchanPendingSaves',dashboard:'rinchanDashboardCache'};
 
 function participant(){return readJson(LS.participant,null)}
 function saveParticipant(p){localStorage.setItem(LS.participant,JSON.stringify(p))}
@@ -10,6 +10,7 @@ function pendingSaves(){return readJson(LS.pending,[])}
 function readJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function page(path){const here=location.pathname;return here.includes('/pages/')?path:'pages/'+path}
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value}
+function numberJP(n){return Number(n||0).toLocaleString('ja-JP')}
 
 function home(){
   const n=document.getElementById('name');if(!n)return;
@@ -65,6 +66,7 @@ function baseParticipant(){return {id:getParticipantId(),deviceId:getDeviceId(),
 function openNews(id){document.querySelector('.news-list').classList.add('hidden');document.getElementById(id).classList.remove('hidden')}
 function closeNews(){document.querySelectorAll('.letter').forEach(el=>el.classList.add('hidden'));document.querySelector('.news-list').classList.remove('hidden')}
 function formatDateJP(value){const d=value?new Date(value):new Date();if(isNaN(d.getTime()))return '今日';return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'}
+function formatDateTimeJP(value){const d=value?new Date(value):new Date();if(isNaN(d.getTime()))return '未更新';return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 
 function initHomeExperience(){
   const msg=document.getElementById('dailyMessage');if(!msg)return;
@@ -88,6 +90,91 @@ function setupPage(){
   setText('pendingCount',pendingSaves().length+'件');
   const test=document.getElementById('testApiButton');if(test)test.addEventListener('click',testApiConnection);
   const retry=document.getElementById('retryPendingButton');if(retry)retry.addEventListener('click',retryPendingManual);
+}
+
+function initMoriDashboard(){
+  if(!document.getElementById('moriMap'))return;
+  const refresh=document.getElementById('refreshMoriButton');if(refresh)refresh.addEventListener('click',()=>loadMoriDashboard(true));
+  const cached=readJson(LS.dashboard,null);if(cached&&cached.data)renderMoriDashboard(cached.data,true);
+  loadMoriDashboard(false);
+}
+
+async function loadMoriDashboard(force){
+  const note=document.getElementById('moriUpdatedAt');
+  if(note)note.textContent=force?'更新中...':'読み込み中...';
+  const result=await rinchanApi('dashboard',{});
+  if(result.ok&&result.data){
+    localStorage.setItem(LS.dashboard,JSON.stringify({savedAt:new Date().toISOString(),data:result.data}));
+    renderMoriDashboard(result.data,false);
+  }else{
+    const cached=readJson(LS.dashboard,null);
+    if(cached&&cached.data){renderMoriDashboard(cached.data,true);return;}
+    renderMoriError(result.reason||result.error||'dashboard_error');
+  }
+}
+
+function renderMoriDashboard(data,cached){
+  setText('totalUsers',numberJP(data.totalUsers||0)+'人');
+  setText('totalActivities',numberJP(data.totalActivities||0)+'回');
+  setText('totalSteps',numberJP(data.totalSteps||0)+'歩');
+  setText('moriUpdatedAt',(cached?'キャッシュ ':'更新 ')+formatDateTimeJP(data.generatedAt));
+  renderRanking(data.ranking||[]);
+  renderMembers(data.members||[]);
+  renderMoriTrees(data.members||[]);
+}
+
+function renderRanking(list){
+  const box=document.getElementById('rankingList');if(!box)return;
+  if(!list.length){box.innerHTML='<p class="empty-note">まだランキングはありません。</p>';return;}
+  box.innerHTML=list.slice(0,10).map((m,i)=>{
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+    const name=m.nick||m.name||'ゲスト';
+    return '<div class="rank-row"><span class="rank-medal">'+medal+'</span><div><strong>'+escapeHtml(name)+'</strong><small>'+(escapeHtml(m.dept||'所属未設定'))+' / '+numberJP(m.activityCount)+'回</small></div><em>'+numberJP(m.totalSteps)+'歩</em></div>';
+  }).join('');
+}
+
+function renderMembers(list){
+  const box=document.getElementById('memberList');if(!box)return;
+  if(!list.length){box.innerHTML='<p class="empty-note">まだ木はありません。</p>';return;}
+  box.innerHTML=list.slice().sort((a,b)=>b.activityCount-a.activityCount).slice(0,24).map(m=>{
+    const stage=treeStage(m.activityCount||0);
+    const name=m.nick||m.name||'ゲスト';
+    return '<div class="member-row"><span>'+stage.icon+'</span><div><strong>'+escapeHtml(name)+'</strong><small>'+escapeHtml(m.dept||'所属未設定')+' / '+numberJP(m.activityCount)+'回</small></div><em>'+stage.label+'</em></div>';
+  }).join('');
+}
+
+function renderMoriTrees(list){
+  const map=document.getElementById('moriMap');if(!map)return;
+  map.querySelectorAll('.member-tree').forEach(el=>el.remove());
+  const positions=[
+    [12,68],[30,42],[48,72],[66,40],[78,66],[18,30],[42,28],[62,78],[82,30],[8,48],[52,50],[72,55]
+  ];
+  list.slice().sort((a,b)=>b.activityCount-a.activityCount).slice(0,12).forEach((m,i)=>{
+    const stage=treeStage(m.activityCount||0);
+    const p=positions[i%positions.length];
+    const el=document.createElement('span');
+    el.className='member-tree stage-'+stage.key;
+    el.style.left=p[0]+'%';el.style.top=p[1]+'%';
+    el.textContent=stage.icon;
+    el.title=(m.nick||m.name||'ゲスト')+' '+numberJP(m.activityCount)+'回';
+    map.appendChild(el);
+  });
+}
+
+function treeStage(count){
+  if(count>=100)return {key:'legend',icon:'🌳🌸',label:'大樹'};
+  if(count>=50)return {key:'flower',icon:'🌸',label:'開花'};
+  if(count>=20)return {key:'tree',icon:'🌳',label:'成木'};
+  if(count>=5)return {key:'leaf',icon:'🌿',label:'若葉'};
+  return {key:'seed',icon:'🌱',label:'芽'};
+}
+
+function renderMoriError(reason){
+  setText('moriUpdatedAt','取得できません');
+  setText('totalUsers','-');setText('totalActivities','-');setText('totalSteps','-');
+  const msg='<p class="empty-note">データを取得できません。API URLを確認してください。<br><small>'+escapeHtml(reason)+'</small></p>';
+  const r=document.getElementById('rankingList');if(r)r.innerHTML=msg;
+  const m=document.getElementById('memberList');if(m)m.innerHTML=msg;
 }
 
 async function testApiConnection(){
@@ -127,6 +214,7 @@ function value(id){const el=document.getElementById(id);return el?String(el.valu
 function setBusy(btn,busy,label){if(!btn)return;btn.disabled=busy;if(label)btn.textContent=label}
 function apiUrl(){return (typeof RINCHAN_CONFIG!=='undefined'&&RINCHAN_CONFIG.API_URL)?String(RINCHAN_CONFIG.API_URL).trim():''}
 function setStatus(el,msg,state){if(!el)return;el.textContent=msg;el.classList.remove('ok','ng');if(state)el.classList.add(state)}
+function escapeHtml(str){return String(str||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 
 async function saveRemote(action,payload){
   const result=await rinchanApi(action,payload);
