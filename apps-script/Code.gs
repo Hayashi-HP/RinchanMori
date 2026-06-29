@@ -1,9 +1,15 @@
 const SHEET_USERS = 'users';
 const SHEET_ACTIVITIES = 'activities';
 const SHEET_LOGS = 'logs';
-const VERSION = 'v0.2.2';
+const VERSION = 'v0.3.0';
 
 function doGet(e) {
+  const action = e && e.parameter ? String(e.parameter.action || '') : '';
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  setupSheets(ss);
+  if (action === 'dashboard') {
+    return jsonOutput({ ok: true, action: action, data: getDashboard(ss), version: VERSION });
+  }
   return jsonOutput({ ok: true, app: 'RinchanMori', version: VERSION, message: 'Apps Script is running.' });
 }
 
@@ -16,6 +22,10 @@ function doPost(e) {
 
     if (action === 'setup') {
       return jsonOutput({ ok: true, action: action, version: VERSION });
+    }
+
+    if (action === 'dashboard') {
+      return jsonOutput({ ok: true, action: action, data: getDashboard(ss), version: VERSION });
     }
 
     if (action === 'saveUser') {
@@ -138,6 +148,72 @@ function saveActivity(ss, data) {
 
   sheet.appendRow(values);
   return { type: 'inserted', row: sheet.getLastRow(), activityId: activityId };
+}
+
+function getDashboard(ss) {
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const byUser = {};
+
+  users.forEach(user => {
+    const id = user.id || '';
+    if (!id) return;
+    byUser[id] = {
+      id: id,
+      name: maskName(user.name || ''),
+      nick: user.nick || '',
+      dept: user.dept || '',
+      declaration: user.declaration || '',
+      weeklyGoal: user.weeklyGoal || '',
+      activityCount: 0,
+      totalSteps: 0,
+      lastDate: ''
+    };
+  });
+
+  activities.forEach(item => {
+    const id = item.participantId || '';
+    if (!id) return;
+    if (!byUser[id]) {
+      byUser[id] = { id: id, name: 'ゲスト', nick: '', dept: '', declaration: '', weeklyGoal: '', activityCount: 0, totalSteps: 0, lastDate: '' };
+    }
+    byUser[id].activityCount += 1;
+    byUser[id].totalSteps += Number(item.steps || 0);
+    if (!byUser[id].lastDate || String(item.date || '') > byUser[id].lastDate) byUser[id].lastDate = String(item.date || '');
+  });
+
+  const members = Object.keys(byUser).map(id => byUser[id]);
+  const ranking = members.slice().sort((a, b) => {
+    if (b.totalSteps !== a.totalSteps) return b.totalSteps - a.totalSteps;
+    return b.activityCount - a.activityCount;
+  }).slice(0, 20);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totalUsers: members.length,
+    totalActivities: activities.length,
+    totalSteps: activities.reduce((sum, item) => sum + Number(item.steps || 0), 0),
+    members: members,
+    ranking: ranking
+  };
+}
+
+function readTable(sheet) {
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const values = sheet.getDataRange().getValues();
+  const headers = values.shift().map(String);
+  return values.map(row => {
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = row[i]);
+    return obj;
+  });
+}
+
+function maskName(name) {
+  const text = String(name || '').trim();
+  if (!text) return 'ゲスト';
+  if (text.length <= 2) return text;
+  return text.slice(0, 1) + '＊' + text.slice(-1);
 }
 
 function findRowByValue(sheet, col, value) {
