@@ -1,4 +1,4 @@
-const RINCHAN_V060='v0.6.0';
+const RINCHAN_V060='v0.6.1';
 const RINCHAN_BADGE_KEY='rinchanBadges';
 
 function v060ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
@@ -6,14 +6,29 @@ function v060Activities(){return v060ReadJson('rinchanActivities',[])}
 function v060Participant(){return v060ReadJson('rinchanParticipant',null)}
 function v060Number(n){return Number(n||0).toLocaleString('ja-JP')}
 
-document.addEventListener('DOMContentLoaded',()=>{renderV060Growth();renderV060Badges();});
+document.addEventListener('DOMContentLoaded',()=>{applySeasonV061();renderV060Growth();renderV060Badges();});
 
 function getSeasonV060(){
   const m=new Date().getMonth()+1;
-  if(m>=3&&m<=5)return {key:'spring',label:'春の杜',icon:'🌸',message:'春の風が、あなたの木をやさしく育てています。'};
-  if(m>=6&&m<=8)return {key:'summer',label:'夏の杜',icon:'🌿',message:'夏の光を浴びて、木がぐんぐん伸びています。'};
-  if(m>=9&&m<=11)return {key:'autumn',label:'秋の杜',icon:'🍁',message:'秋の杜に、継続の実りが増えています。'};
-  return {key:'winter',label:'冬の杜',icon:'❄️',message:'冬の静かな杜で、習慣の根が育っています。'};
+  if(m>=3&&m<=5)return {key:'spring',label:'春の杜',icon:'🌸',visual:'🌸',message:'春の風が、あなたの木をやさしく育てています。'};
+  if(m>=6&&m<=8)return {key:'summer',label:'夏の杜',icon:'🌿',visual:'☀️',message:'夏の光を浴びて、木がぐんぐん伸びています。'};
+  if(m>=9&&m<=11)return {key:'autumn',label:'秋の杜',icon:'🍁',visual:'🍁',message:'秋の杜に、継続の実りが増えています。'};
+  return {key:'winter',label:'冬の杜',icon:'❄️',visual:'❄️',message:'冬の静かな杜で、習慣の根が育っています。'};
+}
+
+function applySeasonV061(){
+  const season=getSeasonV060();
+  document.body.classList.remove('season-spring','season-summer','season-autumn','season-winter');
+  document.body.classList.add('season-'+season.key);
+  document.querySelectorAll('.petal').forEach(el=>{el.textContent=season.visual;});
+  const hero=document.querySelector('.home-hero');
+  if(hero)hero.setAttribute('data-season',season.label);
+  const news=document.querySelector('.mori-news h2');
+  if(news&&news.textContent.includes('春')){
+    if(season.key==='summer')news.textContent='🌿 夏の杜が青々と育っています';
+    if(season.key==='autumn')news.textContent='🍁 秋の杜に実りが増えています';
+    if(season.key==='winter')news.textContent='❄️ 冬の杜で習慣の根が育っています';
+  }
 }
 
 function getGrowthV060(count,totalSteps){
