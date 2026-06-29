@@ -1,0 +1,28 @@
+/* v0.9.12 Rinchan official face */
+.rin,
+.rin.small,
+.welcome-rin,
+.rinchan-face,
+.guide-face{
+  background-image:url('../assets/rinchan-face.svg')!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:82%!important;
+  color:transparent!important;
+  font-size:0!important;
+  overflow:hidden!important;
+}
+.rin,
+.welcome-rin{
+  background-color:rgba(255,255,255,.88)!important;
+}
+.rin.small{
+  background-size:84%!important;
+}
+.rinchan-face{
+  background-color:#fff7db!important;
+  background-size:86%!important;
+}
+.guide-face{
+  background-color:#fff7db!important;
+}
