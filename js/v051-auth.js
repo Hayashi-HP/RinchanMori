@@ -1,4 +1,4 @@
-const RINCHAN_V051='v0.5.1';
+const RINCHAN_V051='v0.6.4';
 
 function v051Participant(){try{return JSON.parse(localStorage.getItem('rinchanParticipant')||'null')}catch(e){return null}}
 function v051SaveParticipant(p){localStorage.setItem('rinchanParticipant',JSON.stringify(p))}
@@ -9,63 +9,11 @@ function v051SetBusy(btn,busy,label){if(!btn)return;btn.disabled=busy;if(label)b
 async function v051Api(action,payload){const url=v051ApiUrl();if(!url)return {ok:false,reason:'api_url_empty'};try{const res=await fetch(url,{method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,deviceId:v051DeviceId(),appVersion:RINCHAN_V051},payload||{}))});const json=await res.json();return json&&json.ok?json:{ok:false,reason:(json&&json.error)||'api_error'}}catch(e){return {ok:false,reason:e.message}}}
 
 document.addEventListener('DOMContentLoaded',()=>{interceptRegisterFormV051();initLoginFormV051();protectGuestMypageV051();normalizeNavLabelsV051();});
-
 function normalizeNavLabelsV051(){document.querySelectorAll('.nav a').forEach(a=>{if(a.getAttribute('href')&&a.getAttribute('href').includes('activity.html')){a.innerHTML='👟<small>歩数記録</small>';a.classList.add('plus')}})}
-
-function interceptRegisterFormV051(){
-  const f=document.getElementById('registerForm');if(!f)return;
-  f.addEventListener('submit',async e=>{
-    e.preventDefault();e.stopImmediatePropagation();
-    const btn=f.querySelector('button[type="submit"],button');
-    const employeeId=v051Value('employeeId');const pin4=v051Value('pin4');
-    if(!employeeId){alert('社員番号を入力してください。');return;}
-    if(!/^\d{4}$/.test(pin4)){alert('誕生日4桁を入力してください。例：4月8日なら0408');return;}
-    v051SetBusy(btn,true,'登録中...');
-    const now=new Date().toISOString();
-    const p={id:employeeId,employeeId:employeeId,deviceId:v051DeviceId(),name:v051Value('userName'),dept:v051Value('dept'),nick:v051Value('nick'),email:v051Value('email'),pin4:pin4,declaration:'',weeklyGoal:'まずは無理なく続ける',createdAt:now,updatedAt:now,version:RINCHAN_V051};
-    const result=await v051Api('saveUser',p);
-    v051SaveParticipant(result.ok&&result.user?result.user:p);
-    location.href='welcome.html';
-  },true);
-}
-
-function initLoginFormV051(){
-  const f=document.getElementById('loginForm');if(!f)return;
-  f.addEventListener('submit',async e=>{
-    e.preventDefault();const btn=f.querySelector('button[type="submit"],button');
-    const employeeId=v051Value('loginEmployeeId');const pin4=v051Value('loginPin4');
-    if(!employeeId){alert('社員番号を入力してください。');return;}
-    if(!/^\d{4}$/.test(pin4)){alert('誕生日4桁を入力してください。');return;}
-    v051SetBusy(btn,true,'ログイン中...');
-    const result=await v051Api('loginUser',{employeeId,pin4});
-    if(result.ok&&result.user){v051SaveParticipant(result.user);location.href='../index.html';return;}
-    v051SetBusy(btn,false,'ログインする');alert('ログインできませんでした。社員番号と誕生日4桁を確認してください。');
-  });
-}
-
-function protectGuestMypageV051(){
-  if(!document.getElementById('myName'))return;
-  const p=v051Participant();
-  if(p&&p.id)return;
-  document.querySelectorAll('.edit-icon,.statement-card button').forEach(btn=>btn.classList.add('hidden'));
-  document.querySelectorAll('.form').forEach(el=>el.classList.add('hidden'));
-  const card=document.createElement('section');
-  card.className='card guest-lock-card';
-  card.innerHTML='<p class="label">登録が必要です</p><h2>マイページの編集は登録後に使えます</h2><p>社員番号で初回登録またはログインしてください。</p><a class="submit link-submit" href="register.html">初回登録する</a><a class="soft-link" href="login.html">登録済みの方はログイン</a>';
-  const target=document.querySelector('.profile-card');
-  if(target&&target.parentNode)target.parentNode.insertBefore(card,target.nextSibling);
-}
-
-function showEdit(id){
-  const p=v051Participant();
-  if(!p||!p.id){alert('登録後に編集できます。');location.href='register.html';return;}
-  document.querySelectorAll('.form').forEach(el=>el.classList.add('hidden'));
-  if(id==='profileEdit'){const n=document.getElementById('editName');if(n)n.value=p.name||'';const d=document.getElementById('editDept');if(d)d.value=p.dept||'';const k=document.getElementById('editNick');if(k)k.value=p.nick||'';}
-  if(id==='declarationEdit'){const el=document.getElementById('editDeclaration');if(el)el.value=p.declaration||'';}
-  if(id==='goalEdit'){const el=document.getElementById('editGoal');if(el)el.value=p.weeklyGoal||'';}
-  const box=document.getElementById(id);if(box)box.classList.remove('hidden');
-}
-
+function interceptRegisterFormV051(){const f=document.getElementById('registerForm');if(!f)return;f.addEventListener('submit',async e=>{e.preventDefault();e.stopImmediatePropagation();const btn=f.querySelector('button[type="submit"],button');const employeeId=v051Value('employeeId');const pin4=v051Value('pin4');if(!employeeId){alert('社員番号を入力してください。');return;}if(!/^\d{4}$/.test(pin4)){alert('誕生日4桁を入力してください。例：4月8日なら0408');return;}v051SetBusy(btn,true,'登録中...');const now=new Date().toISOString();const p={id:employeeId,employeeId:employeeId,deviceId:v051DeviceId(),name:v051Value('userName'),dept:v051Value('dept'),nick:v051Value('nick'),email:v051Value('email'),pin4:pin4,declaration:'',weeklyGoal:'まずは無理なく続ける',createdAt:now,updatedAt:now,version:RINCHAN_V051};const result=await v051Api('saveUser',p);v051SaveParticipant(result.ok&&result.user?result.user:p);location.href='welcome.html';},true)}
+function initLoginFormV051(){const f=document.getElementById('loginForm');if(!f)return;f.addEventListener('submit',async e=>{e.preventDefault();const btn=f.querySelector('button[type="submit"],button');const employeeId=v051Value('loginEmployeeId');const pin4=v051Value('loginPin4');if(!employeeId){alert('社員番号を入力してください。');return;}if(!/^\d{4}$/.test(pin4)){alert('誕生日4桁を入力してください。');return;}v051SetBusy(btn,true,'ログイン中...');const result=await v051Api('loginUser',{employeeId,pin4});if(result.ok&&result.user){v051SaveParticipant(result.user);location.href='../index.html';return;}v051SetBusy(btn,false,'ログインする');alert('ログインできませんでした。社員番号と誕生日4桁を確認してください。');})}
+function protectGuestMypageV051(){if(!document.getElementById('myName'))return;const p=v051Participant();if(p&&p.id)return;document.querySelectorAll('.edit-icon,.statement-card button').forEach(btn=>btn.classList.add('hidden'));document.querySelectorAll('.form').forEach(el=>el.classList.add('hidden'));const card=document.createElement('section');card.className='card guest-lock-card';card.innerHTML='<p class="label">登録が必要です</p><h2>マイページの編集は登録後に使えます</h2><p>社員番号で初回登録またはログインしてください。</p><a class="submit link-submit" href="register.html">初回登録する</a><a class="soft-link" href="login.html">登録済みの方はログイン</a>';const target=document.querySelector('.profile-card');if(target&&target.parentNode)target.parentNode.insertBefore(card,target.nextSibling)}
+function showEdit(id){const p=v051Participant();if(!p||!p.id){alert('登録後に編集できます。');location.href='register.html';return;}document.querySelectorAll('.form').forEach(el=>el.classList.add('hidden'));if(id==='profileEdit'){const n=document.getElementById('editName');if(n)n.value=p.name||'';const d=document.getElementById('editDept');if(d)d.value=p.dept||'';const k=document.getElementById('editNick');if(k)k.value=p.nick||'';}if(id==='declarationEdit'){const el=document.getElementById('editDeclaration');if(el)el.value=p.declaration||'';}if(id==='goalEdit'){const el=document.getElementById('editGoal');if(el)el.value=p.weeklyGoal||'';}const box=document.getElementById(id);if(box){box.classList.remove('hidden');setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'center'}),80)}}
 async function saveProfile(){const btn=event&&event.target?event.target:null;const p=v051Participant();if(!p||!p.id){location.href='register.html';return;}v051SetBusy(btn,true,'保存中...');p.name=v051Value('editName')||p.name;p.dept=v051Value('editDept');p.nick=v051Value('editNick');p.updatedAt=new Date().toISOString();p.version=RINCHAN_V051;v051SaveParticipant(p);await v051Api('saveUser',p);location.reload()}
 async function saveDeclaration(){const btn=event&&event.target?event.target:null;const p=v051Participant();if(!p||!p.id){location.href='register.html';return;}v051SetBusy(btn,true,'保存中...');p.declaration=v051Value('editDeclaration');p.updatedAt=new Date().toISOString();p.version=RINCHAN_V051;v051SaveParticipant(p);await v051Api('saveUser',p);location.reload()}
 async function saveGoal(){const btn=event&&event.target?event.target:null;const p=v051Participant();if(!p||!p.id){location.href='register.html';return;}v051SetBusy(btn,true,'保存中...');p.weeklyGoal=v051Value('editGoal');p.updatedAt=new Date().toISOString();p.version=RINCHAN_V051;v051SaveParticipant(p);await v051Api('saveUser',p);location.reload()}
