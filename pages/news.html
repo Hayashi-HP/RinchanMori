@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>りんちゃん通信｜りんちゃんの杜 v0.9.11</title>
-  <link rel="stylesheet" href="../css/style.css?v=0911">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=0911">
-  <link rel="stylesheet" href="../css/v081-fixes.css?v=0911">
-  <link rel="stylesheet" href="../css/v099-ui-fixes.css?v=0911">
-  <link rel="stylesheet" href="../css/v100-news-ui.css?v=0911">
+  <title>りんちゃん通信｜りんちゃんの杜 v0.9.12</title>
+  <link rel="stylesheet" href="../css/style.css?v=0912">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=0912">
+  <link rel="stylesheet" href="../css/v081-fixes.css?v=0912">
+  <link rel="stylesheet" href="../css/v099-ui-fixes.css?v=0912">
+  <link rel="stylesheet" href="../css/v100-news-ui.css?v=0912">
+  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=0912">
 </head>
 <body>
 <main class="app news-page" id="rinchanNewsPage">
@@ -27,8 +28,7 @@
       <span class="summary-pill" id="newsSummaryDate">読み込み中</span>
     </div>
 
-    <div class="forest-hero-row">
-      <div class="forest-hero-icon" id="forestHeroIcon" aria-hidden="true">🌳</div>
+    <div class="forest-hero-row no-forest-icon">
       <div class="forest-hero-copy">
         <h3 id="forestLevelTitle">杜レベル 1</h3>
         <p id="forestLevelText">全員の歩数で、杜全体が育ちます。</p>
@@ -46,8 +46,18 @@
   <section class="card news-section-card">
     <div class="section-head-row">
       <div>
+        <p class="label">📬 お知らせ</p>
+        <h2>未読のお知らせ</h2>
+      </div>
+    </div>
+    <div id="noticeList" class="notice-list"></div>
+  </section>
+
+  <section class="card news-section-card">
+    <div class="section-head-row">
+      <div>
         <p class="label">❤️ ありがとうの出来事</p>
-        <h2>1件ずつ見やすく表示</h2>
+        <h2>最近届いたありがとう</h2>
       </div>
     </div>
     <div id="thanksStoryList" class="thanks-story-list"></div>
@@ -71,8 +81,8 @@
     <a href="mypage.html">👤<small>マイページ</small></a>
   </nav>
 </main>
-<script src="../js/config.js?v=0911"></script>
-<script src="../js/v051-auth.js?v=0911"></script>
-<script src="../js/v051-news.js?v=0911"></script>
+<script src="../js/config.js?v=0912"></script>
+<script src="../js/v051-auth.js?v=0912"></script>
+<script src="../js/v051-news.js?v=0912"></script>
 </body>
 </html>
