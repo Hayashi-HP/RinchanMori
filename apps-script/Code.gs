@@ -1,15 +1,14 @@
 const SHEET_USERS = 'users';
 const SHEET_ACTIVITIES = 'activities';
 const SHEET_LOGS = 'logs';
-const VERSION = 'v0.3.0';
+const VERSION = 'v0.4.0';
 
 function doGet(e) {
   const action = e && e.parameter ? String(e.parameter.action || '') : '';
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   setupSheets(ss);
-  if (action === 'dashboard') {
-    return jsonOutput({ ok: true, action: action, data: getDashboard(ss), version: VERSION });
-  }
+  if (action === 'dashboard') return jsonOutput({ ok: true, action: action, data: getDashboard(ss), version: VERSION });
+  if (action === 'adminStats') return jsonOutput({ ok: true, action: action, data: getAdminStats(ss), version: VERSION });
   return jsonOutput({ ok: true, app: 'RinchanMori', version: VERSION, message: 'Apps Script is running.' });
 }
 
@@ -20,13 +19,9 @@ function doPost(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     setupSheets(ss);
 
-    if (action === 'setup') {
-      return jsonOutput({ ok: true, action: action, version: VERSION });
-    }
-
-    if (action === 'dashboard') {
-      return jsonOutput({ ok: true, action: action, data: getDashboard(ss), version: VERSION });
-    }
+    if (action === 'setup') return jsonOutput({ ok: true, action: action, version: VERSION });
+    if (action === 'dashboard') return jsonOutput({ ok: true, action: action, data: getDashboard(ss), version: VERSION });
+    if (action === 'adminStats') return jsonOutput({ ok: true, action: action, data: getAdminStats(ss), version: VERSION });
 
     if (action === 'saveUser') {
       const saved = saveUser(ss, data);
@@ -58,23 +53,13 @@ function parseRequest(e) {
 }
 
 function jsonOutput(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function setupSheets(ss) {
-  ensureSheet(ss, SHEET_USERS, [
-    'id', 'deviceId', 'name', 'dept', 'nick', 'declaration', 'weeklyGoal',
-    'createdAt', 'updatedAt', 'version', 'lastSavedAt'
-  ]);
-  ensureSheet(ss, SHEET_ACTIVITIES, [
-    'activityId', 'participantId', 'deviceId', 'date', 'steps', 'challenge',
-    'comment', 'createdAt', 'version', 'savedAt'
-  ]);
-  ensureSheet(ss, SHEET_LOGS, [
-    'loggedAt', 'action', 'deviceId', 'participantId', 'status', 'message'
-  ]);
+  ensureSheet(ss, SHEET_USERS, ['id', 'deviceId', 'name', 'dept', 'nick', 'declaration', 'weeklyGoal', 'createdAt', 'updatedAt', 'version', 'lastSavedAt']);
+  ensureSheet(ss, SHEET_ACTIVITIES, ['activityId', 'participantId', 'deviceId', 'date', 'steps', 'challenge', 'comment', 'createdAt', 'version', 'savedAt']);
+  ensureSheet(ss, SHEET_LOGS, ['loggedAt', 'action', 'deviceId', 'participantId', 'status', 'message']);
 }
 
 function ensureSheet(ss, name, headers) {
@@ -99,25 +84,12 @@ function saveUser(ss, data) {
   if (!id) throw new Error('user_id_required');
 
   const row = findRowByValue(sheet, 1, id);
-  const values = [
-    id,
-    data.deviceId || '',
-    data.name || '',
-    data.dept || '',
-    data.nick || '',
-    data.declaration || '',
-    data.weeklyGoal || '',
-    data.createdAt || '',
-    data.updatedAt || '',
-    data.version || data.appVersion || '',
-    new Date().toISOString()
-  ];
+  const values = [id, data.deviceId || '', data.name || '', data.dept || '', data.nick || '', data.declaration || '', data.weeklyGoal || '', data.createdAt || '', data.updatedAt || '', data.version || data.appVersion || '', new Date().toISOString()];
 
   if (row > 0) {
     sheet.getRange(row, 1, 1, values.length).setValues([values]);
     return { type: 'updated', row: row, id: id };
   }
-
   sheet.appendRow(values);
   return { type: 'inserted', row: sheet.getLastRow(), id: id };
 }
@@ -128,24 +100,12 @@ function saveActivity(ss, data) {
   if (!activityId) throw new Error('activity_id_required');
 
   const row = findRowByValue(sheet, 1, activityId);
-  const values = [
-    activityId,
-    data.participantId || data.id || '',
-    data.deviceId || '',
-    data.date || '',
-    Number(data.steps || 0),
-    data.challenge === true || data.challenge === 'true',
-    data.comment || '',
-    data.createdAt || '',
-    data.version || data.appVersion || '',
-    new Date().toISOString()
-  ];
+  const values = [activityId, data.participantId || data.id || '', data.deviceId || '', data.date || '', Number(data.steps || 0), data.challenge === true || data.challenge === 'true', data.comment || '', data.createdAt || '', data.version || data.appVersion || '', new Date().toISOString()];
 
   if (row > 0) {
     sheet.getRange(row, 1, 1, values.length).setValues([values]);
     return { type: 'updated', row: row, activityId: activityId };
   }
-
   sheet.appendRow(values);
   return { type: 'inserted', row: sheet.getLastRow(), activityId: activityId };
 }
@@ -153,41 +113,9 @@ function saveActivity(ss, data) {
 function getDashboard(ss) {
   const users = readTable(ss.getSheetByName(SHEET_USERS));
   const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
-  const byUser = {};
-
-  users.forEach(user => {
-    const id = user.id || '';
-    if (!id) return;
-    byUser[id] = {
-      id: id,
-      name: maskName(user.name || ''),
-      nick: user.nick || '',
-      dept: user.dept || '',
-      declaration: user.declaration || '',
-      weeklyGoal: user.weeklyGoal || '',
-      activityCount: 0,
-      totalSteps: 0,
-      lastDate: ''
-    };
-  });
-
-  activities.forEach(item => {
-    const id = item.participantId || '';
-    if (!id) return;
-    if (!byUser[id]) {
-      byUser[id] = { id: id, name: 'ゲスト', nick: '', dept: '', declaration: '', weeklyGoal: '', activityCount: 0, totalSteps: 0, lastDate: '' };
-    }
-    byUser[id].activityCount += 1;
-    byUser[id].totalSteps += Number(item.steps || 0);
-    if (!byUser[id].lastDate || String(item.date || '') > byUser[id].lastDate) byUser[id].lastDate = String(item.date || '');
-  });
-
+  const byUser = buildUserStats(users, activities, true);
   const members = Object.keys(byUser).map(id => byUser[id]);
-  const ranking = members.slice().sort((a, b) => {
-    if (b.totalSteps !== a.totalSteps) return b.totalSteps - a.totalSteps;
-    return b.activityCount - a.activityCount;
-  }).slice(0, 20);
-
+  const ranking = rankMembers(members).slice(0, 20);
   return {
     generatedAt: new Date().toISOString(),
     totalUsers: members.length,
@@ -196,6 +124,90 @@ function getDashboard(ss) {
     members: members,
     ranking: ranking
   };
+}
+
+function getAdminStats(ss) {
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const byUser = buildUserStats(users, activities, false);
+  const members = Object.keys(byUser).map(id => byUser[id]);
+  const deptMap = {};
+  const monthMap = {};
+  const csvRows = [];
+
+  activities.forEach(item => {
+    const user = byUser[item.participantId] || {};
+    const dept = user.dept || '所属未設定';
+    const date = String(item.date || '');
+    const month = date.slice(0, 7) || '日付未設定';
+    const steps = Number(item.steps || 0);
+
+    if (!deptMap[dept]) deptMap[dept] = { dept: dept, users: {}, activityCount: 0, totalSteps: 0 };
+    deptMap[dept].users[item.participantId || 'unknown'] = true;
+    deptMap[dept].activityCount += 1;
+    deptMap[dept].totalSteps += steps;
+
+    if (!monthMap[month]) monthMap[month] = { month: month, activityCount: 0, totalSteps: 0 };
+    monthMap[month].activityCount += 1;
+    monthMap[month].totalSteps += steps;
+
+    csvRows.push({
+      date: date,
+      activityId: item.activityId || '',
+      participantId: item.participantId || '',
+      name: user.name || '',
+      nick: user.nick || '',
+      dept: dept,
+      steps: steps,
+      challenge: item.challenge === true || item.challenge === 'true',
+      comment: item.comment || '',
+      createdAt: item.createdAt || '',
+      savedAt: item.savedAt || ''
+    });
+  });
+
+  const deptRanking = Object.keys(deptMap).map(k => {
+    const d = deptMap[k];
+    return { dept: d.dept, userCount: Object.keys(d.users).length, activityCount: d.activityCount, totalSteps: d.totalSteps };
+  }).sort((a, b) => b.totalSteps - a.totalSteps);
+
+  const monthly = Object.keys(monthMap).map(k => monthMap[k]).sort((a, b) => String(b.month).localeCompare(String(a.month)));
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totalUsers: members.length,
+    totalActivities: activities.length,
+    totalSteps: activities.reduce((sum, item) => sum + Number(item.steps || 0), 0),
+    ranking: rankMembers(members),
+    deptRanking: deptRanking,
+    monthly: monthly,
+    csvRows: csvRows
+  };
+}
+
+function buildUserStats(users, activities, masked) {
+  const byUser = {};
+  users.forEach(user => {
+    const id = user.id || '';
+    if (!id) return;
+    byUser[id] = { id: id, name: masked ? maskName(user.name || '') : (user.name || ''), nick: user.nick || '', dept: user.dept || '', declaration: user.declaration || '', weeklyGoal: user.weeklyGoal || '', activityCount: 0, totalSteps: 0, lastDate: '' };
+  });
+  activities.forEach(item => {
+    const id = item.participantId || '';
+    if (!id) return;
+    if (!byUser[id]) byUser[id] = { id: id, name: 'ゲスト', nick: '', dept: '', declaration: '', weeklyGoal: '', activityCount: 0, totalSteps: 0, lastDate: '' };
+    byUser[id].activityCount += 1;
+    byUser[id].totalSteps += Number(item.steps || 0);
+    if (!byUser[id].lastDate || String(item.date || '') > byUser[id].lastDate) byUser[id].lastDate = String(item.date || '');
+  });
+  return byUser;
+}
+
+function rankMembers(members) {
+  return members.slice().sort((a, b) => {
+    if (b.totalSteps !== a.totalSteps) return b.totalSteps - a.totalSteps;
+    return b.activityCount - a.activityCount;
+  });
 }
 
 function readTable(sheet) {
@@ -228,12 +240,5 @@ function findRowByValue(sheet, col, value) {
 
 function writeLog(ss, action, deviceId, participantId, status, message) {
   const sheet = ss.getSheetByName(SHEET_LOGS);
-  sheet.appendRow([
-    new Date().toISOString(),
-    action || '',
-    deviceId || '',
-    participantId || '',
-    status || '',
-    message || ''
-  ]);
+  sheet.appendRow([new Date().toISOString(), action || '', deviceId || '', participantId || '', status || '', message || '']);
 }
