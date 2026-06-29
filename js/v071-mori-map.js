@@ -1,4 +1,4 @@
-const RINCHAN_V071='v0.9.6';
+const RINCHAN_V071='v0.9.7';
 function v071ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function v071SaveJson(key,value){localStorage.setItem(key,JSON.stringify(value))}
 function v071Num(n){return Number(n||0).toLocaleString('ja-JP')}
@@ -7,13 +7,21 @@ function v071Level(count,steps){if(count>=100||steps>=500000)return 7;if(count>=
 function v071Tree(level){return ['','🌱','🌿','🌳','🌸🌳','🌳🐦','🌳🦋','🌳🐿️'][level]||'🌱'}
 function v071Mask(name){if(!name)return 'ゲスト';if(name.length<=2)return name;return name.slice(0,1)+'＊'+name.slice(-1)}
 function v071Area(dept){const d=String(dept||'');if(d.includes('看護'))return {x:22,y:34,label:'看護部エリア'};if(d.includes('リハ'))return {x:70,y:34,label:'リハビリエリア'};if(d.includes('介護'))return {x:76,y:66,label:'介護部エリア'};if(d.includes('事務'))return {x:34,y:68,label:'事務部エリア'};return {x:50,y:52,label:'中央エリア'}}
+function v097Season(){const m=new Date().getMonth()+1;if(m>=3&&m<=5)return {key:'spring',name:'春',icon:'🌸',items:['🌸','🌷','🦋'],msg:'春の杜に、やさしい花が咲いています。'};if(m>=6&&m<=8)return {key:'summer',name:'夏',icon:'🌿',items:['🌻','🌿','🎐'],msg:'夏の杜が、青々と育っています。'};if(m>=9&&m<=11)return {key:'autumn',name:'秋',icon:'🍁',items:['🍁','🍄','🌰'],msg:'秋の杜に、実りの気配が広がっています。'};return {key:'winter',name:'冬',icon:'❄️',items:['❄️','✨','☃️'],msg:'冬の杜に、静かな光が灯っています。'}}
+function v097Time(){const h=new Date().getHours();if(h<6)return {key:'night',name:'夜',sky:'🌙',msg:'夜の杜は静かに休んでいます。'};if(h<11)return {key:'morning',name:'朝',sky:'☀️',msg:'朝の光が杜に差し込んでいます。'};if(h<17)return {key:'day',name:'昼',sky:'🌤️',msg:'昼の杜に、明るい風が通っています。'};if(h<20)return {key:'evening',name:'夕方',sky:'🌇',msg:'夕方の杜が、少しあたたかい色になりました。'};return {key:'night',name:'夜',sky:'🌙',msg:'夜の杜は静かに休んでいます。'}}
 
 document.addEventListener('DOMContentLoaded',()=>{renderV071Map();});
 
 function renderV071Map(){
   const map=document.getElementById('moriMap');if(!map)return;
+  const season=v097Season();const time=v097Time();
+  document.body.classList.add('mori-season-'+season.key,'mori-time-'+time.key);
+  const note=document.getElementById('moriUpdatedAt');if(note)note.textContent=season.icon+' '+season.name+'の杜・'+time.name;
+  const msg=document.getElementById('moriSeasonMessage');if(msg)msg.textContent=season.msg;
+  const ht=document.getElementById('moriHighlightTitle');if(ht)ht.textContent=season.icon+' '+season.name+'の見どころ';
+  const hx=document.getElementById('moriHighlightText');if(hx)hx.textContent=time.msg+' 今日も無理せず、いこうね。';
   const users=(v071ReadJson('rinchanMoriMembers',null)||buildLocalMembersV071()).sort((a,b)=>Number(b.totalSteps||0)-Number(a.totalSteps||0));
-  map.innerHTML='<span class="map-bg sun">☀️</span><span class="map-bg cloud-a">☁️</span><span class="map-bg cloud-b">☁️</span><span class="map-bg bench">🪑</span><span class="map-bg flower">🌻</span><span class="rinchan-walker" id="rinchanWalker">😊</span><div class="dept-area area-nurse">看護部</div><div class="dept-area area-reha">リハビリ</div><div class="dept-area area-care">介護部</div><div class="dept-area area-office">事務部</div>';
+  map.innerHTML='<span class="map-bg sun">'+time.sky+'</span><span class="map-bg cloud-a">☁️</span><span class="map-bg cloud-b">☁️</span><span class="map-bg bench">🪑</span><span class="map-bg flower">'+season.items[0]+'</span><span class="map-bg seasonal-a">'+season.items[1]+'</span><span class="map-bg seasonal-b">'+season.items[2]+'</span><span class="rinchan-walker" id="rinchanWalker">😊</span><div class="dept-area area-nurse">看護部</div><div class="dept-area area-reha">リハビリ</div><div class="dept-area area-care">介護部</div><div class="dept-area area-office">事務部</div>';
   const offset={};
   users.forEach((u,i)=>{
     const level=v071Level(u.activityCount,u.totalSteps);
