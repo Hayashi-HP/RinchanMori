@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>りんちゃんの杜</title>
-  <link rel="stylesheet" href="../css/style.css?v=071">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=071">
+  <title>りんちゃんの杜 v0.9.7</title>
+  <link rel="stylesheet" href="../css/style.css?v=097">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=097">
+  <link rel="stylesheet" href="../css/v081-fixes.css?v=097">
+  <link rel="stylesheet" href="../css/v094-guide.css?v=097">
 </head>
 <body>
 <main class="app">
   <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">りんちゃんの杜</div><button class="icon-button" id="refreshMoriButton" type="button">↻</button></header>
-  <section class="intro compact"><h1>みんなの木が育つ杜</h1><p>木をタップすると、その木の情報が見られます。</p></section>
-  <section class="mori-visual dashboard-hero"><div class="mori-note" id="moriUpdatedAt">夏の杜を表示中</div><div class="mori-map live-mori-map mori-game-map" id="moriMap"></div></section>
+  <section class="intro compact"><h1>みんなの木が育つ杜</h1><p id="moriSeasonMessage">今日の杜の様子を表示しています。</p></section>
+  <section class="mori-visual dashboard-hero"><div class="mori-note" id="moriUpdatedAt">杜を読み込み中</div><div class="mori-map live-mori-map mori-game-map" id="moriMap"></div></section>
   <section id="treeInfoCard" class="card tree-info-card hidden"></section>
-  <section class="stats-grid"><div class="stat-card"><small>参加者</small><strong id="totalUsers">-</strong></div><div class="stat-card"><small>記録</small><strong id="totalActivities">-</strong></div><div class="stat-card wide"><small>みんなの歩数</small><strong id="totalSteps">-</strong></div></section>
-  <section class="card ranking-card"><p class="label">ランキング</p><h2>今のトップ</h2><div id="rankingList" class="ranking-list"><p class="empty-note">ランキングを読み込んでいます。</p></div></section>
-  <section class="card forest-card"><p class="label">みんなの木</p><h2>杜に育っている木</h2><div id="memberList" class="member-list"><p class="empty-note">参加者を読み込んでいます。</p></div></section>
-  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📖<small>お知らせ</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
+  <section class="card forest-card"><p class="label">杜の見どころ</p><h2 id="moriHighlightTitle">今日の杜</h2><p id="moriHighlightText">季節と時間に合わせて、杜の景色が変わります。</p></section>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📖<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
-<script src="../js/config.js?v=071"></script><script src="../js/app.js?v=071"></script><script src="../js/v051-auth.js?v=071"></script><script src="../js/v071-mori-map.js?v=071"></script>
+<script src="../js/config.js?v=097"></script><script src="../js/app.js?v=097"></script><script src="../js/v051-auth.js?v=097"></script><script src="../js/v071-mori-map.js?v=097"></script>
 </body>
 </html>
