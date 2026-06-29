@@ -1,7 +1,7 @@
 const SHEET_USERS = 'users';
 const SHEET_ACTIVITIES = 'activities';
 const SHEET_LOGS = 'logs';
-const VERSION = 'v0.4.0';
+const VERSION = 'v0.5.0';
 
 function doGet(e) {
   const action = e && e.parameter ? String(e.parameter.action || '') : '';
@@ -25,8 +25,15 @@ function doPost(e) {
 
     if (action === 'saveUser') {
       const saved = saveUser(ss, data);
-      writeLog(ss, action, data.deviceId, data.participantId || data.id, 'ok', '');
-      return jsonOutput({ ok: true, action: action, saved: saved, version: VERSION });
+      writeLog(ss, action, data.deviceId, saved.user.id, 'ok', '');
+      return jsonOutput({ ok: true, action: action, saved: saved, user: saved.user, version: VERSION });
+    }
+
+    if (action === 'loginUser') {
+      const user = loginUser(ss, data);
+      writeLog(ss, action, data.deviceId, user ? user.id : '', user ? 'ok' : 'ng', user ? '' : 'login_failed');
+      if (!user) return jsonOutput({ ok: false, error: 'login_failed', version: VERSION });
+      return jsonOutput({ ok: true, action: action, user: user, version: VERSION });
     }
 
     if (action === 'saveActivity') {
@@ -57,7 +64,7 @@ function jsonOutput(obj) {
 }
 
 function setupSheets(ss) {
-  ensureSheet(ss, SHEET_USERS, ['id', 'deviceId', 'name', 'dept', 'nick', 'declaration', 'weeklyGoal', 'createdAt', 'updatedAt', 'version', 'lastSavedAt']);
+  ensureSheet(ss, SHEET_USERS, ['id', 'deviceId', 'name', 'dept', 'nick', 'declaration', 'weeklyGoal', 'createdAt', 'updatedAt', 'version', 'lastSavedAt', 'email', 'pin4']);
   ensureSheet(ss, SHEET_ACTIVITIES, ['activityId', 'participantId', 'deviceId', 'date', 'steps', 'challenge', 'comment', 'createdAt', 'version', 'savedAt']);
   ensureSheet(ss, SHEET_LOGS, ['loggedAt', 'action', 'deviceId', 'participantId', 'status', 'message']);
 }
@@ -80,18 +87,53 @@ function ensureSheet(ss, name, headers) {
 
 function saveUser(ss, data) {
   const sheet = ss.getSheetByName(SHEET_USERS);
-  const id = String(data.id || data.participantId || '').trim();
-  if (!id) throw new Error('user_id_required');
+  const normalizedEmail = normalizeEmail(data.email || '');
+  const pin4 = normalizePin(data.pin4 || '');
+  let id = String(data.id || data.participantId || '').trim();
+
+  if (!id && normalizedEmail) {
+    const existing = findUserByEmail(sheet, normalizedEmail);
+    if (existing) id = existing.id;
+  }
+  if (!id) id = nextParticipantId(sheet);
 
   const row = findRowByValue(sheet, 1, id);
-  const values = [id, data.deviceId || '', data.name || '', data.dept || '', data.nick || '', data.declaration || '', data.weeklyGoal || '', data.createdAt || '', data.updatedAt || '', data.version || data.appVersion || '', new Date().toISOString()];
+  const old = row > 0 ? rowToObject(sheet, row) : {};
+  const now = new Date().toISOString();
+  const user = {
+    id: id,
+    deviceId: data.deviceId || old.deviceId || '',
+    name: data.name || old.name || '',
+    dept: data.dept || old.dept || '',
+    nick: data.nick || old.nick || '',
+    declaration: data.declaration !== undefined ? data.declaration : (old.declaration || ''),
+    weeklyGoal: data.weeklyGoal || old.weeklyGoal || 'まずは無理なく続ける',
+    createdAt: data.createdAt || old.createdAt || now,
+    updatedAt: data.updatedAt || now,
+    version: data.version || data.appVersion || VERSION,
+    lastSavedAt: now,
+    email: normalizedEmail || old.email || '',
+    pin4: pin4 || old.pin4 || ''
+  };
+
+  const values = [user.id, user.deviceId, user.name, user.dept, user.nick, user.declaration, user.weeklyGoal, user.createdAt, user.updatedAt, user.version, user.lastSavedAt, user.email, user.pin4];
 
   if (row > 0) {
     sheet.getRange(row, 1, 1, values.length).setValues([values]);
-    return { type: 'updated', row: row, id: id };
+    return { type: 'updated', row: row, id: id, user: publicUser(user) };
   }
   sheet.appendRow(values);
-  return { type: 'inserted', row: sheet.getLastRow(), id: id };
+  return { type: 'inserted', row: sheet.getLastRow(), id: id, user: publicUser(user) };
+}
+
+function loginUser(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_USERS);
+  const email = normalizeEmail(data.email || '');
+  const pin4 = normalizePin(data.pin4 || '');
+  if (!email || !pin4) return null;
+  const users = readTable(sheet);
+  const user = users.find(u => normalizeEmail(u.email || '') === email && normalizePin(u.pin4 || '') === pin4);
+  return user ? publicUser(user) : null;
 }
 
 function saveActivity(ss, data) {
@@ -208,6 +250,53 @@ function rankMembers(members) {
     if (b.totalSteps !== a.totalSteps) return b.totalSteps - a.totalSteps;
     return b.activityCount - a.activityCount;
   });
+}
+
+function nextParticipantId(sheet) {
+  const users = readTable(sheet);
+  let max = 0;
+  users.forEach(u => {
+    const m = String(u.id || '').match(/^RIN-(\d+)$/);
+    if (m) max = Math.max(max, Number(m[1]));
+  });
+  return 'RIN-' + String(max + 1).padStart(6, '0');
+}
+
+function findUserByEmail(sheet, email) {
+  const users = readTable(sheet);
+  return users.find(u => normalizeEmail(u.email || '') === email) || null;
+}
+
+function rowToObject(sheet, row) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
+  const values = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const obj = {};
+  headers.forEach((h, i) => obj[h] = values[i]);
+  return obj;
+}
+
+function publicUser(user) {
+  return {
+    id: user.id || '',
+    deviceId: user.deviceId || '',
+    name: user.name || '',
+    dept: user.dept || '',
+    nick: user.nick || '',
+    declaration: user.declaration || '',
+    weeklyGoal: user.weeklyGoal || '',
+    createdAt: user.createdAt || '',
+    updatedAt: user.updatedAt || '',
+    version: user.version || VERSION,
+    email: user.email || ''
+  };
+}
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function normalizePin(pin) {
+  return String(pin || '').replace(/\D/g, '').slice(0, 4);
 }
 
 function readTable(sheet) {
