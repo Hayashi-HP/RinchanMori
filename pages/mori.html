@@ -1,1 +1,69 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>杜</title><link rel="stylesheet" href="../css/style.css"></head><body><main class="app"><header class="top"><a href="../index.html" class="back">←</a><div class="page-title">りんちゃんの杜</div><span class="spacer"></span></header><section class="mori-visual"><div class="mori-note">※上部イラストは今後差し替え予定</div><div class="mori-map"><span class="lm tree1">🌳</span><span class="lm tree2">🌳</span><span class="lm tree3">🌱</span><span class="lm flower">🌷</span><span class="lm bench">🪑</span><span class="lm bird2">🐦</span><span class="lm rin-mini">😊</span></div></section><section class="card"><p class="label">今週の杜</p><h2>春の花壇ができました</h2><p>上部イラストは、ホームページ・SNSでも使えるブランド画像として作り込みます。</p></section><nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">＋<small>記録</small></a><a href="news.html">📖<small>お知らせ</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav></main></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>りんちゃんの杜</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <a href="../index.html" class="back">←</a>
+    <div class="page-title">りんちゃんの杜</div>
+    <button class="icon-button" id="refreshMoriButton" type="button">↻</button>
+  </header>
+
+  <section class="mori-visual dashboard-hero">
+    <div class="mori-note" id="moriUpdatedAt">読み込み中...</div>
+    <div class="mori-map live-mori-map" id="moriMap">
+      <span class="lm tree1">🌳</span>
+      <span class="lm tree2">🌳</span>
+      <span class="lm tree3">🌱</span>
+      <span class="lm flower">🌷</span>
+      <span class="lm bench">🪑</span>
+      <span class="lm bird2">🐦</span>
+      <span class="lm rin-mini">😊</span>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <div class="stat-card"><small>参加者</small><strong id="totalUsers">-</strong></div>
+    <div class="stat-card"><small>記録</small><strong id="totalActivities">-</strong></div>
+    <div class="stat-card wide"><small>みんなの歩数</small><strong id="totalSteps">-</strong></div>
+  </section>
+
+  <section class="card ranking-card">
+    <p class="label">ランキング</p>
+    <h2>今のトップ</h2>
+    <div id="rankingList" class="ranking-list">
+      <p class="empty-note">ランキングを読み込んでいます。</p>
+    </div>
+  </section>
+
+  <section class="card forest-card">
+    <p class="label">みんなの木</p>
+    <h2>杜に育っている木</h2>
+    <div id="memberList" class="member-list">
+      <p class="empty-note">参加者を読み込んでいます。</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <p class="label">表示について</p>
+    <h2>名前は一部だけ表示します</h2>
+    <p>杜では氏名をマスキングして表示します。歩数と活動回数で、みんなの健康づくりを見える化します。</p>
+  </section>
+
+  <nav class="nav">
+    <a href="../index.html">🏠<small>ホーム</small></a>
+    <a class="active" href="mori.html">🌳<small>杜</small></a>
+    <a class="plus" href="activity.html">＋<small>記録</small></a>
+    <a href="news.html">📖<small>お知らせ</small></a>
+    <a href="mypage.html">👤<small>マイページ</small></a>
+  </nav>
+</main>
+<script src="../js/config.js"></script>
+<script src="../js/app.js"></script>
+</body>
+</html>
