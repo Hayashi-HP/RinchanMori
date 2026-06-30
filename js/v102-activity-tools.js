@@ -1,5 +1,6 @@
-const RINCHAN_V102 = 'v0.9.13';
+const RINCHAN_V102 = 'v0.9.14';
 const RINCHAN_ACTIVITY_KEY = 'rinchanActivities';
+const RINCHAN_ACTIVITY_LIMIT = 10;
 
 function v102ReadJson(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
@@ -16,20 +17,19 @@ function v102SetBusy(button, busy, label) { if (!button) return; button.disabled
 function v102RenderActivityTools() {
   const box = document.getElementById('activityToolsList');
   if (!box) return;
-  const list = v102Activities().slice().sort((a,b) => String(b.date || b.createdAt || '').localeCompare(String(a.date || a.createdAt || '')));
-  if (!list.length) { box.innerHTML = '<p class="empty-note">まだ修正できる記録はありません。</p>'; return; }
-  box.innerHTML = list.slice(0, 20).map(item => {
+  const all = v102Activities().slice().sort((a,b) => String(b.date || b.createdAt || '').localeCompare(String(a.date || a.createdAt || '')));
+  if (!all.length) { box.innerHTML = '<p class="empty-note">まだ修正できる記録はありません。</p>'; return; }
+  const list = all.slice(0, RINCHAN_ACTIVITY_LIMIT);
+  box.innerHTML = '<div class="activity-tools-count">最新' + list.length + '件を表示中' + (all.length > list.length ? '（全' + all.length + '件）' : '') + '</div>' + list.map(item => {
     const id = String(item.activityId || '');
-    const comment = String(item.comment || '').trim() || (item.challenge ? 'チャレンジあり' : '記録しました');
-    return '<article class="activity-row">' +
-      '<div class="activity-row-main">' +
-        '<div class="activity-row-date">' + v102EscapeHtml(v102DateLabel(item.date)) + '</div>' +
-        '<div class="activity-row-steps">' + v102Num(item.steps) + '歩</div>' +
-        '<div class="activity-row-comment">' + v102EscapeHtml(comment) + '</div>' +
-      '</div>' +
+    const comment = String(item.comment || '').trim() || (item.challenge ? 'チャレンジあり' : '');
+    return '<article class="activity-row compact-row">' +
+      '<div class="activity-row-date">' + v102EscapeHtml(v102DateLabel(item.date)) + '</div>' +
+      '<div class="activity-row-steps">' + v102Num(item.steps) + '<small>歩</small></div>' +
+      '<div class="activity-row-comment">' + v102EscapeHtml(comment) + '</div>' +
       '<div class="activity-row-actions">' +
-        '<button type="button" class="activity-edit-btn" data-edit-id="' + v102EscapeHtml(id) + '">修正</button>' +
-        '<button type="button" class="activity-delete-btn" data-delete-id="' + v102EscapeHtml(id) + '">削除</button>' +
+        '<button type="button" class="activity-edit-btn icon-action" data-edit-id="' + v102EscapeHtml(id) + '" aria-label="修正">✏️</button>' +
+        '<button type="button" class="activity-delete-btn icon-action" data-delete-id="' + v102EscapeHtml(id) + '" aria-label="削除">🗑️</button>' +
       '</div>' +
     '</article>';
   }).join('');
