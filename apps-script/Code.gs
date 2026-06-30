@@ -2,7 +2,7 @@ const SHEET_USERS = 'users';
 const SHEET_ACTIVITIES = 'activities';
 const SHEET_THANKS = 'thanks';
 const SHEET_LOGS = 'logs';
-const VERSION = 'v0.9.14';
+const VERSION = 'v0.9.19';
 
 function doGet(e) {
   const action = e && e.parameter ? String(e.parameter.action || '') : '';
@@ -66,9 +66,9 @@ function doPost(e) {
   }
 }
 
-function setupProjectManual() {
-  return setupProject(SpreadsheetApp.getActiveSpreadsheet());
-}
+function setupProjectManual() { return setupProject(SpreadsheetApp.getActiveSpreadsheet()); }
+function parseRequest(e) { if (!e || !e.postData || !e.postData.contents) return {}; return JSON.parse(e.postData.contents); }
+function jsonOutput(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
 
 function setupProject(ss) {
   ensureSheet(ss, SHEET_USERS, ['id','deviceId','name','dept','nick','declaration','weeklyGoal','createdAt','updatedAt','version','lastSavedAt','email','pin4','employeeId']);
@@ -78,16 +78,13 @@ function setupProject(ss) {
   return { spreadsheetId: ss.getId(), sheets: ss.getSheets().map(function(sheet) { return sheet.getName(); }) };
 }
 
-function parseRequest(e) { if (!e || !e.postData || !e.postData.contents) return {}; return JSON.parse(e.postData.contents); }
-function jsonOutput(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
 function ensureSheet(ss, name, headers) {
   let sheet = ss.getSheetByName(name);
   if (!sheet) sheet = ss.insertSheet(name);
-  const lastCol = Math.max(headers.length, sheet.getLastColumn() || 1);
-  const current = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  if (sheet.getMaxColumns() < headers.length) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  const current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
   headers.forEach(function(h, i) { if (current[i] !== h) sheet.getRange(1, i + 1).setValue(h); });
   if (sheet.getFrozenRows() !== 1) sheet.setFrozenRows(1);
-  if (sheet.getMaxColumns() < headers.length) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
   sheet.autoResizeColumns(1, headers.length);
   return sheet;
 }
@@ -99,7 +96,22 @@ function saveUser(ss, data) {
   const row = findRowByValue(sheet, 1, employeeId);
   const old = row > 0 ? rowToObject(sheet, row) : {};
   const now = new Date().toISOString();
-  const user = { id: employeeId, employeeId: employeeId, deviceId: data.deviceId || old.deviceId || '', name: data.name || old.name || '', dept: data.dept || old.dept || '', nick: data.nick || old.nick || '', declaration: data.declaration !== undefined ? data.declaration : (old.declaration || ''), weeklyGoal: data.weeklyGoal || old.weeklyGoal || 'まずは無理なく続ける', createdAt: data.createdAt || old.createdAt || now, updatedAt: data.updatedAt || now, version: data.version || data.appVersion || VERSION, lastSavedAt: now, email: normalizeEmail(data.email || '') || old.email || '', pin4: normalizePin(data.pin4 || '') || old.pin4 || '' };
+  const user = {
+    id: employeeId,
+    employeeId: employeeId,
+    deviceId: data.deviceId || old.deviceId || '',
+    name: data.name || old.name || '',
+    dept: data.dept || old.dept || '',
+    nick: data.nick || old.nick || '',
+    declaration: data.declaration !== undefined ? data.declaration : (old.declaration || ''),
+    weeklyGoal: data.weeklyGoal || old.weeklyGoal || 'まずは無理なく続ける',
+    createdAt: data.createdAt || old.createdAt || now,
+    updatedAt: data.updatedAt || now,
+    version: data.version || data.appVersion || VERSION,
+    lastSavedAt: now,
+    email: normalizeEmail(data.email || '') || old.email || '',
+    pin4: normalizePin(data.pin4 || '') || old.pin4 || ''
+  };
   const values = [user.id,user.deviceId,user.name,user.dept,user.nick,user.declaration,user.weeklyGoal,user.createdAt,user.updatedAt,user.version,user.lastSavedAt,user.email,user.pin4,user.employeeId];
   if (row > 0) { sheet.getRange(row, 1, 1, values.length).setValues([values]); return { type: 'updated', row: row, id: employeeId, user: publicUser(user) }; }
   sheet.appendRow(values);
@@ -116,9 +128,17 @@ function loginUser(ss, data) {
   const user = users.find(function(u) {
     const sameEmployee = employeeId && (normalizeEmployeeId(u.employeeId || u.id || '') === employeeId);
     const sameEmail = email && (normalizeEmail(u.email || '') === email);
-    return (sameEmployee || sameEmail) && normalizePin(u.pin4 || '') === pin4;
+    return sameEmployee || sameEmail;
   });
-  return user ? publicUser(user) : null;
+  if (!user) return null;
+  const storedPin = normalizePin(user.pin4 || '');
+  if (storedPin && storedPin !== pin4) return null;
+  if (!storedPin) {
+    const row = findRowByValue(sheet, 1, normalizeEmployeeId(user.id || user.employeeId || employeeId));
+    if (row > 0) sheet.getRange(row, 13).setValue(pin4);
+    user.pin4 = pin4;
+  }
+  return publicUser(user);
 }
 
 function saveActivity(ss, data) {
@@ -210,13 +230,14 @@ function buildUserStats(users, activities, masked) {
   });
   return byUser;
 }
+
 function rankMembers(members) { return members.slice().sort(function(a, b) { return b.totalSteps !== a.totalSteps ? b.totalSteps - a.totalSteps : b.activityCount - a.activityCount; }); }
 function rowToObject(sheet, row) { const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String); const values = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0]; const obj = {}; headers.forEach(function(h, i) { obj[h] = values[i]; }); return obj; }
 function publicUser(user) { return { id: normalizeEmployeeId(user.employeeId || user.id || ''), employeeId: normalizeEmployeeId(user.employeeId || user.id || ''), deviceId: user.deviceId || '', name: user.name || '', dept: user.dept || '', nick: user.nick || '', declaration: user.declaration || '', weeklyGoal: user.weeklyGoal || '', createdAt: user.createdAt || '', updatedAt: user.updatedAt || '', version: user.version || VERSION, email: user.email || '' }; }
 function normalizeEmployeeId(value) { return String(value || '').trim(); }
 function normalizeEmail(email) { return String(email || '').trim().toLowerCase(); }
 function normalizePin(pin) { return String(pin || '').replace(/\D/g, '').slice(0, 4); }
-function readTable(sheet) { if (!sheet || sheet.getLastRow() < 2) return []; const values = sheet.getDataRange().getValues(); const headers = values.shift().map(String); return values.map(function(row) { const obj = {}; headers.forEach(function(h, i) { obj[h] = row[i]; }); return obj; }); }
+function readTable(sheet) { if (!sheet || sheet.getLastRow() < 2) return []; const values = sheet.getDataRange().getValues(); const headers = values.shift().map(String); return values.map(function(row) { const obj = {}; headers.forEach(function(h, i) { obj[h] = row[i]); }); return obj; }); }
 function maskName(name) { const text = String(name || '').trim(); if (!text) return 'ゲスト'; if (text.length <= 2) return text; return text.slice(0, 1) + '＊' + text.slice(-1); }
 function findRowByValue(sheet, col, value) { const lastRow = sheet.getLastRow(); if (lastRow < 2) return -1; const values = sheet.getRange(2, col, lastRow - 1, 1).getValues(); for (let i = 0; i < values.length; i++) { if (String(values[i][0]) === String(value)) return i + 2; } return -1; }
 function writeLog(ss, action, deviceId, participantId, status, message) { const sheet = ss.getSheetByName(SHEET_LOGS); sheet.appendRow([new Date().toISOString(), action || '', deviceId || '', participantId || '', status || '', message || '']); }
