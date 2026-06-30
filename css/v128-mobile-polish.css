@@ -1,0 +1,172 @@
+/* v0.9.24 mobile layout polish */
+html,
+body{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:hidden!important;
+  overscroll-behavior-x:none!important;
+}
+body{
+  position:relative!important;
+  touch-action:pan-y!important;
+}
+.app{
+  width:min(100%,430px)!important;
+  max-width:430px!important;
+  overflow-x:hidden!important;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+}
+.top,
+.card,
+.form,
+.complete,
+.letter,
+.profile-card,
+.tree-stage,
+.challenge-card,
+.big-action,
+.intro,
+.mori-visual,
+.news-list,
+.stats-grid{
+  max-width:calc(100% - 32px)!important;
+}
+.top{
+  max-width:430px!important;
+  width:100%!important;
+  margin:0 auto!important;
+}
+.top .brand,
+.top .page-title{
+  min-width:0!important;
+}
+.top .brand span,
+.top .page-title{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.sky,
+.home-hero{
+  max-width:calc(100% - 32px)!important;
+}
+.home-hero .cloud,
+.home-hero .petal,
+.home-hero .rin-img{
+  max-width:100%!important;
+}
+.nav{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:0!important;
+  transform:translateX(-50%)!important;
+  width:min(430px,100vw)!important;
+  height:calc(70px + env(safe-area-inset-bottom,0px))!important;
+  padding:7px 0 env(safe-area-inset-bottom,0px)!important;
+  align-items:start!important;
+  box-shadow:0 -8px 24px rgba(36,64,56,.08)!important;
+}
+.nav a{
+  min-width:0!important;
+  font-size:24px!important;
+  line-height:1!important;
+  gap:4px!important;
+}
+.nav small{
+  font-size:12px!important;
+  line-height:1.15!important;
+  white-space:nowrap!important;
+}
+.statement-card{
+  position:relative!important;
+  padding-right:74px!important;
+}
+.statement-card .pill-soft{
+  position:absolute!important;
+  top:18px!important;
+  right:18px!important;
+  width:46px!important;
+  height:46px!important;
+  min-height:46px!important;
+  min-width:46px!important;
+  padding:0!important;
+  border-radius:999px!important;
+  font-size:0!important;
+  color:transparent!important;
+  background:#e8f8fb!important;
+  box-shadow:0 8px 18px rgba(40,184,210,.12)!important;
+}
+.statement-card .pill-soft::before{
+  content:"✏️";
+  font-size:20px!important;
+  color:#244038!important;
+  line-height:1!important;
+}
+.notice-action-wrap{
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+}
+.notice-state,
+.notice-confirm{
+  min-height:34px!important;
+  height:34px!important;
+}
+.notice-item.read .notice-action-wrap{
+  justify-content:flex-end!important;
+}
+.received-thanks-item h3{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  font-size:17px!important;
+  line-height:1.45!important;
+}
+.received-thanks-from{
+  min-width:0!important;
+  flex:1 1 auto!important;
+  word-break:break-word!important;
+}
+.received-thanks-reason{
+  flex:0 0 auto!important;
+  max-width:46%!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:30px!important;
+  padding:0 10px!important;
+  border-radius:999px!important;
+  background:#f2fbf7!important;
+  color:#2d5e58!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  line-height:1.25!important;
+  text-align:center!important;
+}
+.received-thanks-item p{
+  font-size:16px!important;
+  line-height:1.75!important;
+}
+@media(max-width:480px){
+  .notice-item{
+    grid-template-columns:auto minmax(0,1fr)!important;
+  }
+  .notice-action-wrap{
+    grid-column:2!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+  }
+  .notice-confirm{
+    width:auto!important;
+    padding:0 14px!important;
+  }
+}
+@media(max-width:360px){
+  .nav small{font-size:11px!important;}
+  .statement-card{padding-right:66px!important;}
+  .received-thanks-item h3{flex-direction:column!important;gap:7px!important;}
+  .received-thanks-reason{max-width:100%!important;}
+}
