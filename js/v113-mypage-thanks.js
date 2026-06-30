@@ -1,9 +1,10 @@
-const RINCHAN_V113_MYPAGE = 'v0.9.13';
+const RINCHAN_V113_MYPAGE = 'v0.9.23';
 
 function v113ReadJson(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
 function v113Participant() { return v113ReadJson('rinchanParticipant', null) || {}; }
 function v113EscapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function v113RelativeTime(dateString) { if (!dateString) return 'たった今'; const d = new Date(dateString); if (isNaN(d)) return 'たった今'; const diff = Date.now() - d.getTime(); const mins = Math.floor(diff / 60000); if (mins < 1) return 'たった今'; if (mins < 60) return mins + '分前'; const hours = Math.floor(mins / 60); if (hours < 24) return hours + '時間前'; return Math.floor(hours / 24) + '日前'; }
+function v113FromLabel(item) { return item.fromName || (item.fromParticipantId ? '社員番号 ' + item.fromParticipantId : 'どなたか'); }
 
 async function v113LoadReceivedThanks() {
   const box = document.getElementById('receivedThanksList');
@@ -28,7 +29,7 @@ function v113RenderReceivedThanks(list) {
   const items = (list || []).slice().sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))).slice(0, 20);
   if (!items.length) { box.innerHTML = '<p class="received-thanks-empty">まだ届いたありがとうはありません。届いたらここに表示されます。</p>'; return; }
   box.innerHTML = items.map(item => {
-    const from = item.fromName || item.fromParticipantId || 'どなたか';
+    const from = v113FromLabel(item);
     const reason = item.reason || 'ありがとう';
     const body = reason === 'ありがとう' ? '応援の気持ちが届きました。' : '「' + reason + '」のありがとうです。';
     return '<article class="received-thanks-item">' +
