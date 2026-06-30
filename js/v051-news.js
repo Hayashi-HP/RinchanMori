@@ -1,6 +1,6 @@
 const RINCHAN_NEWS_KEY = 'rinchanReadNewsIds';
 const RINCHAN_NEWS_IDS = ['news1', 'news2'];
-const RINCHAN_V100 = 'v0.9.10';
+const RINCHAN_V100 = 'v0.9.12';
 
 function readJsonV051(key, fallback) {
   try {
@@ -25,6 +25,9 @@ function unreadCountV051() {
 }
 
 function initNewsV051() {
+  if (document.getElementById('rinchanNewsPage')) {
+    saveNewsIdsV051(RINCHAN_NEWS_IDS);
+  }
   updateNewsBadgesV051();
   updateNewsRowsV051();
   initNewsPageV100();
@@ -136,10 +139,6 @@ function v100ForestLevelFromSteps(totalSteps) {
   return 1;
 }
 
-function v100ForestIcon(level) {
-  return ['', '🌱', '🌿', '🌳', '🌳🦋', '🌳🌸', '🌳🐦', '🌳✨'][level] || '🌱';
-}
-
 function v100ForestTarget(level) {
   return [0, 10000, 30000, 70000, 120000, 200000, 300000, 450000][level] || 450000;
 }
@@ -165,10 +164,7 @@ function v100RenderSummary() {
   const span = Math.max(1, nextTarget - currentTarget);
   const progressPct = Math.max(8, Math.min(100, Math.round((achievedInLevel / span) * 100)));
   const remain = Math.max(0, nextTarget - totalSteps);
-  const leafCount = Math.min(99, Math.max(1, Math.floor(totalActivities / 2) + 1));
 
-  const icon = document.getElementById('forestHeroIcon');
-  if (icon) icon.textContent = v100ForestIcon(level);
   const title = document.getElementById('forestLevelTitle');
   if (title) title.textContent = '杜レベル ' + level;
   const text = document.getElementById('forestLevelText');
@@ -183,7 +179,6 @@ function v100RenderSummary() {
   const stats = document.getElementById('forestSummaryStats');
   if (!stats) return;
   stats.innerHTML = [
-    { icon: '🍀', text: '葉っぱ ' + v100Num(leafCount) + '枚' },
     { icon: '👟', text: '累計 ' + v100Num(totalSteps) + '歩' },
     { icon: '🌱', text: '今日 ' + v100Num(todayActivities) + '件の活動が記録されました' },
     { icon: '🩵', text: '今日の歩数は ' + v100Num(todaySteps) + '歩です' },
@@ -195,6 +190,24 @@ function v100RenderSummary() {
       '<strong>' + v100EscapeHtml(item.text) + '</strong>' +
     '</div>'
   ).join('');
+}
+
+function v100RenderNotices() {
+  const box = document.getElementById('noticeList');
+  if (!box) return;
+  const read = readNewsIdsV051();
+  const notices = [
+    { id: 'news1', icon: '📬', title: 'りんちゃん通信を更新しました', body: '今日の杜、ありがとう、グループニュースを見やすく整理しました。' },
+    { id: 'news2', icon: '📝', title: '歩数記録の修正・削除ができます', body: '間違って記録した時は、歩数記録画面の「最近の記録」から修正できます。' }
+  ];
+  box.innerHTML = notices.map(item => {
+    const isRead = read.includes(item.id);
+    return '<article class="notice-item ' + (isRead ? 'read' : 'unread') + '">' +
+      '<span class="notice-dot">' + item.icon + '</span>' +
+      '<div class="notice-title"><strong>' + v100EscapeHtml(item.title) + '</strong><small>' + v100EscapeHtml(item.body) + '</small></div>' +
+      '<span class="notice-state">' + (isRead ? '既読' : '未読') + '</span>' +
+    '</article>';
+  }).join('');
 }
 
 function v100RenderThanksStories() {
@@ -294,6 +307,7 @@ function v100RenderGroupNews() {
 function initNewsPageV100() {
   if (!document.getElementById('rinchanNewsPage')) return;
   v100RenderSummary();
+  v100RenderNotices();
   v100RenderThanksStories();
   v100RenderGroupNews();
 }
