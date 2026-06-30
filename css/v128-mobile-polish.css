@@ -1,4 +1,4 @@
-/* v0.9.25 mobile layout polish */
+/* v0.9.26 mobile layout polish */
 html,
 body{
   width:100%!important;
@@ -14,7 +14,12 @@ body{
   width:min(100%,430px)!important;
   max-width:430px!important;
   overflow-x:hidden!important;
-  padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+  padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))!important;
+}
+.app::after{
+  content:""!important;
+  display:block!important;
+  height:calc(34px + env(safe-area-inset-bottom,0px))!important;
 }
 .top,
 .card,
@@ -62,11 +67,24 @@ body{
   bottom:0!important;
   transform:translateX(-50%)!important;
   width:min(430px,100vw)!important;
-  height:calc(70px + env(safe-area-inset-bottom,0px))!important;
-  padding:7px 0 env(safe-area-inset-bottom,0px)!important;
+  height:calc(82px + env(safe-area-inset-bottom,0px))!important;
+  padding:9px 0 env(safe-area-inset-bottom,0px)!important;
   align-items:start!important;
-  box-shadow:0 -8px 24px rgba(36,64,56,.08)!important;
+  background:#fff!important;
+  border-top:1px solid rgba(93,130,105,.12)!important;
+  box-shadow:0 -10px 30px rgba(36,64,56,.10)!important;
+  z-index:9999!important;
   transition:opacity .12s ease, visibility .12s ease!important;
+}
+.nav::before{
+  content:""!important;
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  top:-22px!important;
+  height:22px!important;
+  pointer-events:none!important;
+  background:linear-gradient(180deg,rgba(255,255,255,0),#fff)!important;
 }
 .app:has(input:focus) .nav,
 .app:has(textarea:focus) .nav,
@@ -127,11 +145,11 @@ body{
 }
 .received-thanks-item h3{
   display:flex!important;
-  align-items:baseline!important;
+  align-items:center!important;
   justify-content:flex-start!important;
-  gap:2px 6px!important;
+  gap:4px!important;
   font-size:17px!important;
-  line-height:1.45!important;
+  line-height:1.35!important;
 }
 .received-thanks-from{
   min-width:0!important;
@@ -142,8 +160,8 @@ body{
   display:none!important;
 }
 .received-thanks-item p{
-  font-size:16px!important;
-  line-height:1.75!important;
+  font-size:14px!important;
+  line-height:1.45!important;
 }
 @media(max-width:480px){
   .notice-item{
@@ -162,5 +180,5 @@ body{
 @media(max-width:360px){
   .nav small{font-size:11px!important;}
   .statement-card{padding-right:66px!important;}
-  .received-thanks-item h3{flex-direction:column!important;gap:4px!important;}
+  .received-thanks-item h3{font-size:16px!important;}
 }
