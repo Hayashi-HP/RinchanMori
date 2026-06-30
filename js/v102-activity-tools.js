@@ -1,4 +1,4 @@
-const RINCHAN_V102 = 'v0.9.12';
+const RINCHAN_V102 = 'v0.9.13';
 const RINCHAN_ACTIVITY_KEY = 'rinchanActivities';
 
 function v102ReadJson(key, fallback) {
@@ -11,6 +11,7 @@ function v102Num(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 function v102EscapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function v102FindActivity(activityId) { return v102Activities().find(item => String(item.activityId) === String(activityId)); }
 function v102DateLabel(date) { if (!date) return '日付未設定'; const d = new Date(String(date) + 'T00:00:00'); if (isNaN(d)) return date; return (d.getMonth()+1) + '/' + d.getDate(); }
+function v102SetBusy(button, busy, label) { if (!button) return; button.disabled = busy; button.textContent = busy ? (label || '保存中...') : '保存する'; }
 
 function v102RenderActivityTools() {
   const box = document.getElementById('activityToolsList');
@@ -59,27 +60,35 @@ function v102OpenActivityEdit(activityId) {
   layer.querySelector('.activity-edit-close').addEventListener('click', v102CloseActivityEdit);
   layer.querySelector('.activity-edit-cancel').addEventListener('click', v102CloseActivityEdit);
   layer.addEventListener('click', event => { if (event.target === layer) v102CloseActivityEdit(); });
-  layer.querySelector('#activityEditForm').addEventListener('submit', event => { event.preventDefault(); v102SaveActivityEdit(activityId); });
+  layer.querySelector('#activityEditForm').addEventListener('submit', event => { event.preventDefault(); v102SaveActivityEdit(activityId, event); });
 }
 function v102CloseActivityEdit() { const layer = document.getElementById('activityEditLayer'); if (layer) layer.remove(); }
 
-async function v102SaveActivityEdit(activityId) {
-  const list = v102Activities();
-  const idx = list.findIndex(item => String(item.activityId) === String(activityId));
-  if (idx < 0) { alert('記録が見つかりません。'); return; }
-  const item = Object.assign({}, list[idx]);
-  item.date = document.getElementById('editActivityDate').value;
-  item.steps = Number(document.getElementById('editActivitySteps').value || 0);
-  item.challenge = document.getElementById('editActivityChallenge').checked;
-  item.comment = String(document.getElementById('editActivityComment').value || '').trim();
-  item.updatedAt = new Date().toISOString();
-  item.version = RINCHAN_V102;
-  list[idx] = item;
-  v102SaveJson(RINCHAN_ACTIVITY_KEY, list);
-  await v102SaveRemote('saveActivity', item);
-  v102CloseActivityEdit();
-  v102RenderActivityTools();
-  v102ShowToast('記録を修正しました');
+async function v102SaveActivityEdit(activityId, event) {
+  const form = event && event.target ? event.target : document.getElementById('activityEditForm');
+  const saveButton = form ? form.querySelector('.activity-edit-save') : null;
+  v102SetBusy(saveButton, true, '保存中...');
+  try {
+    const list = v102Activities();
+    const idx = list.findIndex(item => String(item.activityId) === String(activityId));
+    if (idx < 0) { alert('記録が見つかりません。'); v102SetBusy(saveButton, false); return; }
+    const item = Object.assign({}, list[idx]);
+    item.date = document.getElementById('editActivityDate').value;
+    item.steps = Number(document.getElementById('editActivitySteps').value || 0);
+    item.challenge = document.getElementById('editActivityChallenge').checked;
+    item.comment = String(document.getElementById('editActivityComment').value || '').trim();
+    item.updatedAt = new Date().toISOString();
+    item.version = RINCHAN_V102;
+    list[idx] = item;
+    v102SaveJson(RINCHAN_ACTIVITY_KEY, list);
+    await v102SaveRemote('saveActivity', item);
+    v102CloseActivityEdit();
+    v102RenderActivityTools();
+    v102ShowToast('記録を修正しました');
+  } catch (e) {
+    v102SetBusy(saveButton, false);
+    alert('保存できませんでした。もう一度お試しください。');
+  }
 }
 
 async function v102DeleteActivity(activityId) {
