@@ -3,22 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>管理者画面｜りんちゃんの杜 v0.9.11</title>
-  <link rel="stylesheet" href="../css/style.css?v=0911">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=0911">
+  <title>管理画面｜りんちゃんの杜 v0.9.30</title>
+  <link rel="stylesheet" href="../css/style.css?v=0930">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=0930">
+  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=0930">
+  <link rel="stylesheet" href="../css/v129-admin.css?v=0930">
 </head>
 <body>
-<main class="app admin-app">
-  <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">管理者画面</div><button class="icon-button" id="adminRefreshButton" type="button">↻</button></header>
-  <section class="intro compact admin-hero"><p class="label">RinchanMori Admin</p><h1>集計とCSV出力</h1><p id="adminUpdatedAt">読み込み中...</p></section>
-  <section class="stats-grid admin-stats"><div class="stat-card"><small>参加者</small><strong id="adminTotalUsers">-</strong></div><div class="stat-card"><small>記録</small><strong id="adminTotalActivities">-</strong></div><div class="stat-card wide"><small>総歩数</small><strong id="adminTotalSteps">-</strong></div></section>
-  <section class="card admin-actions"><p class="label">出力</p><h2>CSVダウンロード</h2><p>活動記録をCSVで出力します。Excelで開ける UTF-8 BOM 付きです。</p><button class="submit pill-button" id="downloadCsvButton" type="button">CSVをダウンロード</button></section>
-  <section class="card admin-card"><p class="label">部署別ランキング</p><h2>部署ごとの総歩数</h2><div id="deptChart" class="bar-chart"><p class="empty-note">読み込み中...</p></div></section>
-  <section class="card admin-card"><p class="label">月別集計</p><h2>月ごとの活動</h2><div id="monthlyChart" class="bar-chart"><p class="empty-note">読み込み中...</p></div></section>
-  <section class="card admin-card"><p class="label">個人ランキング</p><h2>全体ランキング</h2><div id="adminRankingList" class="ranking-list"><p class="empty-note">読み込み中...</p></div></section>
-  <section class="card admin-card"><p class="label">状態</p><h2>管理API</h2><p id="adminStatus">確認中...</p></section>
+<main class="app">
+  <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">管理画面</div><button class="icon-button" id="adminRefresh" type="button">↻</button></header>
+  <section class="admin-hero"><p class="label">v0.9.30</p><h1>りんちゃんの杜 管理画面</h1><p>所属マスター、部署別集計、利用者一覧、所属未設定者を確認します。</p><div class="admin-updated" id="adminStatus">読み込み中...</div></section>
+  <section class="admin-grid"><div class="admin-stat"><strong id="adminTotalUsers">-</strong><small>登録者</small></div><div class="admin-stat"><strong id="adminDeptCount">-</strong><small>所属マスター</small></div><div class="admin-stat"><strong id="adminTotalActivities">-</strong><small>記録回数</small></div><div class="admin-stat"><strong id="adminTotalSteps">-</strong><small>総歩数</small></div></section>
+  <section class="admin-card admin-warning"><h2>所属マスター</h2><p class="admin-note">編集は Google Sheets の departments シートで行います。active を FALSE にすると非表示になります。</p><div id="adminDepartments"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="admin-card"><h2>部署別集計</h2><div id="adminDeptRanking"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="admin-card admin-danger"><h2>所属未設定</h2><div id="adminUnsetMembers"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="admin-card"><h2>利用者一覧</h2><input class="admin-search" id="adminSearch" placeholder="氏名・所属で検索"><div id="adminMembers"><p class="admin-empty">読み込み中...</p></div></section>
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a class="active" href="admin.html">⚙️<small>管理</small></a></nav>
 </main>
-<script src="../js/config.js?v=0911"></script><script src="../js/admin.js?v=0911"></script><script src="../js/v051-auth.js?v=0911"></script>
+<script src="../js/config.js?v=0930"></script><script src="../js/v051-auth.js?v=0930"></script><script src="../js/v129-admin.js?v=0930"></script>
 </body>
 </html>
