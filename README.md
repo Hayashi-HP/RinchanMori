@@ -1,81 +1,47 @@
-# RinchanMori v0.9.11
+# RinchanMori v0.9.12
 
 みんなで育てる、健康と笑顔の杜。
 
-## v0.9.11 内容
+## v0.9.12 内容
 
-- ホーム右上のポストアイコンと下部メニューの通信アイコンを `📬` に統一
-- 通信ページの下部メニューも `📬 通信` に統一
-- 杜・歩数記録・マイページ・管理画面の下部メニューも `📬 通信` に統一
-- `v051-auth.js` のナビゲーション自動補正も `📬 通信` に統一
-- GitHub Pages のキャッシュ対策として関連画面の読み込みバージョンを `v0911` に更新
+- りんちゃんの顔を指定画像ベースの `assets/rinchan-face.svg` に変更
+- ホーム・ログイン・参加登録・歩数記録・ようこそ画面のりんちゃん表示を統一
+- 通信ページ「今日の杜」の杜レベル表示を整理し、PCでも枠内に収まるように修正
+- 「葉っぱ◯枚」の抽象表現を削除し、累計歩数・今日の記録・今日の歩数・ありがとう・活動回数に整理
+- 「ありがとうの出来事」の謎コメントを削除し、「最近届いたありがとう」に変更
+- 通信ページに「お知らせ」欄を復活
+- 通信ページを開いた時点で未読バッジを既読化する処理を追加
+- 歩数記録の修正・削除機能を追加
+- Apps Script に `deleteActivity` を追加し、スプレッドシート側の削除にも対応
+- GitHub Pages のキャッシュ対策として関連画面の読み込みバージョンを `v0912` に更新
 
 ## 構成
 
 ```text
 .
-├── index.html
+├── assets/
+│   └── rinchan-face.svg
 ├── pages/
 │   ├── activity.html
-│   ├── admin.html
 │   ├── login.html
-│   ├── mori.html
-│   ├── mypage.html
 │   ├── news.html
 │   ├── register.html
 │   └── welcome.html
 ├── css/
-│   ├── style.css
-│   ├── ui-v042.css
-│   ├── v081-fixes.css
-│   ├── v094-guide.css
-│   ├── v098-hotfix.css
-│   ├── v099-ui-fixes.css
-│   └── v100-news-ui.css
+│   ├── v100-news-ui.css
+│   ├── v102-activity-tools.css
+│   └── v102-rinchan-face.css
 ├── js/
-│   ├── admin.js
-│   ├── app.js
-│   ├── config.js
-│   ├── v051-auth.js
 │   ├── v051-news.js
-│   ├── v060-growth.js
-│   ├── v071-mori-map.js
-│   ├── v078-steps-chart.js
-│   ├── v094-rinchan-guide.js
-│   └── v099-mypage-modal.js
+│   └── v102-activity-tools.js
 ├── apps-script/
-│   ├── Code.gs
-│   └── appsscript.json
-└── docs/
-    └── google-sheets.md
+│   └── Code.gs
+├── index.html
+├── README.md
+└── CHANGELOG.md
 ```
 
-## API URL 設定
+## スプレッドシート管理について
 
-`js/config.js` に Apps Script の Web アプリ URL を設定します。
-
-```js
-const RINCHAN_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/xxxxxxxxxxxxxxxx/exec"
-};
-```
-
-## ユーザー管理
-
-社員番号を主キーにします。
-
-- 初回登録：社員番号・氏名・所属・メールアドレス・誕生日4桁
-- ログイン：社員番号・誕生日4桁
-- 歩数記録：登録済みユーザーのみ利用可能
-
-## データ保存
-
-- `users`: 職員登録情報
-- `activities`: 歩数記録
-- `logs`: APIログ
-- ありがとう送信数は端末内に即時保存し、杜画面と通信画面で反映します
-- 健康宣言・今週の目標は端末内へ即時保存し、Apps Script にも保存します
-
-## GitHub Pages
-
-通信アイコンは全画面で `📬` に統一します。
+今回の修正・削除対応で、スプレッドシート側はまず `activities` の更新・削除に対応しました。
+将来的に、運用管理用に `settings` / `news` / `badges` などのシートを追加すれば、アプリの文言・お知らせ・バッジ条件をコード変更なしで管理できます。
