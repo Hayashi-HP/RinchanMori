@@ -1,0 +1,9 @@
+/* v0.9.24 Mori display fixes */
+.member-tree{display:none!important}
+.dept-node{min-width:72px!important;max-width:92px!important;padding:8px!important;border-radius:20px!important;z-index:5!important}
+.dept-node span{font-size:30px!important}
+.dept-node small{font-size:10px!important;max-width:82px!important;line-height:1.25!important}
+.empty-dept{opacity:.72}
+.dept-member-item.is-me{background:#eef8ff}
+.dept-member-meta{line-height:1.45!important}
+@media(max-width:480px){.dept-node{min-width:66px!important;max-width:82px!important;padding:7px!important}.dept-node span{font-size:26px!important}.dept-node small{font-size:9px!important}}
