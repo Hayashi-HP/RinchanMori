@@ -1,10 +1,10 @@
-const RINCHAN_V113_MYPAGE = 'v0.9.24';
+const RINCHAN_V113_MYPAGE = 'v0.9.25';
 
 function v113ReadJson(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
 function v113Participant() { return v113ReadJson('rinchanParticipant', null) || {}; }
 function v113EscapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function v113RelativeTime(dateString) { if (!dateString) return 'たった今'; const d = new Date(dateString); if (isNaN(d)) return 'たった今'; const diff = Date.now() - d.getTime(); const mins = Math.floor(diff / 60000); if (mins < 1) return 'たった今'; if (mins < 60) return mins + '分前'; const hours = Math.floor(mins / 60); if (hours < 24) return hours + '時間前'; return Math.floor(hours / 24) + '日前'; }
-function v113FromLabel(item) { return item.fromName || (item.fromParticipantId ? '社員番号 ' + item.fromParticipantId : 'どなたか'); }
+function v113FromLabel(item) { return item.fromName || item.fromNick || (item.fromParticipantId ? '社員番号 ' + item.fromParticipantId : 'どなたか'); }
 
 async function v113LoadReceivedThanks() {
   const box = document.getElementById('receivedThanksList');
@@ -31,11 +31,15 @@ function v113RenderReceivedThanks(list) {
   box.innerHTML = items.map(item => {
     const from = v113FromLabel(item);
     const reason = item.reason || 'ありがとう';
-    const body = reason === 'ありがとう' ? '応援の気持ちが届きました。' : 'ありがとうが届きました。';
+    const message = item.message || item.comment || '';
+    const body = message || (reason === 'ありがとう' ? '応援の気持ちが届きました。' : reason);
     return '<article class="received-thanks-item">' +
-      '<div class="received-thanks-top"><span class="received-thanks-badge">❤️ ありがとう</span><time class="received-thanks-time">' + v113EscapeHtml(v113RelativeTime(item.createdAt)) + '</time></div>' +
-      '<h3><span class="received-thanks-from">' + v113EscapeHtml(from) + 'さんから</span><span class="received-thanks-reason">' + v113EscapeHtml(reason) + '</span></h3>' +
-      '<p>' + v113EscapeHtml(body) + '</p>' +
+      '<div class="received-thanks-heart" aria-hidden="true">❤️</div>' +
+      '<div class="received-thanks-main">' +
+        '<div class="received-thanks-meta"><span class="received-thanks-label">ありがとう</span><time class="received-thanks-time">' + v113EscapeHtml(v113RelativeTime(item.createdAt)) + '</time></div>' +
+        '<h3><strong>' + v113EscapeHtml(from) + '</strong><span>さんから届きました</span></h3>' +
+        '<p>' + v113EscapeHtml(body) + '</p>' +
+      '</div>' +
     '</article>';
   }).join('');
 }
