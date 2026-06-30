@@ -1,4 +1,4 @@
-const RINCHAN_V127_DEPARTMENTS='v0.9.27';
+const RINCHAN_V127_DEPARTMENTS='v0.9.30';
 const RINCHAN_DEFAULT_DEPARTMENTS=[
   {deptId:'nurse',deptName:'看護部',displayOrder:10,active:true,mapKey:'nurse'},
   {deptId:'reha',deptName:'リハビリテーション部',displayOrder:20,active:true,mapKey:'reha'},
@@ -12,17 +12,17 @@ const RINCHAN_DEFAULT_DEPARTMENTS=[
 function v127ReadJson(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback}catch(e){return fallback}}
 function v127Participant(){return v127ReadJson('rinchanParticipant',{})||{}}
 async function v127FetchDepartments(){
-  const cached=v127ReadJson('rinchanDepartments',null);
-  if(cached&&Array.isArray(cached.departments)&&cached.departments.length)return cached.departments;
   try{
     if(typeof v051Api==='function'){
-      const result=await v051Api('departments',{});
+      const result=await v051Api('departments',{force:true,ts:Date.now()});
       if(result&&result.ok&&Array.isArray(result.departments)&&result.departments.length){
         localStorage.setItem('rinchanDepartments',JSON.stringify({savedAt:new Date().toISOString(),departments:result.departments}));
         return result.departments;
       }
     }
   }catch(e){}
+  const cached=v127ReadJson('rinchanDepartments',null);
+  if(cached&&Array.isArray(cached.departments)&&cached.departments.length)return cached.departments;
   return RINCHAN_DEFAULT_DEPARTMENTS;
 }
 function v127FillSelect(select,departments,currentValue){
@@ -32,7 +32,7 @@ function v127FillSelect(select,departments,currentValue){
   select.innerHTML='<option value="">選択してください</option>'+list.map(d=>'<option value="'+v127Esc(d.deptName)+'">'+v127Esc(d.deptName)+'</option>').join('');
   if(current){
     const has=list.some(d=>String(d.deptName)===String(current));
-    if(!has)select.insertAdjacentHTML('beforeend','<option value="'+v127Esc(current)+'">'+v127Esc(current)+'</option>');
+    if(!has)select.insertAdjacentHTML('beforeend','<option value="'+v127Esc(current)+'">'+v127Esc(current)+'（現在）</option>');
     select.value=current;
   }
 }
@@ -40,7 +40,10 @@ function v127Esc(value){return String(value||'').replace(/[&<>'"]/g,c=>({'&':'&a
 async function v127InitDepartmentSelects(){
   const p=v127Participant();
   const departments=await v127FetchDepartments();
-  v127FillSelect(document.getElementById('dept'),departments,document.getElementById('dept')?document.getElementById('dept').value:'');
-  v127FillSelect(document.getElementById('editDept'),departments,p.dept||'');
+  const dept=document.getElementById('dept');
+  const editDept=document.getElementById('editDept');
+  v127FillSelect(dept,departments,dept?dept.value:'');
+  v127FillSelect(editDept,departments,p.dept||'');
 }
+window.v127ReloadDepartments=v127InitDepartmentSelects;
 document.addEventListener('DOMContentLoaded',v127InitDepartmentSelects);
