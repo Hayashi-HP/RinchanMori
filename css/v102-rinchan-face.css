@@ -1,11 +1,11 @@
-/* v0.9.17 Rinchan official face + auth UI */
+/* v0.9.19 Rinchan official face: original uploaded image only */
 .rin,
 .rin.small,
 .welcome-rin,
 .rinchan-face,
 .guide-face,
 .rinchan-walker{
-  background-image:url('../assets/rinchan-face.svg?v=0917')!important;
+  background-image:url('../assets/rinchan-face.svg?v=0919')!important;
   background-repeat:no-repeat!important;
   background-position:center center!important;
   background-size:contain!important;
