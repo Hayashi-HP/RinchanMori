@@ -1,4 +1,4 @@
-const RINCHAN_V113_MYPAGE = 'v0.9.23';
+const RINCHAN_V113_MYPAGE = 'v0.9.24';
 
 function v113ReadJson(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
 function v113Participant() { return v113ReadJson('rinchanParticipant', null) || {}; }
@@ -31,10 +31,10 @@ function v113RenderReceivedThanks(list) {
   box.innerHTML = items.map(item => {
     const from = v113FromLabel(item);
     const reason = item.reason || 'ありがとう';
-    const body = reason === 'ありがとう' ? '応援の気持ちが届きました。' : '「' + reason + '」のありがとうです。';
+    const body = reason === 'ありがとう' ? '応援の気持ちが届きました。' : 'ありがとうが届きました。';
     return '<article class="received-thanks-item">' +
       '<div class="received-thanks-top"><span class="received-thanks-badge">❤️ ありがとう</span><time class="received-thanks-time">' + v113EscapeHtml(v113RelativeTime(item.createdAt)) + '</time></div>' +
-      '<h3>' + v113EscapeHtml(from) + 'さんから届きました</h3>' +
+      '<h3><span class="received-thanks-from">' + v113EscapeHtml(from) + 'さんから</span><span class="received-thanks-reason">' + v113EscapeHtml(reason) + '</span></h3>' +
       '<p>' + v113EscapeHtml(body) + '</p>' +
     '</article>';
   }).join('');
