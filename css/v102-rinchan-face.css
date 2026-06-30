@@ -1,11 +1,46 @@
-/* v0.9.21 Rinchan official SVG: uploaded original */
+/* v0.9.22 Rinchan official SVG: exact asset displayed with img */
+.rin-img{
+  display:block!important;
+  height:auto!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  flex-shrink:0!important;
+}
+.rin-face-hero,
+.rin-face-welcome{
+  width:156px!important;
+  max-width:100%!important;
+  margin:0 auto 12px!important;
+}
+.rin-face-small{
+  width:116px!important;
+  max-width:100%!important;
+  margin:0 auto 12px!important;
+}
+.rin-face-brand{
+  width:44px!important;
+  height:auto!important;
+}
+.rin-face-guide{
+  width:86px!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+}
+.rin-face-walker{
+  width:64px!important;
+  max-width:100%!important;
+  margin:0 auto!important;
+}
 .rin,
 .rin.small,
 .welcome-rin,
 .rinchan-face,
 .guide-face,
 .rinchan-walker{
-  background-image:url('../assets/rinchan-face.svg?v=0921')!important;
+  background-image:url('../assets/rinchan-face.svg?v=0922')!important;
   background-repeat:no-repeat!important;
   background-position:center center!important;
   background-size:contain!important;
@@ -23,7 +58,7 @@
   width:156px!important;
   height:158px!important;
   background-color:transparent!important;
-  margin:0 auto 8px!important;
+  margin:0 auto 12px!important;
 }
 .rin.small{
   width:116px!important;
@@ -46,7 +81,10 @@
   height:66px!important;
   background-color:transparent!important;
 }
-.home-hero.sky{overflow:visible!important;padding-top:22px!important}
-.intro{overflow:visible!important}
+.home-hero.sky,
+.intro,
+.welcome{
+  overflow:visible!important;
+}
 .auth-card{display:none!important}.auth-card.ready{display:block!important}.auth-card h2{margin:0 0 8px!important;font-size:20px!important}.auth-card p{margin:0 0 14px!important;color:#61766e!important;line-height:1.7!important}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-actions.single{grid-template-columns:1fr}.auth-button{min-height:52px;border:0;border-radius:999px;font-weight:900;font-size:15px;text-decoration:none;display:flex;align-items:center;justify-content:center;font-family:inherit}.auth-login{background:linear-gradient(90deg,#28b8d2,#69c47d);color:#fff}.auth-register{background:#edf9f0;color:#244038}.auth-logout{background:#fff2f4;color:#b84d67}.auth-mini{display:flex;align-items:center;justify-content:space-between;gap:12px}.auth-mini strong{display:block;font-size:17px;color:#244038}.auth-mini small{display:block;margin-top:2px;color:#7a8f82;font-weight:800}.login-helper{font-size:14px!important;text-align:center;color:#61766e!important}.login-helper a{color:#28b8d2!important;font-weight:900!important;text-decoration:none!important}.danger-zone{background:#fffafa!important;border-color:#f7d7df!important}
-@media(max-width:380px){.auth-actions{grid-template-columns:1fr}.auth-mini{align-items:flex-start;flex-direction:column}.auth-button{width:100%}.rin,.welcome-rin{width:138px!important;height:140px!important}.rin.small{width:104px!important;height:106px!important}}
+@media(max-width:380px){.auth-actions{grid-template-columns:1fr}.auth-mini{align-items:flex-start;flex-direction:column}.auth-button{width:100%}.rin-face-hero,.rin-face-welcome,.rin,.welcome-rin{width:138px!important;height:auto!important}.rin-face-small,.rin.small{width:104px!important;height:auto!important}}
