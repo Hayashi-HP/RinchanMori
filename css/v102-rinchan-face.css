@@ -1,39 +1,45 @@
-/* v0.9.14 Rinchan official face exact image */
+/* v0.9.15 Rinchan official face exact image */
 .rin,
 .rin.small,
 .welcome-rin,
 .rinchan-face,
 .guide-face,
 .rinchan-walker{
-  background-image:url('../assets/rinchan-face.svg?v=0914')!important;
+  background-image:url('../assets/rinchan-face.svg?v=0915')!important;
   background-repeat:no-repeat!important;
   background-position:center center!important;
-  background-size:82%!important;
+  background-size:contain!important;
   color:transparent!important;
   font-size:0!important;
-  overflow:hidden!important;
+  overflow:visible!important;
   text-indent:-9999px!important;
   white-space:nowrap!important;
+  border-radius:0!important;
+  box-shadow:none!important;
 }
 .rin,
+.rin.small,
 .welcome-rin{
-  background-color:rgba(255,255,255,.88)!important;
+  width:110px!important;
+  height:112px!important;
+  background-color:transparent!important;
 }
 .rin.small{
-  background-size:84%!important;
+  width:86px!important;
+  height:88px!important;
 }
 .rinchan-face{
-  background-color:#fff7db!important;
-  background-size:86%!important;
+  width:42px!important;
+  height:42px!important;
+  background-color:transparent!important;
 }
 .guide-face{
-  background-color:#fff7db!important;
+  background-color:transparent!important;
 }
 .rinchan-walker{
-  width:44px!important;
-  height:44px!important;
-  background-color:rgba(255,255,255,.92)!important;
-  border-radius:999px!important;
-  background-size:86%!important;
-  box-shadow:0 8px 18px rgba(36,64,56,.16)!important;
+  width:54px!important;
+  height:56px!important;
+  background-color:transparent!important;
 }
+.auth-card{display:none!important}.auth-card.ready{display:block!important}.auth-card h2{margin:0 0 8px!important;font-size:20px!important}.auth-card p{margin:0 0 14px!important;color:#61766e!important;line-height:1.7!important}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.auth-actions.single{grid-template-columns:1fr}.auth-button{min-height:52px;border:0;border-radius:999px;font-weight:900;font-size:15px;text-decoration:none;display:flex;align-items:center;justify-content:center;font-family:inherit}.auth-login{background:linear-gradient(90deg,#28b8d2,#69c47d);color:#fff}.auth-register{background:#edf9f0;color:#244038}.auth-logout{background:#fff2f4;color:#b84d67}.auth-mini{display:flex;align-items:center;justify-content:space-between;gap:12px}.auth-mini strong{display:block;font-size:17px;color:#244038}.auth-mini small{display:block;margin-top:2px;color:#7a8f82;font-weight:800}
+@media(max-width:380px){.auth-actions{grid-template-columns:1fr}.auth-mini{align-items:flex-start;flex-direction:column}.auth-button{width:100%}}
