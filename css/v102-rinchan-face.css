@@ -1,14 +1,14 @@
-/* v0.9.16 Rinchan official face exact image + auth UI */
+/* v0.9.17 Rinchan official face + auth UI */
 .rin,
 .rin.small,
 .welcome-rin,
 .rinchan-face,
 .guide-face,
 .rinchan-walker{
-  background-image:url('../assets/rinchan-face.svg?v=0916')!important;
+  background-image:url('../assets/rinchan-face.svg?v=0917')!important;
   background-repeat:no-repeat!important;
   background-position:center center!important;
-  background-size:68% auto!important;
+  background-size:contain!important;
   color:transparent!important;
   font-size:0!important;
   overflow:visible!important;
@@ -20,8 +20,8 @@
 .rin,
 .rin.small,
 .welcome-rin{
-  width:138px!important;
-  height:140px!important;
+  width:140px!important;
+  height:142px!important;
   background-color:transparent!important;
   margin-bottom:6px!important;
 }
