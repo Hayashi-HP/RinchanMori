@@ -1,7 +1,7 @@
 const SHEET_USERS = 'users';
 const SHEET_ACTIVITIES = 'activities';
 const SHEET_LOGS = 'logs';
-const VERSION = 'v0.5.1';
+const VERSION = 'v0.9.12';
 
 function doGet(e) {
   const action = e && e.parameter ? String(e.parameter.action || '') : '';
@@ -40,6 +40,12 @@ function doPost(e) {
       const saved = saveActivity(ss, data);
       writeLog(ss, action, data.deviceId, data.participantId || data.id, 'ok', '');
       return jsonOutput({ ok: true, action: action, saved: saved, version: VERSION });
+    }
+
+    if (action === 'deleteActivity') {
+      const deleted = deleteActivity(ss, data);
+      writeLog(ss, action, data.deviceId, data.participantId || data.id, deleted.deleted ? 'ok' : 'ng', deleted.deleted ? '' : 'not_found');
+      return jsonOutput({ ok: true, action: action, deleted: deleted, version: VERSION });
     }
 
     writeLog(ss, action || 'unknown', data.deviceId, data.participantId || data.id, 'ng', 'unknown_action');
@@ -145,6 +151,18 @@ function saveActivity(ss, data) {
   }
   sheet.appendRow(values);
   return { type: 'inserted', row: sheet.getLastRow(), activityId: activityId };
+}
+
+function deleteActivity(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_ACTIVITIES);
+  const activityId = String(data.activityId || '').trim();
+  if (!activityId) throw new Error('activity_id_required');
+  const row = findRowByValue(sheet, 1, activityId);
+  if (row > 0) {
+    sheet.deleteRow(row);
+    return { deleted: true, row: row, activityId: activityId };
+  }
+  return { deleted: false, row: -1, activityId: activityId };
 }
 
 function getDashboard(ss) {
