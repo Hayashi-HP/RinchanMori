@@ -3,7 +3,8 @@
 .rin.small,
 .welcome-rin,
 .rinchan-face,
-.guide-face{
+.guide-face,
+.rinchan-walker{
   background-image:url('../assets/rinchan-face.svg')!important;
   background-repeat:no-repeat!important;
   background-position:center!important;
@@ -25,4 +26,12 @@
 }
 .guide-face{
   background-color:#fff7db!important;
+}
+.rinchan-walker{
+  width:44px!important;
+  height:44px!important;
+  background-color:rgba(255,255,255,.92)!important;
+  border-radius:999px!important;
+  background-size:86%!important;
+  box-shadow:0 8px 18px rgba(36,64,56,.16)!important;
 }
