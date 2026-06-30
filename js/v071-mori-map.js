@@ -1,4 +1,4 @@
-const RINCHAN_V071='v0.9.24';
+const RINCHAN_V071='v0.9.25';
 function v071ReadJson(k,f){try{const r=localStorage.getItem(k);return r?JSON.parse(r):f}catch(e){return f}}
 function v071SaveJson(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function v071Num(n){return Number(n||0).toLocaleString('ja-JP')}
@@ -9,8 +9,8 @@ function v071Tree(l){return['','🌱','🌿','🌳','🌸🌳','🌳🐦','🌳�
 function v071PersonId(u){return String((u&&(u.employeeId||u.id||u.participantId||u.name||u.nick))||'tree').trim().replace(/\s+/g,'-').slice(0,90)||'tree'}
 function v071CurrentUserId(){const p=v071ReadJson('rinchanParticipant',{})||{};return String(p.employeeId||p.id||'').trim()}
 function v071IsMe(u){const me=v071CurrentUserId();if(!me||!u)return false;return [u.employeeId,u.id,u.participantId].map(x=>String(x||'').trim()).includes(me)}
-function v071PersonLabel(u){const name=String((u&&(u.name||''))||'').trim();const nick=String((u&&(u.nick||''))||'').trim();const emp=String((u&&(u.employeeId||u.id||''))||'').trim();if(name&&nick&&name!==nick)return name+'（'+nick+'）';if(name)return name;if(nick&&emp)return nick+'（社員番号 '+emp+'）';if(nick)return nick;if(emp)return '社員番号 '+emp;return 'ゲスト'}
-function v071PersonSubLabel(u,g){const dept=String((u&&(u.dept||''))||g||'').trim();const emp=String((u&&(u.employeeId||u.id||''))||'').trim();const a=[];if(dept)a.push(dept);if(emp&&!emp.startsWith('sample-'))a.push('社員番号 '+emp);a.push(v071Num(u&&u.totalSteps)+'歩 / '+v071Num(u&&u.activityCount)+'回');return a.join(' ・ ')}
+function v071PersonLabel(u){const name=String((u&&(u.name||''))||'').trim();const nick=String((u&&(u.nick||''))||'').trim();if(name&&nick&&name!==nick)return name+'（'+nick+'）';if(name)return name;if(nick)return nick;return 'ゲスト'}
+function v071PersonSubLabel(u,g){return v071Num(u&&u.totalSteps)+'歩 / '+v071Num(u&&u.activityCount)+'回'}
 function v071SenderLabel(u){const name=String((u&&(u.name||''))||'').trim();const nick=String((u&&(u.nick||''))||'').trim();const emp=String((u&&(u.employeeId||u.id||''))||'').trim();if(name&&nick&&name!==nick)return name+'（'+nick+'）';if(name)return name;if(nick)return nick;if(emp)return '社員番号 '+emp;return 'どなたか'}
 function v071StdAreas(){return[{key:'nurse',x:18,y:28,label:'看護部',area:'看護部エリア'},{key:'reha',x:50,y:26,label:'リハビリテーション部',area:'リハビリエリア'},{key:'care',x:80,y:30,label:'介護部',area:'介護部エリア'},{key:'office',x:22,y:62,label:'事務部',area:'事務部エリア'},{key:'doctor',x:52,y:58,label:'医局',area:'医局エリア'},{key:'pharmacy',x:80,y:58,label:'薬剤部',area:'薬剤部エリア'},{key:'nutrition',x:36,y:82,label:'栄養科',area:'栄養科エリア'},{key:'other',x:68,y:82,label:'その他',area:'その他エリア'}]}
 function v071Area(dept){const d=String(dept||'');const areas=v071StdAreas();if(d.includes('看護'))return areas[0];if(d.includes('リハ'))return areas[1];if(d.includes('介護'))return areas[2];if(d.includes('事務'))return areas[3];if(d.includes('医'))return areas[4];if(d.includes('薬'))return areas[5];if(d.includes('栄養'))return areas[6];return areas[7]}
