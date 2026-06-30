@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>管理画面｜りんちゃんの杜 v0.9.30</title>
-  <link rel="stylesheet" href="../css/style.css?v=0930">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=0930">
-  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=0930">
-  <link rel="stylesheet" href="../css/v129-admin.css?v=0930">
+  <title>管理画面｜りんちゃんの杜 v0.9.31</title>
+  <link rel="stylesheet" href="../css/style.css?v=0931">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=0931">
+  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=0931">
+  <link rel="stylesheet" href="../css/v129-admin.css?v=0931">
 </head>
 <body>
 <main class="app">
   <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">管理画面</div><button class="icon-button" id="adminRefresh" type="button">↻</button></header>
-  <section class="admin-hero"><p class="label">v0.9.30</p><h1>りんちゃんの杜 管理画面</h1><p>所属マスター、部署別集計、利用者一覧、所属未設定者を確認します。</p><div class="admin-updated" id="adminStatus">読み込み中...</div></section>
-  <section class="admin-grid"><div class="admin-stat"><strong id="adminTotalUsers">-</strong><small>登録者</small></div><div class="admin-stat"><strong id="adminDeptCount">-</strong><small>所属マスター</small></div><div class="admin-stat"><strong id="adminTotalActivities">-</strong><small>記録回数</small></div><div class="admin-stat"><strong id="adminTotalSteps">-</strong><small>総歩数</small></div></section>
-  <section class="admin-card admin-warning"><h2>所属マスター</h2><p class="admin-note">編集は Google Sheets の departments シートで行います。active を FALSE にすると非表示になります。</p><div id="adminDepartments"><p class="admin-empty">読み込み中...</p></div></section>
-  <section class="admin-card"><h2>部署別集計</h2><div id="adminDeptRanking"><p class="admin-empty">読み込み中...</p></div></section>
-  <section class="admin-card admin-danger"><h2>所属未設定</h2><div id="adminUnsetMembers"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="admin-hero"><p class="label">v0.9.31</p><h1>運用チェック</h1><p>今日の記録状況、声かけ候補、部署別の動き、利用者状態を確認します。</p><div class="admin-updated" id="adminStatus">読み込み中...</div></section>
+  <section class="admin-grid"><div class="admin-stat"><strong id="adminTotalUsers">-</strong><small>登録者</small></div><div class="admin-stat"><strong id="adminTodayUsers">-</strong><small>今日の記録者</small></div><div class="admin-stat"><strong id="adminTodayActivities">-</strong><small>今日の記録</small></div><div class="admin-stat"><strong id="adminTodaySteps">-</strong><small>今日の歩数</small></div></section>
+  <section class="admin-card admin-warning"><h2>対応が必要な項目</h2><p class="admin-note">所属未設定や記録が止まっている人を確認します。</p><div id="adminOperations"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="admin-card"><h2>部署別の動き</h2><p class="admin-note">直近7日を優先して表示します。</p><div id="adminDeptRanking"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="admin-card admin-danger"><h2>7日以上記録なし</h2><div id="adminInactiveMembers"><p class="admin-empty">読み込み中...</p></div></section>
   <section class="admin-card"><h2>利用者一覧</h2><input class="admin-search" id="adminSearch" placeholder="氏名・所属で検索"><div id="adminMembers"><p class="admin-empty">読み込み中...</p></div></section>
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a class="active" href="admin.html">⚙️<small>管理</small></a></nav>
 </main>
-<script src="../js/config.js?v=0930"></script><script src="../js/v051-auth.js?v=0930"></script><script src="../js/v129-admin.js?v=0930"></script>
+<script src="../js/config.js?v=0931"></script><script src="../js/v051-auth.js?v=0931"></script><script src="../js/v129-admin.js?v=0931"></script>
 </body>
 </html>
