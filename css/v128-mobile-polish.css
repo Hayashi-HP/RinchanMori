@@ -1,4 +1,4 @@
-/* v0.9.34 mobile layout polish */
+/* v0.9.35 mobile layout polish */
 html,
 body{
   width:100%!important;
@@ -69,7 +69,7 @@ body{
   border-radius:18px!important;
   background:rgba(255,255,255,.72)!important;
   box-shadow:inset 0 0 0 1px rgba(93,130,105,.10)!important;
-  text-align:left!important;
+  text-align:center!important;
 }
 .hero-challenge span{
   display:block!important;
@@ -78,6 +78,7 @@ body{
   font-size:13px!important;
   font-weight:900!important;
   line-height:1.25!important;
+  text-align:center!important;
 }
 .hero-challenge strong{
   display:block!important;
@@ -85,6 +86,30 @@ body{
   font-size:18px!important;
   font-weight:900!important;
   line-height:1.45!important;
+  text-align:center!important;
+}
+.primary-record-action a,
+.big-action a{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  text-align:center!important;
+}
+.primary-record-action a span,
+.big-action a span{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:28px!important;
+  flex:0 0 28px!important;
+  margin:0!important;
+}
+.primary-record-action a strong,
+.big-action a strong{
+  display:inline-block!important;
+  margin:0!important;
+  transform:translateX(-6px)!important;
 }
 .nav{
   position:fixed!important;
