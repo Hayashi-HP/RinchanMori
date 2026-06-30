@@ -1,4 +1,4 @@
-const RINCHAN_V113_MYPAGE = 'v0.9.25';
+const RINCHAN_V113_MYPAGE = 'v0.9.26';
 
 function v113ReadJson(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
 function v113Participant() { return v113ReadJson('rinchanParticipant', null) || {}; }
@@ -26,20 +26,16 @@ async function v113LoadReceivedThanks() {
 function v113RenderReceivedThanks(list) {
   const box = document.getElementById('receivedThanksList');
   if (!box) return;
-  const items = (list || []).slice().sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))).slice(0, 20);
-  if (!items.length) { box.innerHTML = '<p class="received-thanks-empty">まだ届いたありがとうはありません。届いたらここに表示されます。</p>'; return; }
+  const items = (list || []).slice().sort((a,b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))).slice(0, 10);
+  if (!items.length) { box.innerHTML = '<p class="received-thanks-empty">まだ届いたありがとうはありません。</p>'; return; }
   box.innerHTML = items.map(item => {
     const from = v113FromLabel(item);
     const reason = item.reason || 'ありがとう';
     const message = item.message || item.comment || '';
-    const body = message || (reason === 'ありがとう' ? '応援の気持ちが届きました。' : reason);
+    const body = message || reason;
     return '<article class="received-thanks-item">' +
-      '<div class="received-thanks-heart" aria-hidden="true">❤️</div>' +
-      '<div class="received-thanks-main">' +
-        '<div class="received-thanks-meta"><span class="received-thanks-label">ありがとう</span><time class="received-thanks-time">' + v113EscapeHtml(v113RelativeTime(item.createdAt)) + '</time></div>' +
-        '<h3><strong>' + v113EscapeHtml(from) + '</strong><span>さんから届きました</span></h3>' +
-        '<p>' + v113EscapeHtml(body) + '</p>' +
-      '</div>' +
+      '<div class="received-thanks-line"><span class="received-thanks-heart" aria-hidden="true">❤️</span><strong>' + v113EscapeHtml(from) + '</strong><time>' + v113EscapeHtml(v113RelativeTime(item.createdAt)) + '</time></div>' +
+      '<p>' + v113EscapeHtml(body) + '</p>' +
     '</article>';
   }).join('');
 }
