@@ -1,17 +1,19 @@
-/* v0.9.12 Rinchan official face */
+/* v0.9.14 Rinchan official face exact image */
 .rin,
 .rin.small,
 .welcome-rin,
 .rinchan-face,
 .guide-face,
 .rinchan-walker{
-  background-image:url('../assets/rinchan-face.svg')!important;
+  background-image:url('../assets/rinchan-face.svg?v=0914')!important;
   background-repeat:no-repeat!important;
-  background-position:center!important;
+  background-position:center center!important;
   background-size:82%!important;
   color:transparent!important;
   font-size:0!important;
   overflow:hidden!important;
+  text-indent:-9999px!important;
+  white-space:nowrap!important;
 }
 .rin,
 .welcome-rin{
