@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>歩数記録｜りんちゃんの杜 v0.9.22</title>
-  <link rel="stylesheet" href="../css/style.css?v=0922">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=0922">
-  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=0922">
-  <link rel="stylesheet" href="../css/v102-activity-tools.css?v=0922">
+  <title>歩数記録｜りんちゃんの杜 v0.9.26</title>
+  <link rel="stylesheet" href="../css/style.css?v=0926">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=0926">
+  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=0926">
+  <link rel="stylesheet" href="../css/v102-activity-tools.css?v=0926">
 </head>
 <body>
 <main class="app">
   <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">歩数記録</div><span class="spacer"></span></header>
-  <section id="guestActivityLock" class="intro hidden"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=0922" alt="りんちゃん"><h1>まずは登録してください</h1><p>歩数記録は、社員番号で初回登録またはログインした後に使えます。</p><a class="submit link-submit" href="register.html">初回登録する</a><a class="soft-link" href="login.html">登録済みの方はログイン</a></section>
-  <section id="activityIntro" class="intro"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=0922" alt="りんちゃん"><h1>今日も<br>おつかれさまです</h1><p>30秒で歩数を記録できます。</p></section>
-  <form class="form" id="activityForm"><label>活動日<input id="activityDate" type="date" required></label><label>歩数<input id="steps" type="number" placeholder="例：6230" required></label><label>スクリーンショット<input type="file" accept="image/*"></label><label class="check"><input id="challenge" type="checkbox">今週のチャレンジ：階段を使った</label><label>ひとこと（任意）<textarea id="comment" rows="3" placeholder="例：少し歩けました"></textarea></label><button class="submit pill-button" type="submit">記録する</button></form>
+  <section id="guestActivityLock" class="intro hidden"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=0926" alt="りんちゃん"><h1>まずは登録してください</h1><p>歩数記録は、社員番号で初回登録またはログインした後に使えます。</p><a class="submit link-submit" href="register.html">初回登録する</a><a class="soft-link" href="login.html">登録済みの方はログイン</a></section>
+  <section id="activityIntro" class="intro"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=0926" alt="りんちゃん"><h1>今日も<br>おつかれさまです</h1><p>30秒で歩数を記録できます。</p></section>
+  <form class="form" id="activityForm"><label>活動日<input id="activityDate" type="date" required></label><label>歩数<input id="steps" type="number" placeholder="例：6230" required></label><label>スクリーンショット<input type="file" accept="image/*"></label><label class="check"><input id="challenge" type="checkbox"><span id="weeklyGoalChallengeText">今週の目標：まずは無理なく続ける</span></label><label>ひとこと（任意）<textarea id="comment" rows="3" placeholder="例：少し歩けました"></textarea></label><button class="submit pill-button" type="submit">記録する</button></form>
   <section id="complete" class="complete hidden"><div class="tree-large">🌳✨</div><h1>あなたの木に<br>新しい葉っぱが増えました</h1><p>今日もありがとうございました。</p><a class="submit link-submit" href="../index.html">ホームへ戻る</a></section>
   <section class="card activity-tools-card"><p class="label">📝 記録の修正</p><h2>最近の記録</h2><p>間違えて記録した場合は、ここから修正・削除できます。</p><div id="activityToolsList" class="activity-tools-list"><p class="empty-note">読み込み中...</p></div></section>
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus active" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
-<script src="../js/config.js?v=0922"></script><script src="../js/app.js?v=0922"></script><script src="../js/v051-auth.js?v=0922"></script><script src="../js/v063-complete.js?v=0922"></script><script src="../js/v102-activity-tools.js?v=0922"></script><script>(function(){function p(){try{return JSON.parse(localStorage.getItem('rinchanParticipant')||'null')}catch(e){return null}}document.addEventListener('DOMContentLoaded',function(){var user=p();if(!user||!user.id){document.getElementById('guestActivityLock').classList.remove('hidden');document.getElementById('activityIntro').classList.add('hidden');document.getElementById('activityForm').classList.add('hidden');}});})();</script>
+<script src="../js/config.js?v=0926"></script><script src="../js/app.js?v=0926"></script><script src="../js/v051-auth.js?v=0926"></script><script src="../js/v063-complete.js?v=0926"></script><script src="../js/v102-activity-tools.js?v=0926"></script><script>(function(){function p(){try{return JSON.parse(localStorage.getItem('rinchanParticipant')||'null')}catch(e){return null}}document.addEventListener('DOMContentLoaded',function(){var user=p();if(!user||!user.id){document.getElementById('guestActivityLock').classList.remove('hidden');document.getElementById('activityIntro').classList.add('hidden');document.getElementById('activityForm').classList.add('hidden');return;}var goal=(user.weeklyGoal||'まずは無理なく続ける').trim();var el=document.getElementById('weeklyGoalChallengeText');if(el)el.textContent='今週の目標：'+goal;});})();</script>
 </body>
 </html>
