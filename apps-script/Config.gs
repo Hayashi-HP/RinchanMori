@@ -6,7 +6,7 @@ const SHEET_THANKS = 'thanks';
 const SHEET_LOGS = 'logs';
 const SHEET_DEPARTMENTS = 'departments';
 const SHEET_USER_READS = 'user_reads';
-const VERSION = 'v0.9.55';
+const VERSION = 'v0.9.58';
 
 const DEFAULT_DEPARTMENTS = [
   ['nurse', '看護部', 10, true, 'nurse'],
