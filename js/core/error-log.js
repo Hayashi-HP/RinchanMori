@@ -1,7 +1,8 @@
 const RinchanErrorLog = (() => {
-  const VERSION = 'v0.9.62';
+  const VERSION = 'v0.9.63';
   const KEY = 'rinchanErrorLogs';
   const LIMIT = 30;
+  let flushing = false;
 
   function readLogs() {
     try {
@@ -31,6 +32,15 @@ const RinchanErrorLog = (() => {
     }
   }
 
+  function deviceId() {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.deviceId === 'function') return RinchanStorage.deviceId();
+      return localStorage.getItem('rinchanDeviceId') || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   function add(entry) {
     const logs = readLogs();
     const item = Object.assign({
@@ -39,15 +49,63 @@ const RinchanErrorLog = (() => {
       url: location.href,
       userAgent: navigator.userAgent,
       employeeId: participantId(),
-      version: VERSION
+      deviceId: deviceId(),
+      version: VERSION,
+      sentAt: ''
     }, entry || {});
     logs.unshift(item);
     writeLogs(logs);
+    setTimeout(flush, 500);
     return item;
   }
 
   function clear() {
     localStorage.removeItem(KEY);
+  }
+
+  function unsentLogs() {
+    return readLogs().filter(log => !log.sentAt);
+  }
+
+  async function sendOne(log) {
+    if (!window.RinchanApi || typeof RinchanApi.request !== 'function') return false;
+    const result = await RinchanApi.request('saveErrorLog', {
+      employeeId: log.employeeId || participantId(),
+      deviceId: log.deviceId || deviceId(),
+      clientVersion: VERSION,
+      log
+    });
+    return !!(result && result.ok);
+  }
+
+  async function flush() {
+    if (flushing) return { ok: false, reason: 'already_flushing' };
+    if (!navigator.onLine) return { ok: false, reason: 'offline' };
+    const pending = unsentLogs();
+    if (!pending.length) return { ok: true, sent: 0 };
+
+    flushing = true;
+    let sent = 0;
+    try {
+      for (const log of pending.slice().reverse()) {
+        const ok = await sendOne(log);
+        if (!ok) break;
+        log.sentAt = new Date().toISOString();
+        sent += 1;
+      }
+      const all = readLogs();
+      const byKey = new Map(pending.map(log => [String(log.at) + '|' + String(log.message), log]));
+      const merged = all.map(log => {
+        const updated = byKey.get(String(log.at) + '|' + String(log.message));
+        return updated || log;
+      });
+      writeLogs(merged);
+      return { ok: true, sent };
+    } catch (e) {
+      return { ok: false, reason: e.message || 'flush_failed', sent };
+    } finally {
+      flushing = false;
+    }
   }
 
   function install() {
@@ -70,6 +128,12 @@ const RinchanErrorLog = (() => {
         stack: reason && reason.stack ? String(reason.stack).slice(0, 1200) : ''
       });
     });
+
+    window.addEventListener('online', flush);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) flush();
+    });
+    setTimeout(flush, 1500);
   }
 
   install();
@@ -78,6 +142,8 @@ const RinchanErrorLog = (() => {
     VERSION,
     add,
     clear,
-    readLogs
+    readLogs,
+    unsentLogs,
+    flush
   };
 })();
