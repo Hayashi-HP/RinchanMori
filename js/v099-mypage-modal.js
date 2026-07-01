@@ -1,4 +1,4 @@
-const RINCHAN_V099 = 'v0.9.9';
+const RINCHAN_V099 = 'v0.9.50';
 
 function v099ReadJson(key, fallback) {
   try {
@@ -47,6 +47,8 @@ function v099RequireUser() {
   return p;
 }
 
+function v099Num(n) { return Number(n || 0).toLocaleString('ja-JP'); }
+
 function v099RenderMypage() {
   if (!document.getElementById('mypageV070')) return;
   const p = v099Participant() || {};
@@ -57,15 +59,42 @@ function v099RenderMypage() {
   v099SetText('v070EmployeeId', p.employeeId || p.id || '-');
   v099SetText('declarationText', String(p.declaration || '').trim() || 'まだ登録されていません。');
   v099SetText('weeklyGoalText', String(p.weeklyGoal || '').trim() || 'まずは無理なく続ける');
+  const weeklyStepGoal = Number(String(p.weeklyStepGoal || '').replace(/,/g, ''));
+  v099SetText('v136WeeklyStepGoalText', weeklyStepGoal > 0 ? v099Num(weeklyStepGoal) + '歩' : '未設定');
 }
 
-function v099DeptOptions(current) {
-  const departments = ['', '看護部', 'リハビリテーション部', '介護部', '医局', '薬剤部', '栄養科', '事務部', 'その他'];
-  return departments.map(dept => {
-    const label = dept || '選択してください';
+function v099DeptOptionsFromList(list, current) {
+  const departments = (Array.isArray(list) && list.length ? list : [
+    { deptName: '看護部' }, { deptName: 'リハビリテーション部' }, { deptName: '介護部' }, { deptName: '医局' },
+    { deptName: '薬剤部' }, { deptName: '栄養科' }, { deptName: '事務部' }, { deptName: 'その他' }
+  ]).filter(d => d && d.deptName);
+  let html = '<option value="">選択してください</option>' + departments.map(d => {
+    const dept = String(d.deptName || '');
     const selected = dept === String(current || '') ? ' selected' : '';
-    return '<option value="' + v099EscapeHtml(dept) + '"' + selected + '>' + v099EscapeHtml(label) + '</option>';
+    return '<option value="' + v099EscapeHtml(dept) + '"' + selected + '>' + v099EscapeHtml(dept) + '</option>';
   }).join('');
+  if (current && !departments.some(d => String(d.deptName || '') === String(current))) {
+    html += '<option value="' + v099EscapeHtml(current) + '" selected>' + v099EscapeHtml(current) + '（現在）</option>';
+  }
+  return html;
+}
+
+function v099CachedDepartments() {
+  const cached = v099ReadJson('rinchanDepartments', null);
+  if (cached && Array.isArray(cached.departments) && cached.departments.length) return cached.departments;
+  return null;
+}
+
+async function v099FillDeptSelect(selectId, current) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  select.innerHTML = v099DeptOptionsFromList(v099CachedDepartments(), current);
+  try {
+    let departments = null;
+    if (typeof v127FetchDepartments === 'function') departments = await v127FetchDepartments();
+    if (departments && departments.length) select.innerHTML = v099DeptOptionsFromList(departments, current);
+  } catch (e) {}
+  select.value = current || '';
 }
 
 function v099OpenModal(kind, title, bodyHtml) {
@@ -97,6 +126,7 @@ function v099OpenModal(kind, title, bodyHtml) {
       if (kind === 'profile') saveProfile(event);
       if (kind === 'declaration') saveDeclaration(event);
       if (kind === 'goal') saveGoal(event);
+      if (kind === 'weeklyStepGoal' && typeof saveWeeklyStepGoalV136 === 'function') saveWeeklyStepGoalV136(event);
     });
   }
 
@@ -119,9 +149,10 @@ function showEdit(id) {
   if (id === 'profileEdit') {
     v099OpenModal('profile', 'プロフィール編集',
       '<label>氏名<input id="v099EditName" value="' + v099EscapeHtml(p.name || '') + '" placeholder="例：花田 博実"></label>' +
-      '<label>所属<select id="v099EditDept">' + v099DeptOptions(p.dept || '') + '</select></label>' +
+      '<label>所属<select id="v099EditDept"><option value="">読み込み中...</option></select></label>' +
       '<label>ニックネーム<input id="v099EditNick" value="' + v099EscapeHtml(p.nick || '') + '" placeholder="例：はなだ"></label>'
     );
+    v099FillDeptSelect('v099EditDept', p.dept || '');
     return;
   }
 
@@ -135,6 +166,15 @@ function showEdit(id) {
   if (id === 'goalEdit') {
     v099OpenModal('goal', '今週の目標編集',
       '<label>今週の目標<textarea id="v099EditGoal" rows="3" placeholder="例：今週は3回活動を記録する">' + v099EscapeHtml(p.weeklyGoal || '') + '</textarea></label>'
+    );
+    return;
+  }
+
+  if (id === 'weeklyStepGoalEdit') {
+    const goal = Number(String(p.weeklyStepGoal || '').replace(/,/g, ''));
+    v099OpenModal('weeklyStepGoal', '1週間の歩数目標編集',
+      '<label>目標歩数<input id="editWeeklyStepGoal" type="number" inputmode="numeric" value="' + (goal > 0 ? String(goal) : '') + '" placeholder="例：30000"></label>' +
+      '<p class="empty-note">未入力の場合、ホームには目標までの残り歩数を表示しません。</p>'
     );
   }
 }
