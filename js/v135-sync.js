@@ -1,4 +1,4 @@
-const RINCHAN_V135_SYNC = 'v0.9.56';
+const RINCHAN_V135_SYNC = 'v0.9.58';
 const RINCHAN_SYNC_TIME_KEY = 'rinchanLastSyncedAt';
 const RINCHAN_SYNC_STATUS_KEY = 'rinchanSyncStatus';
 
@@ -133,6 +133,33 @@ function v135RenderSyncStatus() {
   box.classList.toggle('is-error', !!status && status.status === 'error');
 }
 
+function v135ApplyApiResult(response) {
+  if (!response || !response.ok) return response;
+  if (response.state) {
+    v135ApplyState(response.state);
+    v135SetSyncStatus('synced', '');
+    v135RefreshUi();
+  }
+  return response;
+}
+
+function v135PatchApiFunction(name) {
+  const original = window[name];
+  if (typeof original !== 'function' || original.__rinchanSyncPatched) return;
+  const patched = async function() {
+    const response = await original.apply(this, arguments);
+    return v135ApplyApiResult(response);
+  };
+  patched.__rinchanSyncPatched = true;
+  patched.__original = original;
+  window[name] = patched;
+}
+
+function v135PatchApis() {
+  v135PatchApiFunction('v051Api');
+  v135PatchApiFunction('rinchanApi');
+}
+
 async function v135SyncUserState(options) {
   const employeeId = v135EmployeeId();
   if (!employeeId) {
@@ -158,6 +185,7 @@ function v135RefreshUi() {
   try { if (typeof renderV078Chart === 'function') renderV078Chart(); } catch (e) {}
   try { if (typeof renderV070Mypage === 'function') renderV070Mypage(); } catch (e) {}
   try { if (typeof v136RenderGoal === 'function') v136RenderGoal(); } catch (e) {}
+  try { if (typeof v102RenderActivityTools === 'function') v102RenderActivityTools(); } catch (e) {}
   try { if (typeof v113LoadReceivedThanks === 'function') v113LoadReceivedThanks(); } catch (e) {}
   try { if (typeof v100RenderSummary === 'function') v100RenderSummary(); } catch (e) {}
   try { if (typeof v100RenderThanksFlowSummary === 'function') v100RenderThanksFlowSummary(); } catch (e) {}
@@ -176,11 +204,7 @@ async function v135MarkNewsRead(newsId) {
 
   try {
     const response = await v135Api('markNewsRead', { employeeId, newsId });
-    if (response && response.ok && response.state) {
-      v135ApplyState(response.state);
-      v135SetSyncStatus('synced', '');
-      v135RefreshUi();
-    }
+    v135ApplyApiResult(response);
   } catch (e) {
     v135SetSyncStatus('error', e.message || 'news_sync_failed');
   }
@@ -201,17 +225,22 @@ function v135InstallNewsHooks() {
 }
 
 function v135ScheduleBackgroundSync() {
+  v135PatchApis();
   v135RenderSyncStatus();
   setTimeout(() => v135SyncUserState({ silent: true }), 150);
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+      v135PatchApis();
       v135SyncUserState({ silent: true });
     }
   });
 }
 
 (function() {
+  v135PatchApis();
   v135InstallNewsHooks();
   document.addEventListener('DOMContentLoaded', v135ScheduleBackgroundSync);
+  setTimeout(v135PatchApis, 500);
+  setTimeout(v135PatchApis, 1500);
 })();
