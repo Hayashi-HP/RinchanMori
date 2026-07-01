@@ -1,4 +1,4 @@
-/* v0.9.53 mobile layout polish */
+/* v0.9.56 mobile layout polish */
 html,
 body{
   width:100%!important;
@@ -64,7 +64,7 @@ button:disabled,
   width:min(100%,430px)!important;
   max-width:430px!important;
   overflow-x:hidden!important;
-  padding-bottom:78px!important;
+  padding-bottom:94px!important;
 }
 .app::after{
   content:none!important;
@@ -164,6 +164,43 @@ button:disabled,
   margin:0!important;
   transform:translateX(-6px)!important;
 }
+.rinchan-sync-status{
+  width:calc(100% - 32px)!important;
+  max-width:398px!important;
+  margin:0 auto 10px!important;
+  min-height:28px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:2px!important;
+  color:#7a8f82!important;
+  font-size:11px!important;
+  font-weight:850!important;
+  line-height:1.25!important;
+  text-align:center!important;
+  opacity:.88!important;
+}
+.rinchan-sync-status span::before{
+  content:'●'!important;
+  display:inline-block!important;
+  margin-right:5px!important;
+  color:#69c47d!important;
+  font-size:8px!important;
+  vertical-align:1px!important;
+}
+.rinchan-sync-status.is-syncing span::before{
+  color:#28b8d2!important;
+}
+.rinchan-sync-status.is-error span::before{
+  color:#d24c7d!important;
+}
+.rinchan-sync-status small{
+  display:block!important;
+  color:#d24c7d!important;
+  font-size:10px!important;
+  font-weight:850!important;
+}
 .nav{
   position:fixed!important;
   left:50%!important;
@@ -179,5 +216,8 @@ button:disabled,
   .auth-logout{
     min-width:124px!important;
     padding:0 20px!important;
+  }
+  .rinchan-sync-status{
+    font-size:10px!important;
   }
 }
