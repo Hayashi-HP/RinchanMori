@@ -1,10 +1,10 @@
 /*
  * RinchanMori Apps Script
- * Version: v0.9.55
+ * Version: v0.9.58
  *
  * This file contains only the API entry points.
  * Other functions are split into Config.gs, Common.gs, Setup.gs,
- * User.gs, Activity.gs, Thanks.gs, and Admin.gs.
+ * User.gs, Activity.gs, Thanks.gs, News.gs, and Admin.gs.
  */
 
 function doGet(e) {
@@ -123,24 +123,40 @@ function doPost(e) {
 
     if (action === 'saveActivity') {
       const saved = saveActivity(ss, data);
-      writeLog(ss, action, data.deviceId, data.participantId || data.id, 'ok', '');
-      return jsonOutput({ ok: true, action, saved, version: VERSION });
+      const employeeId = data.participantId || data.employeeId || data.id;
+      writeLog(ss, action, data.deviceId, employeeId, 'ok', '');
+      return jsonOutput({
+        ok: true,
+        action,
+        saved,
+        state: getUserState(ss, { employeeId }),
+        version: VERSION
+      });
     }
 
     if (action === 'deleteActivity') {
+      const employeeId = data.participantId || data.employeeId || data.id;
       const deleted = deleteActivity(ss, data);
-      writeLog(ss, action, data.deviceId, data.participantId || data.id, deleted.deleted ? 'ok' : 'ng', deleted.deleted ? '' : 'not_found');
-      return jsonOutput({ ok: true, action, deleted, version: VERSION });
+      writeLog(ss, action, data.deviceId, employeeId, deleted.deleted ? 'ok' : 'ng', deleted.deleted ? '' : 'not_found');
+      return jsonOutput({
+        ok: true,
+        action,
+        deleted,
+        state: getUserState(ss, { employeeId }),
+        version: VERSION
+      });
     }
 
     if (action === 'saveThanks') {
       const saved = saveThanks(ss, data);
+      const employeeId = data.fromParticipantId || data.employeeId || data.id;
       writeLog(ss, action, data.fromParticipantId || data.deviceId, data.toParticipantId, 'ok', '');
       return jsonOutput({
         ok: true,
         action,
         saved,
-        stats: getMyThanksStats(ss, { employeeId: data.fromParticipantId }),
+        stats: getMyThanksStats(ss, { employeeId }),
+        state: getUserState(ss, { employeeId }),
         version: VERSION
       });
     }
