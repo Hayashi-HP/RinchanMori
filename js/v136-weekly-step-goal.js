@@ -1,4 +1,4 @@
-const RINCHAN_V136='v0.9.36';
+const RINCHAN_V136='v0.9.37';
 function v136ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function v136SaveParticipant(p){localStorage.setItem('rinchanParticipant',JSON.stringify(p))}
 function v136Participant(){return v136ReadJson('rinchanParticipant',null)}
