@@ -1,10 +1,10 @@
 /*
  * RinchanMori Apps Script
- * Version: v0.9.58
+ * Version: v0.9.63
  *
  * This file contains only the API entry points.
  * Other functions are split into Config.gs, Common.gs, Setup.gs,
- * User.gs, Activity.gs, Thanks.gs, News.gs, and Admin.gs.
+ * User.gs, Activity.gs, Thanks.gs, News.gs, Admin.gs, and ErrorLog.gs.
  */
 
 function doGet(e) {
@@ -50,6 +50,18 @@ function doPost(e) {
 
     if (action === 'dashboard') {
       return jsonOutput({ ok: true, action, data: getDashboard(ss), version: VERSION });
+    }
+
+    if (action === 'saveErrorLog') {
+      const saved = saveErrorLog(ss, data);
+      return jsonOutput({ ok: true, action, saved, version: VERSION });
+    }
+
+    if (action === 'recentErrorLogs') {
+      if (!isAdminRequest(ss, data)) {
+        return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
+      }
+      return jsonOutput({ ok: true, action, logs: getRecentErrorLogs(ss, data.limit || 50), version: VERSION });
     }
 
     if (action === 'getUserState') {
