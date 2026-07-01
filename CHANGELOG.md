@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.9.61
+- JavaScript を `core/` と `features/` の役割別構成へ移行
+- `core/storage.js`、`core/api.js`、`core/sync.js`、`core/offline-queue.js` を追加
+- `features/auth.js`、`features/activity.js`、`features/thanks.js`、`features/news.js`、`features/mori.js`、`features/mypage.js`、`features/admin.js` を追加
+- ホーム、ログイン、初回登録、歩数記録、マイページ、通信、杜、管理画面を新構成へ切り替え
+- 主要画面のキャッシュバージョンを `0961` に統一
+- READMEをv0.9.61へ更新
+
+## v0.9.60
+- `v160-offline-queue.js` を追加
+- 通信失敗時に歩数保存、歩数削除、ありがとう送信、プロフィール保存、通信既読を未送信キューへ保存
+- 通信復帰時、画面復帰時、手動再送時に未送信データを再送
+- ホーム、通信、歩数記録、杜、マイページ、ログイン、初回登録、管理画面にオフライン再送キューを組み込み
+
 ## v0.9.59
 - `getUserState` に `syncToken` を追加
 - クライアントから `syncToken` を送信して差分同期できるように対応
