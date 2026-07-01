@@ -1,6 +1,7 @@
-const RINCHAN_V135_SYNC = 'v0.9.58';
+const RINCHAN_V135_SYNC = 'v0.9.59';
 const RINCHAN_SYNC_TIME_KEY = 'rinchanLastSyncedAt';
 const RINCHAN_SYNC_STATUS_KEY = 'rinchanSyncStatus';
+const RINCHAN_SYNC_TOKEN_KEY = 'rinchanSyncToken';
 
 function v135ReadJson(key, fallback) {
   try {
@@ -26,6 +27,14 @@ function v135SaveParticipant(participant) {
 function v135EmployeeId() {
   const participant = v135Participant();
   return participant && (participant.employeeId || participant.id) ? String(participant.employeeId || participant.id) : '';
+}
+
+function v135SyncToken() {
+  return String(localStorage.getItem(RINCHAN_SYNC_TOKEN_KEY) || '').trim();
+}
+
+function v135SaveSyncToken(token) {
+  if (token) localStorage.setItem(RINCHAN_SYNC_TOKEN_KEY, String(token));
 }
 
 async function v135Api(action, payload) {
@@ -60,6 +69,9 @@ function v135NormalizeThanks(list) {
 
 function v135ApplyState(state) {
   if (!state) return;
+
+  if (state.syncToken) v135SaveSyncToken(state.syncToken);
+  if (state.unchanged === true) return;
 
   if (state.user) {
     const current = v135Participant() || {};
@@ -136,9 +148,10 @@ function v135RenderSyncStatus() {
 function v135ApplyApiResult(response) {
   if (!response || !response.ok) return response;
   if (response.state) {
+    const unchanged = response.state.unchanged === true;
     v135ApplyState(response.state);
-    v135SetSyncStatus('synced', '');
-    v135RefreshUi();
+    v135SetSyncStatus('synced', unchanged ? 'unchanged' : '');
+    if (!unchanged) v135RefreshUi();
   }
   return response;
 }
@@ -171,11 +184,15 @@ async function v135SyncUserState(options) {
   if (!silent) v135SetSyncStatus('syncing', '');
 
   try {
-    const response = await v135Api('getUserState', { employeeId });
+    const payload = { employeeId };
+    const token = v135SyncToken();
+    if (token) payload.syncToken = token;
+    const response = await v135Api('getUserState', payload);
     if (!response || !response.ok || !response.state) throw new Error('sync_failed');
+    const unchanged = response.state.unchanged === true;
     v135ApplyState(response.state);
-    v135SetSyncStatus('synced', '');
-    v135RefreshUi();
+    v135SetSyncStatus('synced', unchanged ? 'unchanged' : '');
+    if (!unchanged) v135RefreshUi();
   } catch (e) {
     v135SetSyncStatus('error', e.message || 'sync_failed');
   }
@@ -203,7 +220,7 @@ async function v135MarkNewsRead(newsId) {
   if (!employeeId || !newsId) return;
 
   try {
-    const response = await v135Api('markNewsRead', { employeeId, newsId });
+    const response = await v135Api('markNewsRead', { employeeId, newsId, syncToken: v135SyncToken() });
     v135ApplyApiResult(response);
   } catch (e) {
     v135SetSyncStatus('error', e.message || 'news_sync_failed');
