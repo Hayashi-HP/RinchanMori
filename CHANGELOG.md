@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.9.62
+- `features/growth.js` を追加し、木の成長演出、季節表示、バッジ演出を移行
+- `features/chart.js` を追加し、週間歩数グラフ、週目標、先週比較を移行
+- `features/guide.js` を追加し、りんちゃん初回ガイドを移行
+- `index.html` の旧JS読み込みを `features/` 構成へ切り替え
+- 旧 `v***.js` 主要ファイルを削除
+- リポジトリ検索で旧JS名の参照が残っていないことを確認
+- READMEをv0.9.62へ更新
+
 ## v0.9.61
 - JavaScript を `core/` と `features/` の役割別構成へ移行
 - `core/storage.js`、`core/api.js`、`core/sync.js`、`core/offline-queue.js` を追加
