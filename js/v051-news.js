@@ -1,6 +1,6 @@
 const RINCHAN_NEWS_KEY = 'rinchanReadNewsIds';
 const RINCHAN_NEWS_IDS = ['news1', 'news2'];
-const RINCHAN_V100 = 'v0.9.47';
+const RINCHAN_V100 = 'v0.9.48';
 
 function readJsonV051(key, fallback) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch (e) { return fallback; } }
 function readNewsIdsV051() { return readJsonV051(RINCHAN_NEWS_KEY, []); }
@@ -69,16 +69,9 @@ function v100ThanksBody(item) {
 function v100RenderThanksFlowSummary() {
   const box = document.getElementById('thanksFlowSummary'); if (!box) return;
   const list = v100Timeline();
-  const todayKey = v100TodayKey();
-  const today = list.filter(item => String(item.createdAt || '').slice(0, 10) === todayKey).length;
-  const recent = list.slice(0, 7).length;
   if (!list.length) { box.innerHTML = '<p class="empty-note news-empty">まだありがとうの記録はありません。最初のありがとうを届けてみましょう。</p>'; return; }
   const latest = list[0];
-  box.innerHTML = '<div class="thanks-flow-metrics">' +
-    '<div><strong>' + v100Num(today) + '件</strong><small>今日</small></div>' +
-    '<div><strong>' + v100Num(recent) + '件</strong><small>最近</small></div>' +
-    '<div><strong>' + v100Num(list.length) + '件</strong><small>累計</small></div>' +
-  '</div><article class="thanks-flow-latest"><span>🕊️</span><div><small>いちばん最近</small><p>' + v100EscapeHtml(v100ThanksBody(latest)) + '</p></div></article>';
+  box.innerHTML = '<article class="thanks-flow-latest"><span>🕊️</span><div><small>いちばん最近のありがとう</small><p>' + v100EscapeHtml(v100ThanksBody(latest)) + '</p></div></article>';
 }
 function v100RenderThanksStories() {
   const box = document.getElementById('thanksStoryList'); if (!box) return;
