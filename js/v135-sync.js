@@ -1,0 +1,10 @@
+const RINCHAN_V135_SYNC='v0.9.35';
+function v135ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
+function v135Participant(){return v135ReadJson('rinchanParticipant',null)}
+function v135SaveParticipant(p){localStorage.setItem('rinchanParticipant',JSON.stringify(p))}
+function v135EmployeeId(){const p=v135Participant();return p&&(p.employeeId||p.id)?String(p.employeeId||p.id):''}
+async function v135Api(action,payload){if(typeof v051Api==='function')return v051Api(action,payload||{});return{ok:false,reason:'api_not_ready'}}
+async function v135SyncUserState(){const employeeId=v135EmployeeId();if(!employeeId)return;const res=await v135Api('getUserState',{employeeId});if(!res||!res.ok||!res.state)return;const state=res.state;if(state.user){const current=v135Participant()||{};v135SaveParticipant(Object.assign({},current,state.user));}if(Array.isArray(state.readNewsIds)){localStorage.setItem('rinchanReadNewsIds',JSON.stringify(state.readNewsIds));}v135RefreshUi();}
+function v135RefreshUi(){try{if(typeof renderV070Mypage==='function')renderV070Mypage();}catch(e){}try{if(typeof updateNewsBadgesV051==='function')updateNewsBadgesV051();}catch(e){}try{if(typeof updateNewsRowsV051==='function')updateNewsRowsV051();}catch(e){}try{if(typeof v100RenderNotices==='function')v100RenderNotices();}catch(e){}try{if(typeof renderAdminButtonV131==='function')renderAdminButtonV131();}catch(e){}}
+async function v135MarkNewsRead(newsId){const employeeId=v135EmployeeId();if(!employeeId||!newsId)return;const res=await v135Api('markNewsRead',{employeeId,newsId});if(res&&res.ok&&res.state&&Array.isArray(res.state.readNewsIds)){localStorage.setItem('rinchanReadNewsIds',JSON.stringify(res.state.readNewsIds));v135RefreshUi();}}
+(function(){const oldMark=window.markNoticeReadV113;window.markNoticeReadV113=function(id){if(typeof oldMark==='function')oldMark(id);v135MarkNewsRead(id);};const oldOpen=window.openNews;window.openNews=function(id){if(typeof oldOpen==='function')oldOpen(id);v135MarkNewsRead(id);};document.addEventListener('DOMContentLoaded',()=>{v135SyncUserState();});})();
