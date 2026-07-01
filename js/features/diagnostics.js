@@ -10,6 +10,10 @@ const RinchanDiagnostics = (() => {
     if (el) el.textContent = text;
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  }
+
   function safeJson(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -28,6 +32,11 @@ const RinchanDiagnostics = (() => {
     return keys.sort();
   }
 
+  function errorLogs() {
+    if (window.RinchanErrorLog && typeof RinchanErrorLog.readLogs === 'function') return RinchanErrorLog.readLogs();
+    return safeJson('rinchanErrorLogs', []);
+  }
+
   function status(ok, label, detail, level) {
     return { ok, label, detail, level: level || (ok ? 'ok' : 'error') };
   }
@@ -38,11 +47,13 @@ const RinchanDiagnostics = (() => {
     const receivedThanks = safeJson('rinchanReceivedThanks', []);
     const sentThanks = safeJson('rinchanSentThanks', []);
     const queue = safeJson('rinchanOfflineQueue', []);
+    const logs = errorLogs();
     const syncToken = localStorage.getItem('rinchanSyncToken') || '';
     const apiUrl = window.RINCHAN_CONFIG && window.RINCHAN_CONFIG.API_URL ? window.RINCHAN_CONFIG.API_URL : '';
 
     return [
       status(!!window.RinchanStorage, 'core/storage.js', window.RinchanStorage ? '読み込み済み' : '未読み込み'),
+      status(!!window.RinchanErrorLog, 'core/error-log.js', window.RinchanErrorLog ? '読み込み済み' : '未読み込み'),
       status(!!window.RinchanApi, 'core/api.js', window.RinchanApi ? '読み込み済み' : '未読み込み'),
       status(!!window.RinchanSync, 'core/sync.js', window.RinchanSync ? '読み込み済み' : '未読み込み'),
       status(!!window.RinchanOfflineQueue, 'core/offline-queue.js', window.RinchanOfflineQueue ? '読み込み済み' : '未読み込み'),
@@ -52,6 +63,7 @@ const RinchanDiagnostics = (() => {
       status(Array.isArray(receivedThanks), '受信ありがとうキャッシュ', Array.isArray(receivedThanks) ? receivedThanks.length + '件' : '読み込み不可'),
       status(Array.isArray(sentThanks), '送信ありがとうキャッシュ', Array.isArray(sentThanks) ? sentThanks.length + '件' : '読み込み不可'),
       status(Array.isArray(queue), '未送信キュー', Array.isArray(queue) ? queue.length + '件' : '読み込み不可', Array.isArray(queue) && queue.length ? 'warn' : 'ok'),
+      status(Array.isArray(logs), '端末エラーログ', Array.isArray(logs) ? logs.length + '件' : '読み込み不可', Array.isArray(logs) && logs.length ? 'warn' : 'ok'),
       status(true, 'syncToken', syncToken ? 'あり' : 'なし', syncToken ? 'ok' : 'warn'),
       status(navigator.onLine, 'オンライン状態', navigator.onLine ? 'オンライン' : 'オフライン', navigator.onLine ? 'ok' : 'warn')
     ];
@@ -62,7 +74,22 @@ const RinchanDiagnostics = (() => {
     if (!box) return;
     box.innerHTML = items.map(item => {
       const icon = item.level === 'ok' ? '✅' : item.level === 'warn' ? '⚠️' : '❌';
-      return '<div class="admin-member-row diag-row diag-' + item.level + '"><div><strong>' + icon + ' ' + item.label + '</strong><small>' + item.detail + '</small></div></div>';
+      return '<div class="admin-member-row diag-row diag-' + item.level + '"><div><strong>' + icon + ' ' + escapeHtml(item.label) + '</strong><small>' + escapeHtml(item.detail) + '</small></div></div>';
+    }).join('');
+  }
+
+  function renderErrors() {
+    const box = byId('diagnosticsErrors');
+    if (!box) return;
+    const logs = errorLogs();
+    if (!logs.length) {
+      box.innerHTML = '<p class="admin-empty">この端末に保存されたエラーはありません。</p>';
+      return;
+    }
+    box.innerHTML = logs.map(log => {
+      const at = log.at ? new Date(log.at).toLocaleString('ja-JP') : '-';
+      const locationText = [log.page || '', log.line ? 'L' + log.line : '', log.column ? 'C' + log.column : ''].filter(Boolean).join(' / ');
+      return '<div class="admin-member-row diag-row diag-warn"><div><strong>⚠️ ' + escapeHtml(log.message || log.type || 'Error') + '</strong><small>' + escapeHtml(at + ' / ' + locationText) + '</small><small>' + escapeHtml((log.source || '') + (log.stack ? ' / ' + String(log.stack).slice(0, 220) : '')) + '</small></div></div>';
     }).join('');
   }
 
@@ -72,7 +99,7 @@ const RinchanDiagnostics = (() => {
     const keys = storageKeys();
     const participant = window.RinchanStorage ? RinchanStorage.getParticipant() : safeJson('rinchanParticipant', null);
     const deviceId = window.RinchanStorage && typeof RinchanStorage.deviceId === 'function' ? RinchanStorage.deviceId() : (localStorage.getItem('rinchanDeviceId') || '-');
-    box.innerHTML = '<div class="info-grid"><span>端末ID</span><strong>' + deviceId + '</strong><span>社員番号</span><strong>' + (participant ? (participant.employeeId || participant.id || '-') : '-') + '</strong><span>保存キー数</span><strong>' + keys.length + '</strong><span>ブラウザ</span><strong>' + navigator.userAgent.slice(0, 80) + '</strong></div><p class="admin-note">保存キー: ' + (keys.length ? keys.join(', ') : 'なし') + '</p>';
+    box.innerHTML = '<div class="info-grid"><span>端末ID</span><strong>' + escapeHtml(deviceId) + '</strong><span>社員番号</span><strong>' + escapeHtml(participant ? (participant.employeeId || participant.id || '-') : '-') + '</strong><span>保存キー数</span><strong>' + keys.length + '</strong><span>ブラウザ</span><strong>' + escapeHtml(navigator.userAgent.slice(0, 80)) + '</strong></div><p class="admin-note">保存キー: ' + escapeHtml(keys.length ? keys.join(', ') : 'なし') + '</p>';
   }
 
   function render() {
@@ -86,16 +113,26 @@ const RinchanDiagnostics = (() => {
     setText('diagStorageCount', String(storageKeys().length));
     setText('diagnosticsStatus', '最終診断: ' + new Date().toLocaleString('ja-JP'));
     renderChecks(items);
+    renderErrors();
     renderDevice();
+  }
+
+  function clearErrors() {
+    if (!confirm('この端末のエラーログを消去しますか？')) return;
+    if (window.RinchanErrorLog && typeof RinchanErrorLog.clear === 'function') RinchanErrorLog.clear();
+    else localStorage.removeItem('rinchanErrorLogs');
+    render();
   }
 
   function install() {
     render();
     const refresh = byId('diagnosticsRefresh');
     if (refresh) refresh.addEventListener('click', render);
+    const clear = byId('clearErrorLogs');
+    if (clear) clear.addEventListener('click', clearErrors);
   }
 
   document.addEventListener('DOMContentLoaded', install);
 
-  return { VERSION, render };
+  return { VERSION, render, clearErrors };
 })();
