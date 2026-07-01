@@ -1,4 +1,4 @@
-/* v0.9.52 mobile layout polish */
+/* v0.9.53 mobile layout polish */
 html,
 body{
   width:100%!important;
@@ -13,17 +13,42 @@ body{
 }
 button,
 a,
+summary,
+select,
+label.check,
 [role="button"],
+[onclick],
+[data-news-id],
+[data-thanks-id],
+[data-edit-id],
+[data-delete-id],
+[data-notice-id],
+[data-reason],
 .submit,
 .soft-button,
 .icon-button,
 .back,
+.edit-icon,
+.statement-edit-icon,
+.notice-confirm,
+.activity-edit-btn,
+.activity-delete-btn,
+.dept-member-thanks,
+.mori-tree-node,
+.dept-node,
+.tree-card-close,
+.thanks-confirm-button,
 .nav a,
-.big-action a{
+.big-action a,
+.auth-button,
+.pill-button,
+.pill-soft{
   cursor:pointer!important;
 }
 button:disabled,
-[aria-disabled="true"]{
+[disabled],
+[aria-disabled="true"],
+.dept-member-thanks:disabled{
   cursor:not-allowed!important;
 }
 .auth-logout{
