@@ -1,4 +1,4 @@
-const RINCHAN_V078='v0.9.40';
+const RINCHAN_V078='v0.9.41';
 function v078ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function v078Num(n){return Number(n||0).toLocaleString('ja-JP')}
 function v078DateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -32,6 +32,6 @@ function renderV078Chart(){
   const hasGoal=goal>0;
   const remain=hasGoal?Math.max(0,goal-weekTotal):0;
   const goalHtml=hasGoal?'<p class="steps-goal">目標 '+v078Num(goal)+'歩まで '+(remain>0?'あと '+v078Num(remain)+'歩':'達成しました')+'</p>':'';
-  const diffText=lastTotal>0?(diff>=0?'先週より +'+v078Num(diff)+'歩':'先週より '+v078Num(diff)+'歩'):'先週との比較は、先週の記録後に表示します。';
-  box.innerHTML='<div class="steps-summary"><p class="label">今週の歩数</p><strong>'+v078Num(weekTotal)+'</strong><span>歩</span><small>'+range+' / 月〜日</small>'+goalHtml+'</div><div class="steps-bars">'+values.map((v,i)=>'<div class="steps-bar-col"><div class="steps-bar-track"><div class="steps-bar-fill" style="height:'+v078BarHeight(v,max)+'%"></div></div><small>'+labels[days[i].getDay()]+'</small></div>').join('')+'</div><p class="steps-trend">📊 '+diffText+'</p><p class="steps-trend">今週の一番多い日 '+v078Num(best)+'歩 を基準に表示しています。</p>';
+  const diffHtml=lastTotal>0?'<p class="steps-trend">📊 '+(diff>=0?'先週より +'+v078Num(diff)+'歩':'先週より '+v078Num(diff)+'歩')+'</p>':'';
+  box.innerHTML='<div class="steps-summary"><p class="label">今週の歩数</p><strong>'+v078Num(weekTotal)+'</strong><span>歩</span><small>'+range+' / 月〜日</small>'+goalHtml+'</div><div class="steps-bars">'+values.map((v,i)=>'<div class="steps-bar-col"><div class="steps-bar-track"><div class="steps-bar-fill" style="height:'+v078BarHeight(v,max)+'%"></div></div><small>'+labels[days[i].getDay()]+'</small></div>').join('')+'</div>'+diffHtml;
 }
