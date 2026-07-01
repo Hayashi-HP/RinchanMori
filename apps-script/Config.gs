@@ -4,9 +4,10 @@ const SHEET_USERS = 'users';
 const SHEET_ACTIVITIES = 'activities';
 const SHEET_THANKS = 'thanks';
 const SHEET_LOGS = 'logs';
+const SHEET_ERROR_LOGS = 'error_logs';
 const SHEET_DEPARTMENTS = 'departments';
 const SHEET_USER_READS = 'user_reads';
-const VERSION = 'v0.9.58';
+const VERSION = 'v0.9.63';
 
 const DEFAULT_DEPARTMENTS = [
   ['nurse', '看護部', 10, true, 'nurse'],
