@@ -1,6 +1,6 @@
-const RINCHAN_V102 = 'v0.9.43';
+const RINCHAN_V102 = 'v0.9.49';
 const RINCHAN_ACTIVITY_KEY = 'rinchanActivities';
-const RINCHAN_ACTIVITY_LIMIT = 7;
+const RINCHAN_ACTIVITY_LIMIT = 5;
 const RINCHAN_ACTIVITY_EDIT_DAYS = 14;
 
 function v102ReadJson(key, fallback) {
@@ -23,7 +23,7 @@ function v102RenderActivityTools() {
   const editable = all.filter(item => v102IsWithinEditDays(item.date || item.createdAt));
   if (!editable.length) { box.innerHTML = '<p class="empty-note">直近14日以内の修正できる記録はありません。</p>'; return; }
   const list = editable.slice(0, RINCHAN_ACTIVITY_LIMIT);
-  box.innerHTML = '<div class="activity-tools-count">直近14日以内・最新' + list.length + '件を表示中</div>' + list.map(item => {
+  box.innerHTML = list.map(item => {
     const id = String(item.activityId || '');
     const comment = String(item.comment || '').trim() || (item.challenge ? 'チャレンジあり' : '');
     return '<article class="activity-row compact-row">' +
@@ -31,8 +31,8 @@ function v102RenderActivityTools() {
       '<div class="activity-row-steps">' + v102Num(item.steps) + '<small>歩</small></div>' +
       '<div class="activity-row-comment">' + v102EscapeHtml(comment) + '</div>' +
       '<div class="activity-row-actions">' +
-        '<button type="button" class="activity-edit-btn icon-action" data-edit-id="' + v102EscapeHtml(id) + '" aria-label="修正">✏️</button>' +
-        '<button type="button" class="activity-delete-btn icon-action" data-delete-id="' + v102EscapeHtml(id) + '" aria-label="削除">🗑️</button>' +
+        '<button type="button" class="activity-edit-btn icon-action" data-edit-id="' + v102EscapeHtml(id) + '" aria-label="修正" title="修正">✏️</button>' +
+        '<button type="button" class="activity-delete-btn icon-action" data-delete-id="' + v102EscapeHtml(id) + '" aria-label="削除" title="削除">🗑️</button>' +
       '</div>' +
     '</article>';
   }).join('');
