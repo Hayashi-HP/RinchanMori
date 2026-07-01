@@ -21,6 +21,10 @@ function setupProject(ss) {
   ]);
 
   ensureSheet(ss, SHEET_LOGS, ['loggedAt', 'action', 'deviceId', 'participantId', 'status', 'message']);
+  ensureSheet(ss, SHEET_ERROR_LOGS, [
+    'loggedAt', 'receivedAt', 'employeeId', 'deviceId', 'page', 'type',
+    'message', 'source', 'line', 'column', 'stack', 'url', 'userAgent', 'clientVersion'
+  ]);
   ensureSheet(ss, SHEET_USER_READS, ['employeeId', 'readNewsIds', 'updatedAt', 'version']);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
