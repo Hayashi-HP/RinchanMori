@@ -1,18 +1,36 @@
-# RinchanMori v0.9.58
+# RinchanMori v0.9.61
 
 みんなで育てる、健康と笑顔の杜。
 
-## v0.9.58 内容
+## v0.9.61 内容
 
-- Apps Script を機能別ファイル構成へ分割した状態で継続
-- 保存系APIを「保存後に最新状態を返す」方式へ変更
-- 同期エンジン `v135-sync.js` を強化
-- API応答に `state` が含まれる場合、自動でローカルキャッシュと画面を更新
-- 起動時は手元キャッシュで即表示し、裏側でサーバー同期
-- 画面下に最終同期表示を追加
-- 同期中・同期済み・通信失敗の状態表示を追加
-- ログイン後・再ログイン後にスプレッドシート側から本人データを復元
-- ホーム、歩数記録、通信、杜、マイページ、管理画面を v0.9.58 に更新
+- JavaScript を `core/` と `features/` の役割別構成へ移行
+- `core/storage.js`、`core/api.js`、`core/sync.js`、`core/offline-queue.js` を追加
+- `features/auth.js`、`features/activity.js`、`features/thanks.js`、`features/news.js`、`features/mori.js`、`features/mypage.js`、`features/admin.js` を追加
+- ホーム、ログイン、初回登録、歩数記録、マイページ、通信、杜、管理画面を v0.9.61 に更新
+- 主要画面を新しい `core/` と `features/` 読み込み構成へ切り替え
+- 旧 `v135-sync.js`、`v160-offline-queue.js` 相当の同期・未送信再送機能を `core/` 側へ移行
+- キャッシュバージョンを `0961` に統一
+
+## JavaScript 構成
+
+```text
+js/
+├── core/
+│   ├── storage.js          # localStorage、JSON安全処理、端末ID、ユーザーデータ管理
+│   ├── api.js              # Apps Script API 通信
+│   ├── sync.js             # 差分同期、同期状態表示、サーバー状態反映
+│   └── offline-queue.js    # 通信失敗時の未送信保存、自動再送
+│
+└── features/
+    ├── auth.js             # ログイン、初回登録、ログアウト、プロフィール保存
+    ├── activity.js         # 歩数保存、編集、削除、最近の記録
+    ├── thanks.js           # ありがとう送信、受信、集計、タイムライン
+    ├── news.js             # 通信、お知らせ、既読、通知バッジ
+    ├── mori.js             # 杜、部署、木、杜レベル
+    ├── mypage.js           # マイページ、バッジ、継続、目標表示
+    └── admin.js            # 管理画面、集計、利用者一覧
+```
 
 ## Apps Script 構成
 
@@ -79,25 +97,7 @@ apps-script/
 
 ## 今後の整理方針
 
-JavaScript と CSS も、v番号付きファイルから役割名ベースへ段階的に整理します。
-
-```text
-js/
-├── common.js
-├── auth.js
-├── activity.js
-├── thanks.js
-├── news.js
-├── mypage.js
-├── mori.js
-└── admin.js
-```
-
-```text
-css/
-├── base.css
-├── layout.css
-├── components.css
-├── pages.css
-└── mobile.css
-```
+- 旧 `v***.js` の参照が残っていないか確認
+- 不要になった旧ファイルを段階的に legacy 扱いへ移動または削除
+- CSS も共通・画面別へ整理
+- v1.0 リリース候補として動作確認を進める
