@@ -1,4 +1,4 @@
-/* v0.9.35 mobile layout polish */
+/* v0.9.42 mobile layout polish */
 html,
 body{
   width:100%!important;
@@ -55,6 +55,10 @@ body{
 .sky,
 .home-hero{
   max-width:calc(100% - 32px)!important;
+}
+.home-hero h1{
+  font-size:35px!important;
+  line-height:1.12!important;
 }
 .home-hero .cloud,
 .home-hero .petal,
@@ -118,125 +122,9 @@ body{
   bottom:0!important;
   transform:translateX(-50%)!important;
   width:min(430px,100vw)!important;
-  height:74px!important;
-  padding:6px 0 0!important;
-  align-items:start!important;
-  background:#fff!important;
-  border-top:1px solid rgba(93,130,105,.12)!important;
-  box-shadow:0 -10px 30px rgba(36,64,56,.10)!important;
-  z-index:9999!important;
-  overflow:hidden!important;
-  transition:opacity .12s ease, visibility .12s ease!important;
-}
-.nav::before{
-  content:""!important;
-  position:absolute!important;
-  left:0!important;
-  right:0!important;
-  top:-16px!important;
-  height:16px!important;
-  pointer-events:none!important;
-  background:linear-gradient(180deg,rgba(255,255,255,0),#fff)!important;
-}
-.nav::after{
-  content:none!important;
-}
-.app:has(input:focus) .nav,
-.app:has(textarea:focus) .nav,
-.app:has(select:focus) .nav{
-  opacity:0!important;
-  visibility:hidden!important;
-  pointer-events:none!important;
-}
-.nav a{
-  min-width:0!important;
-  font-size:24px!important;
-  line-height:1!important;
-  gap:3px!important;
-  position:relative!important;
-  z-index:1!important;
-}
-.nav small{
-  font-size:12px!important;
-  line-height:1.12!important;
-  white-space:nowrap!important;
-}
-.statement-card{
-  position:relative!important;
-  padding-right:74px!important;
-}
-.statement-card .pill-soft{
-  position:absolute!important;
-  top:18px!important;
-  right:18px!important;
-  width:46px!important;
-  height:46px!important;
-  min-height:46px!important;
-  min-width:46px!important;
-  padding:0!important;
-  border-radius:999px!important;
-  font-size:0!important;
-  color:transparent!important;
-  background:#e8f8fb!important;
-  box-shadow:0 8px 18px rgba(40,184,210,.12)!important;
-}
-.statement-card .pill-soft::before{
-  content:"✏️";
-  font-size:20px!important;
-  color:#244038!important;
-  line-height:1!important;
-}
-.notice-action-wrap{
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:flex-end!important;
-  gap:8px!important;
-}
-.notice-state,
-.notice-confirm{
-  min-height:34px!important;
-  height:34px!important;
-}
-.notice-item.read .notice-action-wrap{
-  justify-content:flex-end!important;
-}
-.received-thanks-item h3{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  gap:4px!important;
-  font-size:17px!important;
-  line-height:1.35!important;
-}
-.received-thanks-from{
-  min-width:0!important;
-  flex:1 1 auto!important;
-  word-break:break-word!important;
-}
-.received-thanks-reason{
-  display:none!important;
-}
-.received-thanks-item p{
-  font-size:14px!important;
-  line-height:1.45!important;
-}
-@media(max-width:480px){
-  .notice-item{
-    grid-template-columns:auto minmax(0,1fr)!important;
-  }
-  .notice-action-wrap{
-    grid-column:2!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-  }
-  .notice-confirm{
-    width:auto!important;
-    padding:0 14px!important;
-  }
 }
 @media(max-width:360px){
-  .nav small{font-size:11px!important;}
-  .statement-card{padding-right:66px!important;}
-  .received-thanks-item h3{font-size:16px!important;}
-  .hero-challenge strong{font-size:16px!important;}
+  .home-hero h1{
+    font-size:30px!important;
+  }
 }
