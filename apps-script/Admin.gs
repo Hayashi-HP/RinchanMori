@@ -147,6 +147,7 @@ function buildUserStats(users, activities, masked) {
       declaration: user.declaration || '',
       weeklyGoal: user.weeklyGoal || '',
       weeklyStepGoal: user.weeklyStepGoal || '',
+      role: user.role || '',
       admin: user.admin || '',
       activityCount: 0,
       totalSteps: 0,
@@ -167,6 +168,7 @@ function buildUserStats(users, activities, masked) {
         declaration: '',
         weeklyGoal: '',
         weeklyStepGoal: '',
+        role: '',
         admin: '',
         activityCount: 0,
         totalSteps: 0,
@@ -188,12 +190,4 @@ function rankMembers(members) {
     if (b.totalSteps !== a.totalSteps) return b.totalSteps - a.totalSteps;
     return b.activityCount - a.activityCount;
   });
-}
-
-function isAdminRequest(ss, data) {
-  const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
-  if (!id) return false;
-  const user = readTable(ss.getSheetByName(SHEET_USERS))
-    .find(row => normalizeEmployeeId(row.employeeId || row.id || '') === id);
-  return !!(user && String(user.admin || '').trim() === '1');
 }
