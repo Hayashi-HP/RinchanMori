@@ -87,10 +87,24 @@ function loginUser(ss, data) {
 
 function getUserState(ss, data) {
   const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+  const clientToken = String(data.syncToken || data.clientSyncToken || '').trim();
   const user = getPublicUserById(ss, id);
   const activities = getMyActivities(ss, { employeeId: id });
   const receivedThanks = getMyThanks(ss, { employeeId: id });
   const sentThanks = getMySentThanks(ss, { employeeId: id });
+  const thanksTimeline = getPublicThanksTimeline(ss);
+  const readNewsIds = getReadNewsIds(ss, id);
+  const thanksStats = getMyThanksStats(ss, { employeeId: id });
+  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats);
+
+  if (clientToken && clientToken === syncToken) {
+    return {
+      employeeId: id,
+      unchanged: true,
+      syncToken,
+      serverAt: new Date().toISOString()
+    };
+  }
 
   return {
     employeeId: id,
@@ -98,11 +112,33 @@ function getUserState(ss, data) {
     activities,
     receivedThanks,
     sentThanks,
-    thanksTimeline: getPublicThanksTimeline(ss),
-    readNewsIds: getReadNewsIds(ss, id),
-    thanksStats: getMyThanksStats(ss, { employeeId: id }),
+    thanksTimeline,
+    readNewsIds,
+    thanksStats,
+    syncToken,
+    unchanged: false,
     serverAt: new Date().toISOString()
   };
+}
+
+function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats) {
+  const parts = [
+    user ? [user.id, user.updatedAt, user.weeklyGoal, user.weeklyStepGoal, user.dept, user.declaration].join('|') : '',
+    listToken(activities, 'activityId', 'savedAt'),
+    listToken(receivedThanks, 'thanksId', 'savedAt'),
+    listToken(sentThanks, 'thanksId', 'savedAt'),
+    listToken(thanksTimeline, 'id', 'createdAt'),
+    (readNewsIds || []).join(','),
+    thanksStats ? [thanksStats.sentCount, thanksStats.receivedCount, thanksStats.totalCount].join('|') : ''
+  ];
+  return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, parts.join('||'))).replace(/=+$/, '');
+}
+
+function listToken(list, idKey, timeKey) {
+  const items = Array.isArray(list) ? list : [];
+  if (!items.length) return '0';
+  const latest = items.slice(0, 10).map(item => [item[idKey] || item.id || '', item[timeKey] || item.createdAt || item.updatedAt || ''].join('@')).join(',');
+  return items.length + ':' + latest;
 }
 
 function getPublicUserById(ss, id) {
