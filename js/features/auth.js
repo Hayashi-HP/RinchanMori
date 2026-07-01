@@ -221,6 +221,30 @@ const RinchanAuth = (() => {
     location.reload();
   }
 
+  async function saveWeeklyStepGoal() {
+    const button = event && event.target ? event.target : null;
+    const user = participant();
+    if (!user || !user.id) {
+      location.href = 'login.html';
+      return;
+    }
+
+    const raw = value('editWeeklyStepGoal').replace(/,/g, '');
+    if (raw && !/^\d+$/.test(raw)) {
+      alert('歩数は数字で入力してください。');
+      return;
+    }
+
+    setBusy(button, true, '保存中...');
+    user.weeklyStepGoal = raw ? String(Number(raw)) : '';
+    user.updatedAt = new Date().toISOString();
+    user.version = VERSION;
+    saveParticipant(user);
+    const result = await api('saveUser', user);
+    applyState(result);
+    location.reload();
+  }
+
   function install() {
     initRegisterForm();
     initLoginForm();
@@ -228,6 +252,7 @@ const RinchanAuth = (() => {
     window.saveProfile = saveProfile;
     window.saveDeclaration = saveDeclaration;
     window.saveGoal = saveGoal;
+    window.saveWeeklyStepGoalV136 = saveWeeklyStepGoal;
   }
 
   document.addEventListener('DOMContentLoaded', install);
@@ -239,6 +264,7 @@ const RinchanAuth = (() => {
     saveProfile,
     saveDeclaration,
     saveGoal,
+    saveWeeklyStepGoal,
     initLoginForm,
     initRegisterForm
   };
