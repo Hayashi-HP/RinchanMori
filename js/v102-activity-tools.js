@@ -1,6 +1,7 @@
-const RINCHAN_V102 = 'v0.9.14';
+const RINCHAN_V102 = 'v0.9.43';
 const RINCHAN_ACTIVITY_KEY = 'rinchanActivities';
-const RINCHAN_ACTIVITY_LIMIT = 10;
+const RINCHAN_ACTIVITY_LIMIT = 7;
+const RINCHAN_ACTIVITY_EDIT_DAYS = 14;
 
 function v102ReadJson(key, fallback) {
   try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
@@ -13,14 +14,16 @@ function v102EscapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, 
 function v102FindActivity(activityId) { return v102Activities().find(item => String(item.activityId) === String(activityId)); }
 function v102DateLabel(date) { if (!date) return '日付未設定'; const d = new Date(String(date) + 'T00:00:00'); if (isNaN(d)) return date; return (d.getMonth()+1) + '/' + d.getDate(); }
 function v102SetBusy(button, busy, label) { if (!button) return; button.disabled = busy; button.textContent = busy ? (label || '保存中...') : '保存する'; }
+function v102IsWithinEditDays(value) { if (!value) return false; const d = new Date(String(value).slice(0,10) + 'T00:00:00'); if (isNaN(d)) return false; const today = new Date(); today.setHours(0,0,0,0); const cutoff = new Date(today); cutoff.setDate(today.getDate() - (RINCHAN_ACTIVITY_EDIT_DAYS - 1)); return d >= cutoff; }
 
 function v102RenderActivityTools() {
   const box = document.getElementById('activityToolsList');
   if (!box) return;
   const all = v102Activities().slice().sort((a,b) => String(b.date || b.createdAt || '').localeCompare(String(a.date || a.createdAt || '')));
-  if (!all.length) { box.innerHTML = '<p class="empty-note">まだ修正できる記録はありません。</p>'; return; }
-  const list = all.slice(0, RINCHAN_ACTIVITY_LIMIT);
-  box.innerHTML = '<div class="activity-tools-count">最新' + list.length + '件を表示中' + (all.length > list.length ? '（全' + all.length + '件）' : '') + '</div>' + list.map(item => {
+  const editable = all.filter(item => v102IsWithinEditDays(item.date || item.createdAt));
+  if (!editable.length) { box.innerHTML = '<p class="empty-note">直近14日以内の修正できる記録はありません。</p>'; return; }
+  const list = editable.slice(0, RINCHAN_ACTIVITY_LIMIT);
+  box.innerHTML = '<div class="activity-tools-count">直近14日以内・最新' + list.length + '件を表示中</div>' + list.map(item => {
     const id = String(item.activityId || '');
     const comment = String(item.comment || '').trim() || (item.challenge ? 'チャレンジあり' : '');
     return '<article class="activity-row compact-row">' +
@@ -40,13 +43,14 @@ function v102RenderActivityTools() {
 function v102OpenActivityEdit(activityId) {
   const item = v102FindActivity(activityId);
   if (!item) { alert('記録が見つかりません。'); return; }
+  if (!v102IsWithinEditDays(item.date || item.createdAt)) { alert('修正できるのは直近14日以内の記録です。'); v102RenderActivityTools(); return; }
   v102CloseActivityEdit();
   const layer = document.createElement('div');
   layer.id = 'activityEditLayer';
   layer.className = 'activity-edit-layer';
   layer.innerHTML = '<section class="activity-edit-card" role="dialog" aria-modal="true" aria-label="歩数記録を修正">' +
     '<button type="button" class="activity-edit-close" aria-label="閉じる">×</button>' +
-    '<p class="label">記録の修正</p>' +
+    '<p class="label">最近の記録</p>' +
     '<h2>歩数記録を修正</h2>' +
     '<form class="activity-edit-form" id="activityEditForm">' +
       '<label>活動日<input id="editActivityDate" type="date" value="' + v102EscapeHtml(item.date || '') + '" required></label>' +
@@ -73,6 +77,7 @@ async function v102SaveActivityEdit(activityId, event) {
     const idx = list.findIndex(item => String(item.activityId) === String(activityId));
     if (idx < 0) { alert('記録が見つかりません。'); v102SetBusy(saveButton, false); return; }
     const item = Object.assign({}, list[idx]);
+    if (!v102IsWithinEditDays(item.date || item.createdAt)) { alert('修正できるのは直近14日以内の記録です。'); v102SetBusy(saveButton, false); v102CloseActivityEdit(); v102RenderActivityTools(); return; }
     item.date = document.getElementById('editActivityDate').value;
     item.steps = Number(document.getElementById('editActivitySteps').value || 0);
     item.challenge = document.getElementById('editActivityChallenge').checked;
@@ -94,6 +99,7 @@ async function v102SaveActivityEdit(activityId, event) {
 async function v102DeleteActivity(activityId) {
   const item = v102FindActivity(activityId);
   if (!item) { alert('記録が見つかりません。'); return; }
+  if (!v102IsWithinEditDays(item.date || item.createdAt)) { alert('削除できるのは直近14日以内の記録です。'); v102RenderActivityTools(); return; }
   if (!confirm(v102DateLabel(item.date) + 'の記録を削除しますか？')) return;
   const list = v102Activities().filter(a => String(a.activityId) !== String(activityId));
   v102SaveJson(RINCHAN_ACTIVITY_KEY, list);
