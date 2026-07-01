@@ -1,4 +1,4 @@
-/* v0.9.42 mobile layout polish */
+/* v0.9.52 mobile layout polish */
 html,
 body{
   width:100%!important;
@@ -10,6 +10,30 @@ body{
   position:relative!important;
   touch-action:pan-y!important;
   background:#eefbfb!important;
+}
+button,
+a,
+[role="button"],
+.submit,
+.soft-button,
+.icon-button,
+.back,
+.nav a,
+.big-action a{
+  cursor:pointer!important;
+}
+button:disabled,
+[aria-disabled="true"]{
+  cursor:not-allowed!important;
+}
+.auth-logout{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:132px!important;
+  width:auto!important;
+  padding:0 24px!important;
+  white-space:nowrap!important;
 }
 .app{
   width:min(100%,430px)!important;
@@ -126,5 +150,9 @@ body{
 @media(max-width:360px){
   .home-hero h1{
     font-size:30px!important;
+  }
+  .auth-logout{
+    min-width:124px!important;
+    padding:0 20px!important;
   }
 }
