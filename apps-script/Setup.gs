@@ -4,7 +4,7 @@ function setupProject(ss) {
   const usersSheet = ensureSheet(ss, SHEET_USERS, [
     'id', 'deviceId', 'name', 'dept', 'nick', 'declaration', 'weeklyGoal',
     'createdAt', 'updatedAt', 'version', 'lastSavedAt', 'email', 'pin4',
-    'employeeId', 'admin', 'weeklyStepGoal'
+    'employeeId', 'admin', 'weeklyStepGoal', 'role'
   ]);
 
   usersSheet.getRange(1, 13, Math.max(usersSheet.getMaxRows(), 1), 1).setNumberFormat('@');
@@ -24,6 +24,10 @@ function setupProject(ss) {
   ensureSheet(ss, SHEET_ERROR_LOGS, [
     'loggedAt', 'receivedAt', 'employeeId', 'deviceId', 'page', 'type',
     'message', 'source', 'line', 'column', 'stack', 'url', 'userAgent', 'clientVersion'
+  ]);
+  ensureSheet(ss, SHEET_AUDIT_LOGS, [
+    'loggedAt', 'actorEmployeeId', 'actorName', 'actorDept', 'actorRole',
+    'action', 'targetType', 'targetId', 'status', 'message', 'detailJson', 'version'
   ]);
   ensureSheet(ss, SHEET_USER_READS, ['employeeId', 'readNewsIds', 'updatedAt', 'version']);
 
