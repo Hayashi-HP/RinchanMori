@@ -1,8 +1,9 @@
-const RINCHAN_V078='v0.9.41';
+const RINCHAN_V078='v0.9.42';
 function v078ReadJson(key,fallback){try{const r=localStorage.getItem(key);return r?JSON.parse(r):fallback}catch(e){return fallback}}
 function v078Num(n){return Number(n||0).toLocaleString('ja-JP')}
 function v078DateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function v078Short(d){return (d.getMonth()+1)+'/'+d.getDate()}
+function v078DateWithWeek(d){const w=['日','月','火','水','木','金','土'];return v078Short(d)+'（'+w[d.getDay()]+'）'}
 function v078WeekStartMonday(base){const d=new Date(base);d.setHours(0,0,0,0);const day=d.getDay();const diff=(day+6)%7;d.setDate(d.getDate()-diff);return d}
 function v078Participant(){return v078ReadJson('rinchanParticipant',{})||{}}
 function v078BarHeight(value,max){if(!value||!max)return 0;return Math.max(12,Math.min(100,Math.round(value/max*100)))}
@@ -27,11 +28,11 @@ function renderV078Chart(){
   const best=Math.max(...values);
   const max=best>0?best*1.1:1000;
   const labels=['日','月','火','水','木','金','土'];
-  const range=v078Short(days[0])+'〜'+v078Short(days[6]);
+  const range=v078DateWithWeek(days[0])+'〜'+v078DateWithWeek(days[6]);
   const goal=Number(String(p.weeklyStepGoal||'').replace(/,/g,''));
   const hasGoal=goal>0;
   const remain=hasGoal?Math.max(0,goal-weekTotal):0;
   const goalHtml=hasGoal?'<p class="steps-goal">目標 '+v078Num(goal)+'歩まで '+(remain>0?'あと '+v078Num(remain)+'歩':'達成しました')+'</p>':'';
   const diffHtml=lastTotal>0?'<p class="steps-trend">📊 '+(diff>=0?'先週より +'+v078Num(diff)+'歩':'先週より '+v078Num(diff)+'歩')+'</p>':'';
-  box.innerHTML='<div class="steps-summary"><p class="label">今週の歩数</p><strong>'+v078Num(weekTotal)+'</strong><span>歩</span><small>'+range+' / 月〜日</small>'+goalHtml+'</div><div class="steps-bars">'+values.map((v,i)=>'<div class="steps-bar-col"><div class="steps-bar-track"><div class="steps-bar-fill" style="height:'+v078BarHeight(v,max)+'%"></div></div><small>'+labels[days[i].getDay()]+'</small></div>').join('')+'</div>'+diffHtml;
+  box.innerHTML='<div class="steps-summary"><p class="label">今週の歩数</p><strong>'+v078Num(weekTotal)+'</strong><span>歩</span><small>'+range+'</small>'+goalHtml+'</div><div class="steps-bars">'+values.map((v,i)=>'<div class="steps-bar-col"><div class="steps-bar-track"><div class="steps-bar-fill" style="height:'+v078BarHeight(v,max)+'%"></div></div><small>'+labels[days[i].getDay()]+'</small></div>').join('')+'</div>'+diffHtml;
 }
