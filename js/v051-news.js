@@ -1,6 +1,6 @@
 const RINCHAN_NEWS_KEY = 'rinchanReadNewsIds';
 const RINCHAN_NEWS_IDS = ['news1', 'news2'];
-const RINCHAN_V100 = 'v0.9.13';
+const RINCHAN_V100 = 'v0.9.46';
 
 function readJsonV051(key, fallback) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch (e) { return fallback; } }
 function readNewsIdsV051() { return readJsonV051(RINCHAN_NEWS_KEY, []); }
@@ -36,17 +36,7 @@ function v100RenderSummary() {
   const todayActivities = activities.filter(item => String(item.date || '').slice(0, 10) === todayKey).length;
   const todaySteps = activities.filter(item => String(item.date || '').slice(0, 10) === todayKey).reduce((sum, item) => sum + Number(item.steps || 0), 0);
   const thanksCount = thanks.length;
-  const level = v100ForestLevelFromSteps(totalSteps);
-  const currentTarget = v100ForestTarget(level);
-  const nextLevel = Math.min(7, level + 1);
-  const nextTarget = v100ForestTarget(nextLevel);
-  const progressPct = Math.max(8, Math.min(100, Math.round((Math.max(0, totalSteps - currentTarget) / Math.max(1, nextTarget - currentTarget)) * 100)));
-  const remain = Math.max(0, nextTarget - totalSteps);
-  const title = document.getElementById('forestLevelTitle'); if (title) title.textContent = '杜レベル ' + level;
-  const text = document.getElementById('forestLevelText'); if (text) text.textContent = '全員の歩数で、杜全体が育ちます。';
   const date = document.getElementById('newsSummaryDate'); if (date) date.textContent = v100TodayLabel() + 'の様子';
-  const progress = document.getElementById('forestProgressBar'); if (progress) progress.style.width = progressPct + '%';
-  const note = document.getElementById('forestProgressNote'); if (note) note.textContent = remain > 0 ? 'あと' + v100Num(remain) + '歩でレベル ' + nextLevel : '次の成長条件を達成しました';
   const stats = document.getElementById('forestSummaryStats'); if (!stats) return;
   stats.innerHTML = [
     { icon: '👟', text: '累計 ' + v100Num(totalSteps) + '歩' },
@@ -71,13 +61,20 @@ function v100RenderNotices() {
   box.querySelectorAll('.notice-confirm').forEach(btn => btn.addEventListener('click', () => markNoticeReadV113(btn.dataset.noticeId)));
 }
 
+function v100ThanksBody(item) {
+  const from = item.fromDept || item.fromDepartment || '';
+  const to = item.toDept || item.targetDept || '';
+  const reason = item.reason || '';
+  if (from && to) return from + 'の仲間が、' + to + 'の仲間に' + (reason && reason !== 'ありがとう' ? '「' + reason + '」のありがとうを届けました。' : 'ありがとうを届けました。');
+  return String(item.publicBody || item.body || 'ありがとうが届きました。').replace(/^❤️\s*/g, '').trim();
+}
 function v100RenderThanksStories() {
   const box = document.getElementById('thanksStoryList'); if (!box) return;
   const list = v100Timeline().slice(0, 12);
   if (!list.length) { box.innerHTML = '<p class="empty-note news-empty">まだありがとうの出来事はありません。</p>'; return; }
   box.innerHTML = list.map(item => {
-    const body = String(item.publicBody || item.body || 'ありがとうが届きました。').replace(/^❤️\s*/g, '').trim();
-    return '<article class="thanks-story-item"><div class="thanks-story-top"><span class="thanks-story-badge">❤️ ありがとう</span><time>' + v100EscapeHtml(v100RelativeTime(item.createdAt)) + '</time></div><h3>' + v100EscapeHtml(item.title || 'ありがとうが届きました') + '</h3><p>' + v100EscapeHtml(body) + '</p></article>';
+    const body = v100ThanksBody(item);
+    return '<article class="thanks-story-item"><div class="thanks-story-top"><span class="thanks-story-badge">❤️ ありがとう</span><time>' + v100EscapeHtml(v100RelativeTime(item.createdAt)) + '</time></div><h3>' + v100EscapeHtml(item.title || 'ありがとうが届けられました') + '</h3><p>' + v100EscapeHtml(body) + '</p></article>';
   }).join('');
 }
 
