@@ -1,47 +1,943 @@
-const SHEET_USERS='users';
-const SHEET_ACTIVITIES='activities';
-const SHEET_THANKS='thanks';
-const SHEET_LOGS='logs';
-const SHEET_DEPARTMENTS='departments';
-const SHEET_USER_READS='user_reads';
-const VERSION='v0.9.53';
-function doGet(e){const action=e&&e.parameter?String(e.parameter.action||''):'';const ss=SpreadsheetApp.getActiveSpreadsheet();const setup=setupProject(ss);if(action==='setup')return jsonOutput({ok:true,action,setup,version:VERSION});if(action==='departments')return jsonOutput({ok:true,action,departments:getDepartments(ss),version:VERSION});if(action==='dashboard')return jsonOutput({ok:true,action,data:getDashboard(ss),version:VERSION});return jsonOutput({ok:true,app:'RinchanMori',version:VERSION,setup,message:'Apps Script is running.'});}
-function doPost(e){try{const data=parseRequest(e);const action=String(data.action||'').trim();const ss=SpreadsheetApp.getActiveSpreadsheet();setupProject(ss);if(action==='setup')return jsonOutput({ok:true,action,setup:setupProject(ss),version:VERSION});if(action==='departments')return jsonOutput({ok:true,action,departments:getDepartments(ss),version:VERSION});if(action==='dashboard')return jsonOutput({ok:true,action,data:getDashboard(ss),version:VERSION});if(action==='getUserState')return jsonOutput({ok:true,action,state:getUserState(ss,data),version:VERSION});if(action==='markNewsRead')return jsonOutput({ok:true,action,state:markNewsRead(ss,data),version:VERSION});if(action==='myActivities'){const activities=getMyActivities(ss,data);writeLog(ss,action,data.deviceId,data.employeeId||data.id||data.participantId,'ok','');return jsonOutput({ok:true,action,activities,version:VERSION});}if(action==='thanksTimeline')return jsonOutput({ok:true,action,thanks:getPublicThanksTimeline(ss),version:VERSION});if(action==='myThanks'){const thanks=getMyThanks(ss,data);writeLog(ss,action,data.deviceId,data.employeeId||data.id||data.toParticipantId,'ok','');return jsonOutput({ok:true,action,thanks,version:VERSION});}if(action==='mySentThanks'){const thanks=getMySentThanks(ss,data);writeLog(ss,action,data.deviceId,data.employeeId||data.id||data.fromParticipantId,'ok','');return jsonOutput({ok:true,action,thanks,version:VERSION});}if(action==='myThanksStats'){const stats=getMyThanksStats(ss,data);writeLog(ss,action,data.deviceId,data.employeeId||data.id,'ok','');return jsonOutput({ok:true,action,stats,version:VERSION});}if(action==='adminStats'){if(!isAdminRequest(ss,data))return jsonOutput({ok:false,error:'admin_required',version:VERSION});return jsonOutput({ok:true,action,data:getAdminStats(ss),version:VERSION});}if(action==='saveUser'){const saved=saveUser(ss,data);writeLog(ss,action,data.deviceId,saved.user.id,'ok','');return jsonOutput({ok:true,action,saved,user:saved.user,state:getUserState(ss,{employeeId:saved.user.employeeId}),version:VERSION});}if(action==='loginUser'){const user=loginUser(ss,data);writeLog(ss,action,data.deviceId,user?user.id:'',user?'ok':'ng',user?'':'login_failed');if(!user)return jsonOutput({ok:false,error:'login_failed',version:VERSION});return jsonOutput({ok:true,action,user,state:getUserState(ss,{employeeId:user.employeeId}),version:VERSION});}if(action==='saveActivity'){const saved=saveActivity(ss,data);writeLog(ss,action,data.deviceId,data.participantId||data.id,'ok','');return jsonOutput({ok:true,action,saved,version:VERSION});}if(action==='deleteActivity'){const deleted=deleteActivity(ss,data);writeLog(ss,action,data.deviceId,data.participantId||data.id,deleted.deleted?'ok':'ng',deleted.deleted?'':'not_found');return jsonOutput({ok:true,action,deleted,version:VERSION});}if(action==='saveThanks'){const saved=saveThanks(ss,data);writeLog(ss,action,data.fromParticipantId||data.deviceId,data.toParticipantId,'ok','');return jsonOutput({ok:true,action,saved,stats:getMyThanksStats(ss,{employeeId:data.fromParticipantId}),version:VERSION});}writeLog(ss,action||'unknown',data.deviceId,data.participantId||data.id,'ng','unknown_action');return jsonOutput({ok:false,error:'unknown_action',version:VERSION});}catch(err){try{const ss=SpreadsheetApp.getActiveSpreadsheet();setupProject(ss);writeLog(ss,'error','','','ng',err.message);}catch(ignore){}return jsonOutput({ok:false,error:err.message,version:VERSION});}}
-function setupProjectManual(){return setupProject(SpreadsheetApp.getActiveSpreadsheet());}
-function parseRequest(e){if(!e||!e.postData||!e.postData.contents)return{};return JSON.parse(e.postData.contents);}
-function jsonOutput(obj){return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);}
-function setupProject(ss){const usersSheet=ensureSheet(ss,SHEET_USERS,['id','deviceId','name','dept','nick','declaration','weeklyGoal','createdAt','updatedAt','version','lastSavedAt','email','pin4','employeeId','admin','weeklyStepGoal']);usersSheet.getRange(1,13,Math.max(usersSheet.getMaxRows(),1),1).setNumberFormat('@');normalizeExistingPin4(usersSheet);ensureSheet(ss,SHEET_ACTIVITIES,['activityId','participantId','deviceId','date','steps','challenge','comment','createdAt','version','savedAt']);ensureSheet(ss,SHEET_THANKS,['thanksId','fromParticipantId','fromName','toParticipantId','toName','toDept','reason','createdAt','version','savedAt']);ensureSheet(ss,SHEET_LOGS,['loggedAt','action','deviceId','participantId','status','message']);ensureSheet(ss,SHEET_USER_READS,['employeeId','readNewsIds','updatedAt','version']);const deptSheet=ensureSheet(ss,SHEET_DEPARTMENTS,['deptId','deptName','displayOrder','active','mapKey']);seedDepartments(deptSheet);return{spreadsheetId:ss.getId(),sheets:ss.getSheets().map(s=>s.getName())};}
-function ensureSheet(ss,name,headers){let sheet=ss.getSheetByName(name);if(!sheet)sheet=ss.insertSheet(name);if(sheet.getMaxColumns()<headers.length)sheet.insertColumnsAfter(sheet.getMaxColumns(),headers.length-sheet.getMaxColumns());const current=sheet.getRange(1,1,1,headers.length).getValues()[0];headers.forEach((h,i)=>{if(current[i]!==h)sheet.getRange(1,i+1).setValue(h);});if(sheet.getFrozenRows()!==1)sheet.setFrozenRows(1);sheet.autoResizeColumns(1,headers.length);return sheet;}
-function defaultDepartments(){return[['nurse','看護部',10,true,'nurse'],['reha','リハビリテーション部',20,true,'reha'],['care','介護部',30,true,'care'],['doctor','医局',40,true,'doctor'],['pharmacy','薬剤部',50,true,'pharmacy'],['nutrition','栄養科',60,true,'nutrition'],['office','事務部',70,true,'office'],['other','その他',90,true,'other']];}
-function seedDepartments(sheet){if(sheet.getLastRow()>=2)return;sheet.getRange(2,1,defaultDepartments().length,5).setValues(defaultDepartments());sheet.autoResizeColumns(1,5);}
-function getDepartments(ss){const rows=readTable(ss.getSheetByName(SHEET_DEPARTMENTS));const source=rows.length?rows:defaultDepartments().map(r=>({deptId:r[0],deptName:r[1],displayOrder:r[2],active:r[3],mapKey:r[4]}));return source.filter(d=>String(d.active).toUpperCase()!=='FALSE'&&String(d.active)!=='0').sort((a,b)=>Number(a.displayOrder||999)-Number(b.displayOrder||999)).map(d=>({deptId:String(d.deptId||''),deptName:String(d.deptName||''),displayOrder:Number(d.displayOrder||999),active:String(d.active).toUpperCase()!=='FALSE'&&String(d.active)!=='0',mapKey:String(d.mapKey||'other')}));}
-function normalizeExistingPin4(sheet){const lastRow=sheet.getLastRow();if(lastRow<2)return;const range=sheet.getRange(2,13,lastRow-1,1);const values=range.getValues();let changed=false;const fixed=values.map(row=>{const pin=normalizePin(row[0]);if(pin&&String(row[0])!==pin)changed=true;return[pin||''];});if(changed)range.setValues(fixed);}
-function saveUser(ss,data){const sheet=ss.getSheetByName(SHEET_USERS);const employeeId=normalizeEmployeeId(data.employeeId||data.id||data.participantId||'');if(!employeeId)throw new Error('employee_id_required');const row=findRowByValue(sheet,1,employeeId);const old=row>0?rowToObject(sheet,row):{};const now=new Date().toISOString();const user={id:employeeId,employeeId,deviceId:data.deviceId||old.deviceId||'',name:data.name||old.name||'',dept:data.dept||old.dept||'',nick:data.nick!==undefined?data.nick:(old.nick||''),declaration:data.declaration!==undefined?data.declaration:(old.declaration||''),weeklyGoal:data.weeklyGoal!==undefined?data.weeklyGoal:(old.weeklyGoal||'まずは無理なく続ける'),createdAt:data.createdAt||old.createdAt||now,updatedAt:data.updatedAt||now,version:data.version||data.appVersion||VERSION,lastSavedAt:now,email:normalizeEmail(data.email||'')||old.email||'',pin4:normalizePin(data.pin4||'')||normalizePin(old.pin4||'')||'',admin:data.admin!==undefined?data.admin:(old.admin||''),weeklyStepGoal:data.weeklyStepGoal!==undefined?data.weeklyStepGoal:(old.weeklyStepGoal||'')};const values=[user.id,user.deviceId,user.name,user.dept,user.nick,user.declaration,user.weeklyGoal,user.createdAt,user.updatedAt,user.version,user.lastSavedAt,user.email,user.pin4,user.employeeId,user.admin,user.weeklyStepGoal];if(row>0){sheet.getRange(row,1,1,values.length).setValues([values]);return{type:'updated',row,id:employeeId,user:publicUser(user)};}sheet.appendRow(values);return{type:'inserted',row:sheet.getLastRow(),id:employeeId,user:publicUser(user)};}
-function loginUser(ss,data){const sheet=ss.getSheetByName(SHEET_USERS);const employeeId=normalizeEmployeeId(data.employeeId||data.id||'');const email=normalizeEmail(data.email||'');const pin4=normalizePin(data.pin4||'');if((!employeeId&&!email)||!pin4)return null;const users=readTable(sheet);const user=users.find(u=>{const sameEmployee=employeeId&&(normalizeEmployeeId(u.employeeId||u.id||'')===employeeId);const sameEmail=email&&(normalizeEmail(u.email||'')===email);return sameEmployee||sameEmail;});if(!user)return null;const storedPin=normalizePin(user.pin4||'');if(storedPin&&storedPin!==pin4)return null;if(!storedPin){const row=findRowByValue(sheet,1,normalizeEmployeeId(user.id||user.employeeId||employeeId));if(row>0)sheet.getRange(row,13).setNumberFormat('@').setValue(pin4);user.pin4=pin4;}return publicUser(user);}
-function saveActivity(ss,data){const sheet=ss.getSheetByName(SHEET_ACTIVITIES);const activityId=String(data.activityId||'').trim();if(!activityId)throw new Error('activity_id_required');const row=findRowByValue(sheet,1,activityId);const values=[activityId,data.participantId||data.id||'',data.deviceId||'',data.date||'',Number(data.steps||0),data.challenge===true||data.challenge==='true',data.comment||'',data.createdAt||'',data.version||data.appVersion||VERSION,new Date().toISOString()];if(row>0){sheet.getRange(row,1,1,values.length).setValues([values]);return{type:'updated',row,activityId};}sheet.appendRow(values);return{type:'inserted',row:sheet.getLastRow(),activityId};}
-function deleteActivity(ss,data){const sheet=ss.getSheetByName(SHEET_ACTIVITIES);const activityId=String(data.activityId||'').trim();if(!activityId)throw new Error('activity_id_required');const row=findRowByValue(sheet,1,activityId);if(row>0){sheet.deleteRow(row);return{deleted:true,row,activityId};}return{deleted:false,row:-1,activityId};}
-function saveThanks(ss,data){const sheet=ss.getSheetByName(SHEET_THANKS);const thanksId=String(data.thanksId||('K'+Date.now().toString(36))).trim();const row=findRowByValue(sheet,1,thanksId);const now=new Date().toISOString();const values=[thanksId,data.fromParticipantId||'',data.fromName||'',data.toParticipantId||'',data.toName||'',data.toDept||'',data.reason||'ありがとう',data.createdAt||now,data.version||data.appVersion||VERSION,now];if(row>0){sheet.getRange(row,1,1,values.length).setValues([values]);return{type:'updated',row,thanksId};}sheet.appendRow(values);return{type:'inserted',row:sheet.getLastRow(),thanksId};}
-function getMyActivities(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||data.participantId||'');if(!id)return[];return readTable(ss.getSheetByName(SHEET_ACTIVITIES)).filter(a=>normalizeEmployeeId(a.participantId||'')===id).sort((a,b)=>String(b.date||b.createdAt||'').localeCompare(String(a.date||a.createdAt||''))).slice(0,200).map(a=>({activityId:String(a.activityId||''),participantId:normalizeEmployeeId(a.participantId||''),deviceId:String(a.deviceId||''),date:String(a.date||''),steps:Number(a.steps||0),challenge:a.challenge===true||String(a.challenge).toUpperCase()==='TRUE',comment:String(a.comment||''),createdAt:String(a.createdAt||''),version:String(a.version||VERSION),savedAt:String(a.savedAt||'')}));}
-function getMyThanks(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||data.toParticipantId||'');if(!id)return[];return readTable(ss.getSheetByName(SHEET_THANKS)).filter(t=>normalizeEmployeeId(t.toParticipantId||'')===id).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,50);}
-function getMySentThanks(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||data.fromParticipantId||'');if(!id)return[];return readTable(ss.getSheetByName(SHEET_THANKS)).filter(t=>normalizeEmployeeId(t.fromParticipantId||'')===id).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,50);}
-function getMyThanksStats(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||'');const sent=getMySentThanks(ss,{employeeId:id});const received=getMyThanks(ss,{employeeId:id});return{sentCount:sent.length,receivedCount:received.length,totalCount:sent.length+received.length};}
-function getPublicThanksTimeline(ss){const users=readTable(ss.getSheetByName(SHEET_USERS));const byId={};users.forEach(u=>{const id=normalizeEmployeeId(u.employeeId||u.id||'');if(id)byId[id]=u;});return readTable(ss.getSheetByName(SHEET_THANKS)).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||''))).slice(0,50).map(t=>{const fromUser=byId[normalizeEmployeeId(t.fromParticipantId||'')]||{};const fromDept=fromUser.dept||'杜の仲間';const toDept=t.toDept||'杜の仲間';const reason=t.reason||'ありがとう';const detail=reason&&reason!=='ありがとう'?'「'+reason+'」のありがとうを届けました。':'ありがとうを届けました。';return{id:String(t.thanksId||''),icon:'❤️',title:'ありがとうが届けられました',body:fromDept+'の仲間が、'+toDept+'の仲間に'+detail,publicBody:fromDept+'の仲間が、'+toDept+'の仲間に'+detail,fromDept,toDept,targetDept:toDept,reason,createdAt:String(t.createdAt||'')};});}
-function getDashboard(ss){const users=readTable(ss.getSheetByName(SHEET_USERS));const activities=readTable(ss.getSheetByName(SHEET_ACTIVITIES));const thanks=readTable(ss.getSheetByName(SHEET_THANKS));const byUser=buildUserStats(users,activities,false);const members=Object.keys(byUser).map(id=>byUser[id]);return{generatedAt:new Date().toISOString(),totalUsers:members.length,totalActivities:activities.length,totalSteps:activities.reduce((sum,item)=>sum+Number(item.steps||0),0),totalThanks:thanks.length,members,departments:getDepartments(ss),ranking:rankMembers(members).slice(0,20)};}
-function getUserState(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||data.participantId||'');const user=getPublicUserById(ss,id);const activities=getMyActivities(ss,{employeeId:id});const receivedThanks=getMyThanks(ss,{employeeId:id});const sentThanks=getMySentThanks(ss,{employeeId:id});return{employeeId:id,user,activities,receivedThanks,sentThanks,thanksTimeline:getPublicThanksTimeline(ss),readNewsIds:getReadNewsIds(ss,id),thanksStats:getMyThanksStats(ss,{employeeId:id}),serverAt:new Date().toISOString()};}
-function getPublicUserById(ss,id){if(!id)return null;const user=readTable(ss.getSheetByName(SHEET_USERS)).find(u=>normalizeEmployeeId(u.employeeId||u.id||'')===id);return user?publicUser(user):null;}
-function getReadNewsIds(ss,id){if(!id)return[];const sheet=ss.getSheetByName(SHEET_USER_READS);const row=findRowByValue(sheet,1,id);if(row<2)return[];const raw=String(sheet.getRange(row,2).getValue()||'');return raw.split(',').map(s=>s.trim()).filter(Boolean);}
-function markNewsRead(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||data.participantId||'');const newsId=String(data.newsId||data.noticeId||'').trim();if(!id)throw new Error('employee_id_required');if(!newsId)throw new Error('news_id_required');const sheet=ss.getSheetByName(SHEET_USER_READS);let row=findRowByValue(sheet,1,id);const current=row>0?String(sheet.getRange(row,2).getValue()||''):'';const ids=Array.from(new Set(current.split(',').map(s=>s.trim()).filter(Boolean).concat([newsId])));const values=[id,ids.join(','),new Date().toISOString(),VERSION];if(row>0)sheet.getRange(row,1,1,values.length).setValues([values]);else sheet.appendRow(values);return getUserState(ss,{employeeId:id});}
-function getAdminStats(ss){const users=readTable(ss.getSheetByName(SHEET_USERS));const activities=readTable(ss.getSheetByName(SHEET_ACTIVITIES));const byUser=buildUserStats(users,activities,false);const members=Object.keys(byUser).map(id=>byUser[id]);const deptMap={},monthMap={},csvRows=[],today=toDateKey(new Date()),last7=Date.now()-6*86400000;activities.forEach(item=>{const user=byUser[item.participantId]||{};const dept=user.dept||'所属未設定';const date=String(item.date||'');const month=date.slice(0,7)||'日付未設定';const steps=Number(item.steps||0);if(!deptMap[dept])deptMap[dept]={dept,users:{},activityCount:0,totalSteps:0,todaySteps:0,todayCount:0,last7Steps:0,last7Count:0};deptMap[dept].users[item.participantId||'unknown']=true;deptMap[dept].activityCount+=1;deptMap[dept].totalSteps+=steps;if(date===today){deptMap[dept].todaySteps+=steps;deptMap[dept].todayCount+=1;}const t=new Date(date).getTime();if(!isNaN(t)&&t>=last7){deptMap[dept].last7Steps+=steps;deptMap[dept].last7Count+=1;}if(!monthMap[month])monthMap[month]={month,activityCount:0,totalSteps:0};monthMap[month].activityCount+=1;monthMap[month].totalSteps+=steps;csvRows.push({date,activityId:item.activityId||'',participantId:item.participantId||'',name:user.name||'',nick:user.nick||'',dept,steps,challenge:item.challenge===true||item.challenge==='true',comment:item.comment||'',createdAt:item.createdAt||'',savedAt:item.savedAt||''});});const deptRanking=Object.keys(deptMap).map(k=>{const d=deptMap[k];return{dept:d.dept,userCount:Object.keys(d.users).length,activityCount:d.activityCount,totalSteps:d.totalSteps,todaySteps:d.todaySteps,todayCount:d.todayCount,last7Steps:d.last7Steps,last7Count:d.last7Count};}).sort((a,b)=>b.last7Steps-a.last7Steps||b.totalSteps-a.totalSteps);const monthly=Object.keys(monthMap).map(k=>monthMap[k]).sort((a,b)=>String(b.month).localeCompare(String(a.month)));const inactiveMembers=members.filter(m=>!m.lastDate||new Date(m.lastDate).getTime()<last7).sort((a,b)=>String(a.lastDate||'').localeCompare(String(b.lastDate||'')));const unsetMembers=members.filter(m=>!String(m.dept||'').trim()||String(m.dept)==='所属未設定');const todayRows=csvRows.filter(r=>r.date===today);return{generatedAt:new Date().toISOString(),today,totalUsers:members.length,totalActivities:activities.length,totalSteps:activities.reduce((sum,item)=>sum+Number(item.steps||0),0),todayUsers:Object.keys(todayRows.reduce((m,r)=>{m[r.participantId]=true;return m;},{})).length,todayActivities:todayRows.length,todaySteps:todayRows.reduce((s,r)=>s+Number(r.steps||0),0),ranking:rankMembers(members),deptRanking,monthly,csvRows,users:members,inactiveMembers,unsetMembers,departments:getDepartments(ss)};}
-function buildUserStats(users,activities,masked){const byUser={};users.forEach(user=>{const id=normalizeEmployeeId(user.employeeId||user.id||'');if(!id)return;byUser[id]={id,employeeId:id,name:masked?maskName(user.name||''):(user.name||''),nick:user.nick||'',dept:user.dept||'',declaration:user.declaration||'',weeklyGoal:user.weeklyGoal||'',weeklyStepGoal:user.weeklyStepGoal||'',admin:user.admin||'',activityCount:0,totalSteps:0,lastDate:''};});activities.forEach(item=>{const id=normalizeEmployeeId(item.participantId||'');if(!id)return;if(!byUser[id])byUser[id]={id,employeeId:id,name:'ゲスト',nick:'',dept:'',declaration:'',weeklyGoal:'',weeklyStepGoal:'',admin:'',activityCount:0,totalSteps:0,lastDate:''};byUser[id].activityCount+=1;byUser[id].totalSteps+=Number(item.steps||0);if(!byUser[id].lastDate||String(item.date||'')>byUser[id].lastDate)byUser[id].lastDate=String(item.date||'');});return byUser;}
-function isAdminRequest(ss,data){const id=normalizeEmployeeId(data.employeeId||data.id||data.participantId||'');if(!id)return false;const user=readTable(ss.getSheetByName(SHEET_USERS)).find(u=>normalizeEmployeeId(u.employeeId||u.id||'')===id);return !!(user&&String(user.admin||'').trim()==='1');}
-function toDateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function rankMembers(members){return members.slice().sort((a,b)=>b.totalSteps!==a.totalSteps?b.totalSteps-a.totalSteps:b.activityCount-a.activityCount);}
-function rowToObject(sheet,row){const headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0].map(String);const values=sheet.getRange(row,1,1,sheet.getLastColumn()).getValues()[0];const obj={};headers.forEach((h,i)=>obj[h]=values[i]);return obj;}
-function publicUser(user){return{id:normalizeEmployeeId(user.employeeId||user.id||''),employeeId:normalizeEmployeeId(user.employeeId||user.id||''),deviceId:user.deviceId||'',name:user.name||'',dept:user.dept||'',nick:user.nick||'',declaration:user.declaration||'',weeklyGoal:user.weeklyGoal||'',weeklyStepGoal:user.weeklyStepGoal||'',createdAt:user.createdAt||'',updatedAt:user.updatedAt||'',version:user.version||VERSION,email:user.email||'',admin:String(user.admin||'').trim()==='1'?'1':''};}
-function normalizeEmployeeId(value){return String(value||'').trim();}
-function normalizeEmail(email){return String(email||'').trim().toLowerCase();}
-function normalizePin(pin){const digits=String(pin||'').replace(/\D/g,'');if(!digits)return'';return digits.slice(-4).padStart(4,'0');}
-function readTable(sheet){if(!sheet||sheet.getLastRow()<2)return[];const values=sheet.getDataRange().getValues();const headers=values.shift().map(String);return values.map(row=>{const obj={};headers.forEach((h,i)=>obj[h]=row[i]);return obj;});}
-function maskName(name){const text=String(name||'').trim();if(!text)return'ゲスト';if(text.length<=2)return text;return text.slice(0,1)+'＊'+text.slice(-1);}
-function findRowByValue(sheet,col,value){const lastRow=sheet.getLastRow();if(lastRow<2)return-1;const values=sheet.getRange(2,col,lastRow-1,1).getValues();for(let i=0;i<values.length;i++){if(String(values[i][0])===String(value))return i+2;}return-1;}
-function writeLog(ss,action,deviceId,participantId,status,message){const sheet=ss.getSheetByName(SHEET_LOGS);sheet.appendRow([new Date().toISOString(),action||'',deviceId||'',participantId||'',status||'',message||'']);}
+/*
+ * RinchanMori Apps Script
+ * Version: v0.9.54
+ *
+ * Notes:
+ * - Departments are read from the `departments` sheet first.
+ * - DEFAULT_DEPARTMENTS is only used when the sheet is empty or newly created.
+ */
+
+const SHEET_USERS = 'users';
+const SHEET_ACTIVITIES = 'activities';
+const SHEET_THANKS = 'thanks';
+const SHEET_LOGS = 'logs';
+const SHEET_DEPARTMENTS = 'departments';
+const SHEET_USER_READS = 'user_reads';
+const VERSION = 'v0.9.54';
+
+const DEFAULT_DEPARTMENTS = [
+  ['nurse', '看護部', 10, true, 'nurse'],
+  ['reha', 'リハビリテーション部', 20, true, 'reha'],
+  ['care', '介護部', 30, true, 'care'],
+  ['doctor', '医局', 40, true, 'doctor'],
+  ['pharmacy', '薬剤部', 50, true, 'pharmacy'],
+  ['nutrition', '栄養科', 60, true, 'nutrition'],
+  ['office', '事務部', 70, true, 'office'],
+  ['other', 'その他', 90, true, 'other']
+];
+
+function doGet(e) {
+  const action = e && e.parameter ? String(e.parameter.action || '') : '';
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const setup = setupProject(ss);
+
+  if (action === 'setup') {
+    return jsonOutput({ ok: true, action, setup, version: VERSION });
+  }
+
+  if (action === 'departments') {
+    return jsonOutput({ ok: true, action, departments: getDepartments(ss), version: VERSION });
+  }
+
+  if (action === 'dashboard') {
+    return jsonOutput({ ok: true, action, data: getDashboard(ss), version: VERSION });
+  }
+
+  return jsonOutput({
+    ok: true,
+    app: 'RinchanMori',
+    version: VERSION,
+    setup,
+    message: 'Apps Script is running.'
+  });
+}
+
+function doPost(e) {
+  try {
+    const data = parseRequest(e);
+    const action = String(data.action || '').trim();
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    setupProject(ss);
+
+    if (action === 'setup') {
+      return jsonOutput({ ok: true, action, setup: setupProject(ss), version: VERSION });
+    }
+
+    if (action === 'departments') {
+      return jsonOutput({ ok: true, action, departments: getDepartments(ss), version: VERSION });
+    }
+
+    if (action === 'dashboard') {
+      return jsonOutput({ ok: true, action, data: getDashboard(ss), version: VERSION });
+    }
+
+    if (action === 'getUserState') {
+      return jsonOutput({ ok: true, action, state: getUserState(ss, data), version: VERSION });
+    }
+
+    if (action === 'markNewsRead') {
+      return jsonOutput({ ok: true, action, state: markNewsRead(ss, data), version: VERSION });
+    }
+
+    if (action === 'myActivities') {
+      const activities = getMyActivities(ss, data);
+      writeLog(ss, action, data.deviceId, data.employeeId || data.id || data.participantId, 'ok', '');
+      return jsonOutput({ ok: true, action, activities, version: VERSION });
+    }
+
+    if (action === 'thanksTimeline') {
+      return jsonOutput({ ok: true, action, thanks: getPublicThanksTimeline(ss), version: VERSION });
+    }
+
+    if (action === 'myThanks') {
+      const thanks = getMyThanks(ss, data);
+      writeLog(ss, action, data.deviceId, data.employeeId || data.id || data.toParticipantId, 'ok', '');
+      return jsonOutput({ ok: true, action, thanks, version: VERSION });
+    }
+
+    if (action === 'mySentThanks') {
+      const thanks = getMySentThanks(ss, data);
+      writeLog(ss, action, data.deviceId, data.employeeId || data.id || data.fromParticipantId, 'ok', '');
+      return jsonOutput({ ok: true, action, thanks, version: VERSION });
+    }
+
+    if (action === 'myThanksStats') {
+      const stats = getMyThanksStats(ss, data);
+      writeLog(ss, action, data.deviceId, data.employeeId || data.id, 'ok', '');
+      return jsonOutput({ ok: true, action, stats, version: VERSION });
+    }
+
+    if (action === 'adminStats') {
+      if (!isAdminRequest(ss, data)) {
+        return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
+      }
+      return jsonOutput({ ok: true, action, data: getAdminStats(ss), version: VERSION });
+    }
+
+    if (action === 'saveUser') {
+      const saved = saveUser(ss, data);
+      writeLog(ss, action, data.deviceId, saved.user.id, 'ok', '');
+      return jsonOutput({
+        ok: true,
+        action,
+        saved,
+        user: saved.user,
+        state: getUserState(ss, { employeeId: saved.user.employeeId }),
+        version: VERSION
+      });
+    }
+
+    if (action === 'loginUser') {
+      const user = loginUser(ss, data);
+      writeLog(ss, action, data.deviceId, user ? user.id : '', user ? 'ok' : 'ng', user ? '' : 'login_failed');
+      if (!user) return jsonOutput({ ok: false, error: 'login_failed', version: VERSION });
+      return jsonOutput({
+        ok: true,
+        action,
+        user,
+        state: getUserState(ss, { employeeId: user.employeeId }),
+        version: VERSION
+      });
+    }
+
+    if (action === 'saveActivity') {
+      const saved = saveActivity(ss, data);
+      writeLog(ss, action, data.deviceId, data.participantId || data.id, 'ok', '');
+      return jsonOutput({ ok: true, action, saved, version: VERSION });
+    }
+
+    if (action === 'deleteActivity') {
+      const deleted = deleteActivity(ss, data);
+      writeLog(ss, action, data.deviceId, data.participantId || data.id, deleted.deleted ? 'ok' : 'ng', deleted.deleted ? '' : 'not_found');
+      return jsonOutput({ ok: true, action, deleted, version: VERSION });
+    }
+
+    if (action === 'saveThanks') {
+      const saved = saveThanks(ss, data);
+      writeLog(ss, action, data.fromParticipantId || data.deviceId, data.toParticipantId, 'ok', '');
+      return jsonOutput({
+        ok: true,
+        action,
+        saved,
+        stats: getMyThanksStats(ss, { employeeId: data.fromParticipantId }),
+        version: VERSION
+      });
+    }
+
+    writeLog(ss, action || 'unknown', data.deviceId, data.participantId || data.id, 'ng', 'unknown_action');
+    return jsonOutput({ ok: false, error: 'unknown_action', version: VERSION });
+  } catch (err) {
+    try {
+      const ss = SpreadsheetApp.getActiveSpreadsheet();
+      setupProject(ss);
+      writeLog(ss, 'error', '', '', 'ng', err.message);
+    } catch (ignore) {}
+    return jsonOutput({ ok: false, error: err.message, version: VERSION });
+  }
+}
+
+function setupProjectManual() {
+  return setupProject(SpreadsheetApp.getActiveSpreadsheet());
+}
+
+function setupProject(ss) {
+  const usersSheet = ensureSheet(ss, SHEET_USERS, [
+    'id',
+    'deviceId',
+    'name',
+    'dept',
+    'nick',
+    'declaration',
+    'weeklyGoal',
+    'createdAt',
+    'updatedAt',
+    'version',
+    'lastSavedAt',
+    'email',
+    'pin4',
+    'employeeId',
+    'admin',
+    'weeklyStepGoal'
+  ]);
+
+  usersSheet.getRange(1, 13, Math.max(usersSheet.getMaxRows(), 1), 1).setNumberFormat('@');
+  normalizeExistingPin4(usersSheet);
+
+  ensureSheet(ss, SHEET_ACTIVITIES, [
+    'activityId',
+    'participantId',
+    'deviceId',
+    'date',
+    'steps',
+    'challenge',
+    'comment',
+    'createdAt',
+    'version',
+    'savedAt'
+  ]);
+
+  ensureSheet(ss, SHEET_THANKS, [
+    'thanksId',
+    'fromParticipantId',
+    'fromName',
+    'toParticipantId',
+    'toName',
+    'toDept',
+    'reason',
+    'createdAt',
+    'version',
+    'savedAt'
+  ]);
+
+  ensureSheet(ss, SHEET_LOGS, [
+    'loggedAt',
+    'action',
+    'deviceId',
+    'participantId',
+    'status',
+    'message'
+  ]);
+
+  ensureSheet(ss, SHEET_USER_READS, [
+    'employeeId',
+    'readNewsIds',
+    'updatedAt',
+    'version'
+  ]);
+
+  const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, [
+    'deptId',
+    'deptName',
+    'displayOrder',
+    'active',
+    'mapKey'
+  ]);
+  seedDepartmentsIfEmpty(deptSheet);
+
+  return {
+    spreadsheetId: ss.getId(),
+    sheets: ss.getSheets().map(s => s.getName())
+  };
+}
+
+function ensureSheet(ss, name, headers) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
+
+  if (sheet.getMaxColumns() < headers.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length - sheet.getMaxColumns());
+  }
+
+  const current = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  headers.forEach((header, index) => {
+    if (current[index] !== header) {
+      sheet.getRange(1, index + 1).setValue(header);
+    }
+  });
+
+  if (sheet.getFrozenRows() !== 1) sheet.setFrozenRows(1);
+  sheet.autoResizeColumns(1, headers.length);
+  return sheet;
+}
+
+function seedDepartmentsIfEmpty(sheet) {
+  if (sheet.getLastRow() >= 2) return;
+  sheet.getRange(2, 1, DEFAULT_DEPARTMENTS.length, 5).setValues(DEFAULT_DEPARTMENTS);
+  sheet.autoResizeColumns(1, 5);
+}
+
+function getDepartments(ss) {
+  const rows = readTable(ss.getSheetByName(SHEET_DEPARTMENTS));
+  const source = rows.length
+    ? rows
+    : DEFAULT_DEPARTMENTS.map(row => ({
+        deptId: row[0],
+        deptName: row[1],
+        displayOrder: row[2],
+        active: row[3],
+        mapKey: row[4]
+      }));
+
+  return source
+    .filter(dept => String(dept.active).toUpperCase() !== 'FALSE' && String(dept.active) !== '0')
+    .sort((a, b) => Number(a.displayOrder || 999) - Number(b.displayOrder || 999))
+    .map(dept => ({
+      deptId: String(dept.deptId || ''),
+      deptName: String(dept.deptName || ''),
+      displayOrder: Number(dept.displayOrder || 999),
+      active: String(dept.active).toUpperCase() !== 'FALSE' && String(dept.active) !== '0',
+      mapKey: String(dept.mapKey || 'other')
+    }));
+}
+
+function saveUser(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_USERS);
+  const employeeId = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+  if (!employeeId) throw new Error('employee_id_required');
+
+  const row = findRowByValue(sheet, 1, employeeId);
+  const old = row > 0 ? rowToObject(sheet, row) : {};
+  const now = new Date().toISOString();
+
+  const user = {
+    id: employeeId,
+    employeeId,
+    deviceId: data.deviceId || old.deviceId || '',
+    name: data.name || old.name || '',
+    dept: data.dept || old.dept || '',
+    nick: data.nick !== undefined ? data.nick : old.nick || '',
+    declaration: data.declaration !== undefined ? data.declaration : old.declaration || '',
+    weeklyGoal: data.weeklyGoal !== undefined ? data.weeklyGoal : old.weeklyGoal || 'まずは無理なく続ける',
+    createdAt: data.createdAt || old.createdAt || now,
+    updatedAt: data.updatedAt || now,
+    version: data.version || data.appVersion || VERSION,
+    lastSavedAt: now,
+    email: normalizeEmail(data.email || '') || old.email || '',
+    pin4: normalizePin(data.pin4 || '') || normalizePin(old.pin4 || '') || '',
+    admin: data.admin !== undefined ? data.admin : old.admin || '',
+    weeklyStepGoal: data.weeklyStepGoal !== undefined ? data.weeklyStepGoal : old.weeklyStepGoal || ''
+  };
+
+  const values = [
+    user.id,
+    user.deviceId,
+    user.name,
+    user.dept,
+    user.nick,
+    user.declaration,
+    user.weeklyGoal,
+    user.createdAt,
+    user.updatedAt,
+    user.version,
+    user.lastSavedAt,
+    user.email,
+    user.pin4,
+    user.employeeId,
+    user.admin,
+    user.weeklyStepGoal
+  ];
+
+  if (row > 0) {
+    sheet.getRange(row, 1, 1, values.length).setValues([values]);
+    return { type: 'updated', row, id: employeeId, user: publicUser(user) };
+  }
+
+  sheet.appendRow(values);
+  return { type: 'inserted', row: sheet.getLastRow(), id: employeeId, user: publicUser(user) };
+}
+
+function loginUser(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_USERS);
+  const employeeId = normalizeEmployeeId(data.employeeId || data.id || '');
+  const email = normalizeEmail(data.email || '');
+  const pin4 = normalizePin(data.pin4 || '');
+
+  if ((!employeeId && !email) || !pin4) return null;
+
+  const users = readTable(sheet);
+  const user = users.find(row => {
+    const sameEmployee = employeeId && normalizeEmployeeId(row.employeeId || row.id || '') === employeeId;
+    const sameEmail = email && normalizeEmail(row.email || '') === email;
+    return sameEmployee || sameEmail;
+  });
+
+  if (!user) return null;
+
+  const storedPin = normalizePin(user.pin4 || '');
+  if (storedPin && storedPin !== pin4) return null;
+
+  if (!storedPin) {
+    const row = findRowByValue(sheet, 1, normalizeEmployeeId(user.id || user.employeeId || employeeId));
+    if (row > 0) sheet.getRange(row, 13).setNumberFormat('@').setValue(pin4);
+    user.pin4 = pin4;
+  }
+
+  return publicUser(user);
+}
+
+function saveActivity(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_ACTIVITIES);
+  const activityId = String(data.activityId || '').trim();
+  if (!activityId) throw new Error('activity_id_required');
+
+  const row = findRowByValue(sheet, 1, activityId);
+  const values = [
+    activityId,
+    data.participantId || data.id || '',
+    data.deviceId || '',
+    data.date || '',
+    Number(data.steps || 0),
+    data.challenge === true || data.challenge === 'true',
+    data.comment || '',
+    data.createdAt || '',
+    data.version || data.appVersion || VERSION,
+    new Date().toISOString()
+  ];
+
+  if (row > 0) {
+    sheet.getRange(row, 1, 1, values.length).setValues([values]);
+    return { type: 'updated', row, activityId };
+  }
+
+  sheet.appendRow(values);
+  return { type: 'inserted', row: sheet.getLastRow(), activityId };
+}
+
+function deleteActivity(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_ACTIVITIES);
+  const activityId = String(data.activityId || '').trim();
+  if (!activityId) throw new Error('activity_id_required');
+
+  const row = findRowByValue(sheet, 1, activityId);
+  if (row > 0) {
+    sheet.deleteRow(row);
+    return { deleted: true, row, activityId };
+  }
+
+  return { deleted: false, row: -1, activityId };
+}
+
+function saveThanks(ss, data) {
+  const sheet = ss.getSheetByName(SHEET_THANKS);
+  const thanksId = String(data.thanksId || 'K' + Date.now().toString(36)).trim();
+  const row = findRowByValue(sheet, 1, thanksId);
+  const now = new Date().toISOString();
+
+  const values = [
+    thanksId,
+    data.fromParticipantId || '',
+    data.fromName || '',
+    data.toParticipantId || '',
+    data.toName || '',
+    data.toDept || '',
+    data.reason || 'ありがとう',
+    data.createdAt || now,
+    data.version || data.appVersion || VERSION,
+    now
+  ];
+
+  if (row > 0) {
+    sheet.getRange(row, 1, 1, values.length).setValues([values]);
+    return { type: 'updated', row, thanksId };
+  }
+
+  sheet.appendRow(values);
+  return { type: 'inserted', row: sheet.getLastRow(), thanksId };
+}
+
+function getMyActivities(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+  if (!id) return [];
+
+  return readTable(ss.getSheetByName(SHEET_ACTIVITIES))
+    .filter(item => normalizeEmployeeId(item.participantId || '') === id)
+    .sort((a, b) => String(b.date || b.createdAt || '').localeCompare(String(a.date || a.createdAt || '')))
+    .slice(0, 200)
+    .map(item => ({
+      activityId: String(item.activityId || ''),
+      participantId: normalizeEmployeeId(item.participantId || ''),
+      deviceId: String(item.deviceId || ''),
+      date: String(item.date || ''),
+      steps: Number(item.steps || 0),
+      challenge: item.challenge === true || String(item.challenge).toUpperCase() === 'TRUE',
+      comment: String(item.comment || ''),
+      createdAt: String(item.createdAt || ''),
+      version: String(item.version || VERSION),
+      savedAt: String(item.savedAt || '')
+    }));
+}
+
+function getMyThanks(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || data.toParticipantId || '');
+  if (!id) return [];
+
+  return readTable(ss.getSheetByName(SHEET_THANKS))
+    .filter(item => normalizeEmployeeId(item.toParticipantId || '') === id)
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .slice(0, 50);
+}
+
+function getMySentThanks(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || data.fromParticipantId || '');
+  if (!id) return [];
+
+  return readTable(ss.getSheetByName(SHEET_THANKS))
+    .filter(item => normalizeEmployeeId(item.fromParticipantId || '') === id)
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .slice(0, 50);
+}
+
+function getMyThanksStats(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || '');
+  const sent = getMySentThanks(ss, { employeeId: id });
+  const received = getMyThanks(ss, { employeeId: id });
+
+  return {
+    sentCount: sent.length,
+    receivedCount: received.length,
+    totalCount: sent.length + received.length
+  };
+}
+
+function getPublicThanksTimeline(ss) {
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const byId = {};
+
+  users.forEach(user => {
+    const id = normalizeEmployeeId(user.employeeId || user.id || '');
+    if (id) byId[id] = user;
+  });
+
+  return readTable(ss.getSheetByName(SHEET_THANKS))
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .slice(0, 50)
+    .map(item => {
+      const fromUser = byId[normalizeEmployeeId(item.fromParticipantId || '')] || {};
+      const fromDept = fromUser.dept || '杜の仲間';
+      const toDept = item.toDept || '杜の仲間';
+      const reason = item.reason || 'ありがとう';
+      const detail = reason && reason !== 'ありがとう'
+        ? '「' + reason + '」のありがとうを届けました。'
+        : 'ありがとうを届けました。';
+
+      return {
+        id: String(item.thanksId || ''),
+        icon: '❤️',
+        title: 'ありがとうが届けられました',
+        body: fromDept + 'の仲間が、' + toDept + 'の仲間に' + detail,
+        publicBody: fromDept + 'の仲間が、' + toDept + 'の仲間に' + detail,
+        fromDept,
+        toDept,
+        targetDept: toDept,
+        reason,
+        createdAt: String(item.createdAt || '')
+      };
+    });
+}
+
+function getDashboard(ss) {
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const thanks = readTable(ss.getSheetByName(SHEET_THANKS));
+  const byUser = buildUserStats(users, activities, false);
+  const members = Object.keys(byUser).map(id => byUser[id]);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totalUsers: members.length,
+    totalActivities: activities.length,
+    totalSteps: activities.reduce((sum, item) => sum + Number(item.steps || 0), 0),
+    totalThanks: thanks.length,
+    members,
+    departments: getDepartments(ss),
+    ranking: rankMembers(members).slice(0, 20)
+  };
+}
+
+function getUserState(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+  const user = getPublicUserById(ss, id);
+  const activities = getMyActivities(ss, { employeeId: id });
+  const receivedThanks = getMyThanks(ss, { employeeId: id });
+  const sentThanks = getMySentThanks(ss, { employeeId: id });
+
+  return {
+    employeeId: id,
+    user,
+    activities,
+    receivedThanks,
+    sentThanks,
+    thanksTimeline: getPublicThanksTimeline(ss),
+    readNewsIds: getReadNewsIds(ss, id),
+    thanksStats: getMyThanksStats(ss, { employeeId: id }),
+    serverAt: new Date().toISOString()
+  };
+}
+
+function getPublicUserById(ss, id) {
+  if (!id) return null;
+  const user = readTable(ss.getSheetByName(SHEET_USERS))
+    .find(row => normalizeEmployeeId(row.employeeId || row.id || '') === id);
+  return user ? publicUser(user) : null;
+}
+
+function getReadNewsIds(ss, id) {
+  if (!id) return [];
+  const sheet = ss.getSheetByName(SHEET_USER_READS);
+  const row = findRowByValue(sheet, 1, id);
+  if (row < 2) return [];
+
+  const raw = String(sheet.getRange(row, 2).getValue() || '');
+  return raw.split(',').map(value => value.trim()).filter(Boolean);
+}
+
+function markNewsRead(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+  const newsId = String(data.newsId || data.noticeId || '').trim();
+
+  if (!id) throw new Error('employee_id_required');
+  if (!newsId) throw new Error('news_id_required');
+
+  const sheet = ss.getSheetByName(SHEET_USER_READS);
+  let row = findRowByValue(sheet, 1, id);
+  const current = row > 0 ? String(sheet.getRange(row, 2).getValue() || '') : '';
+  const ids = Array.from(new Set(current.split(',').map(value => value.trim()).filter(Boolean).concat([newsId])));
+  const values = [id, ids.join(','), new Date().toISOString(), VERSION];
+
+  if (row > 0) {
+    sheet.getRange(row, 1, 1, values.length).setValues([values]);
+  } else {
+    sheet.appendRow(values);
+  }
+
+  return getUserState(ss, { employeeId: id });
+}
+
+function getAdminStats(ss) {
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const byUser = buildUserStats(users, activities, false);
+  const members = Object.keys(byUser).map(id => byUser[id]);
+  const deptMap = {};
+  const monthMap = {};
+  const csvRows = [];
+  const today = toDateKey(new Date());
+  const last7 = Date.now() - 6 * 86400000;
+
+  activities.forEach(item => {
+    const user = byUser[item.participantId] || {};
+    const dept = user.dept || '所属未設定';
+    const date = String(item.date || '');
+    const month = date.slice(0, 7) || '日付未設定';
+    const steps = Number(item.steps || 0);
+
+    if (!deptMap[dept]) {
+      deptMap[dept] = {
+        dept,
+        users: {},
+        activityCount: 0,
+        totalSteps: 0,
+        todaySteps: 0,
+        todayCount: 0,
+        last7Steps: 0,
+        last7Count: 0
+      };
+    }
+
+    deptMap[dept].users[item.participantId || 'unknown'] = true;
+    deptMap[dept].activityCount += 1;
+    deptMap[dept].totalSteps += steps;
+
+    if (date === today) {
+      deptMap[dept].todaySteps += steps;
+      deptMap[dept].todayCount += 1;
+    }
+
+    const timestamp = new Date(date).getTime();
+    if (!isNaN(timestamp) && timestamp >= last7) {
+      deptMap[dept].last7Steps += steps;
+      deptMap[dept].last7Count += 1;
+    }
+
+    if (!monthMap[month]) {
+      monthMap[month] = { month, activityCount: 0, totalSteps: 0 };
+    }
+    monthMap[month].activityCount += 1;
+    monthMap[month].totalSteps += steps;
+
+    csvRows.push({
+      date,
+      activityId: item.activityId || '',
+      participantId: item.participantId || '',
+      name: user.name || '',
+      nick: user.nick || '',
+      dept,
+      steps,
+      challenge: item.challenge === true || item.challenge === 'true',
+      comment: item.comment || '',
+      createdAt: item.createdAt || '',
+      savedAt: item.savedAt || ''
+    });
+  });
+
+  const deptRanking = Object.keys(deptMap)
+    .map(key => {
+      const dept = deptMap[key];
+      return {
+        dept: dept.dept,
+        userCount: Object.keys(dept.users).length,
+        activityCount: dept.activityCount,
+        totalSteps: dept.totalSteps,
+        todaySteps: dept.todaySteps,
+        todayCount: dept.todayCount,
+        last7Steps: dept.last7Steps,
+        last7Count: dept.last7Count
+      };
+    })
+    .sort((a, b) => b.last7Steps - a.last7Steps || b.totalSteps - a.totalSteps);
+
+  const monthly = Object.keys(monthMap)
+    .map(key => monthMap[key])
+    .sort((a, b) => String(b.month).localeCompare(String(a.month)));
+
+  const inactiveMembers = members
+    .filter(member => !member.lastDate || new Date(member.lastDate).getTime() < last7)
+    .sort((a, b) => String(a.lastDate || '').localeCompare(String(b.lastDate || '')));
+
+  const unsetMembers = members.filter(member => !String(member.dept || '').trim() || String(member.dept) === '所属未設定');
+  const todayRows = csvRows.filter(row => row.date === today);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    today,
+    totalUsers: members.length,
+    totalActivities: activities.length,
+    totalSteps: activities.reduce((sum, item) => sum + Number(item.steps || 0), 0),
+    todayUsers: Object.keys(todayRows.reduce((map, row) => {
+      map[row.participantId] = true;
+      return map;
+    }, {})).length,
+    todayActivities: todayRows.length,
+    todaySteps: todayRows.reduce((sum, row) => sum + Number(row.steps || 0), 0),
+    ranking: rankMembers(members),
+    deptRanking,
+    monthly,
+    csvRows,
+    users: members,
+    inactiveMembers,
+    unsetMembers,
+    departments: getDepartments(ss)
+  };
+}
+
+function buildUserStats(users, activities, masked) {
+  const byUser = {};
+
+  users.forEach(user => {
+    const id = normalizeEmployeeId(user.employeeId || user.id || '');
+    if (!id) return;
+
+    byUser[id] = {
+      id,
+      employeeId: id,
+      name: masked ? maskName(user.name || '') : user.name || '',
+      nick: user.nick || '',
+      dept: user.dept || '',
+      declaration: user.declaration || '',
+      weeklyGoal: user.weeklyGoal || '',
+      weeklyStepGoal: user.weeklyStepGoal || '',
+      admin: user.admin || '',
+      activityCount: 0,
+      totalSteps: 0,
+      lastDate: ''
+    };
+  });
+
+  activities.forEach(item => {
+    const id = normalizeEmployeeId(item.participantId || '');
+    if (!id) return;
+
+    if (!byUser[id]) {
+      byUser[id] = {
+        id,
+        employeeId: id,
+        name: 'ゲスト',
+        nick: '',
+        dept: '',
+        declaration: '',
+        weeklyGoal: '',
+        weeklyStepGoal: '',
+        admin: '',
+        activityCount: 0,
+        totalSteps: 0,
+        lastDate: ''
+      };
+    }
+
+    byUser[id].activityCount += 1;
+    byUser[id].totalSteps += Number(item.steps || 0);
+    if (!byUser[id].lastDate || String(item.date || '') > byUser[id].lastDate) {
+      byUser[id].lastDate = String(item.date || '');
+    }
+  });
+
+  return byUser;
+}
+
+function isAdminRequest(ss, data) {
+  const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+  if (!id) return false;
+
+  const user = readTable(ss.getSheetByName(SHEET_USERS))
+    .find(row => normalizeEmployeeId(row.employeeId || row.id || '') === id);
+
+  return !!(user && String(user.admin || '').trim() === '1');
+}
+
+function publicUser(user) {
+  return {
+    id: normalizeEmployeeId(user.employeeId || user.id || ''),
+    employeeId: normalizeEmployeeId(user.employeeId || user.id || ''),
+    deviceId: user.deviceId || '',
+    name: user.name || '',
+    dept: user.dept || '',
+    nick: user.nick || '',
+    declaration: user.declaration || '',
+    weeklyGoal: user.weeklyGoal || '',
+    weeklyStepGoal: user.weeklyStepGoal || '',
+    createdAt: user.createdAt || '',
+    updatedAt: user.updatedAt || '',
+    version: user.version || VERSION,
+    email: user.email || '',
+    admin: String(user.admin || '').trim() === '1' ? '1' : ''
+  };
+}
+
+function normalizeExistingPin4(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  const range = sheet.getRange(2, 13, lastRow - 1, 1);
+  const values = range.getValues();
+  let changed = false;
+
+  const fixed = values.map(row => {
+    const pin = normalizePin(row[0]);
+    if (pin && String(row[0]) !== pin) changed = true;
+    return [pin || ''];
+  });
+
+  if (changed) range.setValues(fixed);
+}
+
+function parseRequest(e) {
+  if (!e || !e.postData || !e.postData.contents) return {};
+  return JSON.parse(e.postData.contents);
+}
+
+function jsonOutput(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function readTable(sheet) {
+  if (!sheet || sheet.getLastRow() < 2) return [];
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values.shift().map(String);
+
+  return values.map(row => {
+    const obj = {};
+    headers.forEach((header, index) => {
+      obj[header] = row[index];
+    });
+    return obj;
+  });
+}
+
+function rowToObject(sheet, row) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
+  const values = sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const obj = {};
+
+  headers.forEach((header, index) => {
+    obj[header] = values[index];
+  });
+
+  return obj;
+}
+
+function findRowByValue(sheet, col, value) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return -1;
+
+  const values = sheet.getRange(2, col, lastRow - 1, 1).getValues();
+  for (let index = 0; index < values.length; index++) {
+    if (String(values[index][0]) === String(value)) return index + 2;
+  }
+
+  return -1;
+}
+
+function toDateKey(date) {
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+}
+
+function rankMembers(members) {
+  return members.slice().sort((a, b) => {
+    if (b.totalSteps !== a.totalSteps) return b.totalSteps - a.totalSteps;
+    return b.activityCount - a.activityCount;
+  });
+}
+
+function normalizeEmployeeId(value) {
+  return String(value || '').trim();
+}
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function normalizePin(pin) {
+  const digits = String(pin || '').replace(/\D/g, '');
+  if (!digits) return '';
+  return digits.slice(-4).padStart(4, '0');
+}
+
+function maskName(name) {
+  const text = String(name || '').trim();
+  if (!text) return 'ゲスト';
+  if (text.length <= 2) return text;
+  return text.slice(0, 1) + '＊' + text.slice(-1);
+}
+
+function writeLog(ss, action, deviceId, participantId, status, message) {
+  const sheet = ss.getSheetByName(SHEET_LOGS);
+  sheet.appendRow([
+    new Date().toISOString(),
+    action || '',
+    deviceId || '',
+    participantId || '',
+    status || '',
+    message || ''
+  ]);
+}
