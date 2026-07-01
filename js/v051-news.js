@@ -1,6 +1,6 @@
 const RINCHAN_NEWS_KEY = 'rinchanReadNewsIds';
 const RINCHAN_NEWS_IDS = ['news1', 'news2'];
-const RINCHAN_V100 = 'v0.9.46';
+const RINCHAN_V100 = 'v0.9.47';
 
 function readJsonV051(key, fallback) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch (e) { return fallback; } }
 function readNewsIdsV051() { return readJsonV051(RINCHAN_NEWS_KEY, []); }
@@ -23,8 +23,6 @@ function v100RelativeTime(dateString) { if (!dateString) return 'たった今'; 
 function v100Activities() { return v100ReadJson('rinchanActivities', []).slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))); }
 function v100Timeline() { return v100ReadJson('rinchanGoodTimeline', []).slice().sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))); }
 function v100DashboardCache() { const cache = v100ReadJson('rinchanDashboardCache', null); return cache && cache.data ? cache.data : null; }
-function v100ForestLevelFromSteps(totalSteps) { if (totalSteps >= 300000) return 7; if (totalSteps >= 200000) return 6; if (totalSteps >= 120000) return 5; if (totalSteps >= 70000) return 4; if (totalSteps >= 30000) return 3; if (totalSteps >= 10000) return 2; return 1; }
-function v100ForestTarget(level) { return [0, 10000, 30000, 70000, 120000, 200000, 300000, 450000][level] || 450000; }
 
 function v100RenderSummary() {
   const cache = v100DashboardCache();
@@ -68,6 +66,20 @@ function v100ThanksBody(item) {
   if (from && to) return from + 'の仲間が、' + to + 'の仲間に' + (reason && reason !== 'ありがとう' ? '「' + reason + '」のありがとうを届けました。' : 'ありがとうを届けました。');
   return String(item.publicBody || item.body || 'ありがとうが届きました。').replace(/^❤️\s*/g, '').trim();
 }
+function v100RenderThanksFlowSummary() {
+  const box = document.getElementById('thanksFlowSummary'); if (!box) return;
+  const list = v100Timeline();
+  const todayKey = v100TodayKey();
+  const today = list.filter(item => String(item.createdAt || '').slice(0, 10) === todayKey).length;
+  const recent = list.slice(0, 7).length;
+  if (!list.length) { box.innerHTML = '<p class="empty-note news-empty">まだありがとうの記録はありません。最初のありがとうを届けてみましょう。</p>'; return; }
+  const latest = list[0];
+  box.innerHTML = '<div class="thanks-flow-metrics">' +
+    '<div><strong>' + v100Num(today) + '件</strong><small>今日</small></div>' +
+    '<div><strong>' + v100Num(recent) + '件</strong><small>最近</small></div>' +
+    '<div><strong>' + v100Num(list.length) + '件</strong><small>累計</small></div>' +
+  '</div><article class="thanks-flow-latest"><span>🕊️</span><div><small>いちばん最近</small><p>' + v100EscapeHtml(v100ThanksBody(latest)) + '</p></div></article>';
+}
 function v100RenderThanksStories() {
   const box = document.getElementById('thanksStoryList'); if (!box) return;
   const list = v100Timeline().slice(0, 12);
@@ -96,4 +108,4 @@ function v100BuildGroupNews() {
   return items;
 }
 function v100RenderGroupNews() { const box = document.getElementById('groupNewsList'); if (!box) return; box.innerHTML = v100BuildGroupNews().map(item => '<article class="group-news-item"><div class="group-news-icon" aria-hidden="true">' + v100EscapeHtml(item.icon) + '</div><div class="group-news-body"><div class="group-news-meta"><span class="group-news-tag">' + v100EscapeHtml(item.tag) + '</span></div><h3>' + v100EscapeHtml(item.title) + '</h3><p>' + v100EscapeHtml(item.body) + '</p></div></article>').join(''); }
-function initNewsPageV100() { if (!document.getElementById('rinchanNewsPage')) return; v100RenderSummary(); v100RenderNotices(); v100RenderThanksStories(); v100RenderGroupNews(); }
+function initNewsPageV100() { if (!document.getElementById('rinchanNewsPage')) return; v100RenderSummary(); v100RenderThanksFlowSummary(); v100RenderNotices(); v100RenderThanksStories(); v100RenderGroupNews(); }
