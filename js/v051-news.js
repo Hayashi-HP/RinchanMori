@@ -1,6 +1,6 @@
 const RINCHAN_NEWS_KEY = 'rinchanReadNewsIds';
 const RINCHAN_NEWS_IDS = ['news1', 'news2'];
-const RINCHAN_V100 = 'v0.9.48';
+const RINCHAN_V100 = 'v0.9.49';
 
 function readJsonV051(key, fallback) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch (e) { return fallback; } }
 function readNewsIdsV051() { return readJsonV051(RINCHAN_NEWS_KEY, []); }
@@ -59,27 +59,47 @@ function v100RenderNotices() {
   box.querySelectorAll('.notice-confirm').forEach(btn => btn.addEventListener('click', () => markNoticeReadV113(btn.dataset.noticeId)));
 }
 
+function v100ThanksReason(item) {
+  return String(item.reason || item.kind || item.type || 'ありがとう').trim() || 'ありがとう';
+}
+function v100ReasonIcon(reason) {
+  if (reason.includes('助け')) return '💚';
+  if (reason.includes('元気')) return '😊';
+  if (reason.includes('頑張')) return '🌸';
+  if (reason.includes('協力')) return '🤝';
+  if (reason.includes('笑顔')) return '😊';
+  if (reason.includes('アイデア')) return '💡';
+  return '❤️';
+}
+function v100ThanksRoute(item) {
+  const from = item.fromDept || item.fromDepartment || '杜の仲間';
+  const to = item.toDept || item.targetDept || '杜の仲間';
+  return from + ' → ' + to;
+}
 function v100ThanksBody(item) {
   const from = item.fromDept || item.fromDepartment || '';
   const to = item.toDept || item.targetDept || '';
-  const reason = item.reason || '';
+  const reason = v100ThanksReason(item);
   if (from && to) return from + 'の仲間が、' + to + 'の仲間に' + (reason && reason !== 'ありがとう' ? '「' + reason + '」のありがとうを届けました。' : 'ありがとうを届けました。');
   return String(item.publicBody || item.body || 'ありがとうが届きました。').replace(/^❤️\s*/g, '').trim();
+}
+function v100ReasonBadge(item) {
+  const reason = v100ThanksReason(item);
+  return '<span class="thanks-reason-badge">' + v100EscapeHtml(v100ReasonIcon(reason) + ' ' + reason) + '</span>';
 }
 function v100RenderThanksFlowSummary() {
   const box = document.getElementById('thanksFlowSummary'); if (!box) return;
   const list = v100Timeline();
   if (!list.length) { box.innerHTML = '<p class="empty-note news-empty">まだありがとうの記録はありません。最初のありがとうを届けてみましょう。</p>'; return; }
   const latest = list[0];
-  box.innerHTML = '<article class="thanks-flow-latest"><span>🕊️</span><div><small>いちばん最近のありがとう</small><p>' + v100EscapeHtml(v100ThanksBody(latest)) + '</p></div></article>';
+  box.innerHTML = '<article class="thanks-flow-latest"><span>🕊️</span><div><small>最新のありがとう</small><p>' + v100EscapeHtml(v100ThanksBody(latest)) + '</p>' + v100ReasonBadge(latest) + '</div></article>';
 }
 function v100RenderThanksStories() {
   const box = document.getElementById('thanksStoryList'); if (!box) return;
-  const list = v100Timeline().slice(0, 12);
-  if (!list.length) { box.innerHTML = '<p class="empty-note news-empty">まだありがとうの出来事はありません。</p>'; return; }
-  box.innerHTML = list.map(item => {
-    const body = v100ThanksBody(item);
-    return '<article class="thanks-story-item"><div class="thanks-story-top"><span class="thanks-story-badge">❤️ ありがとう</span><time>' + v100EscapeHtml(v100RelativeTime(item.createdAt)) + '</time></div><h3>' + v100EscapeHtml(item.title || 'ありがとうが届けられました') + '</h3><p>' + v100EscapeHtml(body) + '</p></article>';
+  const list = v100Timeline().slice(1, 7);
+  if (!list.length) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="thanks-inline-heading">最近のありがとう</div>' + list.map(item => {
+    return '<article class="thanks-story-item thanks-compact-item"><div class="thanks-story-top"><strong>' + v100EscapeHtml(v100ThanksRoute(item)) + '</strong><time>' + v100EscapeHtml(v100RelativeTime(item.createdAt)) + '</time></div>' + v100ReasonBadge(item) + '</article>';
   }).join('');
 }
 
