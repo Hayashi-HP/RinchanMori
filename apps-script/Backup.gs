@@ -1,15 +1,17 @@
 /* Backup helpers */
 
-const BACKUP_SOURCE_SHEETS = [
-  SHEET_USERS,
-  SHEET_ACTIVITIES,
-  SHEET_THANKS,
-  SHEET_LOGS,
-  SHEET_ERROR_LOGS,
-  SHEET_AUDIT_LOGS,
-  SHEET_DEPARTMENTS,
-  SHEET_USER_READS
-];
+function getBackupSourceSheets() {
+  return [
+    SHEET_USERS,
+    SHEET_ACTIVITIES,
+    SHEET_THANKS,
+    SHEET_LOGS,
+    SHEET_ERROR_LOGS,
+    SHEET_AUDIT_LOGS,
+    SHEET_DEPARTMENTS,
+    SHEET_USER_READS
+  ];
+}
 
 function sanitizeBackupLabel(label) {
   return String(label || 'manual').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24) || 'manual';
@@ -40,7 +42,8 @@ function backupSheet(ss, sourceName, label) {
 function createBackup(ss, data) {
   const label = sanitizeBackupLabel(data && data.label);
   const startedAt = new Date().toISOString();
-  const results = BACKUP_SOURCE_SHEETS.map(name => backupSheet(ss, name, label));
+  const sourceSheets = getBackupSourceSheets();
+  const results = sourceSheets.map(name => backupSheet(ss, name, label));
   const copiedCount = results.filter(item => item.copied).length;
 
   const record = {
@@ -48,7 +51,7 @@ function createBackup(ss, data) {
     label,
     startedAt,
     finishedAt: new Date().toISOString(),
-    sourceCount: BACKUP_SOURCE_SHEETS.length,
+    sourceCount: sourceSheets.length,
     copiedCount,
     results
   };
