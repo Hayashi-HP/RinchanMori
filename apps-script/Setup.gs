@@ -29,6 +29,9 @@ function setupProject(ss) {
     'loggedAt', 'actorEmployeeId', 'actorName', 'actorDept', 'actorRole',
     'action', 'targetType', 'targetId', 'status', 'message', 'detailJson', 'version'
   ]);
+  ensureSheet(ss, SHEET_BACKUP_LOGS, [
+    'createdAt', 'label', 'actorEmployeeId', 'copiedCount', 'sourceCount', 'ok', 'detailJson', 'version'
+  ]);
   ensureSheet(ss, SHEET_USER_READS, ['employeeId', 'readNewsIds', 'updatedAt', 'version']);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
