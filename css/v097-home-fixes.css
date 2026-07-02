@@ -1,0 +1,6 @@
+/* v0.9.97 home hero fixes */
+.home-hero{overflow:hidden!important;}
+.home-hero .cloud{z-index:1!important;}
+.home-hero .petal{z-index:2!important;}
+.home-hero .rin-face-hero{position:relative!important;z-index:5!important;display:block!important;}
+.home-hero .hello,.home-hero h1,.home-hero .msg,.home-hero .hero-challenge{position:relative!important;z-index:4!important;}
