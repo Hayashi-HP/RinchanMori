@@ -1,5 +1,5 @@
 const RinchanNews = (() => {
-  const VERSION = 'v1.0.07';
+  const VERSION = 'v1.0.09';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -39,10 +39,7 @@ const RinchanNews = (() => {
   function readIds() { return readJson('rinchanReadNewsIds', []); }
   function saveReadIds(ids) { return writeJson('rinchanReadNewsIds', Array.from(new Set((ids || []).filter(Boolean)))); }
 
-  function dateKeyFromDate(date) {
-    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-  }
-
+  function dateKeyFromDate(date) { return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'); }
   function normalizeDateKey(value) {
     const raw = String(value || '').trim();
     const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
@@ -83,14 +80,12 @@ const RinchanNews = (() => {
     const statsEl = document.getElementById('forestSummaryStats');
     if (dateEl) dateEl.textContent = formatMonthDay(new Date());
     if (!statsEl) return;
-
     const today = todayKey();
     const acts = activities();
     const todayRows = acts.filter(item => normalizeDateKey(item.date || item.createdAt || item.savedAt) === today);
     const todaySteps = todayRows.reduce((sum, item) => sum + Number(item.steps || 0), 0);
     const totalSteps = acts.reduce((sum, item) => sum + Number(item.steps || 0), 0);
     const thanksCount = thanksTimeline().length + sentThanks().length + receivedThanks().length;
-
     statsEl.innerHTML = [
       summaryStat('📝', todayRows.length.toLocaleString(), '今日の記録'),
       summaryStat('👟', todaySteps.toLocaleString(), '今日の歩数'),
@@ -132,7 +127,8 @@ const RinchanNews = (() => {
     if (!rows.length) { box.innerHTML = '<p class="empty-note news-empty">お知らせはありません。</p>'; return; }
     box.innerHTML = rows.map(item => {
       const isRead = read.includes(item.id);
-      return '<article class="notice-item ' + (isRead ? 'is-read' : 'unread') + '"><span class="notice-dot">' + escapeHtml(item.icon || (isRead ? '✓' : '🔔')) + '</span><div class="notice-title"><strong>' + escapeHtml(item.title || 'お知らせ') + '</strong><p>' + escapeHtml(item.body || '') + '</p><small>' + formatDate(item.createdAt) + '</small></div><div class="notice-action-wrap"><span class="notice-state">' + (isRead ? '既読' : '未読') + '</span><button type="button" class="notice-confirm" onclick="RinchanNews.markRead(\'' + escapeAttr(item.id) + '\')">' + (isRead ? '確認済' : '確認') + '</button></div></article>';
+      const action = isRead ? '' : '<button type="button" class="notice-confirm" onclick="RinchanNews.markRead(\'' + escapeAttr(item.id) + '\')">確認</button>';
+      return '<article class="notice-item ' + (isRead ? 'is-read' : 'unread') + '"><span class="notice-dot">' + escapeHtml(item.icon || (isRead ? '✓' : '🔔')) + '</span><div class="notice-title"><strong>' + escapeHtml(item.title || 'お知らせ') + '</strong><p>' + escapeHtml(item.body || '') + '</p></div><div class="notice-meta-row"><time>' + formatDate(item.createdAt) + '</time><span class="notice-state">' + (isRead ? '既読' : '未読') + '</span>' + action + '</div></article>';
     }).join('');
   }
 
@@ -161,14 +157,7 @@ const RinchanNews = (() => {
   }
 
   function openNews(newsId) { markRead(newsId); }
-
-  function renderAll() {
-    renderSummary();
-    renderThanksFlowSummary();
-    renderNotices();
-    renderGroupNews();
-    updateBadges();
-  }
+  function renderAll() { renderSummary(); renderThanksFlowSummary(); renderNotices(); renderGroupNews(); updateBadges(); }
 
   function formatMonthDay(value) {
     const d = value instanceof Date ? value : new Date(value || '');
