@@ -1,5 +1,5 @@
 const RinchanGuide = (() => {
-  const VERSION = 'v0.9.74';
+  const VERSION = 'v0.9.75';
   const GUIDE_KEY = 'rinchanGuideSeenV094';
 
   const steps = [
@@ -56,6 +56,7 @@ const RinchanGuide = (() => {
     localStorage.setItem(GUIDE_KEY, '1');
     const layer = document.getElementById('rinchanGuideLayer');
     if (layer) layer.remove();
+    window.location.reload();
   }
 
   function reset() {
