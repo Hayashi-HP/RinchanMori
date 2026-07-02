@@ -1,5 +1,5 @@
 const RinchanMori = (() => {
-  const VERSION = 'v0.9.99';
+  const VERSION = 'v1.0.05';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -9,12 +9,6 @@ const RinchanMori = (() => {
     } catch (e) {
       return fallback;
     }
-  }
-
-  function writeJson(key, value) {
-    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value);
-    localStorage.setItem(key, JSON.stringify(value));
-    return value;
   }
 
   function activities() {
@@ -32,7 +26,7 @@ const RinchanMori = (() => {
     const user = participant();
     if (user && (user.employeeId || user.id)) {
       const steps = activities().reduce((sum, item) => sum + Number(item.steps || 0), 0);
-      return [{ employeeId: user.employeeId || user.id, name: user.name || user.nick || '', dept: user.dept || 'その他', totalSteps: steps }];
+      return [{ employeeId: user.employeeId || user.id, id: user.id || user.employeeId, name: user.name || user.nick || '', nick: user.nick || '', dept: user.dept || 'その他', totalSteps: steps }];
     }
     return [];
   }
@@ -61,9 +55,7 @@ const RinchanMori = (() => {
   function moriLevel(steps) {
     const thresholds = [0, 10000, 50000, 100000, 250000, 500000, 1000000, 2000000];
     let level = 1;
-    for (let i = 0; i < thresholds.length; i += 1) {
-      if (steps >= thresholds[i]) level = i + 1;
-    }
+    for (let i = 0; i < thresholds.length; i += 1) if (steps >= thresholds[i]) level = i + 1;
     const next = thresholds[level] || thresholds[thresholds.length - 1];
     const prev = thresholds[level - 1] || 0;
     const progress = next > prev ? Math.min(100, Math.round(((steps - prev) / (next - prev)) * 100)) : 100;
@@ -114,23 +106,18 @@ const RinchanMori = (() => {
       deptMap[name] = { dept: name, steps: 0, members: 0 };
     });
 
-    const memberList = members();
-    memberList.forEach(member => {
+    members().forEach(member => {
       const dept = member.dept || 'その他';
       if (!deptMap[dept]) deptMap[dept] = { dept, steps: 0, members: 0 };
       deptMap[dept].members += 1;
       deptMap[dept].steps += Number(member.totalSteps || member.steps || 0);
     });
 
-    if (!memberList.length) {
-      activities().forEach(item => {
-        const dept = item.dept || 'その他';
-        if (!deptMap[dept]) deptMap[dept] = { dept, steps: 0, members: 0 };
-        deptMap[dept].steps += Number(item.steps || 0);
-      });
-    }
-
     return Object.keys(deptMap).map(key => deptMap[key]);
+  }
+
+  function membersByDept(deptName) {
+    return members().filter(member => String(member.dept || 'その他') === String(deptName));
   }
 
   function renderMap() {
@@ -141,7 +128,6 @@ const RinchanMori = (() => {
       map.innerHTML = '<p class="empty-note">杜を読み込み中です。</p>';
       return;
     }
-
     map.innerHTML = rows.map(row => {
       const level = moriLevel(Number(row.steps || 0));
       const membersLabel = Number(row.members || 0).toLocaleString() + '人';
@@ -154,9 +140,28 @@ const RinchanMori = (() => {
     if (!card) return;
     const row = groupByDept().find(item => String(item.dept) === String(deptName)) || { dept: deptName, steps: 0, members: 0 };
     const level = moriLevel(Number(row.steps || 0));
+    const deptMembers = membersByDept(deptName);
+    const current = participant() || {};
+    const currentId = String(current.employeeId || current.id || '');
+    const memberHtml = deptMembers.length
+      ? '<div class="dept-member-list">' + deptMembers.map(member => {
+          const id = String(member.employeeId || member.id || '');
+          const name = member.nick || member.name || 'メンバー';
+          const steps = Number(member.totalSteps || member.steps || 0).toLocaleString();
+          const disabled = currentId && id === currentId;
+          return '<div class="dept-member-item"><div><strong>' + escapeHtml(name) + '</strong><small>' + steps + '歩</small></div><button type="button" class="dept-member-thanks" ' + (disabled ? 'disabled' : '') + ' onclick="RinchanMori.sendThanks(\'' + escapeAttr(id) + '\',\'' + escapeAttr(name) + '\')">ありがとう</button></div>';
+        }).join('') + '</div>'
+      : '<p class="dept-empty-note">この部署には、まだ登録メンバーがいません。</p>';
+
     card.classList.remove('hidden');
-    card.innerHTML = '<button type="button" class="tree-card-close" onclick="RinchanMori.hideDept()">×</button><p class="label">部署の木</p><h2>' + escapeHtml(row.dept) + '</h2><div class="tree-large">' + iconForLevel(level.level) + '</div><div class="mini-stats"><div><strong>' + Number(row.steps || 0).toLocaleString() + '歩</strong><small>累計歩数</small></div><div><strong>' + Number(row.members || 0).toLocaleString() + '人</strong><small>登録メンバー</small></div><div><strong>Lv.' + level.level + '</strong><small>成長</small></div></div>';
+    card.innerHTML = '<button type="button" class="tree-card-close" onclick="RinchanMori.hideDept()">×</button><p class="label">部署の木</p><h2 class="dept-card-title">' + escapeHtml(row.dept) + '</h2><div class="tree-card-icon dept-icon">' + iconForLevel(level.level) + '</div><div class="mini-stats"><div><strong>' + Number(row.steps || 0).toLocaleString() + '歩</strong><small>累計歩数</small></div><div><strong>' + Number(row.members || 0).toLocaleString() + '人</strong><small>登録メンバー</small></div><div><strong>Lv.' + level.level + '</strong><small>成長</small></div></div><p class="dept-note">部署のメンバーにありがとうを送れます。</p>' + memberHtml;
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function sendThanks(toId, toName) {
+    if (!toId) return;
+    sessionStorage.setItem('rinchanThanksTarget', JSON.stringify({ toEmployeeId: toId, toName: toName || '' }));
+    location.href = 'thanks.html';
   }
 
   function hideDept() {
@@ -182,7 +187,6 @@ const RinchanMori = (() => {
 
   function refresh() {
     if (typeof RinchanSync !== 'undefined' && RinchanSync && typeof RinchanSync.sync === 'function') RinchanSync.sync({ silent: false });
-    else if (typeof v135SyncUserState === 'function') v135SyncUserState({ silent: false });
     renderAll();
   }
 
@@ -211,15 +215,5 @@ const RinchanMori = (() => {
 
   document.addEventListener('DOMContentLoaded', install);
 
-  return {
-    VERSION,
-    install,
-    renderAll,
-    renderStatus,
-    renderMap,
-    renderHighlight,
-    refresh,
-    showDept,
-    hideDept
-  };
+  return { VERSION, install, renderAll, renderStatus, renderMap, renderHighlight, refresh, showDept, hideDept, sendThanks };
 })();
