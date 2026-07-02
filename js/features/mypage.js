@@ -1,5 +1,5 @@
 const RinchanMypage = (() => {
-  const VERSION = 'v1.0.06';
+  const VERSION = 'v1.0.08';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -115,25 +115,16 @@ const RinchanMypage = (() => {
     const box = document.getElementById('badgeList'); if (!box) return;
     const steps = totalSteps(); const count = activities().length; const thanks = thanksStats().totalCount || 0;
     const badges = [
-      { icon: '🌱', title: 'はじめの一歩', note: '最初の活動記録', earned: count >= 1, rarity: '獲得済み' },
-      { icon: '🔥', title: '継続の芽', note: '7回記録', earned: count >= 7, rarity: '未獲得' },
-      { icon: '🌿', title: '若葉バッジ', note: '30,000歩達成', earned: steps >= 30000, rarity: '未獲得' },
-      { icon: '🌳', title: '成長の木', note: '100,000歩達成', earned: steps >= 100000, rarity: '未獲得' },
-      { icon: '💌', title: 'ありがとう', note: 'ありがとう参加', earned: thanks >= 1, rarity: '未獲得' },
-      { icon: '🏆', title: '杜の達人', note: '300,000歩達成', earned: steps >= 300000, rarity: '未獲得' }
+      { icon: '🌱', title: 'はじめの一歩', note: '最初の活動記録', earned: count >= 1 },
+      { icon: '🔥', title: '継続の芽', note: '7回記録', earned: count >= 7 },
+      { icon: '🌿', title: '若葉バッジ', note: '30,000歩達成', earned: steps >= 30000 },
+      { icon: '🌳', title: '成長の木', note: '100,000歩達成', earned: steps >= 100000 },
+      { icon: '💌', title: 'ありがとう', note: 'ありがとう参加', earned: thanks >= 1 },
+      { icon: '🏆', title: '杜の達人', note: '300,000歩達成', earned: steps >= 300000 }
     ];
-    box.innerHTML = badges.map(badge => '<div class="badge-card premium-badge ' + (badge.earned ? 'is-earned' : 'is-locked') + '"><div class="badge-shine"></div><div class="badge-medal"><span class="badge-laurel">⌾</span><span class="badge-mark">' + badge.icon + '</span><span class="badge-lock">🔒</span></div><div class="badge-ribbon">' + escapeHtml(badge.earned ? badge.rarity : '未獲得') + '</div><strong>' + escapeHtml(badge.title) + '</strong><small>' + escapeHtml(badge.note) + '</small></div>').join('');
+    box.innerHTML = badges.map(badge => '<div class="badge-card premium-badge ' + (badge.earned ? 'is-earned' : 'is-locked') + '"><div class="badge-shine"></div><div class="badge-medal"><span class="badge-laurel">⌾</span><span class="badge-mark">' + badge.icon + '</span><span class="badge-lock">🔒</span></div><strong>' + escapeHtml(badge.title) + '</strong><small>' + escapeHtml(badge.note) + '</small></div>').join('');
   }
   function hideEdit() { document.querySelectorAll('.form.edit-panel').forEach(el => el.classList.add('hidden')); document.body.classList.remove('edit-open'); }
-  function centerEditPanel() {
-    const panel = document.querySelector('.edit-panel:not(.hidden)');
-    if (!panel) return;
-    const vv = window.visualViewport;
-    const left = vv ? vv.offsetLeft + (vv.width / 2) : (window.innerWidth / 2);
-    const top = vv ? vv.offsetTop + (vv.height / 2) : (window.innerHeight / 2);
-    panel.style.left = left + 'px';
-    panel.style.top = top + 'px';
-  }
   function showEdit(id) {
     const user = participant(); if (!isRegistered(user)) { alert('登録後に編集できます。'); location.href = 'login.html'; return; }
     hideEdit();
@@ -141,17 +132,15 @@ const RinchanMypage = (() => {
     if (id === 'declarationEdit') setInput('editDeclaration', user.declaration || '');
     if (id === 'goalEdit') setInput('editGoal', user.weeklyGoal || '');
     if (id === 'weeklyStepGoalEdit') setInput('editWeeklyStepGoal', user.weeklyStepGoal || '');
-    const box = document.getElementById(id); if (box) { box.classList.remove('hidden'); document.body.classList.add('edit-open'); setTimeout(centerEditPanel, 30); setTimeout(centerEditPanel, 250); }
+    const box = document.getElementById(id); if (box) { if (box.parentElement !== document.body) document.body.appendChild(box); box.classList.remove('hidden'); document.body.classList.add('edit-open'); }
   }
   function setInput(id, value) { const el = document.getElementById(id); if (el) el.value = value; }
   function renderAll() { renderProfile(); renderTree(); renderActivityStats(); renderHistory(); renderThanksStats(); renderBadges(); }
   function install() {
     if (!document.getElementById('mypageV070')) return;
-    renderAll(); window.renderV070Mypage = renderAll; window.showEdit = showEdit; window.hideEdit = hideEdit; window.centerEditPanel = centerEditPanel;
-    if (window.visualViewport) { visualViewport.addEventListener('resize', centerEditPanel); visualViewport.addEventListener('scroll', centerEditPanel); }
-    window.addEventListener('resize', centerEditPanel);
+    renderAll(); window.renderV070Mypage = renderAll; window.showEdit = showEdit; window.hideEdit = hideEdit;
   }
   function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
   document.addEventListener('DOMContentLoaded', install); window.showEdit = showEdit; window.hideEdit = hideEdit;
-  return { VERSION, install, renderAll, renderProfile, renderTree, renderHistory, renderBadges, showEdit, hideEdit, centerEditPanel };
+  return { VERSION, install, renderAll, renderProfile, renderTree, renderHistory, renderBadges, showEdit, hideEdit };
 })();
