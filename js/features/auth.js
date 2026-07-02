@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v0.9.87';
+  const VERSION = 'v0.9.88';
 
   function value(id) {
     const el = document.getElementById(id);
@@ -138,7 +138,7 @@ const RinchanAuth = (() => {
         email: value('email'),
         pin4,
         declaration: '',
-        weeklyGoal: 'まずは無理なく続ける',
+        weeklyGoal: '',
         weeklyStepGoal: '',
         createdAt: now,
         updatedAt: now,
@@ -148,7 +148,7 @@ const RinchanAuth = (() => {
       saveParticipant(user);
       const result = await api('saveUser', user);
       if (result && result.ok) {
-        const savedUser = result.user || user;
+        const savedUser = Object.assign({}, user, result.user || {}, { weeklyGoal: (result.user && result.user.weeklyGoal) || user.weeklyGoal || '' });
         saveParticipant(savedUser);
         applyState(result);
         location.href = 'welcome.html';
