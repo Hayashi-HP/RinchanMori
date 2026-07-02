@@ -1,5 +1,5 @@
 const RinchanMypage = (() => {
-  const VERSION = 'v1.0.00';
+  const VERSION = 'v1.0.01';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -80,9 +80,7 @@ const RinchanMypage = (() => {
     return rows;
   }
 
-  function activities() {
-    return normalizedActivities();
-  }
+  function activities() { return normalizedActivities(); }
 
   function thanksStats() {
     return readJson('rinchanThanksStats', {
@@ -92,18 +90,9 @@ const RinchanMypage = (() => {
     });
   }
 
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  }
-
-  function totalSteps() {
-    return activities().reduce((sum, item) => sum + Number(item.steps || 0), 0);
-  }
-
-  function activityDays() {
-    return Array.from(new Set(activities().map(item => normalizeDateKey(item.date)).filter(Boolean))).sort();
-  }
+  function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+  function totalSteps() { return activities().reduce((sum, item) => sum + Number(item.steps || 0), 0); }
+  function activityDays() { return Array.from(new Set(activities().map(item => normalizeDateKey(item.date)).filter(Boolean))).sort(); }
 
   function treeState(steps) {
     if (steps >= 300000) return { icon: '🌲', title: '大きな杜の木になりました', text: 'たくさんの歩みが、しっかりした木を育てています。', progress: 100 };
@@ -125,15 +114,13 @@ const RinchanMypage = (() => {
       if (set.has(dateKeyFromDate(d))) current += 1;
       else if (i > 0) break;
     }
-
     let best = 1;
     let run = 1;
     for (let i = 1; i < days.length; i += 1) {
       const prev = new Date(days[i - 1]);
       const cur = new Date(days[i]);
       const diff = Math.round((cur - prev) / 86400000);
-      if (diff === 1) run += 1;
-      else run = 1;
+      if (diff === 1) run += 1; else run = 1;
       best = Math.max(best, run);
     }
     return { current, best };
@@ -162,11 +149,9 @@ const RinchanMypage = (() => {
 
   function renderActivityStats() {
     const rows = activities();
-    const days = activityDays();
     const createdAt = participant() && participant().createdAt ? new Date(participant().createdAt) : new Date();
     const age = Math.max(1, Math.ceil((new Date() - createdAt) / 86400000) + 1);
     const s = streak();
-
     setText('v070TreeAge', age.toLocaleString() + '日');
     setText('v070TotalSteps', totalSteps().toLocaleString() + '歩');
     setText('v070ActivityCount', rows.length.toLocaleString() + '回');
@@ -178,10 +163,7 @@ const RinchanMypage = (() => {
     const box = document.getElementById('v070History');
     if (!box) return;
     const rows = activities().slice(0, 10);
-    if (!rows.length) {
-      box.innerHTML = '<p class="empty-note">まだ記録がありません。</p>';
-      return;
-    }
+    if (!rows.length) { box.innerHTML = '<p class="empty-note">まだ記録がありません。</p>'; return; }
     box.innerHTML = rows.map(item => {
       const comment = String(item.comment || '').trim();
       return '<div class="history-row"><strong>' + escapeHtml(formatDateLabel(item.date)) + '　' + Number(item.steps || 0).toLocaleString() + '歩</strong>' + (comment ? '<small>' + escapeHtml(comment) + '</small>' : '') + '</div>';
@@ -206,72 +188,43 @@ const RinchanMypage = (() => {
     if (steps >= 30000) badges.push(['🌿', '若葉バッジ', '30,000歩達成']);
     if (steps >= 100000) badges.push(['🌳', '成長の木', '100,000歩達成']);
     if (thanksStats().totalCount >= 1) badges.push(['💌', 'ありがとう', 'ありがとう参加']);
-    if (!badges.length) {
-      box.innerHTML = '<p class="empty-note">まだバッジはありません。</p>';
-      return;
-    }
+    if (!badges.length) { box.innerHTML = '<p class="empty-note">まだバッジはありません。</p>'; return; }
     box.innerHTML = badges.map(badge => '<div class="badge-card"><div class="badge-mark">' + badge[0] + '</div><strong>' + badge[1] + '</strong><small>' + badge[2] + '</small></div>').join('');
+  }
+
+  function hideEdit() {
+    document.querySelectorAll('.form.edit-panel').forEach(el => el.classList.add('hidden'));
   }
 
   function showEdit(id) {
     const user = participant();
-    if (!isRegistered(user)) {
-      alert('登録後に編集できます。');
-      location.href = 'login.html';
-      return;
-    }
-    document.querySelectorAll('.form.edit-panel').forEach(el => el.classList.add('hidden'));
-    if (id === 'profileEdit') {
-      setInput('editName', user.name || '');
-      setInput('editDept', user.dept || '');
-      setInput('editNick', user.nick || '');
-    }
+    if (!isRegistered(user)) { alert('登録後に編集できます。'); location.href = 'login.html'; return; }
+    hideEdit();
+    if (id === 'profileEdit') { setInput('editName', user.name || ''); setInput('editDept', user.dept || ''); setInput('editNick', user.nick || ''); }
     if (id === 'declarationEdit') setInput('editDeclaration', user.declaration || '');
     if (id === 'goalEdit') setInput('editGoal', user.weeklyGoal || '');
     if (id === 'weeklyStepGoalEdit') setInput('editWeeklyStepGoal', user.weeklyStepGoal || '');
     const box = document.getElementById(id);
-    if (box) {
-      box.classList.remove('hidden');
-      setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
-    }
+    if (box) box.classList.remove('hidden');
   }
 
-  function setInput(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.value = value;
-  }
+  function setInput(id, value) { const el = document.getElementById(id); if (el) el.value = value; }
 
-  function renderAll() {
-    renderProfile();
-    renderTree();
-    renderActivityStats();
-    renderHistory();
-    renderThanksStats();
-    renderBadges();
-  }
+  function renderAll() { renderProfile(); renderTree(); renderActivityStats(); renderHistory(); renderThanksStats(); renderBadges(); }
 
   function install() {
     if (!document.getElementById('mypageV070')) return;
     renderAll();
     window.renderV070Mypage = renderAll;
     window.showEdit = showEdit;
+    window.hideEdit = hideEdit;
   }
 
-  function escapeHtml(value) {
-    return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
-  }
+  function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
 
   document.addEventListener('DOMContentLoaded', install);
   window.showEdit = showEdit;
+  window.hideEdit = hideEdit;
 
-  return {
-    VERSION,
-    install,
-    renderAll,
-    renderProfile,
-    renderTree,
-    renderHistory,
-    renderBadges,
-    showEdit
-  };
+  return { VERSION, install, renderAll, renderProfile, renderTree, renderHistory, renderBadges, showEdit, hideEdit };
 })();
