@@ -1,9 +1,9 @@
 const RinchanGuide = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v0.9.72';
   const GUIDE_KEY = 'rinchanGuideSeenV094';
 
   const steps = [
-    { title: 'ようこそ、りんちゃんの杜へ', text: 'ここでは、一人ひとりの一歩が、みんなの杜を育てます。' },
+    { title: 'ようこそ、りんちゃんの杜へ', text: '一人ひとりの一歩が、<br>みんなの杜を<span class="nowrap">育てます。</span>' },
     { title: '歩けば、木が育ちます', text: '活動を記録すると、あなたの木に葉っぱが増えて、少しずつ大きくなります。' },
     { title: 'ありがとうが届きます', text: 'ありがとうが増えると、杜に蝶が遊びに来ます。競争ではなく、みんなで育てる杜です。' },
     { title: '無理せず、いこうね', text: '歩ける日も、歩けない日もあります。自分のペースで、ゆっくり続けましょう。' }
@@ -22,7 +22,7 @@ const RinchanGuide = (() => {
     const layer = document.createElement('div');
     layer.className = 'rinchan-guide-layer';
     layer.id = 'rinchanGuideLayer';
-    layer.innerHTML = '<div class="rinchan-guide-card"><div class="guide-face">😊</div><p class="label">りんちゃんガイド</p><h1 id="guideTitle">ようこそ、りんちゃんの杜へ</h1><p id="guideText">ここでは、一人ひとりの一歩が、みんなの杜を育てます。</p><div class="guide-dots" id="guideDots"></div><div class="guide-actions"><button class="soft-button" type="button" onclick="RinchanGuide.skip()">あとで</button><button class="submit pill-button" type="button" onclick="RinchanGuide.next()" id="guideNext">次へ</button></div></div>';
+    layer.innerHTML = '<div class="rinchan-guide-card"><div class="guide-face">😊</div><p class="label">りんちゃんガイド</p><h1 id="guideTitle">ようこそ、りんちゃんの杜へ</h1><p id="guideText">一人ひとりの一歩が、<br>みんなの杜を<span class="nowrap">育てます。</span></p><div class="guide-dots" id="guideDots"></div><div class="guide-actions"><button class="soft-button" type="button" onclick="RinchanGuide.skip()">あとで</button><button class="submit pill-button" type="button" onclick="RinchanGuide.next()" id="guideNext">次へ</button></div></div>';
     document.body.appendChild(layer);
     render();
   }
@@ -34,7 +34,7 @@ const RinchanGuide = (() => {
     const dots = document.getElementById('guideDots');
     const nextButton = document.getElementById('guideNext');
     if (title) title.textContent = step.title;
-    if (text) text.textContent = step.text;
+    if (text) text.innerHTML = step.text;
     if (dots) dots.innerHTML = steps.map((_, index) => '<span class="' + (index === guideIndex ? 'active' : '') + '"></span>').join('');
     if (nextButton) nextButton.textContent = guideIndex === steps.length - 1 ? 'はじめる' : '次へ';
   }
