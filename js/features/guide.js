@@ -1,12 +1,12 @@
 const RinchanGuide = (() => {
-  const VERSION = 'v0.9.73';
+  const VERSION = 'v0.9.74';
   const GUIDE_KEY = 'rinchanGuideSeenV094';
 
   const steps = [
-    { title: 'ようこそ、りんちゃんの杜へ', text: '一人ひとりの一歩が、<br>みんなの杜を<span class="nowrap">育てます。</span>' },
-    { title: '歩けば、木が育ちます', text: '活動を記録すると、<br>あなたの木に葉っぱが増え、<br>少しずつ大きくなります。' },
-    { title: 'ありがとうが届きます', text: 'ありがとうが増えると、<br>杜に蝶が遊びに来ます。<br><br>競争ではなく、<br>みんなで育てる杜です。' },
-    { title: '無理せず、いこうね', text: '歩ける日も、<br>歩けない日もあります。<br><br>自分のペースで、<br>ゆっくり続けましょう。' }
+    { title: 'ようこそ、りんちゃんの杜へ', text: '一人ひとりの一歩が、<br>みんなの杜を育てます。' },
+    { title: '歩けば、木が育ちます', text: '歩くたびにあなたの木が育ち、<br>葉っぱや花が増えていきます。' },
+    { title: 'ありがとうが届きます', text: '「ありがとう」が増えるほど、<br>杜はもっとにぎやかになります。' },
+    { title: '無理せず、いこうね', text: 'あなたのペースで大丈夫。<br>楽しく続けることが一番です。' }
   ];
 
   let guideIndex = 0;
@@ -22,7 +22,7 @@ const RinchanGuide = (() => {
     const layer = document.createElement('div');
     layer.className = 'rinchan-guide-layer';
     layer.id = 'rinchanGuideLayer';
-    layer.innerHTML = '<div class="rinchan-guide-card"><div class="guide-face">😊</div><p class="label">りんちゃんガイド</p><h1 id="guideTitle">ようこそ、りんちゃんの杜へ</h1><p id="guideText">一人ひとりの一歩が、<br>みんなの杜を<span class="nowrap">育てます。</span></p><div class="guide-dots" id="guideDots"></div><div class="guide-actions"><button class="soft-button" type="button" onclick="RinchanGuide.skip()">スキップ</button><button class="submit pill-button" type="button" onclick="RinchanGuide.next()" id="guideNext">次へ</button></div></div>';
+    layer.innerHTML = '<div class="rinchan-guide-card"><div class="guide-face">😊</div><p class="label">りんちゃんガイド</p><h1 id="guideTitle">ようこそ、りんちゃんの杜へ</h1><p id="guideText">一人ひとりの一歩が、<br>みんなの杜を育てます。</p><div class="guide-dots" id="guideDots"></div><div class="guide-actions"><button class="soft-button" type="button" onclick="RinchanGuide.skip()">スキップ</button><button class="submit pill-button" type="button" onclick="RinchanGuide.next()" id="guideNext">次へ</button></div></div>';
     document.body.appendChild(layer);
     render();
   }
