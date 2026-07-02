@@ -1,8 +1,8 @@
 const RinchanMypage = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v0.9.96';
 
   function readJson(key, fallback) {
-    if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
     try {
       const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
@@ -11,13 +11,73 @@ const RinchanMypage = (() => {
     }
   }
 
+  function writeJson(key, value) {
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value);
+    localStorage.setItem(key, JSON.stringify(value));
+    return value;
+  }
+
   function participant() {
-    if (window.RinchanStorage) return RinchanStorage.getParticipant();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
     return readJson('rinchanParticipant', null);
   }
 
+  function dateKeyFromDate(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  function normalizeDateKey(value) {
+    const raw = String(value || '').trim();
+    const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (iso) return iso[1] + '-' + String(iso[2]).padStart(2, '0') + '-' + String(iso[3]).padStart(2, '0');
+    const parsed = new Date(raw);
+    if (!isNaN(parsed)) return dateKeyFromDate(parsed);
+    return raw.slice(0, 10);
+  }
+
+  function formatDateLabel(value) {
+    const key = normalizeDateKey(value);
+    const parts = key.split('-');
+    if (parts.length !== 3) return key.replace(/-/g, '/');
+    const y = Number(parts[0]);
+    const m = Number(parts[1]);
+    const d = Number(parts[2]);
+    if (!y || !m || !d) return key.replace(/-/g, '/');
+    const dt = new Date(y, m - 1, d);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + ' ' + days[dt.getDay()];
+  }
+
+  function newerScore(item) {
+    const saved = Date.parse(item.savedAt || '');
+    const created = Date.parse(item.createdAt || '');
+    return Math.max(isNaN(saved) ? 0 : saved, isNaN(created) ? 0 : created);
+  }
+
+  function normalizedActivities() {
+    const byDate = {};
+    (readJson('rinchanActivities', []) || []).forEach(item => {
+      const key = normalizeDateKey(item.date || item.createdAt || item.savedAt);
+      if (!key) return;
+      const row = {
+        activityId: String(item.activityId || ''),
+        date: key,
+        steps: Number(item.steps || 0),
+        challenge: item.challenge === true || String(item.challenge).toUpperCase() === 'TRUE',
+        comment: String(item.comment || ''),
+        createdAt: String(item.createdAt || item.savedAt || item.date || ''),
+        savedAt: String(item.savedAt || '')
+      };
+      const current = byDate[key];
+      if (!current || newerScore(row) >= newerScore(current)) byDate[key] = row;
+    });
+    const rows = Object.values(byDate).sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || newerScore(b) - newerScore(a));
+    writeJson('rinchanActivities', rows);
+    return rows;
+  }
+
   function activities() {
-    return readJson('rinchanActivities', []);
+    return normalizedActivities();
   }
 
   function thanksStats() {
@@ -38,7 +98,7 @@ const RinchanMypage = (() => {
   }
 
   function activityDays() {
-    return Array.from(new Set(activities().map(item => String(item.date || '').slice(0, 10)).filter(Boolean))).sort();
+    return Array.from(new Set(activities().map(item => normalizeDateKey(item.date)).filter(Boolean))).sort();
   }
 
   function treeState(steps) {
@@ -58,7 +118,7 @@ const RinchanMypage = (() => {
     for (let i = 0; i < 365; i += 1) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      if (set.has(formatDateKey(d))) current += 1;
+      if (set.has(dateKeyFromDate(d))) current += 1;
       else if (i > 0) break;
     }
 
@@ -81,7 +141,7 @@ const RinchanMypage = (() => {
     setText('v070ProfileDept', user.dept || '未設定');
     setText('v070EmployeeId', user.employeeId || user.id || '-');
     setText('v070ProfileNick', user.nick || '-');
-    setText('weeklyGoalText', user.weeklyGoal || 'まずは無理なく続ける');
+    setText('weeklyGoalText', user.weeklyGoal || '未設定');
     setText('declarationText', user.declaration || 'まだ登録されていません。');
     setText('v136WeeklyStepGoalText', user.weeklyStepGoal ? Number(user.weeklyStepGoal).toLocaleString() + '歩' : '未設定');
   }
@@ -113,12 +173,12 @@ const RinchanMypage = (() => {
   function renderHistory() {
     const box = document.getElementById('v070History');
     if (!box) return;
-    const rows = activities().slice().sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(b.createdAt || '').localeCompare(String(a.createdAt || ''))).slice(0, 10);
+    const rows = activities().slice(0, 10);
     if (!rows.length) {
       box.innerHTML = '<p class="empty-note">まだ記録がありません。</p>';
       return;
     }
-    box.innerHTML = rows.map(item => '<div class="history-row"><strong>' + escapeHtml(String(item.date || '').replace(/-/g, '/')) + '　' + Number(item.steps || 0).toLocaleString() + '歩</strong><small>' + escapeHtml(item.comment || '') + '</small></div>').join('');
+    box.innerHTML = rows.map(item => '<div class="history-row"><strong>' + escapeHtml(formatDateLabel(item.date)) + '　' + Number(item.steps || 0).toLocaleString() + '歩</strong><small>' + escapeHtml(item.comment || '') + '</small></div>').join('');
   }
 
   function renderThanksStats() {
@@ -188,10 +248,6 @@ const RinchanMypage = (() => {
     renderAll();
     window.renderV070Mypage = renderAll;
     window.showEdit = showEdit;
-  }
-
-  function formatDateKey(date) {
-    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
   }
 
   function escapeHtml(value) {
