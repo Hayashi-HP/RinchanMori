@@ -39,6 +39,29 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, cleared, version: VERSION });
   }
 
+  if (action === 'createBackup') {
+    if (!isAdminRequest(ss, data)) {
+      auditAction(ss, 'createBackup', data, 'ng', 'admin_required');
+      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
+    }
+    const backup = createBackup(ss, data);
+    auditAction(ss, 'createBackup', data, backup.ok ? 'ok' : 'ng', backup.ok ? 'backup_created' : 'backup_failed', {
+      label: backup.label,
+      copiedCount: backup.copiedCount,
+      sourceCount: backup.sourceCount
+    });
+    return jsonOutput({ ok: backup.ok, action, backup, version: VERSION });
+  }
+
+  if (action === 'recentBackups') {
+    if (!isAdminRequest(ss, data)) {
+      auditAction(ss, 'recentBackups', data, 'ng', 'admin_required');
+      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
+    }
+    auditAction(ss, 'recentBackups', data, 'ok', 'view_backup_logs');
+    return jsonOutput({ ok: true, action, backups: getRecentBackups(ss, data.limit || 50), version: VERSION });
+  }
+
   if (action === 'departments') {
     return jsonOutput({ ok: true, action, departments: getCachedDepartments(ss), version: VERSION, cached: true });
   }
