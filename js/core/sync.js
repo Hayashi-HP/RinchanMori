@@ -1,11 +1,11 @@
 const RinchanSync = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v0.9.95';
   const SYNC_TIME_KEY = 'rinchanLastSyncedAt';
   const SYNC_STATUS_KEY = 'rinchanSyncStatus';
   const SYNC_TOKEN_KEY = 'rinchanSyncToken';
 
   function readJson(key, fallback) {
-    if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
     try {
       const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
@@ -15,18 +15,18 @@ const RinchanSync = (() => {
   }
 
   function writeJson(key, value) {
-    if (window.RinchanStorage) return RinchanStorage.writeJson(key, value);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value);
     localStorage.setItem(key, JSON.stringify(value));
     return value;
   }
 
   function participant() {
-    if (window.RinchanStorage) return RinchanStorage.getParticipant();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
     return readJson('rinchanParticipant', null);
   }
 
   function employeeId() {
-    if (window.RinchanStorage) return RinchanStorage.employeeId();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.employeeId === 'function') return RinchanStorage.employeeId();
     const user = participant();
     return user && (user.employeeId || user.id) ? String(user.employeeId || user.id) : '';
   }
@@ -39,21 +39,50 @@ const RinchanSync = (() => {
     if (token) localStorage.setItem(SYNC_TOKEN_KEY, String(token));
   }
 
+  function dateKeyFromDate(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  function normalizeDateKey(value) {
+    const raw = String(value || '').trim();
+    const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (iso) return iso[1] + '-' + String(iso[2]).padStart(2, '0') + '-' + String(iso[3]).padStart(2, '0');
+    const parsed = new Date(raw);
+    if (!isNaN(parsed)) return dateKeyFromDate(parsed);
+    return raw.slice(0, 10);
+  }
+
+  function newerScore(item) {
+    const saved = Date.parse(item.savedAt || '');
+    const created = Date.parse(item.createdAt || '');
+    return Math.max(isNaN(saved) ? 0 : saved, isNaN(created) ? 0 : created);
+  }
+
   function normalizeActivities(list) {
-    return (Array.isArray(list) ? list : [])
+    const normalized = (Array.isArray(list) ? list : [])
       .map(item => ({
         activityId: String(item.activityId || ''),
-        participantId: String(item.participantId || item.id || ''),
+        participantId: String(item.participantId || item.employeeId || item.id || ''),
         deviceId: String(item.deviceId || ''),
-        date: String(item.date || '').slice(0, 10),
+        date: normalizeDateKey(item.date || item.createdAt || item.savedAt),
         steps: Number(item.steps || 0),
         challenge: item.challenge === true || String(item.challenge).toUpperCase() === 'TRUE',
         comment: String(item.comment || ''),
-        createdAt: String(item.createdAt || item.date || ''),
+        createdAt: String(item.createdAt || item.savedAt || item.date || ''),
         version: String(item.version || VERSION),
         savedAt: String(item.savedAt || '')
       }))
       .filter(item => item.activityId || item.date || item.steps > 0);
+
+    const byDate = {};
+    normalized.forEach(item => {
+      const key = normalizeDateKey(item.date);
+      if (!key) return;
+      const current = byDate[key];
+      if (!current || newerScore(item) >= newerScore(current)) byDate[key] = Object.assign({}, item, { date: key });
+    });
+
+    return Object.values(byDate).sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || newerScore(b) - newerScore(a));
   }
 
   function normalizeThanks(list) {
@@ -125,7 +154,7 @@ const RinchanSync = (() => {
     try { if (typeof v136RenderGoal === 'function') v136RenderGoal(); } catch (e) {}
     try { if (typeof v102RenderActivityTools === 'function') v102RenderActivityTools(); } catch (e) {}
     try { if (typeof v113LoadReceivedThanks === 'function') v113LoadReceivedThanks(); } catch (e) {}
-    try { if (typeof v100RenderSummary === 'function') v100RenderSummary(); } catch (e) {}
+    try { if (typeof v100RenderSummary === 'function') renderV100Summary(); } catch (e) {}
     try { if (typeof v100RenderThanksFlowSummary === 'function') v100RenderThanksFlowSummary(); } catch (e) {}
     try { if (typeof v100RenderThanksStories === 'function') v100RenderThanksStories(); } catch (e) {}
     try { if (typeof v100RenderGroupNews === 'function') v100RenderGroupNews(); } catch (e) {}
@@ -137,7 +166,8 @@ const RinchanSync = (() => {
   }
 
   async function request(action, payload) {
-    if (window.RinchanApi) return RinchanApi.request(action, payload || {});
+    if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {});
+    if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {});
     if (typeof v051Api === 'function') return v051Api(action, payload || {});
     return { ok: false, reason: 'api_not_ready' };
   }
