@@ -1,8 +1,8 @@
 const RinchanActivity = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v0.9.91';
 
   function readJson(key, fallback) {
-    if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
     try {
       const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
@@ -12,18 +12,18 @@ const RinchanActivity = (() => {
   }
 
   function writeJson(key, value) {
-    if (window.RinchanStorage) return RinchanStorage.writeJson(key, value);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value);
     localStorage.setItem(key, JSON.stringify(value));
     return value;
   }
 
   function participant() {
-    if (window.RinchanStorage) return RinchanStorage.getParticipant();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
     return readJson('rinchanParticipant', null);
   }
 
   function deviceId() {
-    if (window.RinchanStorage) return RinchanStorage.deviceId();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.deviceId === 'function') return RinchanStorage.deviceId();
     let id = localStorage.getItem('rinchanDeviceId');
     if (!id) {
       id = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -49,14 +49,16 @@ const RinchanActivity = (() => {
   }
 
   async function api(action, payload) {
-    if (window.RinchanApi) return RinchanApi.request(action, payload || {});
+    if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {});
+    if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {});
     if (typeof v051Api === 'function') return v051Api(action, payload || {});
     if (typeof rinchanApi === 'function') return rinchanApi(action, payload || {});
     return { ok: false, reason: 'api_not_ready' };
   }
 
   function applyResult(result) {
-    if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result);
+    if (typeof RinchanSync !== 'undefined' && RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result);
+    if (window.RinchanSync && typeof window.RinchanSync.applyApiResult === 'function') return window.RinchanSync.applyApiResult(result);
     if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(result);
     return result;
   }
@@ -151,7 +153,7 @@ const RinchanActivity = (() => {
       if (complete) complete.classList.remove('hidden');
       renderRecentActivities();
     } else {
-      alert('通信できないため、未送信として保存しました。通信が戻ると再送します。');
+      alert('端末には保存しましたが、スプレッドシートへ送信できませんでした。理由: ' + ((result && (result.reason || result.error)) || 'unknown'));
     }
 
     setBusy(button, false, '記録する');
@@ -200,7 +202,7 @@ const RinchanActivity = (() => {
       const date = String(item.date || '').replace(/-/g, '/');
       const steps = Number(item.steps || 0).toLocaleString();
       const comment = item.comment ? '<small>' + escapeHtml(item.comment) + '</small>' : '';
-      return '<div class="activity-tool-row"><div><strong>' + date + '　' + steps + '歩</strong>' + comment + '</div><div class="activity-tool-actions"><button type="button" class="activity-edit-btn" onclick="RinchanActivity.editActivity(\'' + escapeAttr(item.activityId) + '\')">✏️</button><button type="button" class="activity-delete-btn" onclick="RinchanActivity.deleteActivity(\'' + escapeAttr(item.activityId) + '\')">🗑️</button></div></div>';
+      return '<div class="activity-tool-row"><div class="activity-tool-main"><strong>' + date + '　' + steps + '歩</strong>' + comment + '</div><div class="activity-tool-actions"><button type="button" class="activity-edit-btn" aria-label="修正" onclick="RinchanActivity.editActivity(\'' + escapeAttr(item.activityId) + '\')">✏️</button><button type="button" class="activity-delete-btn" aria-label="削除" onclick="RinchanActivity.deleteActivity(\'' + escapeAttr(item.activityId) + '\')">🗑️</button></div></div>';
     }).join('');
   }
 
