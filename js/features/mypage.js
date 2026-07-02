@@ -1,5 +1,5 @@
 const RinchanMypage = (() => {
-  const VERSION = 'v0.9.96';
+  const VERSION = 'v0.9.98';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -178,7 +178,10 @@ const RinchanMypage = (() => {
       box.innerHTML = '<p class="empty-note">まだ記録がありません。</p>';
       return;
     }
-    box.innerHTML = rows.map(item => '<div class="history-row"><strong>' + escapeHtml(formatDateLabel(item.date)) + '　' + Number(item.steps || 0).toLocaleString() + '歩</strong><small>' + escapeHtml(item.comment || '') + '</small></div>').join('');
+    box.innerHTML = rows.map(item => {
+      const comment = String(item.comment || '').trim();
+      return '<div class="history-row"><strong>' + escapeHtml(formatDateLabel(item.date)) + '　' + Number(item.steps || 0).toLocaleString() + '歩</strong>' + (comment ? '<small>' + escapeHtml(comment) + '</small>' : '') + '</div>';
+    }).join('');
   }
 
   function renderThanksStats() {
