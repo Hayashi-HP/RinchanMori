@@ -1,8 +1,8 @@
 const RinchanMori = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v0.9.99';
 
   function readJson(key, fallback) {
-    if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
     try {
       const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
@@ -12,7 +12,7 @@ const RinchanMori = (() => {
   }
 
   function writeJson(key, value) {
-    if (window.RinchanStorage) return RinchanStorage.writeJson(key, value);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value);
     localStorage.setItem(key, JSON.stringify(value));
     return value;
   }
@@ -21,8 +21,20 @@ const RinchanMori = (() => {
     return readJson('rinchanActivities', []);
   }
 
+  function participant() {
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
+    return readJson('rinchanParticipant', null);
+  }
+
   function members() {
-    return readJson('rinchanMoriMembers', []);
+    const list = readJson('rinchanMoriMembers', []);
+    if (Array.isArray(list) && list.length) return list;
+    const user = participant();
+    if (user && (user.employeeId || user.id)) {
+      const steps = activities().reduce((sum, item) => sum + Number(item.steps || 0), 0);
+      return [{ employeeId: user.employeeId || user.id, name: user.name || user.nick || '', dept: user.dept || 'その他', totalSteps: steps }];
+    }
+    return [];
   }
 
   function departments() {
@@ -41,6 +53,8 @@ const RinchanMori = (() => {
   }
 
   function totalSteps() {
+    const memberList = members();
+    if (memberList.length) return memberList.reduce((sum, item) => sum + Number(item.totalSteps || item.steps || 0), 0);
     return activities().reduce((sum, item) => sum + Number(item.steps || 0), 0);
   }
 
@@ -105,7 +119,7 @@ const RinchanMori = (() => {
       const dept = member.dept || 'その他';
       if (!deptMap[dept]) deptMap[dept] = { dept, steps: 0, members: 0 };
       deptMap[dept].members += 1;
-      deptMap[dept].steps += Number(member.totalSteps || 0);
+      deptMap[dept].steps += Number(member.totalSteps || member.steps || 0);
     });
 
     if (!memberList.length) {
@@ -128,12 +142,10 @@ const RinchanMori = (() => {
       return;
     }
 
-    map.innerHTML = rows.map((row, index) => {
+    map.innerHTML = rows.map(row => {
       const level = moriLevel(Number(row.steps || 0));
-      const size = Math.min(1.35, 0.85 + level.level * 0.07);
-      const left = 10 + (index % 4) * 22;
-      const top = 12 + Math.floor(index / 4) * 34;
-      return '<button type="button" class="dept-node mori-tree-node" style="left:' + left + '%;top:' + top + '%;transform:scale(' + size + ')" onclick="RinchanMori.showDept(\'' + escapeAttr(row.dept) + '\')"><span>' + iconForLevel(level.level) + '</span><small>' + escapeHtml(row.dept) + '</small></button>';
+      const membersLabel = Number(row.members || 0).toLocaleString() + '人';
+      return '<button type="button" class="dept-node mori-tree-node" onclick="RinchanMori.showDept(\'' + escapeAttr(row.dept) + '\')"><span>' + iconForLevel(level.level) + '</span><strong>' + escapeHtml(row.dept) + '</strong><em>' + membersLabel + '</em></button>';
     }).join('');
   }
 
@@ -169,7 +181,7 @@ const RinchanMori = (() => {
   }
 
   function refresh() {
-    if (window.RinchanSync && typeof RinchanSync.sync === 'function') RinchanSync.sync({ silent: false });
+    if (typeof RinchanSync !== 'undefined' && RinchanSync && typeof RinchanSync.sync === 'function') RinchanSync.sync({ silent: false });
     else if (typeof v135SyncUserState === 'function') v135SyncUserState({ silent: false });
     renderAll();
   }
