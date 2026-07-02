@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v0.9.86';
+  const VERSION = 'v0.9.87';
 
   function value(id) {
     const el = document.getElementById(id);
@@ -13,7 +13,7 @@ const RinchanAuth = (() => {
   }
 
   function participant() {
-    if (window.RinchanStorage) return RinchanStorage.getParticipant();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
     try {
       return JSON.parse(localStorage.getItem('rinchanParticipant') || 'null');
     } catch (e) {
@@ -22,13 +22,13 @@ const RinchanAuth = (() => {
   }
 
   function saveParticipant(user) {
-    if (window.RinchanStorage) return RinchanStorage.setParticipant(user);
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.setParticipant === 'function') return RinchanStorage.setParticipant(user);
     localStorage.setItem('rinchanParticipant', JSON.stringify(user));
     return user;
   }
 
   function clearUserData() {
-    if (window.RinchanStorage) return RinchanStorage.clearUserData();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.clearUserData === 'function') return RinchanStorage.clearUserData();
     [
       'rinchanParticipant',
       'rinchanActivities',
@@ -47,7 +47,7 @@ const RinchanAuth = (() => {
   }
 
   function deviceId() {
-    if (window.RinchanStorage) return RinchanStorage.deviceId();
+    if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.deviceId === 'function') return RinchanStorage.deviceId();
     let id = localStorage.getItem('rinchanDeviceId');
     if (!id) {
       id = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -57,13 +57,15 @@ const RinchanAuth = (() => {
   }
 
   async function api(action, payload) {
-    if (window.RinchanApi) return RinchanApi.request(action, payload || {});
+    if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {});
+    if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {});
     if (typeof v051Api === 'function') return v051Api(action, payload || {});
     return { ok: false, reason: 'api_not_ready' };
   }
 
   function applyState(result) {
-    if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result);
+    if (typeof RinchanSync !== 'undefined' && RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result);
+    if (window.RinchanSync && typeof window.RinchanSync.applyApiResult === 'function') return window.RinchanSync.applyApiResult(result);
     if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(result);
     return result;
   }
