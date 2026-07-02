@@ -1,5 +1,5 @@
 const RinchanMypage = (() => {
-  const VERSION = 'v0.9.98';
+  const VERSION = 'v1.0.00';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -20,6 +20,10 @@ const RinchanMypage = (() => {
   function participant() {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
     return readJson('rinchanParticipant', null);
+  }
+
+  function isRegistered(user) {
+    return !!(user && (user.employeeId || user.id));
   }
 
   function dateKeyFromDate(date) {
@@ -197,26 +201,26 @@ const RinchanMypage = (() => {
     const steps = totalSteps();
     const count = activities().length;
     const badges = [];
-    if (count >= 1) badges.push(['🌱', 'はじめの一歩']);
-    if (count >= 7) badges.push(['🔥', '継続の芽']);
-    if (steps >= 30000) badges.push(['🌿', '若葉バッジ']);
-    if (steps >= 100000) badges.push(['🌳', '成長の木']);
-    if (thanksStats().totalCount >= 1) badges.push(['💌', 'ありがとう']);
+    if (count >= 1) badges.push(['🌱', 'はじめの一歩', '最初の活動記録']);
+    if (count >= 7) badges.push(['🔥', '継続の芽', '7回記録']);
+    if (steps >= 30000) badges.push(['🌿', '若葉バッジ', '30,000歩達成']);
+    if (steps >= 100000) badges.push(['🌳', '成長の木', '100,000歩達成']);
+    if (thanksStats().totalCount >= 1) badges.push(['💌', 'ありがとう', 'ありがとう参加']);
     if (!badges.length) {
       box.innerHTML = '<p class="empty-note">まだバッジはありません。</p>';
       return;
     }
-    box.innerHTML = badges.map(badge => '<div class="badge-chip"><span>' + badge[0] + '</span><strong>' + badge[1] + '</strong></div>').join('');
+    box.innerHTML = badges.map(badge => '<div class="badge-card"><div class="badge-mark">' + badge[0] + '</div><strong>' + badge[1] + '</strong><small>' + badge[2] + '</small></div>').join('');
   }
 
   function showEdit(id) {
     const user = participant();
-    if (!user || !user.id) {
+    if (!isRegistered(user)) {
       alert('登録後に編集できます。');
       location.href = 'login.html';
       return;
     }
-    document.querySelectorAll('.form').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.form.edit-panel').forEach(el => el.classList.add('hidden'));
     if (id === 'profileEdit') {
       setInput('editName', user.name || '');
       setInput('editDept', user.dept || '');
@@ -258,6 +262,7 @@ const RinchanMypage = (() => {
   }
 
   document.addEventListener('DOMContentLoaded', install);
+  window.showEdit = showEdit;
 
   return {
     VERSION,
