@@ -1,13 +1,9 @@
-/* v1.0.08 final fixes: centered popup, Mori map fit, circular premium badges */
-
-/* ===== MyPage edit popup: true viewport center ===== */
+/* v1.0.10 final fixes */
 body.edit-open{overflow:hidden!important;}
 body.edit-open::before{content:""!important;position:fixed!important;inset:0!important;z-index:8999!important;background:rgba(24,42,36,.42)!important;backdrop-filter:blur(4px)!important;}
 body>.edit-panel.hidden{display:none!important;}
 body>.edit-panel:not(.hidden){position:fixed!important;z-index:9000!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(430px,calc(100vw - 42px))!important;max-height:min(76dvh,680px)!important;overflow:auto!important;margin:0!important;background:#fff!important;border-radius:32px!important;box-shadow:0 28px 90px rgba(36,64,56,.30)!important;}
 body>.edit-panel:not(.hidden) *{box-sizing:border-box!important;}
-
-/* ===== Premium badges: clean circle medal, no earned text ===== */
 .card:has(#badgeList) h2{display:none!important;}
 .badge-list{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 14px!important;align-items:start!important;}
 .badge-card.premium-badge{width:148px!important;height:auto!important;min-height:0!important;border-radius:26px!important;padding:14px 8px 16px!important;background:linear-gradient(180deg,#fff,#fbfff8)!important;}
@@ -19,25 +15,20 @@ body>.edit-panel:not(.hidden) *{box-sizing:border-box!important;}
 .badge-card strong{font-size:14px!important;line-height:1.25!important;max-width:132px!important;margin-top:2px!important;}
 .badge-card small{font-size:11px!important;line-height:1.35!important;max-width:132px!important;}
 .badge-lock{right:2px!important;bottom:2px!important;}
-@media(max-width:380px){.badge-card.premium-badge{width:140px!important}.badge-medal{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important;max-width:100px!important;max-height:100px!important;flex-basis:100px!important}.badge-medal .badge-mark,.badge-mark{font-size:38px!important}.badge-laurel{font-size:76px!important}}
-@media(max-width:340px){.badge-list{grid-template-columns:1fr!important}.badge-card.premium-badge{width:170px!important}.badge-medal{width:110px!important;height:110px!important;min-width:110px!important;min-height:110px!important;max-width:110px!important;max-height:110px!important;flex-basis:110px!important}}
-
-/* ===== Mori map: no overflow, fits above bottom nav ===== */
-.mori-visual.dashboard-hero{padding:18px 14px 130px!important;overflow:hidden!important;box-sizing:border-box!important;}
-.mori-game-map{width:100%!important;max-width:520px!important;margin:0 auto!important;box-sizing:border-box!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:16px!important;overflow:visible!important;min-height:auto!important;}
-.mori-tree-node.dept-node{width:100%!important;max-width:132px!important;min-height:112px!important;margin:0 auto!important;box-sizing:border-box!important;padding:11px 6px 10px!important;}
-.mori-tree-node.dept-node span{font-size:30px!important;}
-.mori-tree-node.dept-node strong{font-size:12.5px!important;line-height:1.18!important;min-height:30px!important;}
-.mori-tree-node.dept-node em{min-height:24px!important;font-size:12px!important;}
-@media(min-width:390px){.mori-game-map{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;padding:16px!important}.mori-tree-node.dept-node{max-width:124px!important;min-height:112px!important}}
-@media(max-width:360px){.mori-game-map{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:14px!important}.mori-tree-node.dept-node{max-width:126px!important;min-height:106px!important}}
-
-/* Whole Mori tree area centered and larger */
-#//dummy{display:none;}
+.mori-visual.dashboard-hero{padding:18px 14px 46px!important;overflow:hidden!important;box-sizing:border-box!important;max-width:calc(100% - 40px)!important;margin:22px auto!important;border-radius:34px!important;}
+.mori-game-map{width:100%!important;max-width:430px!important;margin:0 auto!important;box-sizing:border-box!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:14px!important;overflow:hidden!important;min-height:auto!important;border-radius:28px!important;background:linear-gradient(180deg,#dff7ff,#e9ffd6)!important;}
+.mori-tree-node.dept-node{width:100%!important;max-width:116px!important;min-height:104px!important;margin:0 auto!important;box-sizing:border-box!important;padding:10px 5px 9px!important;}
+.mori-tree-node.dept-node span{font-size:27px!important;}
+.mori-tree-node.dept-node strong{font-size:11.5px!important;line-height:1.16!important;min-height:28px!important;}
+.mori-tree-node.dept-node em{min-height:23px!important;font-size:11px!important;}
 .forest-hero-row{align-items:center!important;text-align:center!important;}
 .forest-hero-icon{display:flex!important;align-items:center!important;justify-content:center!important;width:132px!important;height:132px!important;margin:8px auto 10px!important;border-radius:34px!important;background:#eefaf1!important;font-size:94px!important;line-height:1!important;}
 .forest-hero-copy{text-align:center!important;width:100%!important;}
 .forest-hero-copy h3,.forest-hero-copy p{text-align:center!important;}
-
-/* Department detail should not hide under nav */
 .tree-info-card{margin-bottom:120px!important;}
+.news-page .news-section-card:nth-of-type(3) .section-head-row h2{display:none!important;}
+.news-page .news-summary-card .section-head-row{flex-direction:row!important;align-items:flex-start!important;}
+.news-page .news-summary-card .summary-pill{margin-left:auto!important;}
+@media(min-width:390px){.mori-game-map{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;padding:14px!important;max-width:430px!important}.mori-tree-node.dept-node{max-width:108px!important;min-height:102px!important}.mori-tree-node.dept-node span{font-size:26px!important}.mori-tree-node.dept-node strong{font-size:11px!important}.mori-tree-node.dept-node em{font-size:11px!important}}
+@media(max-width:380px){.badge-card.premium-badge{width:140px!important}.badge-medal{width:100px!important;height:100px!important;min-width:100px!important;min-height:100px!important;max-width:100px!important;max-height:100px!important;flex-basis:100px!important}.badge-medal .badge-mark,.badge-mark{font-size:38px!important}.badge-laurel{font-size:76px!important}.mori-visual.dashboard-hero{max-width:calc(100% - 32px)!important;padding-left:12px!important;padding-right:12px!important}.mori-game-map{gap:8px!important;padding:12px!important}.mori-tree-node.dept-node{max-width:104px!important;min-height:98px!important}}
+@media(max-width:340px){.badge-list{grid-template-columns:1fr!important}.badge-card.premium-badge{width:170px!important}.badge-medal{width:110px!important;height:110px!important;min-width:110px!important;min-height:110px!important;max-width:110px!important;max-height:110px!important;flex-basis:110px!important}.mori-game-map{grid-template-columns:repeat(2,minmax(0,1fr))!important}.mori-tree-node.dept-node{max-width:102px!important}}
