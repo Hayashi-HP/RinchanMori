@@ -1,5 +1,5 @@
 const RinchanActivity = (() => {
-  const VERSION = 'v0.9.91';
+  const VERSION = 'v0.9.92';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -103,6 +103,19 @@ const RinchanActivity = (() => {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
 
+  function formatDateLabel(dateValue) {
+    const raw = String(dateValue || '').slice(0, 10);
+    const parts = raw.split('-');
+    if (parts.length !== 3) return raw.replace(/-/g, '/');
+    const y = Number(parts[0]);
+    const m = Number(parts[1]);
+    const d = Number(parts[2]);
+    if (!y || !m || !d) return raw.replace(/-/g, '/');
+    const dt = new Date(y, m - 1, d);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + ' ' + days[dt.getDay()];
+  }
+
   function initDate() {
     const input = document.getElementById('activityDate');
     if (input && !input.value) input.value = todayKey();
@@ -199,7 +212,7 @@ const RinchanActivity = (() => {
     }
 
     box.innerHTML = rows.map(item => {
-      const date = String(item.date || '').replace(/-/g, '/');
+      const date = formatDateLabel(item.date);
       const steps = Number(item.steps || 0).toLocaleString();
       const comment = item.comment ? '<small>' + escapeHtml(item.comment) + '</small>' : '';
       return '<div class="activity-tool-row"><div class="activity-tool-main"><strong>' + date + '　' + steps + '歩</strong>' + comment + '</div><div class="activity-tool-actions"><button type="button" class="activity-edit-btn" aria-label="修正" onclick="RinchanActivity.editActivity(\'' + escapeAttr(item.activityId) + '\')">✏️</button><button type="button" class="activity-delete-btn" aria-label="削除" onclick="RinchanActivity.deleteActivity(\'' + escapeAttr(item.activityId) + '\')">🗑️</button></div></div>';
