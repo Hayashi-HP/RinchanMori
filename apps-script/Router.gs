@@ -6,11 +6,11 @@ function handleGet(action, e, ss, setup) {
   }
 
   if (action === 'departments') {
-    return jsonOutput({ ok: true, action, departments: getDepartments(ss), version: VERSION });
+    return jsonOutput({ ok: true, action, departments: getCachedDepartments(ss), version: VERSION, cached: true });
   }
 
   if (action === 'dashboard') {
-    return jsonOutput({ ok: true, action, data: getDashboard(ss), version: VERSION });
+    return jsonOutput({ ok: true, action, data: getCachedDashboard(ss), version: VERSION, cached: true });
   }
 
   return jsonOutput({
@@ -25,15 +25,26 @@ function handleGet(action, e, ss, setup) {
 function handlePost(action, data, ss) {
   if (action === 'setup') {
     auditAction(ss, 'setup', data, 'ok', 'setupProject');
+    clearAppCache();
     return jsonOutput({ ok: true, action, setup: setupProject(ss), version: VERSION });
   }
 
+  if (action === 'clearCache') {
+    if (!isAdminRequest(ss, data)) {
+      auditAction(ss, 'clearCache', data, 'ng', 'admin_required');
+      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
+    }
+    const cleared = clearAppCache();
+    auditAction(ss, 'clearCache', data, 'ok', 'cache_cleared');
+    return jsonOutput({ ok: true, action, cleared, version: VERSION });
+  }
+
   if (action === 'departments') {
-    return jsonOutput({ ok: true, action, departments: getDepartments(ss), version: VERSION });
+    return jsonOutput({ ok: true, action, departments: getCachedDepartments(ss), version: VERSION, cached: true });
   }
 
   if (action === 'dashboard') {
-    return jsonOutput({ ok: true, action, data: getDashboard(ss), version: VERSION });
+    return jsonOutput({ ok: true, action, data: getCachedDashboard(ss), version: VERSION, cached: true });
   }
 
   if (action === 'saveErrorLog') {
@@ -103,11 +114,12 @@ function handlePost(action, data, ss) {
       return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
     }
     auditAction(ss, 'adminStats', data, 'ok', 'view_admin_stats');
-    return jsonOutput({ ok: true, action, data: getAdminStats(ss), version: VERSION });
+    return jsonOutput({ ok: true, action, data: getCachedAdminStats(ss), version: VERSION, cached: true });
   }
 
   if (action === 'saveUser') {
     const saved = saveUser(ss, data);
+    invalidateUserCaches();
     writeLog(ss, action, data.deviceId, saved.user.id, 'ok', '');
     auditAction(ss, 'saveUser', Object.assign({}, data, { employeeId: saved.user.employeeId }), 'ok', 'user_saved', {
       targetEmployeeId: saved.user.employeeId,
@@ -139,6 +151,7 @@ function handlePost(action, data, ss) {
 
   if (action === 'saveActivity') {
     const saved = saveActivity(ss, data);
+    invalidateActivityCaches();
     const employeeId = data.participantId || data.employeeId || data.id;
     writeLog(ss, action, data.deviceId, employeeId, 'ok', '');
     auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId }), 'ok', 'activity_saved', {
@@ -158,6 +171,7 @@ function handlePost(action, data, ss) {
   if (action === 'deleteActivity') {
     const employeeId = data.participantId || data.employeeId || data.id;
     const deleted = deleteActivity(ss, data);
+    if (deleted.deleted) invalidateActivityCaches();
     writeLog(ss, action, data.deviceId, employeeId, deleted.deleted ? 'ok' : 'ng', deleted.deleted ? '' : 'not_found');
     auditAction(ss, 'deleteActivity', Object.assign({}, data, { employeeId }), deleted.deleted ? 'ok' : 'ng', deleted.deleted ? 'activity_deleted' : 'activity_not_found', {
       activityId: data.activityId || ''
@@ -173,6 +187,7 @@ function handlePost(action, data, ss) {
 
   if (action === 'saveThanks') {
     const saved = saveThanks(ss, data);
+    invalidateThanksCaches();
     const employeeId = data.fromParticipantId || data.employeeId || data.id;
     writeLog(ss, action, data.fromParticipantId || data.deviceId, data.toParticipantId, 'ok', '');
     auditAction(ss, 'saveThanks', Object.assign({}, data, { employeeId }), 'ok', 'thanks_saved', {
