@@ -1,5 +1,5 @@
 const RinchanActivity = (() => {
-  const VERSION = 'v0.9.92';
+  const VERSION = 'v0.9.94';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -67,12 +67,39 @@ const RinchanActivity = (() => {
     return readJson('rinchanActivities', []);
   }
 
+  function todayKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function normalizeDateKey(value) {
+    const raw = String(value || '').trim();
+    const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (iso) return iso[1] + '-' + String(iso[2]).padStart(2, '0') + '-' + String(iso[3]).padStart(2, '0');
+    const parsed = new Date(raw);
+    if (!isNaN(parsed)) return parsed.getFullYear() + '-' + String(parsed.getMonth() + 1).padStart(2, '0') + '-' + String(parsed.getDate()).padStart(2, '0');
+    return raw.slice(0, 10);
+  }
+
+  function formatDateLabel(value) {
+    const key = normalizeDateKey(value);
+    const parts = key.split('-');
+    if (parts.length !== 3) return key.replace(/-/g, '/');
+    const y = Number(parts[0]);
+    const m = Number(parts[1]);
+    const d = Number(parts[2]);
+    if (!y || !m || !d) return key.replace(/-/g, '/');
+    const dt = new Date(y, m - 1, d);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + ' ' + days[dt.getDay()];
+  }
+
   function normalizeActivity(item) {
     return {
       activityId: String(item.activityId || 'A' + Date.now().toString(36)),
       participantId: String(item.participantId || item.employeeId || item.id || ''),
       deviceId: String(item.deviceId || deviceId()),
-      date: String(item.date || '').slice(0, 10),
+      date: normalizeDateKey(item.date || item.createdAt),
       steps: Number(item.steps || 0),
       challenge: item.challenge === true || String(item.challenge).toUpperCase() === 'TRUE',
       comment: String(item.comment || ''),
@@ -83,14 +110,16 @@ const RinchanActivity = (() => {
   }
 
   function upsertLocalActivity(activity) {
-    const list = activities();
+    const list = activities().map(normalizeActivity);
     const next = normalizeActivity(activity);
-    const index = list.findIndex(item => String(item.activityId || '') === next.activityId);
-    if (index >= 0) list[index] = Object.assign({}, list[index], next);
+    const sameDateIndex = list.findIndex(item => normalizeDateKey(item.date) === normalizeDateKey(next.date));
+    const sameIdIndex = list.findIndex(item => String(item.activityId || '') === String(next.activityId || ''));
+    const index = sameIdIndex >= 0 ? sameIdIndex : sameDateIndex;
+    if (index >= 0) list[index] = Object.assign({}, list[index], next, { activityId: list[index].activityId || next.activityId });
     else list.unshift(next);
     writeJson('rinchanActivities', list);
     renderRecentActivities();
-    return next;
+    return index >= 0 ? list[index] : next;
   }
 
   function removeLocalActivity(activityId) {
@@ -98,27 +127,15 @@ const RinchanActivity = (() => {
     renderRecentActivities();
   }
 
-  function todayKey() {
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-
-  function formatDateLabel(dateValue) {
-    const raw = String(dateValue || '').slice(0, 10);
-    const parts = raw.split('-');
-    if (parts.length !== 3) return raw.replace(/-/g, '/');
-    const y = Number(parts[0]);
-    const m = Number(parts[1]);
-    const d = Number(parts[2]);
-    if (!y || !m || !d) return raw.replace(/-/g, '/');
-    const dt = new Date(y, m - 1, d);
-    const days = ['日', '月', '火', '水', '木', '金', '土'];
-    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + ' ' + days[dt.getDay()];
-  }
-
   function initDate() {
     const input = document.getElementById('activityDate');
     if (input && !input.value) input.value = todayKey();
+  }
+
+  function findExistingIdByDate(dateValue) {
+    const key = normalizeDateKey(dateValue);
+    const row = activities().map(normalizeActivity).find(item => normalizeDateKey(item.date) === key);
+    return row ? row.activityId : '';
   }
 
   function buildActivityPayload(existingId) {
@@ -126,13 +143,15 @@ const RinchanActivity = (() => {
     if (!user || !(user.employeeId || user.id)) return null;
     const steps = Number(value('steps') || 0);
     if (!steps || steps < 0) return null;
+    const date = value('activityDate') || todayKey();
+    const id = existingId || findExistingIdByDate(date) || 'A' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
     return normalizeActivity({
-      activityId: existingId || 'A' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      activityId: id,
       participantId: user.employeeId || user.id,
       employeeId: user.employeeId || user.id,
       deviceId: deviceId(),
-      date: value('activityDate') || todayKey(),
+      date,
       steps,
       challenge: checked('challenge'),
       comment: value('comment'),
@@ -153,9 +172,9 @@ const RinchanActivity = (() => {
     }
 
     setBusy(button, true, '保存中...');
-    upsertLocalActivity(payload);
+    const savedLocal = upsertLocalActivity(payload);
 
-    const result = await api('saveActivity', payload);
+    const result = await api('saveActivity', savedLocal || payload);
     applyResult(result);
 
     if (result && result.ok) {
@@ -183,7 +202,7 @@ const RinchanActivity = (() => {
   }
 
   function editActivity(activityId) {
-    const item = activities().find(row => String(row.activityId || '') === String(activityId || ''));
+    const item = activities().map(normalizeActivity).find(row => String(row.activityId || '') === String(activityId || ''));
     if (!item) return;
     const form = document.getElementById('activityForm');
     if (form && form.dataset) form.dataset.editingId = item.activityId;
@@ -191,7 +210,7 @@ const RinchanActivity = (() => {
     const steps = document.getElementById('steps');
     const challenge = document.getElementById('challenge');
     const comment = document.getElementById('comment');
-    if (date) date.value = String(item.date || '').slice(0, 10) || todayKey();
+    if (date) date.value = normalizeDateKey(item.date) || todayKey();
     if (steps) steps.value = Number(item.steps || 0) || '';
     if (challenge) challenge.checked = item.challenge === true || String(item.challenge).toUpperCase() === 'TRUE';
     if (comment) comment.value = item.comment || '';
@@ -202,8 +221,8 @@ const RinchanActivity = (() => {
     const box = document.getElementById('activityToolsList');
     if (!box) return;
     const rows = activities()
-      .slice()
-      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+      .map(normalizeActivity)
+      .sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
       .slice(0, 5);
 
     if (!rows.length) {
@@ -217,6 +236,7 @@ const RinchanActivity = (() => {
       const comment = item.comment ? '<small>' + escapeHtml(item.comment) + '</small>' : '';
       return '<div class="activity-tool-row"><div class="activity-tool-main"><strong>' + date + '　' + steps + '歩</strong>' + comment + '</div><div class="activity-tool-actions"><button type="button" class="activity-edit-btn" aria-label="修正" onclick="RinchanActivity.editActivity(\'' + escapeAttr(item.activityId) + '\')">✏️</button><button type="button" class="activity-delete-btn" aria-label="削除" onclick="RinchanActivity.deleteActivity(\'' + escapeAttr(item.activityId) + '\')">🗑️</button></div></div>';
     }).join('');
+    writeJson('rinchanActivities', activities().map(normalizeActivity));
   }
 
   function escapeHtml(value) {
