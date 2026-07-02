@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v0.9.86';
 
   function value(id) {
     const el = document.getElementById(id);
@@ -74,6 +74,25 @@ const RinchanAuth = (() => {
     if (currentId && nextId && String(currentId) !== String(nextId)) clearUserData();
   }
 
+  function showError(message) {
+    const form = document.getElementById('registerForm') || document.getElementById('loginForm');
+    if (!form) {
+      alert(message);
+      return;
+    }
+    let box = document.getElementById('authErrorBox');
+    if (!box) {
+      box = document.createElement('p');
+      box.id = 'authErrorBox';
+      box.className = 'empty-note';
+      box.style.color = '#d24c7d';
+      box.style.fontWeight = '900';
+      form.insertBefore(box, form.firstChild);
+    }
+    box.textContent = message;
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
   function initRegisterForm() {
     const form = document.getElementById('registerForm');
     if (!form || form.__rinchanAuthInstalled) return;
@@ -90,6 +109,14 @@ const RinchanAuth = (() => {
         alert('社員番号を入力してください。');
         return;
       }
+      if (!value('userName')) {
+        alert('氏名を入力してください。');
+        return;
+      }
+      if (!value('dept')) {
+        alert('所属を選択してください。');
+        return;
+      }
       if (!/^\d{4}$/.test(pin4)) {
         alert('誕生日4桁を入力してください。例：4月8日なら0408');
         return;
@@ -101,6 +128,7 @@ const RinchanAuth = (() => {
       const user = {
         id: employeeId,
         employeeId,
+        participantId: employeeId,
         deviceId: deviceId(),
         name: value('userName'),
         dept: value('dept'),
@@ -109,16 +137,24 @@ const RinchanAuth = (() => {
         pin4,
         declaration: '',
         weeklyGoal: 'まずは無理なく続ける',
+        weeklyStepGoal: '',
         createdAt: now,
         updatedAt: now,
         version: VERSION
       };
 
+      saveParticipant(user);
       const result = await api('saveUser', user);
-      clearUserData();
-      saveParticipant(result.ok && result.user ? result.user : user);
-      applyState(result);
-      location.href = 'welcome.html';
+      if (result && result.ok) {
+        const savedUser = result.user || user;
+        saveParticipant(savedUser);
+        applyState(result);
+        location.href = 'welcome.html';
+        return;
+      }
+
+      setBusy(button, false, '登録する');
+      showError('登録を保存できませんでした。Apps ScriptのデプロイURLまたはusersシートを確認してください。理由: ' + ((result && (result.reason || result.error)) || 'unknown'));
     }, true);
   }
 
