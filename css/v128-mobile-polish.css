@@ -1,4 +1,4 @@
-/* v0.9.60 mobile layout polish */
+/* v1.0.12 mobile layout polish - existing CSS direct */
 html,
 body{
   width:100%!important;
@@ -234,6 +234,204 @@ button:disabled,
   transform:translateX(-50%)!important;
   width:min(430px,100vw)!important;
 }
+
+/* v1.0.12 direct layout polish */
+.steps-summary strong{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  justify-content:flex-start!important;
+  margin-right:8px!important;
+  line-height:1!important;
+  vertical-align:baseline!important;
+}
+.steps-summary>span{
+  display:inline-flex!important;
+  align-items:baseline!important;
+  justify-content:flex-start!important;
+  position:static!important;
+  float:none!important;
+  margin:0!important;
+  transform:none!important;
+  line-height:1!important;
+  vertical-align:baseline!important;
+  font-size:20px!important;
+  font-weight:900!important;
+}
+.steps-summary small,
+.steps-goal,
+.steps-trend{
+  clear:both!important;
+  display:block!important;
+}
+.tree-stage h2,
+.tree-stage #treeTitle{
+  text-align:center!important;
+  line-height:1.35!important;
+  word-break:keep-all!important;
+  text-wrap:balance!important;
+}
+.tree-stage #treeText{
+  max-width:18em!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+  line-height:1.75!important;
+  word-break:keep-all!important;
+  text-wrap:balance!important;
+}
+.tree-stage .growth-note,
+.tree-stage #growthNote{
+  max-width:19em!important;
+  margin:14px auto 0!important;
+  text-align:center!important;
+  line-height:1.6!important;
+  word-break:keep-all!important;
+  text-wrap:balance!important;
+}
+.news-page .news-hero{
+  width:calc(100% - 40px)!important;
+  max-width:390px!important;
+  margin:20px auto 18px!important;
+  padding:34px 20px 36px!important;
+  border-radius:34px!important;
+  background:linear-gradient(180deg,#dcf8ff 0%,#f5fff9 56%,#e8ffd9 100%)!important;
+  text-align:center!important;
+  box-shadow:none!important;
+}
+.news-page .news-hero h1{
+  font-size:30px!important;
+  line-height:1.25!important;
+  text-align:center!important;
+}
+.news-page .news-hero p{
+  max-width:15.5em!important;
+  margin:12px auto 0!important;
+  font-size:15px!important;
+  line-height:1.75!important;
+  text-align:center!important;
+  word-break:keep-all!important;
+  text-wrap:balance!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+.news-page .news-summary-card .section-head-row{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+}
+.news-page .news-summary-card .summary-pill{
+  margin-left:auto!important;
+  flex:0 0 auto!important;
+}
+.thanks-inline-list{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px!important;
+  margin-top:14px!important;
+}
+.thanks-inline-heading{
+  margin:2px 0 0!important;
+}
+.thanks-compact-item,
+.thanks-story-item{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:16px!important;
+  border-radius:22px!important;
+  background:#fff!important;
+  border:1px solid rgba(93,130,105,.14)!important;
+  box-shadow:0 8px 18px rgba(60,120,90,.06)!important;
+}
+.thanks-compact-item+.thanks-compact-item{
+  margin-top:0!important;
+}
+.thanks-compact-item .thanks-story-top{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+  margin-bottom:8px!important;
+}
+.thanks-compact-item p{
+  margin:0 0 10px!important;
+  color:#607569!important;
+  font-size:14px!important;
+  line-height:1.65!important;
+}
+.forest-progress-note,
+#moriStatusProgressNote{
+  text-align:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  max-width:22em!important;
+  line-height:1.6!important;
+  word-break:keep-all!important;
+  text-wrap:balance!important;
+}
+.mori-visual.dashboard-hero{
+  width:calc(100% - 40px)!important;
+  max-width:390px!important;
+  margin:20px auto!important;
+  padding:18px 14px 24px!important;
+  border-radius:34px!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.mori-note{
+  text-align:right!important;
+  margin:0 2px 12px!important;
+  font-size:12px!important;
+}
+.mori-game-map{
+  width:100%!important;
+  max-width:100%!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  padding:12px!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+  align-items:start!important;
+  justify-items:center!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  border-radius:28px!important;
+  background:linear-gradient(180deg,#dff7ff,#e9ffd6)!important;
+}
+.mori-tree-node.dept-node{
+  position:static!important;
+  width:100%!important;
+  max-width:96px!important;
+  min-width:0!important;
+  min-height:96px!important;
+  height:auto!important;
+  margin:0 auto!important;
+  padding:9px 4px 8px!important;
+  transform:none!important;
+  box-sizing:border-box!important;
+}
+.mori-tree-node.dept-node span{
+  font-size:24px!important;
+  line-height:1!important;
+}
+.mori-tree-node.dept-node strong{
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+  min-height:28px!important;
+  font-size:10.5px!important;
+  line-height:1.2!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+.mori-tree-node.dept-node em{
+  min-height:22px!important;
+  font-size:10.5px!important;
+  padding:1px 8px!important;
+}
 @media(max-width:360px){
   .home-hero h1{
     font-size:30px!important;
@@ -246,4 +444,6 @@ button:disabled,
   .rinchan-queue-status{
     font-size:10px!important;
   }
+  .mori-game-map{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .mori-tree-node.dept-node{max-width:108px!important;}
 }
