@@ -9,7 +9,7 @@ const SHEET_AUDIT_LOGS = 'audit_logs';
 const SHEET_BACKUP_LOGS = 'backup_logs';
 const SHEET_DEPARTMENTS = 'departments';
 const SHEET_USER_READS = 'user_reads';
-const VERSION = 'v0.9.66';
+const VERSION = 'v1.0.13';
 
 const DEFAULT_DEPARTMENTS = [
   ['nurse', '看護部', 10, true, 'nurse'],
