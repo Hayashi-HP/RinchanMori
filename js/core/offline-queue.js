@@ -1,17 +1,12 @@
 const RinchanOfflineQueue = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v1.0.30';
   const QUEUE_KEY = 'rinchanPendingQueue';
   const FLUSHING_KEY = 'rinchanQueueFlushing';
   const RETRY_ACTIONS = ['saveActivity', 'deleteActivity', 'saveThanks', 'saveUser', 'markNewsRead'];
 
   function readJson(key, fallback) {
     if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-      return fallback;
-    }
+    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
   }
 
   function writeJson(key, value) {
@@ -64,10 +59,6 @@ const RinchanOfflineQueue = (() => {
       RinchanSync.setStatus(status, message || '');
       return;
     }
-    if (typeof v135SetSyncStatus === 'function') {
-      v135SetSyncStatus(status, message || '');
-      return;
-    }
     writeJson('rinchanSyncStatus', { status, message: message || '', at: new Date().toISOString() });
   }
 
@@ -80,9 +71,7 @@ const RinchanOfflineQueue = (() => {
 
   function applyResult(result) {
     if (!result || !result.ok) return result;
-    if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') {
-      return RinchanSync.applyApiResult(result);
-    }
+    if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result);
     if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(result);
     return result;
   }
@@ -107,19 +96,11 @@ const RinchanOfflineQueue = (() => {
     const remaining = [];
     try {
       for (const item of current) {
-        const next = Object.assign({}, item, {
-          retryCount: Number(item.retryCount || 0) + 1,
-          lastTriedAt: new Date().toISOString()
-        });
-
+        const next = Object.assign({}, item, { retryCount: Number(item.retryCount || 0) + 1, lastTriedAt: new Date().toISOString() });
         try {
           const result = await request(item.action, item.payload || {});
-          if (result && result.ok) {
-            applyResult(result);
-          } else {
-            next.reason = (result && (result.reason || result.error)) || 'send_failed';
-            remaining.push(next);
-          }
+          if (result && result.ok) applyResult(result);
+          else { next.reason = (result && (result.reason || result.error)) || 'send_failed'; remaining.push(next); }
         } catch (e) {
           next.reason = e.message || 'send_failed';
           remaining.push(next);
@@ -130,7 +111,6 @@ const RinchanOfflineQueue = (() => {
       if (!remaining.length) {
         setSyncStatus('synced', '');
         if (window.RinchanSync && typeof RinchanSync.sync === 'function') RinchanSync.sync({ silent: true });
-        else if (typeof v135SyncUserState === 'function') v135SyncUserState({ silent: true });
       } else {
         setSyncStatus('error', '未送信データがあります。');
       }
@@ -143,12 +123,9 @@ const RinchanOfflineQueue = (() => {
   function patchApi(name) {
     const original = window[name];
     if (typeof original !== 'function' || original.__rinchanCoreQueuePatched) return;
-
     const patched = async function(action, payload) {
       const result = await original.apply(this, arguments);
-      if (result && result.ok === false && RETRY_ACTIONS.includes(String(action))) {
-        enqueue(action, payload || {}, result.reason || result.error || 'api_failed');
-      }
+      if (result && result.ok === false && RETRY_ACTIONS.includes(String(action))) enqueue(action, payload || {}, result.reason || result.error || 'api_failed');
       return result;
     };
     patched.__rinchanCoreQueuePatched = true;
@@ -170,7 +147,6 @@ const RinchanOfflineQueue = (() => {
       if (box) box.remove();
       return;
     }
-
     if (!box) {
       box = document.createElement('div');
       box.id = 'rinchanQueueStatus';
@@ -196,12 +172,6 @@ const RinchanOfflineQueue = (() => {
   setTimeout(patchApis, 500);
   setTimeout(patchApis, 1500);
 
-  return {
-    VERSION,
-    queue,
-    enqueue,
-    flush,
-    renderStatus,
-    patchApis
-  };
+  return { VERSION, queue, enqueue, flush, renderStatus, patchApis };
 })();
+window.RinchanOfflineQueue = RinchanOfflineQueue;
