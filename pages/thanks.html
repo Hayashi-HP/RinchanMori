@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>ありがとう｜りんちゃんの杜 v1.0.14</title>
-  <link rel="stylesheet" href="../css/style.css?v=1014">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=1014">
-  <link rel="stylesheet" href="../css/v081-fixes.css?v=1014">
-  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1014">
-  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1014">
+  <title>ありがとう｜りんちゃんの杜 v1.0.15</title>
+  <link rel="stylesheet" href="../css/style.css?v=1015">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=1015">
+  <link rel="stylesheet" href="../css/v081-fixes.css?v=1015">
+  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1015">
+  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1015">
 </head>
 <body>
 <main class="app">
@@ -30,10 +30,12 @@
   </section>
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
-<script src="../js/config.js?v=1014"></script><script src="../js/core/storage.js?v=1014"></script><script src="../js/core/error-log.js?v=1014"></script><script src="../js/core/api.js?v=1014"></script><script src="../js/core/sync.js?v=1014"></script><script src="../js/features/thanks.js?v=1014"></script>
+<script src="../js/config.js?v=1015"></script><script src="../js/core/storage.js?v=1015"></script><script src="../js/core/error-log.js?v=1015"></script><script src="../js/core/api.js?v=1015"></script><script src="../js/core/sync.js?v=1015"></script>
 <script>
 (function(){
   function readTarget(){ try { return JSON.parse(sessionStorage.getItem('rinchanThanksTarget') || 'null'); } catch(e) { return null; } }
+  function user(){ try { return window.RinchanStorage ? RinchanStorage.getParticipant() : JSON.parse(localStorage.getItem('rinchanParticipant') || 'null'); } catch(e) { return null; } }
+  function deviceId(){ try { return window.RinchanStorage ? RinchanStorage.deviceId() : localStorage.getItem('rinchanDeviceId'); } catch(e) { return ''; } }
   function apply(){
     var target = readTarget();
     var text = document.getElementById('thanksTargetText');
@@ -48,14 +50,31 @@
   }
   async function send(){
     var target = readTarget();
-    if (!target || !target.toEmployeeId) return;
+    var me = user();
+    if (!target || !target.toEmployeeId || !me || !(me.employeeId || me.id)) return;
     var btn = document.getElementById('sendThanksButton');
     var reason = document.getElementById('thanksReason');
     if (btn) { btn.disabled = true; btn.textContent = '送信中'; }
-    try {
-      var result = await RinchanThanks.sendThanks({ id: target.toEmployeeId, employeeId: target.toEmployeeId, name: target.toName || '仲間', nick: target.toName || '' }, reason ? reason.value : 'ありがとう');
-      if (result && result.ok) { sessionStorage.removeItem('rinchanThanksTarget'); alert('ありがとうを送りました。'); location.href = 'mori.html'; }
-    } finally {
+    var payload = {
+      thanksId: 'K' + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+      fromParticipantId: me.employeeId || me.id,
+      fromName: me.nick || me.name || '杜の仲間',
+      toParticipantId: target.toEmployeeId,
+      toName: target.toName || '仲間',
+      toDept: target.toDept || '',
+      reason: reason ? reason.value : 'ありがとう',
+      createdAt: new Date().toISOString(),
+      deviceId: deviceId(),
+      version: 'v1.0.15'
+    };
+    var result = window.RinchanApi ? await RinchanApi.request('saveThanks', payload) : { ok:false };
+    if (result && result.ok) {
+      if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') RinchanSync.applyApiResult(result);
+      sessionStorage.removeItem('rinchanThanksTarget');
+      alert('ありがとうを送りました。');
+      location.href = 'mori.html';
+    } else {
+      alert('送信できませんでした。少し時間をおいてもう一度お試しください。');
       if (btn) { btn.disabled = false; btn.textContent = '送信する'; }
     }
   }
