@@ -3,24 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>歩数記録｜りんちゃんの杜 v1.0.25</title>
-  <link rel="stylesheet" href="../css/style.css?v=1025">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=1025">
-  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=1025">
-  <link rel="stylesheet" href="../css/v102-activity-tools.css?v=1025">
-  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1025">
-  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1025">
+  <title>歩数記録｜りんちゃんの杜 v1.0.26</title>
+  <link rel="stylesheet" href="../css/style.css?v=1026">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=1026">
+  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=1026">
+  <link rel="stylesheet" href="../css/v102-activity-tools.css?v=1026">
+  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1026">
+  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1026">
 </head>
 <body>
 <main class="app">
   <header class="top"><a href="../index.html" class="back">←</a><div class="page-title">歩数記録</div><span class="spacer"></span></header>
-  <section id="guestActivityLock" class="intro hidden"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=1025" alt="りんちゃん"><h1>まずは登録してください</h1><p>歩数記録は、社員番号で新規登録またはログインした後に使えます。</p><a class="submit link-submit" href="register.html">新規登録する</a><p class="login-helper" style="margin-top:18px;"><a href="login.html">登録済みの方はログイン</a></p></section>
-  <section id="activityIntro" class="intro"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=1025" alt="りんちゃん"><h1>今日も<br>おつかれさまです</h1><p>30秒で歩数を記録できます。</p></section>
+  <section id="guestActivityLock" class="intro hidden"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=1026" alt="りんちゃん"><h1>まずは登録してください</h1><p>歩数記録は、社員番号で新規登録またはログインした後に使えます。</p><a class="submit link-submit" href="register.html">新規登録する</a><p class="login-helper" style="margin-top:18px;"><a href="login.html">登録済みの方はログイン</a></p></section>
+  <section id="activityIntro" class="intro"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=1026" alt="りんちゃん"><h1>今日も<br>おつかれさまです</h1><p>30秒で歩数を記録できます。</p></section>
   <form class="form" id="activityForm"><label>活動日<input id="activityDate" type="date" required></label><label>歩数<input id="steps" type="number" placeholder="例：6230" required></label><label class="check"><input id="challenge" type="checkbox"><span id="weeklyGoalChallengeText">今週の目標</span></label><label>ひとこと（任意）<textarea id="comment" rows="3" placeholder="例：少し歩けました"></textarea></label><button class="submit pill-button" type="submit">記録する</button></form>
   <section id="complete" class="complete hidden"><div class="tree-large">🌳✨</div><h1>あなたの木に<br>新しい葉っぱが増えました</h1><p>今日も登録ありがとう。<br>りん、うれしい。</p><a class="submit link-submit" href="../index.html">ホームへ戻る</a></section>
   <section class="card activity-tools-card"><p class="label">最近の記録</p><p>最新5件だけを表示します。</p><div id="activityToolsList" class="activity-tools-list"><p class="empty-note">読み込み中...</p></div></section>
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus active" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
-<script src="../js/config.js?v=1025"></script><script src="../js/core/storage.js?v=1025"></script><script src="../js/core/error-log.js?v=1025"></script><script src="../js/core/api.js?v=1025"></script><script src="../js/core/sync.js?v=1025"></script><script src="../js/core/offline-queue.js?v=1025"></script><script src="../js/features/auth.js?v=1025"></script><script src="../js/features/activity.js?v=1025"></script><script src="../js/features/mypage.js?v=1025"></script><script>(function(){document.addEventListener('DOMContentLoaded',function(){var user=(typeof RinchanStorage!=='undefined'&&RinchanStorage&&typeof RinchanStorage.getParticipant==='function')?RinchanStorage.getParticipant():JSON.parse(localStorage.getItem('rinchanParticipant')||'null');if(!user||!(user.employeeId||user.id)){document.getElementById('guestActivityLock').classList.remove('hidden');document.getElementById('activityIntro').classList.add('hidden');document.getElementById('activityForm').classList.add('hidden');return;}var goal=String(user.weeklyGoal||'').trim();var el=document.getElementById('weeklyGoalChallengeText');if(el)el.textContent=goal?'今週の目標：'+goal:'今週の目標';});})();</script>
+<script src="../js/config.js?v=1026"></script><script src="../js/core/storage.js?v=1026"></script><script src="../js/core/error-log.js?v=1026"></script><script src="../js/core/api.js?v=1026"></script><script src="../js/core/sync.js?v=1026"></script><script src="../js/core/offline-queue.js?v=1026"></script><script src="../js/features/auth.js?v=1026"></script><script src="../js/features/activity.js?v=1026"></script><script src="../js/features/mypage.js?v=1026"></script><script>(function(){document.addEventListener('DOMContentLoaded',function(){var user=(typeof RinchanStorage!=='undefined'&&RinchanStorage&&typeof RinchanStorage.getParticipant==='function')?RinchanStorage.getParticipant():JSON.parse(localStorage.getItem('rinchanParticipant')||'null');if(!user||!(user.employeeId||user.id)){document.getElementById('guestActivityLock').classList.remove('hidden');document.getElementById('activityIntro').classList.add('hidden');document.getElementById('activityForm').classList.add('hidden');return;}var goal=String(user.weeklyGoal||'').trim();var el=document.getElementById('weeklyGoalChallengeText');if(el)el.textContent=goal?'今週の目標：'+goal:'今週の目標';});})();</script>
 </body>
 </html>
