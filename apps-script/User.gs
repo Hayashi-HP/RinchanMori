@@ -95,7 +95,8 @@ function getUserState(ss, data) {
   const thanksTimeline = getPublicThanksTimeline(ss);
   const readNewsIds = getReadNewsIds(ss, id);
   const thanksStats = getMyThanksStats(ss, { employeeId: id });
-  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats);
+  const globalState = getGlobalForestState(ss);
+  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats, globalState);
 
   if (clientToken && clientToken === syncToken) {
     return {
@@ -110,6 +111,13 @@ function getUserState(ss, data) {
     employeeId: id,
     user,
     activities,
+    allActivities: globalState.allActivities,
+    moriMembers: globalState.members,
+    members: globalState.members,
+    departments: globalState.departments,
+    mori: globalState.mori,
+    forest: globalState.mori,
+    forestSummary: globalState.summary,
     receivedThanks,
     sentThanks,
     thanksTimeline,
@@ -121,7 +129,55 @@ function getUserState(ss, data) {
   };
 }
 
-function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats) {
+function getGlobalForestState(ss) {
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const departments = getDepartments(ss);
+  const byUser = buildUserStats(users, activities, false);
+  const members = Object.keys(byUser).map(id => byUser[id]).sort((a, b) => String(a.dept || '').localeCompare(String(b.dept || '')) || String(a.name || a.nick || a.id).localeCompare(String(b.name || b.nick || b.id)));
+  const today = toDateKey(new Date());
+  const allActivities = activities
+    .map(item => ({
+      activityId: String(item.activityId || ''),
+      participantId: normalizeEmployeeId(item.participantId || ''),
+      deviceId: String(item.deviceId || ''),
+      date: String(item.date || ''),
+      steps: Number(item.steps || 0),
+      challenge: item.challenge === true || String(item.challenge).toUpperCase() === 'TRUE',
+      comment: String(item.comment || ''),
+      createdAt: String(item.createdAt || ''),
+      version: String(item.version || VERSION),
+      savedAt: String(item.savedAt || '')
+    }))
+    .filter(item => item.participantId || item.activityId || item.steps > 0)
+    .sort((a, b) => String(b.date || b.createdAt || '').localeCompare(String(a.date || a.createdAt || '')))
+    .slice(0, 1000);
+  const totalSteps = allActivities.reduce((sum, item) => sum + Number(item.steps || 0), 0);
+  const todayRows = allActivities.filter(item => String(item.date || '').slice(0, 10) === today);
+  return {
+    allActivities,
+    members,
+    departments,
+    mori: {
+      totalSteps,
+      steps: totalSteps,
+      memberCount: members.length,
+      activityCount: allActivities.length,
+      updatedAt: new Date().toISOString()
+    },
+    summary: {
+      today,
+      todaySteps: todayRows.reduce((sum, item) => sum + Number(item.steps || 0), 0),
+      todayActivities: todayRows.length,
+      todayUsers: Object.keys(todayRows.reduce((map, item) => { if (item.participantId) map[item.participantId] = true; return map; }, {})).length,
+      totalSteps,
+      totalActivities: allActivities.length,
+      totalUsers: members.length
+    }
+  };
+}
+
+function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats, globalState) {
   const parts = [
     user ? [user.id, user.updatedAt, user.weeklyGoal, user.weeklyStepGoal, user.dept, user.declaration].join('|') : '',
     listToken(activities, 'activityId', 'savedAt'),
@@ -129,7 +185,10 @@ function createUserStateToken(user, activities, receivedThanks, sentThanks, than
     listToken(sentThanks, 'thanksId', 'savedAt'),
     listToken(thanksTimeline, 'id', 'createdAt'),
     (readNewsIds || []).join(','),
-    thanksStats ? [thanksStats.sentCount, thanksStats.receivedCount, thanksStats.totalCount].join('|') : ''
+    thanksStats ? [thanksStats.sentCount, thanksStats.receivedCount, thanksStats.totalCount].join('|') : '',
+    globalState && globalState.mori ? [globalState.mori.totalSteps, globalState.mori.memberCount, globalState.mori.activityCount].join('|') : '',
+    globalState ? listToken(globalState.allActivities, 'activityId', 'savedAt') : '',
+    globalState ? listToken(globalState.members, 'employeeId', 'lastDate') : ''
   ];
   return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, parts.join('||'))).replace(/=+$/, '');
 }
@@ -137,7 +196,7 @@ function createUserStateToken(user, activities, receivedThanks, sentThanks, than
 function listToken(list, idKey, timeKey) {
   const items = Array.isArray(list) ? list : [];
   if (!items.length) return '0';
-  const latest = items.slice(0, 10).map(item => [item[idKey] || item.id || '', item[timeKey] || item.createdAt || item.updatedAt || ''].join('@')).join(',');
+  const latest = items.slice(0, 20).map(item => [item[idKey] || item.id || '', item[timeKey] || item.createdAt || item.updatedAt || item.totalSteps || ''].join('@')).join(',');
   return items.length + ':' + latest;
 }
 
