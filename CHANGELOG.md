@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.0.30
+- 動作診断で `core/storage.js`、`core/error-log.js`、`core/sync.js`、`core/offline-queue.js`、`API URL` が未読み込み・未設定と表示される問題を修正
+- `js/config.js`、`js/core/storage.js`、`js/core/error-log.js`、`js/core/sync.js`、`js/core/offline-queue.js` を `window` に公開するように修正
+- 管理画面、診断画面で最新コアJSを読み込むようにキャッシュを `1030` に更新
+- カプセル型ボタン統一用CSS `css/v1030-capsule-buttons.css` を追加
+- 管理画面、診断画面の「動作診断を開く」「管理画面へ戻る」「マイページへ戻る」「消去」などのボタンをカプセル型に統一
+- 診断結果と端末エラーログの行表示をスマホで読みやすいカード型に調整
+
 ## v1.0.29
 - 旧導線用の `pages/thanks.html` を他ページと同じヘッダー、横幅、左右余白に統一
 - `pages/thanks.html` で共通CSS `v1014-hotfix.css` を最新キャッシュで読み込むように変更
@@ -38,4 +46,3 @@
 - ありがとう送信ポップアップの見出しを「ありがとうを送る」に変更
 - ありがとう送信ポップアップで「4つの中から選んでください」と明示し、4択であることが分かる表示に変更
 - ありがとう送信ポップアップの各選択肢に番号を追加
-- ホーム、杜ページのキャッシュを `1024` に更新
