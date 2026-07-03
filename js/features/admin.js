@@ -1,9 +1,9 @@
 const RinchanAdmin = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v1.0.33';
 
   function readJson(key, fallback) {
-    if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
     try {
+      if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
       const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : fallback;
     } catch (e) {
@@ -12,43 +12,68 @@ const RinchanAdmin = (() => {
   }
 
   function writeJson(key, value) {
-    if (window.RinchanStorage) return RinchanStorage.writeJson(key, value);
-    localStorage.setItem(key, JSON.stringify(value));
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value);
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {}
     return value;
   }
 
   function participant() {
-    if (window.RinchanStorage) return RinchanStorage.getParticipant();
-    return readJson('rinchanParticipant', null);
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
+      return readJson('rinchanParticipant', null);
+    } catch (e) {
+      return null;
+    }
   }
 
   function employeeId() {
-    if (window.RinchanStorage) return RinchanStorage.employeeId();
-    const user = participant();
-    return user && (user.employeeId || user.id) ? String(user.employeeId || user.id) : '';
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.employeeId === 'function') return RinchanStorage.employeeId();
+      const user = participant();
+      return user && (user.employeeId || user.id) ? String(user.employeeId || user.id) : '';
+    } catch (e) {
+      return '';
+    }
   }
 
   async function api(action, payload) {
-    if (window.RinchanApi) return RinchanApi.request(action, payload || {});
-    if (typeof v051Api === 'function') return v051Api(action, payload || {});
-    if (typeof rinchanApi === 'function') return rinchanApi(action, payload || {});
-    return { ok: false, reason: 'api_not_ready' };
+    try {
+      if (window.RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {});
+      if (typeof v051Api === 'function') return v051Api(action, payload || {});
+      if (typeof rinchanApi === 'function') return rinchanApi(action, payload || {});
+      return { ok: false, reason: 'api_not_ready' };
+    } catch (e) {
+      return { ok: false, reason: e.message || 'api_error' };
+    }
   }
 
   function activities() {
-    return readJson('rinchanActivities', []);
+    const own = readJson('rinchanActivities', []);
+    const all = readJson('rinchanAllActivities', []);
+    return Array.isArray(all) && all.length ? all : (Array.isArray(own) ? own : []);
   }
 
   function members() {
     const cached = readJson('rinchanMoriMembers', []);
     if (Array.isArray(cached) && cached.length) return cached;
     const user = participant();
-    return user && user.id ? [user] : [];
+    return user && (user.employeeId || user.id) ? [user] : [];
   }
 
   function todayKey() {
     const d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function normalizeDateKey(value) {
+    const raw = String(value || '').trim();
+    const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (iso) return iso[1] + '-' + String(iso[2]).padStart(2, '0') + '-' + String(iso[3]).padStart(2, '0');
+    const parsed = new Date(raw);
+    if (!isNaN(parsed)) return parsed.getFullYear() + '-' + String(parsed.getMonth() + 1).padStart(2, '0') + '-' + String(parsed.getDate()).padStart(2, '0');
+    return raw.slice(0, 10);
   }
 
   function setText(id, value) {
@@ -59,7 +84,7 @@ const RinchanAdmin = (() => {
   function localStats() {
     const rows = activities();
     const today = todayKey();
-    const todayRows = rows.filter(item => String(item.date || '').slice(0, 10) === today);
+    const todayRows = rows.filter(item => normalizeDateKey(item.date || item.createdAt || item.savedAt) === today);
     const memberRows = members();
     const activeIds = new Set(todayRows.map(item => String(item.participantId || item.employeeId || item.id || '')));
     return {
@@ -72,8 +97,17 @@ const RinchanAdmin = (() => {
     };
   }
 
+  function safeSource(data) {
+    const local = localStats();
+    if (!data || typeof data !== 'object') return local;
+    return Object.assign({}, local, data, {
+      members: Array.isArray(data.members) ? data.members : local.members,
+      activities: Array.isArray(data.activities) ? data.activities : local.activities
+    });
+  }
+
   function renderStats(data) {
-    const stats = data || localStats();
+    const stats = safeSource(data || localStats());
     setText('adminTotalUsers', Number(stats.totalUsers || 0).toLocaleString());
     setText('adminTodayUsers', Number(stats.todayUsers || 0).toLocaleString());
     setText('adminTodayActivities', Number(stats.todayActivities || 0).toLocaleString());
@@ -83,10 +117,17 @@ const RinchanAdmin = (() => {
   }
 
   function deptRanking(data) {
-    const stats = data || localStats();
+    const stats = safeSource(data || localStats());
+    const memberMap = {};
+    (stats.members || []).forEach(member => {
+      const id = String(member.employeeId || member.id || member.participantId || '');
+      if (id) memberMap[id] = member;
+    });
     const map = {};
     (stats.activities || []).forEach(item => {
-      const dept = item.dept || 'その他';
+      const id = String(item.participantId || item.employeeId || item.id || '');
+      const member = memberMap[id] || {};
+      const dept = item.dept || item.department || member.dept || member.department || 'その他';
       if (!map[dept]) map[dept] = { dept, steps: 0, count: 0 };
       map[dept].steps += Number(item.steps || 0);
       map[dept].count += 1;
@@ -110,7 +151,7 @@ const RinchanAdmin = (() => {
     activities().forEach(item => {
       const id = String(item.participantId || item.employeeId || item.id || '');
       if (!id) return;
-      const date = String(item.date || '').slice(0, 10);
+      const date = normalizeDateKey(item.date || item.createdAt || item.savedAt);
       if (!map[id] || date > map[id]) map[id] = date;
     });
     return map;
@@ -135,14 +176,14 @@ const RinchanAdmin = (() => {
       box.innerHTML = '<p class="admin-empty">7日以上記録がない人はいません。</p>';
       return;
     }
-    box.innerHTML = rows.map(member => '<div class="admin-list-row"><strong>' + escapeHtml(member.name || member.nick || member.employeeId || member.id || '未設定') + '</strong><span>' + escapeHtml(member.dept || '所属未設定') + '</span></div>').join('');
+    box.innerHTML = rows.map(member => '<div class="admin-list-row"><strong>' + escapeHtml(member.name || member.nick || member.employeeId || member.id || '未設定') + '</strong><span>' + escapeHtml(member.dept || member.department || '所属未設定') + '</span></div>').join('');
   }
 
   function renderOperations() {
     const box = document.getElementById('adminOperations');
     if (!box) return;
     const userRows = members();
-    const noDept = userRows.filter(user => !user.dept);
+    const noDept = userRows.filter(user => !(user.dept || user.department));
     const inactive = inactiveMembers();
     const items = [];
     if (noDept.length) items.push('所属未設定：' + noDept.length + '人');
@@ -160,57 +201,74 @@ const RinchanAdmin = (() => {
     const query = String((document.getElementById('adminSearch') || {}).value || '').trim();
     const last = lastActivityMap();
     let rows = members().slice();
-    if (query) {
-      rows = rows.filter(member => [member.name, member.nick, member.dept, member.employeeId, member.id].some(value => String(value || '').includes(query)));
-    }
+    if (query) rows = rows.filter(member => [member.name, member.nick, member.dept, member.department, member.employeeId, member.id].some(value => String(value || '').includes(query)));
     if (!rows.length) {
       box.innerHTML = '<p class="admin-empty">該当する利用者はいません。</p>';
       return;
     }
     box.innerHTML = rows.map(member => {
       const id = String(member.employeeId || member.id || '');
-      return '<div class="admin-member-row"><div><strong>' + escapeHtml(member.name || member.nick || id || '未設定') + '</strong><p>' + escapeHtml(member.dept || '所属未設定') + '</p></div><small>最終記録 ' + escapeHtml(last[id] || '-') + '</small></div>';
+      return '<div class="admin-member-row"><div><strong>' + escapeHtml(member.name || member.nick || id || '未設定') + '</strong><p>' + escapeHtml(member.dept || member.department || '所属未設定') + '</p></div><small>最終記録 ' + escapeHtml(last[id] || '-') + '</small></div>';
     }).join('');
   }
 
+  function isAdminUser(user) {
+    return !!(user && (String(user.admin || '') === '1' || user.admin === true || String(user.role || '').toLowerCase() === 'admin'));
+  }
+
   async function loadServerStats() {
-    const user = participant();
-    if (!user || String(user.admin || '') !== '1') {
-      renderAll();
-      return;
-    }
-    const result = await api('adminStats', { employeeId: employeeId() });
-    if (result && result.ok && result.data) {
-      writeJson('rinchanAdminStats', result.data);
-      renderAll(result.data);
-    } else {
+    try {
+      const user = participant();
+      if (!isAdminUser(user)) {
+        renderAll();
+        return;
+      }
+      const result = await api('adminStats', { employeeId: employeeId() });
+      if (result && result.ok && result.data) {
+        writeJson('rinchanAdminStats', result.data);
+        renderAll(result.data);
+      } else {
+        renderAll();
+      }
+    } catch (e) {
+      if (window.RinchanErrorLog && typeof RinchanErrorLog.add === 'function') RinchanErrorLog.add({ type: 'admin', message: e.message || 'admin load failed', stack: e.stack || '' });
       renderAll();
     }
   }
 
   function renderAll(data) {
-    const source = data || readJson('rinchanAdminStats', null) || localStats();
-    renderStats(source);
-    renderDeptRanking(source);
-    renderInactive();
-    renderOperations();
-    renderMembers();
+    try {
+      const source = safeSource(data || readJson('rinchanAdminStats', null) || localStats());
+      renderStats(source);
+      renderDeptRanking(source);
+      renderInactive();
+      renderOperations();
+      renderMembers();
+    } catch (e) {
+      if (window.RinchanErrorLog && typeof RinchanErrorLog.add === 'function') RinchanErrorLog.add({ type: 'admin', message: e.message || 'admin render failed', stack: e.stack || '' });
+      const status = document.getElementById('adminStatus');
+      if (status) status.textContent = '表示できる範囲で表示中';
+    }
   }
 
   function install() {
-    if (!document.querySelector('.admin-app-v132')) return;
-    renderAll();
-    const search = document.getElementById('adminSearch');
-    if (search && !search.__rinchanAdminInstalled) {
-      search.__rinchanAdminInstalled = true;
-      search.addEventListener('input', renderMembers);
+    try {
+      if (!document.querySelector('.admin-app-v132')) return;
+      renderAll();
+      const search = document.getElementById('adminSearch');
+      if (search && !search.__rinchanAdminInstalled) {
+        search.__rinchanAdminInstalled = true;
+        search.addEventListener('input', () => renderMembers());
+      }
+      const refresh = document.getElementById('adminRefresh');
+      if (refresh && !refresh.__rinchanAdminInstalled) {
+        refresh.__rinchanAdminInstalled = true;
+        refresh.addEventListener('click', () => loadServerStats());
+      }
+      setTimeout(() => loadServerStats(), 300);
+    } catch (e) {
+      if (window.RinchanErrorLog && typeof RinchanErrorLog.add === 'function') RinchanErrorLog.add({ type: 'admin', message: e.message || 'admin install failed', stack: e.stack || '' });
     }
-    const refresh = document.getElementById('adminRefresh');
-    if (refresh && !refresh.__rinchanAdminInstalled) {
-      refresh.__rinchanAdminInstalled = true;
-      refresh.addEventListener('click', loadServerStats);
-    }
-    setTimeout(loadServerStats, 300);
   }
 
   function formatDateKey(date) {
@@ -227,12 +285,6 @@ const RinchanAdmin = (() => {
 
   document.addEventListener('DOMContentLoaded', install);
 
-  return {
-    VERSION,
-    install,
-    renderAll,
-    loadServerStats,
-    renderMembers,
-    renderStats
-  };
+  return { VERSION, install, renderAll, loadServerStats, renderMembers, renderStats };
 })();
+window.RinchanAdmin = RinchanAdmin;
