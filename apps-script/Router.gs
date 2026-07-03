@@ -209,23 +209,30 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'saveThanks') {
-    const saved = saveThanks(ss, data);
-    invalidateThanksCaches();
-    const employeeId = data.fromParticipantId || data.employeeId || data.id;
-    writeLog(ss, action, data.fromParticipantId || data.deviceId, data.toParticipantId, 'ok', '');
-    auditAction(ss, 'saveThanks', Object.assign({}, data, { employeeId }), 'ok', 'thanks_saved', {
-      thanksId: saved.thanksId || '',
-      toParticipantId: data.toParticipantId || '',
-      reason: data.reason || ''
-    });
-    return jsonOutput({
-      ok: true,
-      action,
-      saved,
-      stats: getMyThanksStats(ss, { employeeId }),
-      state: getUserState(ss, { employeeId }),
-      version: VERSION
-    });
+    const employeeId = data.fromParticipantId || data.employeeId || data.id || '';
+    try {
+      const saved = saveThanks(ss, data);
+      try { if (typeof invalidateThanksCaches === 'function') invalidateThanksCaches(); } catch (ignoreCache) {}
+      try { writeLog(ss, action, data.deviceId || data.fromParticipantId || '', data.toParticipantId || '', 'ok', ''); } catch (ignoreLog) {}
+      try {
+        if (typeof auditAction === 'function') {
+          auditAction(ss, 'saveThanks', Object.assign({}, data, { employeeId }), 'ok', 'thanks_saved', {
+            thanksId: saved.thanksId || '',
+            toParticipantId: data.toParticipantId || '',
+            reason: data.reason || ''
+          });
+        }
+      } catch (ignoreAudit) {}
+
+      let state = null;
+      let stats = null;
+      try { stats = getMyThanksStats(ss, { employeeId }); } catch (ignoreStats) {}
+      try { state = getUserState(ss, { employeeId }); } catch (ignoreState) {}
+      return jsonOutput({ ok: true, action, saved, stats, state, version: VERSION });
+    } catch (err) {
+      try { writeLog(ss, action, data.deviceId || data.fromParticipantId || '', data.toParticipantId || '', 'ng', err.message); } catch (ignoreErrorLog) {}
+      return jsonOutput({ ok: false, action, error: err.message, version: VERSION });
+    }
   }
 
   writeLog(ss, action || 'unknown', data.deviceId, data.participantId || data.id, 'ng', 'unknown_action');
