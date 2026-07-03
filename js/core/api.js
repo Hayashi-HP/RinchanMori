@@ -1,5 +1,5 @@
 const RinchanApi = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v1.0.18';
 
   function apiUrl() {
     return (typeof RINCHAN_CONFIG !== 'undefined' && RINCHAN_CONFIG.API_URL)
@@ -47,3 +47,5 @@ const RinchanApi = (() => {
     apiUrl
   };
 })();
+
+window.RinchanApi = RinchanApi;
