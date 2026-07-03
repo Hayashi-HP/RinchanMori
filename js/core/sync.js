@@ -1,5 +1,5 @@
 const RinchanSync = (() => {
-  const VERSION = 'v1.0.13';
+  const VERSION = 'v1.0.30';
   const SYNC_TIME_KEY = 'rinchanLastSyncedAt';
   const SYNC_STATUS_KEY = 'rinchanSyncStatus';
   const SYNC_TOKEN_KEY = 'rinchanSyncToken';
@@ -54,3 +54,4 @@ const RinchanSync = (() => {
   function applyApiResult(response) { if (!response || !response.ok || !response.state) return response; const changed = applyState(response.state); setStatus('synced', changed ? '' : 'unchanged'); if (changed) refreshUi(); return response; }
   return { VERSION, sync, applyState, applyApiResult, refreshUi, renderStatus, setStatus, syncToken };
 })();
+window.RinchanSync = RinchanSync;
