@@ -1,5 +1,5 @@
 const RinchanSync = (() => {
-  const VERSION = 'v1.0.10';
+  const VERSION = 'v1.0.13';
   const SYNC_TIME_KEY = 'rinchanLastSyncedAt';
   const SYNC_STATUS_KEY = 'rinchanSyncStatus';
   const SYNC_TOKEN_KEY = 'rinchanSyncToken';
@@ -24,7 +24,7 @@ const RinchanSync = (() => {
     const byDate = {}; normalized.forEach(item => { const key = normalizeDateKey(item.date); if (!key) return; const ownerKey = item.participantId ? item.participantId + '|' + key : key; const current = byDate[ownerKey]; if (!current || newerScore(item) >= newerScore(current)) byDate[ownerKey] = Object.assign({}, item, { date: key }); });
     return Object.values(byDate).sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || newerScore(b) - newerScore(a));
   }
-  function normalizeThanks(list) { return (Array.isArray(list) ? list : []).map(item => Object.assign({}, item, { thanksId: String(item.thanksId || item.id || ''), createdAt: String(item.createdAt || ''), reason: String(item.reason || 'ありがとう') })); }
+  function normalizeThanks(list) { return (Array.isArray(list) ? list : []).map(item => Object.assign({}, item, { thanksId: String(item.thanksId || item.id || ''), createdAt: String(item.createdAt || item.savedAt || ''), reason: String(item.reason || item.message || 'ありがとう') })); }
   function normalizeMembers(list) { return (Array.isArray(list) ? list : []).map(item => ({ employeeId: String(item.employeeId || item.id || item.participantId || ''), id: String(item.id || item.employeeId || item.participantId || ''), name: String(item.name || item.displayName || ''), nick: String(item.nick || item.nickname || ''), dept: String(item.dept || item.department || item.section || 'その他'), totalSteps: Number(item.totalSteps || item.steps || item.sumSteps || 0), activityCount: Number(item.activityCount || item.count || 0) })).filter(item => item.employeeId || item.id || item.name || item.dept); }
   function normalizeDepartments(list) { return (Array.isArray(list) ? list : []).map(item => typeof item === 'string' ? { id: item, name: item } : { id: String(item.id || item.name || item.dept || item.department || ''), name: String(item.name || item.dept || item.department || item.id || '') }).filter(item => item.name); }
   function applyState(state) {
@@ -34,9 +34,10 @@ const RinchanSync = (() => {
     if (Array.isArray(state.allActivities)) writeJson('rinchanAllActivities', normalizeActivities(state.allActivities));
     if (Array.isArray(state.receivedThanks)) writeJson('rinchanReceivedThanks', normalizeThanks(state.receivedThanks));
     if (Array.isArray(state.sentThanks)) writeJson('rinchanSentThanks', normalizeThanks(state.sentThanks));
-    if (Array.isArray(state.thanksTimeline)) writeJson('rinchanGoodTimeline', state.thanksTimeline);
+    if (Array.isArray(state.thanksTimeline)) writeJson('rinchanGoodTimeline', normalizeThanks(state.thanksTimeline));
     if (Array.isArray(state.readNewsIds)) writeJson('rinchanReadNewsIds', state.readNewsIds);
     if (state.thanksStats) writeJson('rinchanThanksStats', state.thanksStats);
+    if (state.forestSummary || state.summary) writeJson('rinchanForestSummary', state.forestSummary || state.summary);
     const members = state.moriMembers || state.members || state.users || state.participants || state.allUsers;
     if (Array.isArray(members)) writeJson('rinchanMoriMembers', normalizeMembers(members));
     const departments = state.departments || state.depts || state.sections;
