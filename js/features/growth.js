@@ -1,5 +1,5 @@
 const RinchanGrowth = (() => {
-  const VERSION = 'v0.9.61';
+  const VERSION = 'v1.0.13';
 
   function readJson(key, fallback) {
     if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
@@ -66,7 +66,9 @@ const RinchanGrowth = (() => {
     if (title) title.textContent = 'Lv.' + currentGrowth.level + ' ' + currentGrowth.title;
     if (text) text.textContent = currentGrowth.text + ' ' + currentSeason.message;
     if (bar) bar.style.width = currentGrowth.pct + '%';
-    if (note) note.textContent = currentSeason.icon + ' ' + currentSeason.label + ' / ' + currentGrowth.next + '（累計 ' + number(currentStats.totalSteps) + '歩）';
+    if (note) {
+      note.innerHTML = '<span class="growth-note-season">' + escapeHtml(currentSeason.icon + ' ' + currentSeason.label) + '</span><span class="growth-note-next">' + escapeHtml(currentGrowth.next) + '</span><span class="growth-note-total">累計 ' + number(currentStats.totalSteps) + '歩</span>';
+    }
   }
 
   function renderSeasonObjects() {
@@ -123,6 +125,10 @@ const RinchanGrowth = (() => {
     window.renderV060Badges = renderBadges;
     window.renderV062SeasonObjects = renderSeasonObjects;
     window.applySeasonV061 = applySeason;
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
   }
 
   document.addEventListener('DOMContentLoaded', install);
