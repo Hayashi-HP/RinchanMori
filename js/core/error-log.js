@@ -1,5 +1,5 @@
 const RinchanErrorLog = (() => {
-  const VERSION = 'v0.9.63';
+  const VERSION = 'v1.0.30';
   const KEY = 'rinchanErrorLogs';
   const LIMIT = 30;
   let flushing = false;
@@ -17,9 +17,7 @@ const RinchanErrorLog = (() => {
   function writeLogs(list) {
     try {
       localStorage.setItem(KEY, JSON.stringify(list.slice(0, LIMIT)));
-    } catch (e) {
-      // localStorageが使えない場合は何もしない
-    }
+    } catch (e) {}
   }
 
   function participantId() {
@@ -95,10 +93,7 @@ const RinchanErrorLog = (() => {
       }
       const all = readLogs();
       const byKey = new Map(pending.map(log => [String(log.at) + '|' + String(log.message), log]));
-      const merged = all.map(log => {
-        const updated = byKey.get(String(log.at) + '|' + String(log.message));
-        return updated || log;
-      });
+      const merged = all.map(log => byKey.get(String(log.at) + '|' + String(log.message)) || log);
       writeLogs(merged);
       return { ok: true, sent };
     } catch (e) {
@@ -147,3 +142,4 @@ const RinchanErrorLog = (() => {
     flush
   };
 })();
+window.RinchanErrorLog = RinchanErrorLog;
