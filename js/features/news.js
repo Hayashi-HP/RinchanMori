@@ -1,5 +1,5 @@
 const RinchanNews = (() => {
-  const VERSION = 'v1.0.10';
+  const VERSION = 'v1.0.13';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -38,7 +38,8 @@ const RinchanNews = (() => {
     const parsed = new Date(raw); if (!isNaN(parsed)) return dateKeyFromDate(parsed);
     return raw.slice(0, 10);
   }
-  function activities() { return readJson('rinchanActivities', []); }
+  function activities() { const all = readJson('rinchanAllActivities', []); return Array.isArray(all) && all.length ? all : readJson('rinchanActivities', []); }
+  function forestSummary() { return readJson('rinchanForestSummary', null); }
   function thanksTimeline() { return readJson('rinchanGoodTimeline', []); }
   function sentThanks() { return readJson('rinchanSentThanks', []); }
   function receivedThanks() { return readJson('rinchanReceivedThanks', []); }
@@ -59,14 +60,18 @@ const RinchanNews = (() => {
     const statsEl = document.getElementById('forestSummaryStats');
     if (dateEl) dateEl.textContent = formatMonthDay(new Date());
     if (!statsEl) return;
-    const today = todayKey(); const acts = activities();
+    const server = forestSummary();
+    const today = todayKey();
+    const acts = activities();
     const todayRows = acts.filter(item => normalizeDateKey(item.date || item.createdAt || item.savedAt) === today);
-    const todaySteps = todayRows.reduce((sum, item) => sum + Number(item.steps || 0), 0);
-    const totalSteps = acts.reduce((sum, item) => sum + Number(item.steps || 0), 0);
-    const thanksCount = thanksTimeline().length + sentThanks().length + receivedThanks().length;
-    statsEl.innerHTML = [summaryStat('📝', todayRows.length.toLocaleString(), '今日の記録'), summaryStat('👟', todaySteps.toLocaleString(), '今日の歩数'), summaryStat('🌳', totalSteps.toLocaleString(), '累計歩数'), summaryStat('💌', thanksCount.toLocaleString(), 'ありがとう')].join('');
+    const todaySteps = server && Number(server.todaySteps || 0) > 0 ? Number(server.todaySteps || 0) : todayRows.reduce((sum, item) => sum + Number(item.steps || 0), 0);
+    const todayCount = server && Number(server.todayActivities || 0) > 0 ? Number(server.todayActivities || 0) : todayRows.length;
+    const totalSteps = server && Number(server.totalSteps || 0) > 0 ? Number(server.totalSteps || 0) : acts.reduce((sum, item) => sum + Number(item.steps || 0), 0);
+    const thanksCount = uniqueThanksCount(thanksTimeline().concat(sentThanks()).concat(receivedThanks()));
+    statsEl.innerHTML = [summaryStat('📝', todayCount.toLocaleString(), '今日の記録'), summaryStat('👟', todaySteps.toLocaleString(), '今日の歩数'), summaryStat('🌳', totalSteps.toLocaleString(), '累計歩数'), summaryStat('💌', thanksCount.toLocaleString(), 'ありがとう')].join('');
   }
   function summaryStat(icon, value, label) { return '<div class="forest-summary-stat"><span class="forest-summary-stat-icon">' + icon + '</span><div><strong>' + value + '</strong><small>' + label + '</small></div></div>'; }
+  function uniqueThanksCount(list) { const ids = {}; (Array.isArray(list) ? list : []).forEach((item, index) => { const id = item.thanksId || item.id || [item.fromParticipantId, item.toParticipantId, item.createdAt, item.reason, index].join('|'); ids[id] = true; }); return Object.keys(ids).length; }
   function normalizeThanksItem(item, index) {
     const from = item.fromName || item.senderName || item.fromDept || 'だれか';
     const to = item.toName || item.receiverName || item.toDept || 'だれか';
@@ -74,7 +79,11 @@ const RinchanNews = (() => {
     const createdAt = item.createdAt || item.savedAt || item.date || '';
     return { id: item.thanksId || item.id || ('thanks-' + index), from, to, reason, createdAt, body: item.body || item.comment || '' };
   }
-  function thanksRows() { return thanksTimeline().concat(sentThanks()).concat(receivedThanks()).filter(Boolean).map(normalizeThanksItem).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))); }
+  function thanksRows() { const seen = {}; return thanksTimeline().concat(sentThanks()).concat(receivedThanks()).filter(Boolean).map(normalizeThanksItem).filter(item => { const key = item.id || [item.from, item.to, item.createdAt, item.reason].join('|'); if (seen[key]) return false; seen[key] = true; return true; }).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))); }
+  function thanksCard(item) {
+    const body = item.body || (item.from + 'の仲間が、' + item.to + 'の仲間に「' + item.reason + '」のありがとうを届けました。');
+    return '<article class="thanks-card-item thanks-story-item"><div class="thanks-card-route"><span>💌</span><strong>' + escapeHtml(item.from) + ' → ' + escapeHtml(item.to) + '</strong><time>' + formatDate(item.createdAt) + '</time></div><p>' + escapeHtml(body) + '</p><span class="thanks-reason-badge">' + escapeHtml(item.reason) + '</span></article>';
+  }
   function renderThanksFlowSummary() {
     const box = document.getElementById('thanksFlowSummary');
     const list = document.getElementById('thanksStoryList');
@@ -84,11 +93,8 @@ const RinchanNews = (() => {
       box.innerHTML = '<div class="thanks-flow-empty"><span>💌</span><p>まだありがとうはありません。</p><small>杜ページから、仲間にありがとうを届けられます。</small></div>';
       if (list) list.innerHTML = ''; return;
     }
-    const latest = rows[0];
-    box.innerHTML = '<div class="thanks-flow-latest"><span>💌</span><div><small>最新のありがとう</small><p><strong>' + escapeHtml(latest.from) + '</strong> から <strong>' + escapeHtml(latest.to) + '</strong> へ</p><em>' + escapeHtml(latest.reason) + '</em></div></div>';
-    if (list) {
-      list.innerHTML = '<p class="thanks-inline-heading">ありがとう一覧</p>' + rows.slice(0, 8).map(item => '<article class="thanks-compact-item thanks-story-item"><div class="thanks-story-top"><strong>' + escapeHtml(item.from) + ' → ' + escapeHtml(item.to) + '</strong><time>' + formatDate(item.createdAt) + '</time></div><p>' + escapeHtml(item.body || (item.from + 'の仲間が、' + item.to + 'の仲間にありがとうを届けました。')) + '</p><span class="thanks-reason-badge">' + escapeHtml(item.reason) + '</span></article>').join('');
-    }
+    box.innerHTML = rows.slice(0, 1).map(thanksCard).join('');
+    if (list) list.innerHTML = rows.slice(1, 8).map(thanksCard).join('');
   }
   function renderNotices() {
     const box = document.getElementById('noticeList'); if (!box) return;
