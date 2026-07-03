@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>ありがとう｜りんちゃんの杜 v1.0.14</title>
+  <link rel="stylesheet" href="../css/style.css?v=1014">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=1014">
+  <link rel="stylesheet" href="../css/v081-fixes.css?v=1014">
+  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1014">
+  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1014">
+</head>
+<body>
+<main class="app">
+  <header class="top"><a href="mori.html" class="back">←</a><div class="page-title">ありがとう</div><span class="spacer"></span></header>
+  <section class="intro"><h1>ありがとうを送る</h1><p id="thanksTargetText">送信先を確認しています。</p></section>
+  <section class="card">
+    <p class="label">💌 ありがとう</p>
+    <h2 id="thanksTitle">仲間へありがとう</h2>
+    <label class="form label" style="margin:16px 0 0;padding:0;border:0;box-shadow:none;background:transparent;">
+      種類
+      <select id="thanksReason">
+        <option value="ありがとう">ありがとう</option>
+        <option value="助けてもらった">助けてもらった</option>
+        <option value="声をかけてもらった">声をかけてもらった</option>
+        <option value="一緒にがんばった">一緒にがんばった</option>
+      </select>
+    </label>
+    <button id="sendThanksButton" class="submit" type="button" style="margin-top:18px;">送信する</button>
+  </section>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
+</main>
+<script src="../js/config.js?v=1014"></script><script src="../js/core/storage.js?v=1014"></script><script src="../js/core/error-log.js?v=1014"></script><script src="../js/core/api.js?v=1014"></script><script src="../js/core/sync.js?v=1014"></script><script src="../js/features/thanks.js?v=1014"></script>
+<script>
+(function(){
+  function readTarget(){ try { return JSON.parse(sessionStorage.getItem('rinchanThanksTarget') || 'null'); } catch(e) { return null; } }
+  function apply(){
+    var target = readTarget();
+    var text = document.getElementById('thanksTargetText');
+    var title = document.getElementById('thanksTitle');
+    if (!target || !target.toEmployeeId) {
+      if (text) text.textContent = '送信先が見つかりません。杜ページから選び直してください。';
+      var btn = document.getElementById('sendThanksButton'); if (btn) btn.disabled = true;
+      return;
+    }
+    if (text) text.textContent = (target.toName || '仲間') + 'さんへありがとうを送ります。';
+    if (title) title.textContent = (target.toName || '仲間') + 'さんへ';
+  }
+  async function send(){
+    var target = readTarget();
+    if (!target || !target.toEmployeeId) return;
+    var btn = document.getElementById('sendThanksButton');
+    var reason = document.getElementById('thanksReason');
+    if (btn) { btn.disabled = true; btn.textContent = '送信中'; }
+    try {
+      var result = await RinchanThanks.sendThanks({ id: target.toEmployeeId, employeeId: target.toEmployeeId, name: target.toName || '仲間', nick: target.toName || '' }, reason ? reason.value : 'ありがとう');
+      if (result && result.ok) { sessionStorage.removeItem('rinchanThanksTarget'); alert('ありがとうを送りました。'); location.href = 'mori.html'; }
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '送信する'; }
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function(){ apply(); var btn = document.getElementById('sendThanksButton'); if (btn) btn.addEventListener('click', send); });
+})();
+</script>
+</body>
+</html>
