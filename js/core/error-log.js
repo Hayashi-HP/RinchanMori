@@ -1,5 +1,5 @@
 const RinchanErrorLog = (() => {
-  const VERSION = 'v1.0.30';
+  const VERSION = 'v1.0.34';
   const KEY = 'rinchanErrorLogs';
   const LIMIT = 30;
   let flushing = false;
@@ -39,7 +39,17 @@ const RinchanErrorLog = (() => {
     }
   }
 
+  function isGenericBrowserScriptError(entry) {
+    const message = String((entry && entry.message) || '').trim();
+    const source = String((entry && entry.source) || '').trim();
+    const line = String((entry && entry.line) || '').trim();
+    const column = String((entry && entry.column) || '').trim();
+    const stack = String((entry && entry.stack) || '').trim();
+    return message === 'Script error.' && !source && !line && !column && !stack;
+  }
+
   function add(entry) {
+    if (isGenericBrowserScriptError(entry)) return null;
     const logs = readLogs();
     const item = Object.assign({
       at: new Date().toISOString(),
@@ -61,8 +71,15 @@ const RinchanErrorLog = (() => {
     localStorage.removeItem(KEY);
   }
 
+  function pruneGenericScriptErrors() {
+    const logs = readLogs();
+    const cleaned = logs.filter(log => !isGenericBrowserScriptError(log));
+    if (cleaned.length !== logs.length) writeLogs(cleaned);
+    return cleaned;
+  }
+
   function unsentLogs() {
-    return readLogs().filter(log => !log.sentAt);
+    return pruneGenericScriptErrors().filter(log => !log.sentAt);
   }
 
   async function sendOne(log) {
@@ -91,7 +108,7 @@ const RinchanErrorLog = (() => {
         log.sentAt = new Date().toISOString();
         sent += 1;
       }
-      const all = readLogs();
+      const all = pruneGenericScriptErrors();
       const byKey = new Map(pending.map(log => [String(log.at) + '|' + String(log.message), log]));
       const merged = all.map(log => byKey.get(String(log.at) + '|' + String(log.message)) || log);
       writeLogs(merged);
@@ -104,6 +121,8 @@ const RinchanErrorLog = (() => {
   }
 
   function install() {
+    pruneGenericScriptErrors();
+
     window.addEventListener('error', event => {
       add({
         type: 'error',
@@ -133,13 +152,6 @@ const RinchanErrorLog = (() => {
 
   install();
 
-  return {
-    VERSION,
-    add,
-    clear,
-    readLogs,
-    unsentLogs,
-    flush
-  };
+  return { VERSION, add, clear, readLogs, unsentLogs, flush, pruneGenericScriptErrors };
 })();
 window.RinchanErrorLog = RinchanErrorLog;
