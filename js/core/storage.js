@@ -1,4 +1,6 @@
 const RinchanStorage = (() => {
+  const VERSION = 'v1.0.30';
+
   function readJson(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -60,6 +62,7 @@ const RinchanStorage = (() => {
   }
 
   return {
+    VERSION,
     readJson,
     writeJson,
     removeMany,
@@ -70,3 +73,4 @@ const RinchanStorage = (() => {
     clearUserData
   };
 })();
+window.RinchanStorage = RinchanStorage;
