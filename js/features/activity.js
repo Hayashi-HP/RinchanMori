@@ -1,14 +1,9 @@
 const RinchanActivity = (() => {
-  const VERSION = 'v0.9.94';
+  const VERSION = 'v1.0.26';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : fallback;
-    } catch (e) {
-      return fallback;
-    }
+    try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; }
   }
 
   function writeJson(key, value) {
@@ -25,22 +20,12 @@ const RinchanActivity = (() => {
   function deviceId() {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.deviceId === 'function') return RinchanStorage.deviceId();
     let id = localStorage.getItem('rinchanDeviceId');
-    if (!id) {
-      id = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-      localStorage.setItem('rinchanDeviceId', id);
-    }
+    if (!id) { id = 'D' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem('rinchanDeviceId', id); }
     return id;
   }
 
-  function value(id) {
-    const el = document.getElementById(id);
-    return el ? String(el.value || '').trim() : '';
-  }
-
-  function checked(id) {
-    const el = document.getElementById(id);
-    return !!(el && el.checked);
-  }
+  function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
+  function checked(id) { const el = document.getElementById(id); return !!(el && el.checked); }
 
   function setBusy(button, busy, label) {
     if (!button) return;
@@ -63,14 +48,28 @@ const RinchanActivity = (() => {
     return result;
   }
 
-  function activities() {
-    return readJson('rinchanActivities', []);
+  function setSyncStatus(status, message) {
+    if (window.RinchanSync && typeof RinchanSync.setStatus === 'function') return RinchanSync.setStatus(status, message || '');
+    writeJson('rinchanSyncStatus', { status, message: message || '', at: new Date().toISOString() });
   }
 
-  function todayKey() {
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  function enqueueOffline(action, payload, reason) {
+    if (window.RinchanOfflineQueue && typeof RinchanOfflineQueue.enqueue === 'function') {
+      RinchanOfflineQueue.enqueue(action, payload || {}, reason || 'send_failed');
+      return;
+    }
+    const list = readJson('rinchanPendingQueue', []);
+    const key = action + ':' + String((payload && (payload.activityId || payload.id)) || Date.now());
+    if (!list.some(item => item.key === key)) {
+      list.push({ id: 'Q' + Date.now().toString(36), key, action, payload: payload || {}, reason: reason || 'send_failed', retryCount: 0, createdAt: new Date().toISOString(), lastTriedAt: '' });
+      writeJson('rinchanPendingQueue', list.slice(-50));
+    }
+    setSyncStatus('error', '通信できないため未送信として保存しました。');
   }
+
+  function activities() { return readJson('rinchanActivities', []); }
+
+  function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 
   function normalizeDateKey(value) {
     const raw = String(value || '').trim();
@@ -85,9 +84,7 @@ const RinchanActivity = (() => {
     const key = normalizeDateKey(value);
     const parts = key.split('-');
     if (parts.length !== 3) return key.replace(/-/g, '/');
-    const y = Number(parts[0]);
-    const m = Number(parts[1]);
-    const d = Number(parts[2]);
+    const y = Number(parts[0]); const m = Number(parts[1]); const d = Number(parts[2]);
     if (!y || !m || !d) return key.replace(/-/g, '/');
     const dt = new Date(y, m - 1, d);
     const days = ['日', '月', '火', '水', '木', '金', '土'];
@@ -117,9 +114,10 @@ const RinchanActivity = (() => {
     const index = sameIdIndex >= 0 ? sameIdIndex : sameDateIndex;
     if (index >= 0) list[index] = Object.assign({}, list[index], next, { activityId: list[index].activityId || next.activityId });
     else list.unshift(next);
-    writeJson('rinchanActivities', list);
+    const sorted = list.sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    writeJson('rinchanActivities', sorted);
     renderRecentActivities();
-    return index >= 0 ? list[index] : next;
+    return index >= 0 ? sorted.find(item => String(item.activityId) === String((index >= 0 ? list[index] : next).activityId)) || next : next;
   }
 
   function removeLocalActivity(activityId) {
@@ -145,7 +143,6 @@ const RinchanActivity = (() => {
     if (!steps || steps < 0) return null;
     const date = value('activityDate') || todayKey();
     const id = existingId || findExistingIdByDate(date) || 'A' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-
     return normalizeActivity({
       activityId: id,
       participantId: user.employeeId || user.id,
@@ -160,35 +157,61 @@ const RinchanActivity = (() => {
     });
   }
 
+  function refreshLocalViews() {
+    try { renderRecentActivities(); } catch (e) {}
+    try { if (window.renderV078Chart) window.renderV078Chart(); } catch (e) {}
+    try { if (window.renderV070Mypage) window.renderV070Mypage(); } catch (e) {}
+    try { if (window.RinchanMori && typeof RinchanMori.renderAll === 'function') RinchanMori.renderAll(); } catch (e) {}
+    try { if (window.RinchanSync && typeof RinchanSync.renderStatus === 'function') RinchanSync.renderStatus(); } catch (e) {}
+    try { if (window.RinchanOfflineQueue && typeof RinchanOfflineQueue.renderStatus === 'function') RinchanOfflineQueue.renderStatus(); } catch (e) {}
+  }
+
+  function showComplete() {
+    const complete = document.getElementById('complete');
+    if (complete) complete.classList.remove('hidden');
+  }
+
+  function resetForm(form) {
+    if (form && form.dataset) delete form.dataset.editingId;
+    if (form) form.reset();
+    initDate();
+  }
+
+  async function syncActivityInBackground(payload) {
+    try {
+      setSyncStatus('syncing', '保存済み。同期中です。');
+      const result = await api('saveActivity', payload);
+      if (result && result.ok) {
+        applyResult(result);
+        setSyncStatus('synced', '');
+        refreshLocalViews();
+        return true;
+      }
+      enqueueOffline('saveActivity', payload, (result && (result.reason || result.error)) || 'send_failed');
+      return false;
+    } catch (e) {
+      enqueueOffline('saveActivity', payload, e.message || 'send_failed');
+      return false;
+    }
+  }
+
   async function saveActivity(event) {
     if (event) event.preventDefault();
     const form = document.getElementById('activityForm');
     const button = form ? form.querySelector('button[type="submit"],button.submit') : null;
     const payload = buildActivityPayload(form && form.dataset ? form.dataset.editingId : '');
-
-    if (!payload) {
-      alert('歩数を入力してください。');
-      return;
-    }
+    if (!payload) { alert('歩数を入力してください。'); return; }
 
     setBusy(button, true, '保存中...');
     const savedLocal = upsertLocalActivity(payload);
+    resetForm(form);
+    showComplete();
+    refreshLocalViews();
 
-    const result = await api('saveActivity', savedLocal || payload);
-    applyResult(result);
+    setBusy(button, true, '保存しました');
+    setTimeout(() => setBusy(button, false, '記録する'), 650);
 
-    if (result && result.ok) {
-      if (form && form.dataset) delete form.dataset.editingId;
-      if (form) form.reset();
-      initDate();
-      const complete = document.getElementById('complete');
-      if (complete) complete.classList.remove('hidden');
-      renderRecentActivities();
-    } else {
-      alert('端末には保存しましたが、スプレッドシートへ送信できませんでした。理由: ' + ((result && (result.reason || result.error)) || 'unknown'));
-    }
-
-    setBusy(button, false, '記録する');
+    setTimeout(() => { syncActivityInBackground(savedLocal || payload); }, 30);
   }
 
   async function deleteActivity(activityId) {
@@ -197,8 +220,16 @@ const RinchanActivity = (() => {
     const user = participant();
     const employeeId = user && (user.employeeId || user.id) ? String(user.employeeId || user.id) : '';
     removeLocalActivity(activityId);
-    const result = await api('deleteActivity', { activityId, employeeId, participantId: employeeId });
-    applyResult(result);
+    refreshLocalViews();
+    setTimeout(async () => {
+      try {
+        const result = await api('deleteActivity', { activityId, employeeId, participantId: employeeId });
+        if (result && result.ok) applyResult(result);
+        else enqueueOffline('deleteActivity', { activityId, employeeId, participantId: employeeId }, (result && (result.reason || result.error)) || 'send_failed');
+      } catch (e) {
+        enqueueOffline('deleteActivity', { activityId, employeeId, participantId: employeeId }, e.message || 'send_failed');
+      }
+    }, 20);
   }
 
   function editActivity(activityId) {
@@ -220,16 +251,8 @@ const RinchanActivity = (() => {
   function renderRecentActivities() {
     const box = document.getElementById('activityToolsList');
     if (!box) return;
-    const rows = activities()
-      .map(normalizeActivity)
-      .sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
-      .slice(0, 5);
-
-    if (!rows.length) {
-      box.innerHTML = '<p class="empty-note">まだ記録がありません。</p>';
-      return;
-    }
-
+    const rows = activities().map(normalizeActivity).sort((a, b) => normalizeDateKey(b.date).localeCompare(normalizeDateKey(a.date)) || String(b.createdAt || '').localeCompare(String(a.createdAt || ''))).slice(0, 5);
+    if (!rows.length) { box.innerHTML = '<p class="empty-note">まだ記録がありません。</p>'; return; }
     box.innerHTML = rows.map(item => {
       const date = formatDateLabel(item.date);
       const steps = Number(item.steps || 0).toLocaleString();
@@ -239,35 +262,17 @@ const RinchanActivity = (() => {
     writeJson('rinchanActivities', activities().map(normalizeActivity));
   }
 
-  function escapeHtml(value) {
-    return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
-  }
-
-  function escapeAttr(value) {
-    return escapeHtml(value).replace(/`/g, '&#96;');
-  }
+  function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
+  function escapeAttr(value) { return escapeHtml(value).replace(/`/g, '&#96;'); }
 
   function install() {
     initDate();
     renderRecentActivities();
     const form = document.getElementById('activityForm');
-    if (form && !form.__rinchanActivityInstalled) {
-      form.__rinchanActivityInstalled = true;
-      form.addEventListener('submit', saveActivity, true);
-    }
+    if (form && !form.__rinchanActivityInstalled) { form.__rinchanActivityInstalled = true; form.addEventListener('submit', saveActivity, true); }
     window.v102RenderActivityTools = renderRecentActivities;
   }
 
   document.addEventListener('DOMContentLoaded', install);
-
-  return {
-    VERSION,
-    install,
-    saveActivity,
-    deleteActivity,
-    editActivity,
-    renderRecentActivities,
-    upsertLocalActivity,
-    removeLocalActivity
-  };
+  return { VERSION, install, saveActivity, renderRecentActivities, editActivity, deleteActivity, upsertLocalActivity };
 })();
