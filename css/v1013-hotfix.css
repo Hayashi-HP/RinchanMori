@@ -1,0 +1,136 @@
+/* v1.0.13 hotfix: global forest, card thanks, desktop/mobile alignment */
+.steps-summary{
+  display:grid!important;
+  grid-template-columns:auto auto 1fr!important;
+  align-items:baseline!important;
+  column-gap:8px!important;
+}
+.steps-summary .label,
+.steps-summary small,
+.steps-summary .steps-goal,
+.steps-summary .steps-trend{
+  grid-column:1/-1!important;
+}
+.steps-summary strong{
+  display:block!important;
+  margin:0!important;
+  line-height:.95!important;
+  align-self:baseline!important;
+}
+.steps-summary>span{
+  display:block!important;
+  position:static!important;
+  float:none!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  line-height:1!important;
+  align-self:baseline!important;
+  justify-self:start!important;
+}
+.tree-stage #growthNote{
+  max-width:17.5em!important;
+  margin:14px auto 0!important;
+  text-align:center!important;
+  line-height:1.55!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  white-space:normal!important;
+}
+.tree-stage #growthNote span{
+  display:block!important;
+}
+.tree-stage #growthNote .growth-note-season{
+  font-size:13px!important;
+  font-weight:900!important;
+}
+.tree-stage #growthNote .growth-note-next,
+.tree-stage #growthNote .growth-note-total{
+  font-size:13px!important;
+  font-weight:900!important;
+}
+.mori-game-map{
+  min-height:280px!important;
+  align-content:start!important;
+}
+.mori-tree-node.dept-node small{
+  display:block!important;
+  margin-top:4px!important;
+  color:#7a8f82!important;
+  font-size:9.5px!important;
+  font-weight:900!important;
+  line-height:1.1!important;
+}
+.thanks-flow-summary,
+.thanks-story-list{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px!important;
+}
+.thanks-card-item{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding:16px!important;
+  border-radius:22px!important;
+  background:#fff!important;
+  border:1px solid rgba(93,130,105,.14)!important;
+  box-shadow:0 8px 18px rgba(60,120,90,.06)!important;
+}
+.thanks-card-route{
+  display:grid!important;
+  grid-template-columns:34px minmax(0,1fr) auto!important;
+  align-items:center!important;
+  gap:8px!important;
+  margin-bottom:10px!important;
+}
+.thanks-card-route span{
+  width:34px!important;
+  height:34px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:13px!important;
+  background:#fff2f4!important;
+}
+.thanks-card-route strong{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+  color:#244038!important;
+  font-size:15px!important;
+  line-height:1.3!important;
+}
+.thanks-card-route time{
+  color:#7a8f82!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+}
+.thanks-card-item p{
+  margin:0 0 10px!important;
+  color:#607569!important;
+  font-size:14px!important;
+  line-height:1.65!important;
+}
+@media(min-width:700px){
+  .steps-summary{
+    grid-template-columns:max-content max-content 1fr!important;
+    max-width:100%!important;
+  }
+  .steps-summary strong{
+    font-size:42px!important;
+  }
+  .steps-summary>span{
+    font-size:22px!important;
+  }
+}
+@media(max-width:480px){
+  .steps-summary{
+    grid-template-columns:auto auto 1fr!important;
+  }
+  .mori-game-map{
+    min-height:300px!important;
+  }
+}
