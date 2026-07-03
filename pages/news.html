@@ -25,5 +25,17 @@
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a class="active" href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
 <script src="../js/config.js?v=1013"></script><script src="../js/core/storage.js?v=1013"></script><script src="../js/core/error-log.js?v=1013"></script><script src="../js/core/api.js?v=1013"></script><script src="../js/core/sync.js?v=1013"></script><script src="../js/core/offline-queue.js?v=1013"></script><script src="../js/features/news.js?v=1013"></script><script src="../js/features/thanks.js?v=1013"></script><script src="../js/features/activity.js?v=1013"></script>
+<script>
+(function(){
+  async function refreshNews(){
+    try {
+      if (window.RinchanSync && typeof RinchanSync.sync === 'function') await RinchanSync.sync({ silent: true });
+      if (window.RinchanNews && typeof RinchanNews.renderAll === 'function') RinchanNews.renderAll();
+    } catch(e) {}
+  }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(refreshNews, 100); setTimeout(refreshNews, 1200); });
+  window.addEventListener('pageshow', function(){ setTimeout(refreshNews, 100); });
+})();
+</script>
 </body>
 </html>
