@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>ありがとう｜りんちゃんの杜 v1.0.15</title>
-  <link rel="stylesheet" href="../css/style.css?v=1015">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=1015">
-  <link rel="stylesheet" href="../css/v081-fixes.css?v=1015">
-  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1015">
-  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1015">
+  <title>ありがとう｜りんちゃんの杜 v1.0.29</title>
+  <link rel="stylesheet" href="../css/style.css?v=1029">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=1029">
+  <link rel="stylesheet" href="../css/v081-fixes.css?v=1029">
+  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1029">
+  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1029">
 </head>
 <body>
 <main class="app">
@@ -17,20 +17,21 @@
   <section class="card">
     <p class="label">💌 ありがとう</p>
     <h2 id="thanksTitle">仲間へありがとう</h2>
-    <label class="form label" style="margin:16px 0 0;padding:0;border:0;box-shadow:none;background:transparent;">
+    <p class="empty-note">4つの中から、届けたい内容を1つ選んでください。</p>
+    <label style="display:block;margin:16px 0 0;font-weight:900;color:#244038;">
       種類
-      <select id="thanksReason">
+      <select id="thanksReason" style="margin-top:8px;width:100%;box-sizing:border-box;border-radius:18px;border:1px solid rgba(93,130,105,.18);padding:14px 16px;font-size:16px;background:#fff;">
         <option value="ありがとう">ありがとう</option>
         <option value="助けてもらった">助けてもらった</option>
         <option value="声をかけてもらった">声をかけてもらった</option>
         <option value="一緒にがんばった">一緒にがんばった</option>
       </select>
     </label>
-    <button id="sendThanksButton" class="submit" type="button" style="margin-top:18px;">送信する</button>
+    <button id="sendThanksButton" class="submit pill-button" type="button" style="margin-top:18px;">送信する</button>
   </section>
   <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
 </main>
-<script src="../js/config.js?v=1015"></script><script src="../js/core/storage.js?v=1015"></script><script src="../js/core/error-log.js?v=1015"></script><script src="../js/core/api.js?v=1015"></script><script src="../js/core/sync.js?v=1015"></script>
+<script src="../js/config.js?v=1029"></script><script src="../js/core/storage.js?v=1029"></script><script src="../js/core/error-log.js?v=1029"></script><script src="../js/core/api.js?v=1029"></script><script src="../js/core/sync.js?v=1029"></script>
 <script>
 (function(){
   function readTarget(){ try { return JSON.parse(sessionStorage.getItem('rinchanThanksTarget') || 'null'); } catch(e) { return null; } }
@@ -54,7 +55,7 @@
     if (!target || !target.toEmployeeId || !me || !(me.employeeId || me.id)) return;
     var btn = document.getElementById('sendThanksButton');
     var reason = document.getElementById('thanksReason');
-    if (btn) { btn.disabled = true; btn.textContent = '送信中'; }
+    if (btn) { btn.disabled = true; btn.textContent = '送信中...'; }
     var payload = {
       thanksId: 'K' + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
       fromParticipantId: me.employeeId || me.id,
@@ -65,7 +66,7 @@
       reason: reason ? reason.value : 'ありがとう',
       createdAt: new Date().toISOString(),
       deviceId: deviceId(),
-      version: 'v1.0.15'
+      version: 'v1.0.29'
     };
     var result = window.RinchanApi ? await RinchanApi.request('saveThanks', payload) : { ok:false };
     if (result && result.ok) {
