@@ -1,0 +1,116 @@
+/* v1.0.52 checkbox circle and mori map fit */
+
+/* チェックボックスを必ず正円に固定 */
+#activityForm .check input[type="checkbox"],
+.form label.check input[type="checkbox"]{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  display:block!important;
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  max-width:24px!important;
+  min-height:24px!important;
+  max-height:24px!important;
+  aspect-ratio:1 / 1!important;
+  flex:0 0 24px!important;
+  margin:0!important;
+  padding:0!important;
+  box-sizing:border-box!important;
+  border-radius:999px!important;
+  border:2px solid rgba(67,104,92,.24)!important;
+  background:#fff!important;
+  line-height:1!important;
+  transform:none!important;
+}
+#activityForm .check input[type="checkbox"]::after,
+.form label.check input[type="checkbox"]::after{
+  content:""!important;
+  display:block!important;
+  width:10px!important;
+  height:10px!important;
+  margin:5px auto 0!important;
+  border-radius:999px!important;
+  background:#30b878!important;
+  transform:scale(0)!important;
+}
+#activityForm .check input[type="checkbox"]:checked::after,
+.form label.check input[type="checkbox"]:checked::after{
+  transform:scale(1)!important;
+}
+
+/* 部署マップは横スクロール禁止。3段でも枠内に収める */
+.mori-visual.dashboard-hero{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-bottom:34px!important;
+}
+#moriMap.mori-map,
+#moriMap.live-mori-map,
+#moriMap.mori-game-map{
+  display:grid!important;
+  grid-auto-flow:row!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-template-rows:none!important;
+  grid-auto-columns:auto!important;
+  grid-auto-rows:minmax(112px,auto)!important;
+  gap:12px!important;
+  overflow:visible!important;
+  overflow-x:visible!important;
+  overflow-y:visible!important;
+  padding:52px 16px 34px!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+}
+#moriMap>*{
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:112px!important;
+  max-height:none!important;
+  padding:11px 7px!important;
+  box-sizing:border-box!important;
+}
+#moriMap strong,
+#moriMap .dept-name,
+#moriMap .mori-dept-name{
+  font-size:12px!important;
+  line-height:1.28!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+#moriMap small,
+#moriMap .dept-steps,
+#moriMap .dept-count{
+  font-size:11px!important;
+  line-height:1.2!important;
+}
+
+@media(max-width:430px){
+  #activityForm .check input[type="checkbox"],
+  .form label.check input[type="checkbox"]{
+    width:24px!important;
+    height:24px!important;
+    min-width:24px!important;
+    max-width:24px!important;
+    min-height:24px!important;
+    max-height:24px!important;
+  }
+  #moriMap.mori-map,
+  #moriMap.live-mori-map,
+  #moriMap.mori-game-map{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:10px!important;
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
+  #moriMap>*{
+    min-height:108px!important;
+    padding:10px 6px!important;
+  }
+}
