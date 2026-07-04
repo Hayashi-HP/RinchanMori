@@ -1,0 +1,91 @@
+/* v1.0.53 mori department card balance */
+
+/* 杜マップ：横スクロールなし。カードを同サイズに戻し、上下余白を均等化 */
+.mori-visual.dashboard-hero,
+.mori-visual,
+.mori-map-wrap,
+.mori-map-panel{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+#moriMap.mori-map,
+#moriMap.live-mori-map,
+#moriMap.mori-game-map,
+#moriMap{
+  display:grid!important;
+  grid-template-columns:repeat(3,1fr)!important;
+  grid-auto-flow:row!important;
+  grid-template-rows:none!important;
+  grid-auto-rows:132px!important;
+  gap:14px!important;
+  justify-items:stretch!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  overflow-x:visible!important;
+  overflow-y:visible!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  padding:46px 22px 46px!important;
+  box-sizing:border-box!important;
+}
+#moriMap>*{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:132px!important;
+  min-height:132px!important;
+  max-height:132px!important;
+  padding:13px 8px!important;
+  border-radius:22px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:5px!important;
+}
+#moriMap strong,
+#moriMap .dept-name,
+#moriMap .mori-dept-name{
+  font-size:12px!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  text-align:center!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+#moriMap small,
+#moriMap .dept-steps,
+#moriMap .dept-count{
+  font-size:11px!important;
+  line-height:1.2!important;
+  text-align:center!important;
+}
+#moriMap .dept-icon,
+#moriMap .mori-dept-icon{
+  font-size:23px!important;
+  line-height:1!important;
+  margin:0!important;
+}
+
+@media(max-width:430px){
+  #moriMap.mori-map,
+  #moriMap.live-mori-map,
+  #moriMap.mori-game-map,
+  #moriMap{
+    grid-template-columns:repeat(3,1fr)!important;
+    grid-auto-rows:128px!important;
+    gap:12px!important;
+    padding:42px 18px 42px!important;
+  }
+  #moriMap>*{
+    height:128px!important;
+    min-height:128px!important;
+    max-height:128px!important;
+    padding:12px 7px!important;
+  }
+}
