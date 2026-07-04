@@ -1,0 +1,71 @@
+/* v1.0.51 mori map and footer fixes */
+#moriMap.mori-map,#moriMap.live-mori-map,#moriMap.mori-game-map{
+  display:grid!important;
+  grid-auto-flow:column!important;
+  grid-template-rows:repeat(2,126px)!important;
+  grid-auto-columns:112px!important;
+  grid-template-columns:none!important;
+  gap:12px!important;
+  align-items:start!important;
+  justify-content:start!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:54px 16px 34px!important;
+  min-height:344px!important;
+  height:auto!important;
+  max-height:none!important;
+  box-sizing:border-box!important;
+}
+#moriMap::-webkit-scrollbar{display:none!important;}
+#moriMap>*{
+  width:112px!important;
+  min-width:112px!important;
+  height:126px!important;
+  min-height:126px!important;
+  max-height:126px!important;
+  padding:11px 7px!important;
+  box-sizing:border-box!important;
+}
+#moriMap strong,#moriMap .dept-name,#moriMap .mori-dept-name{
+  font-size:12px!important;
+  line-height:1.28!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+#moriMap small,#moriMap .dept-steps,#moriMap .dept-count{
+  font-size:11px!important;
+  line-height:1.2!important;
+}
+#moriMap .dept-icon,#moriMap .mori-dept-icon{
+  font-size:22px!important;
+  line-height:1!important;
+  margin-bottom:4px!important;
+}
+body::after{
+  height:calc(18px + env(safe-area-inset-bottom))!important;
+  background:#fff!important;
+  z-index:180!important;
+}
+.nav{
+  height:calc(78px + env(safe-area-inset-bottom))!important;
+  min-height:78px!important;
+  padding:7px 14px calc(7px + env(safe-area-inset-bottom))!important;
+  z-index:220!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.nav a{
+  height:58px!important;
+  border-radius:18px!important;
+}
+.nav a small{
+  font-size:11px!important;
+}
+.app{
+  padding-bottom:calc(96px + env(safe-area-inset-bottom))!important;
+}
+.rinchan-sync-status,#rinchanSyncStatus{
+  margin-bottom:10px!important;
+  z-index:50!important;
+}
