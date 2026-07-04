@@ -1,0 +1,110 @@
+/* v1.0.42 soft green inner panels
+   Inner metric rows should look like A: pale green filled panels,
+   not B: white bordered boxes.
+*/
+:root{
+  --rinchan-inner-bg:linear-gradient(180deg,#f7fbf6 0%,#f2f8f1 100%);
+  --rinchan-inner-bg-flat:#f4faf2;
+  --rinchan-inner-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 6px 14px rgba(38,83,70,.025);
+}
+
+/* metric/info rows */
+.mini-stats>div,
+.forest-summary-stat,
+.info-grid,
+.activity-tool-row,
+.admin-list-row,
+.admin-member-row,
+.history-item,
+.received-thanks-row{
+  background:var(--rinchan-inner-bg)!important;
+  border:0!important;
+  box-shadow:var(--rinchan-inner-shadow)!important;
+}
+
+/* mypage continuation / tree info rows */
+.v070-streak .mini-stats>div,
+.card .mini-stats>div,
+.tree-stage .mini-stats>div,
+.received-thanks-card .thanks-stats-grid>div,
+.thanks-stats-grid>div,
+.forest-summary-stats .forest-summary-stat{
+  background:var(--rinchan-inner-bg)!important;
+  border:0!important;
+  box-shadow:var(--rinchan-inner-shadow)!important;
+  border-radius:24px!important;
+}
+
+/* horizontal stat rows should feel like soft bands */
+.v070-streak .mini-stats,
+.card .mini-stats{
+  display:grid!important;
+  gap:14px!important;
+}
+.v070-streak .mini-stats>div,
+.card .mini-stats>div{
+  min-height:72px!important;
+  padding:18px 20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+}
+.v070-streak .mini-stats>div strong,
+.card .mini-stats>div strong{
+  color:#173f36!important;
+  font-size:24px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  text-align:right!important;
+}
+.v070-streak .mini-stats>div small,
+.card .mini-stats>div small{
+  color:#6f8278!important;
+  font-size:14px!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  text-align:left!important;
+}
+
+/* summary/stat grids keep compact cards but with the same soft green fill */
+.thanks-stats-grid,
+.forest-summary-stats{
+  gap:12px!important;
+}
+.thanks-stats-grid>div,
+.forest-summary-stat{
+  min-height:72px!important;
+  padding:14px 12px!important;
+}
+
+/* do not apply outline-card style to simple empty-state panels */
+.empty-note,
+.news-empty{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+/* keep actual notification/news cards white; only their inner pills use soft fill */
+.notice-item-v1040,
+.group-news-item-v1040,
+.thanks-card-item,
+.thanks-story-item{
+  background:#fff!important;
+  border:1px solid rgba(67,104,92,.10)!important;
+  box-shadow:0 10px 22px rgba(38,83,70,.045)!important;
+}
+
+/* footer active state also uses soft filled panel */
+.nav a.active{
+  background:linear-gradient(180deg,#effcff 0%,#f1faf0 100%)!important;
+  box-shadow:none!important;
+}
+
+@media(max-width:430px){
+  .v070-streak .mini-stats>div,
+  .card .mini-stats>div{
+    min-height:68px!important;
+    padding:16px 18px!important;
+  }
+}
