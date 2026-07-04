@@ -1,0 +1,206 @@
+/* v1.0.47 balance fixes
+   - Mori level emphasis
+   - Department map auto height
+   - Activity form overflow
+   - News typography down
+   - Mypage section title consistency
+*/
+
+/* Mori: overall level should be a little more prominent */
+#moriPage .forest-level,
+#moriPage .mori-level,
+#moriPage #forestLevel,
+#moriPage #moriLevel,
+.mori-page .forest-level,
+.mori-page .mori-level,
+.mori-page #forestLevel,
+.mori-page #moriLevel,
+.forest-level,
+.mori-level{
+  font-size:23px!important;
+  line-height:1.35!important;
+  font-weight:900!important;
+  color:#173f36!important;
+}
+
+/* Common pattern in mori hero: make the level line stronger but not as large as main title */
+.mori-page .tree-stage h2,
+#moriPage .tree-stage h2,
+.mori-page .profile-card h2,
+#moriPage .profile-card h2{
+  font-size:23px!important;
+  line-height:1.35!important;
+}
+
+/* Department map: do not clip if departments grow to 3+ rows */
+.department-map,
+.dept-map,
+#departmentMap,
+#moriDepartmentMap,
+.department-grid,
+.dept-grid,
+.mori-dept-grid,
+.mori-department-grid{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-bottom:28px!important;
+}
+
+.department-map-card,
+.dept-map-card,
+.mori-map-card,
+#moriPage .card:has(.department-grid),
+#moriPage .card:has(.dept-grid){
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+.department-grid,
+.dept-grid,
+.mori-dept-grid,
+.mori-department-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:14px!important;
+  align-items:start!important;
+}
+
+.department-card,
+.dept-card,
+.mori-dept-card,
+.mori-department-card{
+  min-height:118px!important;
+  box-sizing:border-box!important;
+}
+
+/* Activity page: form controls should not overflow right edge */
+#activityForm,
+.activity-page #activityForm{
+  overflow:visible!important;
+}
+#activityForm label,
+.activity-page #activityForm label{
+  width:100%!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+#activityForm input,
+#activityForm textarea,
+#activityForm select,
+.activity-page #activityForm input,
+.activity-page #activityForm textarea,
+.activity-page #activityForm select{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+#activityForm input[type="date"]{
+  min-width:0!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  text-align:center!important;
+}
+#activityForm .check,
+.activity-page #activityForm .check,
+.form label.check{
+  width:100%!important;
+  min-height:64px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:16px 18px!important;
+  background:#f4faf2!important;
+  border:1px solid rgba(67,104,92,.10)!important;
+  border-radius:18px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+#activityForm .check input,
+.form label.check input{
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  flex:0 0 22px!important;
+  margin:0!important;
+}
+#activityForm .check span,
+.form label.check span{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  font-size:16px!important;
+  line-height:1.45!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+}
+
+/* News: oversized empty-state/news title down to match B */
+.news-page .thanks-flow-empty p,
+.news-page .notice-content-v1040 strong,
+.news-page .group-news-content-v1040 h3,
+.news-page .thanks-card-simple-text,
+.news-page .thanks-card-item strong{
+  font-size:17px!important;
+  line-height:1.45!important;
+}
+.news-page .thanks-flow-empty small,
+.news-page .notice-content-v1040 p,
+.news-page .group-news-content-v1040 p{
+  font-size:14px!important;
+  line-height:1.65!important;
+}
+.news-page .notice-list,
+.news-page .group-news-list{
+  gap:13px!important;
+}
+.news-page .notice-item-v1040,
+.news-page .group-news-item-v1040{
+  padding:14px!important;
+}
+
+/* Mypage: section titles from 木の情報 downward must be consistent */
+#mypageV070 .card>.label,
+#mypageV070 .goal-card>.label,
+#mypageV070 .declaration-card>.label,
+#mypageV070 .danger-zone>.label,
+#mypageV070 .received-thanks-card>.label,
+#mypageV070 .v070-streak>.label,
+#mypageV070 .card .label{
+  font-size:17px!important;
+  line-height:1.35!important;
+  font-weight:900!important;
+  margin-bottom:12px!important;
+  color:#173f36!important;
+}
+
+#mypageV070 .statement-text,
+#mypageV070 .goal-card .statement-text,
+#mypageV070 .declaration-card .statement-text{
+  font-size:20px!important;
+  line-height:1.45!important;
+}
+
+@media(max-width:430px){
+  .department-grid,
+  .dept-grid,
+  .mori-dept-grid,
+  .mori-department-grid{
+    gap:12px!important;
+  }
+  .department-card,
+  .dept-card,
+  .mori-dept-card,
+  .mori-department-card{
+    min-height:112px!important;
+  }
+  .news-page .thanks-flow-empty p,
+  .news-page .notice-content-v1040 strong,
+  .news-page .group-news-content-v1040 h3,
+  .news-page .thanks-card-simple-text,
+  .news-page .thanks-card-item strong{
+    font-size:16px!important;
+  }
+}
