@@ -1,0 +1,201 @@
+/* v1.0.47 layout polish
+   - forest level text emphasis
+   - department map flexible height
+   - activity form overflow fixes
+   - news empty/title scale
+   - mypage section title consistency
+*/
+
+/* 杜レベル：全体レベルなので少し大きく */
+.mori-page .tree-stage h2,
+.mori-page .forest-level-title,
+.mori-page [id*="forestLevel"],
+.mori-page [id*="moriLevel"],
+.mori-page .mori-level,
+.mori-page .level-title{
+  font-size:25px!important;
+  line-height:1.35!important;
+  font-weight:900!important;
+  letter-spacing:.01em!important;
+}
+
+/* 部署マップ：カードが増えても背景枠からはみ出さない */
+.mori-page .dept-map,
+.mori-page .department-map,
+.mori-page .dept-grid,
+.mori-page .department-grid,
+.mori-page [id*="deptMap"],
+.mori-page [id*="departmentMap"]{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-bottom:24px!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:14px!important;
+  align-items:start!important;
+}
+
+.mori-page .dept-map-card,
+.mori-page .department-card,
+.mori-page .dept-card,
+.mori-page [class*="department"] .member-card,
+.mori-page [class*="dept"] .member-card{
+  min-width:0!important;
+  height:auto!important;
+  min-height:116px!important;
+  box-sizing:border-box!important;
+}
+
+.mori-page .mori-map-card,
+.mori-page .forest-map-card,
+.mori-page .department-map-card,
+.mori-page .dept-map-wrap,
+.mori-page [class*="map"]{
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+
+/* 歩数記録ページ：フォームの横はみ出し対策 */
+#activityForm,
+.activity-page #activityForm,
+form#activityForm{
+  overflow:hidden!important;
+}
+
+#activityForm label,
+.activity-page form label{
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+
+#activityForm input,
+#activityForm textarea,
+#activityForm select,
+.activity-page input,
+.activity-page textarea,
+.activity-page select{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+
+#activityForm input[type="date"]{
+  text-align:center!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+  -webkit-appearance:none!important;
+  appearance:none!important;
+}
+
+#activityForm .check,
+.activity-page .check{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  width:100%!important;
+  min-height:66px!important;
+  padding:16px 18px!important;
+  border-radius:22px!important;
+  background:var(--rinchan-inner-bg,linear-gradient(180deg,#f7fbf6,#f2f8f1))!important;
+  border:0!important;
+  box-shadow:var(--rinchan-inner-shadow,none)!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+
+#activityForm .check input[type="checkbox"],
+.activity-page .check input[type="checkbox"]{
+  width:24px!important;
+  min-width:24px!important;
+  height:24px!important;
+  margin:0!important;
+  flex:0 0 24px!important;
+}
+
+#activityForm .check span,
+.activity-page .check span{
+  min-width:0!important;
+  flex:1 1 auto!important;
+  font-size:16px!important;
+  line-height:1.45!important;
+  font-weight:900!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+}
+
+/* 通信：空状態Aのタイトルが大きすぎる問題 */
+.news-page .thanks-flow-empty p,
+.news-page .empty-state-title,
+.news-page .news-empty-title{
+  font-size:18px!important;
+  line-height:1.45!important;
+  letter-spacing:0!important;
+}
+
+.news-page .thanks-flow-empty small,
+.news-page .empty-state-body{
+  font-size:14px!important;
+  line-height:1.7!important;
+}
+
+.news-page .notice-content-v1040 strong,
+.news-page .group-news-content-v1040 h3{
+  font-size:17px!important;
+  line-height:1.42!important;
+}
+
+/* マイページ：下部3カードのタイトルを木の情報と同じ強さへ */
+#mypageV070 .goal-card .label,
+#mypageV070 .declaration-card .label,
+#mypageV070 .danger-zone .label,
+#mypageV070 .statement-card .label,
+#mypageV070 .card>.label{
+  font-size:17px!important;
+  line-height:1.4!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+}
+
+#mypageV070 .goal-card .statement-text,
+#mypageV070 .declaration-card .statement-text,
+#mypageV070 .statement-card .statement-text{
+  font-size:20px!important;
+  line-height:1.45!important;
+}
+
+/* section labels can overlap after global changes; ensure normal block flow */
+#mypageV070 .card,
+#mypageV070 .goal-card,
+#mypageV070 .declaration-card{
+  overflow:hidden!important;
+}
+
+@media(max-width:430px){
+  .mori-page .dept-map,
+  .mori-page .department-map,
+  .mori-page .dept-grid,
+  .mori-page .department-grid,
+  .mori-page [id*="deptMap"],
+  .mori-page [id*="departmentMap"]{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+  }
+  .mori-page .dept-map-card,
+  .mori-page .department-card,
+  .mori-page .dept-card{
+    min-height:108px!important;
+  }
+  #activityForm .check span,
+  .activity-page .check span{
+    font-size:15px!important;
+  }
+  .news-page .thanks-flow-empty p{
+    font-size:17px!important;
+  }
+}
