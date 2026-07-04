@@ -1,0 +1,100 @@
+/* v1.0.53 mori map balance
+   - Restore wider department cards
+   - Keep all cards same size
+   - Balance top and bottom padding inside the map area
+*/
+
+.mori-visual.dashboard-hero{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:34px 18px!important;
+  box-sizing:border-box!important;
+}
+
+#moriMap.mori-map,
+#moriMap.live-mori-map,
+#moriMap.mori-game-map{
+  display:grid!important;
+  grid-auto-flow:row!important;
+  grid-template-columns:repeat(3, 1fr)!important;
+  grid-template-rows:none!important;
+  grid-auto-rows:132px!important;
+  gap:16px!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding:34px 18px!important;
+  box-sizing:border-box!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+}
+
+#moriMap>*{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:132px!important;
+  min-height:132px!important;
+  max-height:132px!important;
+  padding:13px 8px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+
+#moriMap strong,
+#moriMap .dept-name,
+#moriMap .mori-dept-name{
+  font-size:12px!important;
+  line-height:1.3!important;
+  font-weight:900!important;
+  min-height:32px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  word-break:keep-all!important;
+  overflow-wrap:anywhere!important;
+}
+
+#moriMap small,
+#moriMap .dept-steps,
+#moriMap .dept-count{
+  font-size:11px!important;
+  line-height:1.2!important;
+}
+
+#moriMap .dept-icon,
+#moriMap .mori-dept-icon{
+  font-size:24px!important;
+  line-height:1!important;
+  margin-bottom:5px!important;
+}
+
+@media(max-width:430px){
+  .mori-visual.dashboard-hero{
+    padding:30px 14px!important;
+  }
+  #moriMap.mori-map,
+  #moriMap.live-mori-map,
+  #moriMap.mori-game-map{
+    grid-template-columns:repeat(3, 1fr)!important;
+    grid-auto-rows:128px!important;
+    gap:14px!important;
+    padding:30px 14px!important;
+  }
+  #moriMap>*{
+    height:128px!important;
+    min-height:128px!important;
+    max-height:128px!important;
+    padding:12px 7px!important;
+  }
+}
