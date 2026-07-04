@@ -1,0 +1,203 @@
+/* v1.0.47 layout fixes after visual review */
+
+/* 杜レベル：全体レベルとして少し強調 */
+.mori-page .tree-stage h2,
+.mori-page #treeTitle,
+#moriPage #treeTitle,
+#moriPage .tree-stage h2,
+.tree-stage #treeTitle{
+  font-size:23px!important;
+  line-height:1.35!important;
+  font-weight:900!important;
+  margin-top:10px!important;
+  margin-bottom:8px!important;
+}
+
+/* 部署マップ：3段以上でも背景からはみ出ないようにする */
+.mori-page .department-map,
+.mori-page .dept-map,
+.mori-page .department-grid,
+.mori-page #departmentMap,
+.mori-page #deptMap,
+#moriPage .department-map,
+#moriPage .dept-map,
+#moriPage .department-grid,
+#moriPage #departmentMap,
+#moriPage #deptMap{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-bottom:24px!important;
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:14px!important;
+  align-items:start!important;
+}
+
+.mori-page .department-map-wrap,
+.mori-page .dept-map-wrap,
+.mori-page .mori-map-card,
+.mori-page .forest-map,
+.mori-page .map-stage,
+#moriPage .department-map-wrap,
+#moriPage .dept-map-wrap,
+#moriPage .mori-map-card,
+#moriPage .forest-map,
+#moriPage .map-stage{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-bottom:22px!important;
+}
+
+.mori-page .dept-card,
+.mori-page .department-card,
+#moriPage .dept-card,
+#moriPage .department-card{
+  min-width:0!important;
+  min-height:118px!important;
+  box-sizing:border-box!important;
+}
+
+/* 歩数記録フォーム：はみ出し修正 */
+#activityForm,
+.activity-page #activityForm,
+.app #activityForm{
+  overflow:hidden!important;
+}
+
+#activityForm label,
+.activity-page #activityForm label{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  margin-bottom:18px!important;
+}
+
+#activityForm input,
+#activityForm textarea,
+#activityForm select,
+.activity-page #activityForm input,
+.activity-page #activityForm textarea,
+.activity-page #activityForm select{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+
+#activityForm input[type="date"],
+#activityForm input[type="number"]{
+  height:58px!important;
+  padding-left:18px!important;
+  padding-right:18px!important;
+  font-size:20px!important;
+  text-align:center!important;
+}
+
+#activityForm .check,
+#activityForm label.check{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-height:60px!important;
+  padding:14px 16px!important;
+  border-radius:22px!important;
+  background:#f4faf2!important;
+  border:1px solid rgba(67,104,92,.10)!important;
+  overflow:hidden!important;
+}
+
+#activityForm .check input,
+#activityForm label.check input{
+  width:24px!important;
+  height:24px!important;
+  flex:0 0 24px!important;
+  margin:0!important;
+}
+
+#activityForm .check span,
+#activityForm label.check span{
+  min-width:0!important;
+  flex:1 1 auto!important;
+  font-size:17px!important;
+  line-height:1.4!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+}
+
+/* 通信：ありがとう空状態のタイトルをBくらいに落とす */
+.news-page .thanks-flow-empty p,
+#thanksFlowSummary .thanks-flow-empty p{
+  font-size:18px!important;
+  line-height:1.45!important;
+  letter-spacing:0!important;
+}
+
+.news-page .thanks-flow-empty small,
+#thanksFlowSummary .thanks-flow-empty small{
+  font-size:14px!important;
+  line-height:1.7!important;
+}
+
+.news-page .notice-content-v1040 strong,
+.news-page .group-news-content-v1040 h3{
+  font-size:17px!important;
+  line-height:1.42!important;
+}
+
+.news-page .notice-content-v1040 p,
+.news-page .group-news-content-v1040 p{
+  font-size:14px!important;
+  line-height:1.65!important;
+}
+
+/* マイページ：下段3カードのタイトルを木の情報と同じサイズに揃える */
+#mypageV070 .goal-card .label,
+#mypageV070 .declaration-card .label,
+#mypageV070 .statement-card .label,
+#mypageV070 .danger-zone .label,
+#mypageV070 .card>.label{
+  font-size:18px!important;
+  line-height:1.35!important;
+  margin-bottom:10px!important;
+  letter-spacing:0!important;
+}
+
+#mypageV070 .goal-card .statement-text,
+#mypageV070 .declaration-card .statement-text,
+#mypageV070 .statement-card .statement-text{
+  font-size:21px!important;
+  line-height:1.45!important;
+}
+
+/* 木の情報のラベルがカードの行に近づきすぎないように */
+#mypageV070 .card .mini-stats{
+  margin-top:12px!important;
+}
+
+@media(max-width:430px){
+  .mori-page .department-map,
+  .mori-page .dept-map,
+  .mori-page .department-grid,
+  .mori-page #departmentMap,
+  .mori-page #deptMap,
+  #moriPage .department-map,
+  #moriPage .dept-map,
+  #moriPage .department-grid,
+  #moriPage #departmentMap,
+  #moriPage #deptMap{
+    gap:12px!important;
+  }
+  #activityForm input[type="date"],
+  #activityForm input[type="number"]{
+    font-size:19px!important;
+  }
+  .news-page .thanks-flow-empty p,
+  #thanksFlowSummary .thanks-flow-empty p{
+    font-size:17px!important;
+  }
+}
