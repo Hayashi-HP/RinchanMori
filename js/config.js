@@ -1,18 +1,22 @@
 const RINCHAN_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbzy-Qjf_UDzA17FaUuyRIFf5oiAr-8OgSukDrjWcuNgo39xAH1k7Z4Q4zrqjPnVlRYC/exec",
-  UI_VERSION: "v1.0.41"
+  UI_VERSION: "v1.0.42"
 };
 window.RINCHAN_CONFIG = RINCHAN_CONFIG;
 
 (function loadRinchanUnifiedPageSystem(){
   try {
-    if (document.getElementById('rinchanUnifiedPageSystemCss')) return;
     var path = location.pathname || '';
     var prefix = path.indexOf('/pages/') >= 0 ? '../' : '';
-    var link = document.createElement('link');
-    link.id = 'rinchanUnifiedPageSystemCss';
-    link.rel = 'stylesheet';
-    link.href = prefix + 'css/v1041-page-system.css?v=1041';
-    document.head.appendChild(link);
+    function addCss(id, href) {
+      if (document.getElementById(id)) return;
+      var link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = href;
+      document.head.appendChild(link);
+    }
+    addCss('rinchanUnifiedPageSystemCss', prefix + 'css/v1041-page-system.css?v=1042');
+    addCss('rinchanSoftInnerPanelsCss', prefix + 'css/v1042-soft-inner-panels.css?v=1042');
   } catch (e) {}
 })();
