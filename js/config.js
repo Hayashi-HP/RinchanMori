@@ -1,6 +1,6 @@
 const RINCHAN_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbzy-Qjf_UDzA17FaUuyRIFf5oiAr-8OgSukDrjWcuNgo39xAH1k7Z4Q4zrqjPnVlRYC/exec",
-  UI_VERSION: "v1.0.46"
+  UI_VERSION: "v1.0.47"
 };
 window.RINCHAN_CONFIG = RINCHAN_CONFIG;
 
@@ -16,11 +16,12 @@ window.RINCHAN_CONFIG = RINCHAN_CONFIG;
       link.href = href;
       document.head.appendChild(link);
     }
-    addCss('rinchanUnifiedPageSystemCss', prefix + 'css/v1041-page-system.css?v=1046');
-    addCss('rinchanSoftInnerPanelsCss', prefix + 'css/v1042-soft-inner-panels.css?v=1046');
-    addCss('rinchanMypageTuneCss', prefix + 'css/v1043-mypage-tune.css?v=1046');
-    addCss('rinchanMypageCompactCss', prefix + 'css/v1044-mypage-compact.css?v=1046');
-    addCss('rinchanHeaderFlushCss', prefix + 'css/v1045-header-flush.css?v=1046');
-    addCss('rinchanHomeButtonFooterCss', prefix + 'css/v1046-home-button-footer.css?v=1046');
+    addCss('rinchanUnifiedPageSystemCss', prefix + 'css/v1041-page-system.css?v=1047');
+    addCss('rinchanSoftInnerPanelsCss', prefix + 'css/v1042-soft-inner-panels.css?v=1047');
+    addCss('rinchanMypageTuneCss', prefix + 'css/v1043-mypage-tune.css?v=1047');
+    addCss('rinchanMypageCompactCss', prefix + 'css/v1044-mypage-compact.css?v=1047');
+    addCss('rinchanHeaderFlushCss', prefix + 'css/v1045-header-flush.css?v=1047');
+    addCss('rinchanHomeButtonFooterCss', prefix + 'css/v1046-home-button-footer.css?v=1047');
+    addCss('rinchanBalanceFixesCss', prefix + 'css/v1047-balance-fixes.css?v=1047');
   } catch (e) {}
 })();
