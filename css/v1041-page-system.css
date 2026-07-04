@@ -1,0 +1,307 @@
+/* v1.0.41 unified page design system
+   Rule:
+   1. Body/page background is always the same soft mint canvas.
+   2. Page title / hero section uses title-card design.
+   3. Content sections use card design.
+   4. Inner items use item-card design.
+   5. Footer nav is fixed, frosted, and consistent across pages.
+*/
+:root{
+  --rinchan-canvas:#f1fbfb;
+  --rinchan-canvas-2:#fbfff7;
+  --rinchan-card:#ffffff;
+  --rinchan-card-soft:#fbfefb;
+  --rinchan-line:rgba(67,104,92,.12);
+  --rinchan-line-strong:rgba(67,104,92,.18);
+  --rinchan-shadow:0 14px 32px rgba(38,83,70,.07);
+  --rinchan-shadow-soft:0 8px 20px rgba(38,83,70,.045);
+  --rinchan-green:#173f36;
+  --rinchan-muted:#607569;
+  --rinchan-muted-2:#7a8f82;
+  --rinchan-radius-page:34px;
+  --rinchan-radius-card:28px;
+  --rinchan-radius-item:22px;
+  --rinchan-frame-width:min(390px, calc(100vw - 40px));
+}
+html,body{
+  min-height:100%!important;
+  background:linear-gradient(180deg,var(--rinchan-canvas) 0%,var(--rinchan-canvas-2) 100%)!important;
+}
+body{
+  margin:0!important;
+  color:var(--rinchan-green)!important;
+  -webkit-font-smoothing:antialiased!important;
+  text-rendering:optimizeLegibility!important;
+}
+.app{
+  width:100%!important;
+  max-width:430px!important;
+  margin:0 auto!important;
+  min-height:100vh!important;
+  padding:12px 0 104px!important;
+  box-sizing:border-box!important;
+  background:linear-gradient(180deg,var(--rinchan-canvas) 0%,var(--rinchan-canvas-2) 100%)!important;
+}
+.app>*:not(script):not(style):not(.nav):not(.top){
+  width:var(--rinchan-frame-width)!important;
+  max-width:390px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  box-sizing:border-box!important;
+}
+.top{
+  width:var(--rinchan-frame-width)!important;
+  max-width:390px!important;
+  margin:0 auto 12px!important;
+  box-sizing:border-box!important;
+}
+.card,
+.profile-card,
+.tree-stage,
+.news-summary-card,
+.news-section-card,
+.activity-tools-card,
+.received-thanks-card,
+.goal-card,
+.declaration-card,
+.admin-card,
+.admin-hero,
+.form,
+.intro,
+.complete,
+.sky,
+.big-action,
+.auth-card,
+.danger-zone{
+  background:var(--rinchan-card)!important;
+  border:1px solid var(--rinchan-line)!important;
+  border-radius:var(--rinchan-radius-page)!important;
+  box-shadow:var(--rinchan-shadow)!important;
+  margin-top:18px!important;
+  margin-bottom:18px!important;
+  padding:26px 22px!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+/* title / hero sections */
+.sky,
+.home-hero,
+.news-hero,
+.admin-hero,
+.intro,
+.complete{
+  background:linear-gradient(180deg,#eafaff 0%,#ffffff 78%)!important;
+  text-align:center!important;
+  border:1px solid rgba(40,184,210,.10)!important;
+  box-shadow:0 16px 34px rgba(40,184,210,.10)!important;
+}
+.sky h1,
+.home-hero h1,
+.news-hero h1,
+.intro h1,
+.complete h1,
+.admin-hero h1{
+  margin:8px 0 8px!important;
+  color:var(--rinchan-green)!important;
+  font-size:28px!important;
+  line-height:1.32!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+  text-align:center!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+}
+.sky p,
+.home-hero p,
+.news-hero p,
+.intro p,
+.complete p,
+.admin-hero p{
+  margin:8px auto 0!important;
+  color:var(--rinchan-muted)!important;
+  font-size:15px!important;
+  line-height:1.75!important;
+  font-weight:650!important;
+  text-align:center!important;
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+}
+/* normal section titles */
+.card>.label,
+.profile-card>.label,
+.tree-stage>.label,
+.news-section-card .label,
+.news-summary-card .label,
+.activity-tools-card>.label,
+.received-thanks-card>.label,
+.admin-card h2,
+.card h2,
+.news-section-card h2{
+  color:var(--rinchan-green)!important;
+  font-weight:900!important;
+  letter-spacing:0!important;
+  word-break:keep-all!important;
+}
+.label{
+  color:#526a62!important;
+  font-size:16px!important;
+  line-height:1.4!important;
+  font-weight:900!important;
+  margin:0 0 10px!important;
+}
+.card h2,
+.news-section-card h2,
+.admin-card h2{
+  margin:2px 0 14px!important;
+  font-size:24px!important;
+  line-height:1.32!important;
+}
+.card p,
+.news-section-card p,
+.admin-card p{
+  word-break:normal!important;
+  overflow-wrap:break-word!important;
+  writing-mode:horizontal-tb!important;
+}
+/* item cards */
+.notice-item,
+.notice-item-v1040,
+.group-news-item,
+.group-news-item-v1040,
+.thanks-card-item,
+.thanks-story-item,
+.received-thanks-row,
+.history-item,
+.admin-member-row,
+.admin-list-row,
+.activity-tool-row,
+.forest-summary-stat,
+.mini-stats>div,
+.info-grid,
+.badge-list>*{
+  border-radius:var(--rinchan-radius-item)!important;
+  background:linear-gradient(180deg,#fff,#fbfefb)!important;
+  border:1px solid var(--rinchan-line)!important;
+  box-shadow:var(--rinchan-shadow-soft)!important;
+  box-sizing:border-box!important;
+}
+/* pills and buttons */
+.notice-state,
+.group-news-tag,
+.summary-pill,
+.thanks-reason-pill,
+.thanks-reason-badge,
+.sync-pill,
+.admin-updated,
+.badge,
+.pill{
+  border-radius:999px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+.notice-state{
+  background:#eef8ef!important;
+  color:#29834a!important;
+}
+.notice-item.unread .notice-state,
+.notice-item-v1040.unread .notice-state{
+  background:#fff0f5!important;
+  color:#d24c7d!important;
+}
+.notice-item.is-read .notice-state,
+.notice-item-v1040.is-read .notice-state{
+  background:#eef8ef!important;
+  color:#29834a!important;
+}
+.notice-confirm,
+.submit,
+.pill-button,
+.link-submit,
+.soft-button,
+.auth-button{
+  border-radius:999px!important;
+  font-weight:900!important;
+  box-shadow:0 10px 22px rgba(40,184,210,.16)!important;
+}
+/* footer nav */
+.nav{
+  position:fixed!important;
+  left:50%!important;
+  bottom:0!important;
+  transform:translateX(-50%)!important;
+  width:100%!important;
+  max-width:430px!important;
+  height:86px!important;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,1fr)!important;
+  gap:4px!important;
+  align-items:center!important;
+  background:rgba(255,255,255,.94)!important;
+  border-top:1px solid rgba(67,104,92,.10)!important;
+  box-shadow:0 -12px 28px rgba(38,83,70,.08)!important;
+  backdrop-filter:blur(14px)!important;
+  box-sizing:border-box!important;
+  z-index:100!important;
+}
+.nav a{
+  min-width:0!important;
+  height:62px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  border-radius:20px!important;
+  text-decoration:none!important;
+  color:#61766e!important;
+  font-size:24px!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+.nav a small{
+  display:block!important;
+  margin:0!important;
+  color:inherit!important;
+  font-size:11px!important;
+  line-height:1.15!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+.nav a.active{
+  color:#16a9c4!important;
+  background:linear-gradient(180deg,#eefcff,#f6fff3)!important;
+}
+.nav a.plus{
+  color:#36a864!important;
+}
+.nav a.plus.active{
+  color:#1eaa65!important;
+  background:linear-gradient(180deg,#f0fff5,#f8fff6)!important;
+}
+/* form rhythm */
+.form label{display:block!important;margin:0 0 16px!important;color:var(--rinchan-green)!important;font-weight:900!important;}
+.form input,.form textarea,.form select{
+  width:100%!important;
+  margin-top:8px!important;
+  border-radius:18px!important;
+  border:1px solid var(--rinchan-line-strong)!important;
+  background:#fff!important;
+  box-sizing:border-box!important;
+}
+/* remove old inconsistent section backgrounds */
+.news-page,
+.admin-app-v132,
+.diagnostics-app{
+  background:linear-gradient(180deg,var(--rinchan-canvas) 0%,var(--rinchan-canvas-2) 100%)!important;
+}
+@media(max-width:430px){
+  :root{--rinchan-frame-width:calc(100vw - 40px);}
+  .app{padding-top:10px!important;}
+  .card,.profile-card,.tree-stage,.news-summary-card,.news-section-card,.activity-tools-card,.received-thanks-card,.goal-card,.declaration-card,.admin-card,.admin-hero,.form,.intro,.complete,.sky,.big-action,.auth-card,.danger-zone{
+    padding:24px 18px!important;
+    border-radius:32px!important;
+  }
+  .nav{height:84px!important;}
+  .nav a{height:60px!important;font-size:23px!important;}
+}
