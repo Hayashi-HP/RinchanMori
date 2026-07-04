@@ -1,0 +1,94 @@
+/* v1.0.44 mypage compact balance */
+
+/* マイページの通常カードは縦余白を少し抑える */
+#mypageV070 .card,
+#mypageV070 .goal-card,
+#mypageV070 .declaration-card,
+#mypageV070 .danger-zone,
+#mypageV070 .received-thanks-card{
+  padding-top:22px!important;
+  padding-bottom:22px!important;
+  margin-top:16px!important;
+  margin-bottom:16px!important;
+}
+
+/* 編集カードは文字量が少ないのでさらにコンパクトに */
+#mypageV070 .goal-card,
+#mypageV070 .declaration-card,
+#mypageV070 .danger-zone{
+  min-height:0!important;
+}
+
+#mypageV070 .goal-card .label,
+#mypageV070 .declaration-card .label,
+#mypageV070 .danger-zone .label{
+  margin-bottom:12px!important;
+  font-size:17px!important;
+}
+
+#mypageV070 .statement-text,
+#mypageV070 .goal-card .statement-text,
+#mypageV070 .declaration-card .statement-text{
+  margin:6px 70px 0 0!important;
+  font-size:21px!important;
+  line-height:1.45!important;
+}
+
+/* 鉛筆アイコンとの空間を自然に */
+#mypageV070 .statement-edit-icon,
+#mypageV070 .profile-edit-icon,
+#mypageV070 .edit-icon{
+  top:22px!important;
+  right:22px!important;
+  width:50px!important;
+  height:50px!important;
+}
+
+/* アカウントカードは間延びを抑える */
+#mypageV070 .danger-zone{
+  padding-top:24px!important;
+  padding-bottom:26px!important;
+}
+
+#mypageV070 .danger-zone p,
+.danger-zone p{
+  margin:8px 0 16px!important;
+  font-size:15px!important;
+  line-height:1.55!important;
+}
+
+#mypageV070 .danger-zone .auth-button,
+.danger-zone .auth-button,
+.auth-logout{
+  margin-top:0!important;
+  min-width:150px!important;
+  min-height:48px!important;
+  padding:0 28px!important;
+}
+
+/* 同期ステータスとの距離も少し詰める */
+#mypageV070 + .sync-status,
+#mypageV070 ~ .sync-status,
+.sync-status,
+.last-sync{
+  margin-top:8px!important;
+}
+
+@media(max-width:430px){
+  #mypageV070 .card,
+  #mypageV070 .goal-card,
+  #mypageV070 .declaration-card,
+  #mypageV070 .danger-zone,
+  #mypageV070 .received-thanks-card{
+    padding-top:21px!important;
+    padding-bottom:21px!important;
+    margin-top:15px!important;
+    margin-bottom:15px!important;
+  }
+  #mypageV070 .statement-text,
+  #mypageV070 .goal-card .statement-text,
+  #mypageV070 .declaration-card .statement-text{
+    font-size:20px!important;
+    margin-right:66px!important;
+  }
+}
