@@ -1,0 +1,103 @@
+/* v1.0.43 mypage typography and spacing tune */
+
+/* 数値行：他のカードと比べて強すぎないサイズへ */
+.mypage-page .mini-stats>div strong,
+#mypageV070 .mini-stats>div strong,
+.v070-streak .mini-stats>div strong,
+.card .mini-stats>div strong{
+  font-size:21px!important;
+  letter-spacing:0!important;
+}
+
+.mypage-page .mini-stats>div small,
+#mypageV070 .mini-stats>div small,
+.v070-streak .mini-stats>div small,
+.card .mini-stats>div small{
+  font-size:13px!important;
+  color:#6f8278!important;
+}
+
+/* 継続・木の情報の行はやや低くして軽く見せる */
+#mypageV070 .v070-streak .mini-stats>div,
+#mypageV070 .card .mini-stats>div{
+  min-height:64px!important;
+  padding:15px 18px!important;
+}
+
+/* プロフィールは薄緑の塗り背景を外す。情報表なので白ベース */
+#mypageV070 .v070-profile .info-grid,
+#mypageV070 .profile-card .info-grid,
+#mypageV070 .info-grid{
+  background:#fff!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+  padding:0!important;
+}
+
+#mypageV070 .v070-profile .info-grid span,
+#mypageV070 .v070-profile .info-grid strong,
+#mypageV070 .info-grid span,
+#mypageV070 .info-grid strong{
+  font-size:15px!important;
+  line-height:1.65!important;
+  padding:2px 0!important;
+}
+
+#mypageV070 .v070-profile .info-grid span,
+#mypageV070 .info-grid span{
+  color:#6f8278!important;
+  font-weight:900!important;
+}
+
+#mypageV070 .v070-profile .info-grid strong,
+#mypageV070 .info-grid strong{
+  color:#173f36!important;
+  font-weight:900!important;
+}
+
+/* ありがとうの統計も少し小さめに */
+#mypageV070 .thanks-stats-grid>div strong,
+.received-thanks-card .thanks-stats-grid>div strong{
+  font-size:20px!important;
+}
+
+#mypageV070 .thanks-stats-grid>div small,
+.received-thanks-card .thanks-stats-grid>div small{
+  font-size:12px!important;
+}
+
+/* アカウント欄：説明文とログアウトボタンの間隔を確保 */
+#mypageV070 .danger-zone p,
+.danger-zone p{
+  margin:10px 0 22px!important;
+  line-height:1.7!important;
+  color:#607569!important;
+}
+
+#mypageV070 .danger-zone .auth-button,
+.danger-zone .auth-button,
+.auth-logout{
+  margin-top:8px!important;
+  min-width:150px!important;
+}
+
+/* 編集アイコンが大きく見えすぎる箇所を少し整える */
+#mypageV070 .edit-icon{
+  width:52px!important;
+  height:52px!important;
+  font-size:24px!important;
+}
+
+@media(max-width:430px){
+  #mypageV070 .v070-streak .mini-stats>div,
+  #mypageV070 .card .mini-stats>div{
+    min-height:62px!important;
+    padding:14px 17px!important;
+  }
+  #mypageV070 .mini-stats>div strong,
+  .v070-streak .mini-stats>div strong,
+  .card .mini-stats>div strong{
+    font-size:20px!important;
+  }
+}
