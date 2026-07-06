@@ -1,0 +1,20 @@
+.rinchan-world-home .home-hero{overflow:hidden;position:relative;background:linear-gradient(180deg,#e9f8ff 0%,#f4fbef 64%,#fffaf0 100%);border-radius:0 0 32px 32px;box-shadow:0 18px 40px rgba(95,135,110,.14)}
+.rinchan-world-home .home-hero .hello{display:inline-flex;align-items:center;justify-content:center;min-width:128px;margin:12px auto 8px;padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.78);color:#2f6b35;font-weight:900;box-shadow:0 8px 18px rgba(82,130,91,.12)}
+.rinchan-world-home .home-hero h1{color:#243f35;text-shadow:0 1px 0 rgba(255,255,255,.75)}
+.rinchan-world-home .home-hero .msg{white-space:pre-line;font-weight:800;color:#45654f;line-height:1.7}
+.rinchan-world-card{border:1px solid rgba(117,167,120,.22);box-shadow:0 14px 36px rgba(72,122,85,.12);background:linear-gradient(180deg,#ffffff 0%,#f7fff4 100%)}
+.rinchan-world-row{display:flex;align-items:center;gap:14px}
+.rinchan-world-row img{width:58px;height:auto;flex:0 0 auto;filter:drop-shadow(0 8px 12px rgba(63,113,70,.12))}
+.rinchan-world-row h2{margin:4px 0 0;font-size:19px;line-height:1.55;color:#2f5139;white-space:pre-line}
+.rinchan-world-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.rinchan-world-head h2{margin:4px 0 0;color:#244038}
+.rinchan-world-pill{display:inline-flex;align-items:center;justify-content:center;min-width:58px;padding:8px 12px;border-radius:999px;background:#eaf8df;color:#2f6b35;font-weight:900;font-size:13px}
+.rinchan-today-progress{height:16px;border-radius:999px;background:#eef5eb;overflow:hidden;box-shadow:inset 0 2px 6px rgba(61,93,64,.09)}
+.rinchan-today-progress>div{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#9fdc7a,#5fbf72);transition:width .55s ease}
+.rinchan-today-steps{margin-top:16px;text-align:center}
+.rinchan-today-steps strong{display:block;font-size:34px;line-height:1.1;color:#244038;letter-spacing:.01em}
+.rinchan-today-steps p{margin:10px 0 0;color:#4c6d55;font-weight:900;line-height:1.6;white-space:pre-line}
+.rinchan-world-home #treeIcon{cursor:pointer;transition:transform .16s ease,filter .16s ease;user-select:none}
+.rinchan-world-home #treeIcon:active{transform:scale(.94) rotate(-2deg)}
+.rinchan-world-home #treeIcon:hover{filter:drop-shadow(0 10px 14px rgba(71,122,76,.18))}
+@media (max-width:430px){.rinchan-world-row{gap:12px}.rinchan-world-row img{width:52px}.rinchan-today-steps strong{font-size:30px}.rinchan-world-head{align-items:center}.rinchan-world-row h2{font-size:17px}}
