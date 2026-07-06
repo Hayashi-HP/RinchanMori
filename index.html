@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="css/v128-mobile-polish.css?v=1037">
   <link rel="stylesheet" href="css/v1013-hotfix.css?v=1037">
   <link rel="stylesheet" href="css/v1014-hotfix.css?v=1037">
+  <link rel="stylesheet" href="css/v1034-nav-active.css?v=1034">
 </head>
 <body>
 <main class="app">
@@ -28,22 +29,19 @@
 <script src="js/config.js?v=1037"></script><script src="js/core/storage.js?v=1037"></script><script src="js/core/error-log.js?v=1037"></script><script src="js/core/api.js?v=1037"></script><script src="js/core/sync.js?v=1037"></script><script src="js/core/offline-queue.js?v=1037"></script><script src="js/features/auth.js?v=1037"></script><script src="js/features/activity.js?v=1037"></script><script src="js/features/news.js?v=1037"></script><script src="js/features/mypage.js?v=1037"></script><script src="js/features/growth.js?v=1037"></script><script src="js/features/chart.js?v=1037"></script><script src="js/features/guide.js?v=1037"></script><script src="js/features/voice.js?v=1037"></script>
 <script>
 (function(){
-  function user(){ try { return window.RinchanStorage ? RinchanStorage.getParticipant() : JSON.parse(localStorage.getItem('rinchanParticipant') || 'null'); } catch(e) { return null; } }
-  function text(v){ return String(v || '').trim().length > 0; }
-  function ok(u){ return !!(u && (text(u.employeeId) || text(u.id)) && (text(u.name) || text(u.nick) || text(u.dept))); }
-  function hide(el){ if (el) el.classList.add('hidden'); }
-  function show(el){ if (el) el.classList.remove('hidden'); }
-  function greeting(){ var h = new Date().getHours(); if (h < 11) return 'おはようございます'; if (h < 17) return 'こんにちは'; return 'こんばんは'; }
-  function displayName(u){ return text(u.nick) ? u.nick : (text(u.name) ? u.name : 'ゲスト'); }
-  function apply(){
-    var u = user(); var loggedIn = ok(u); var guest = document.getElementById('guestEntryPanel'); var auth = document.getElementById('authCard'); var record = document.querySelector('.primary-record-action'); var chart = document.getElementById('weeklyStepsChart'); var tree = document.querySelector('.tree-stage'); var nav = document.querySelector('.nav'); var bell = document.querySelector('.bell-link'); var name = document.getElementById('name'); var greet = document.getElementById('dailyGreeting'); var msg = document.getElementById('dailyMessage');
-    if (greet) greet.textContent = greeting();
-    if (!loggedIn) { if (name) name.textContent = 'ゲスト'; if (msg) msg.textContent = '歩けば、みんなの杜になる。'; show(guest); hide(auth); hide(record); hide(chart); hide(tree); hide(nav); hide(bell); return; }
-    if (name) name.textContent = displayName(u); hide(guest); hide(auth); show(record); show(chart); show(tree); show(nav); show(bell);
-    try { if (msg && window.RinchanVoice && typeof RinchanVoice.message === 'function') msg.textContent = RinchanVoice.message(); } catch(e) {}
-    setTimeout(function(){ try { if (window.renderV078Chart) window.renderV078Chart(); } catch(e){} }, 100); setTimeout(function(){ try { if (window.renderV078Chart) window.renderV078Chart(); } catch(e){} }, 1200);
+  async function boot(){
+    try{
+      if(window.RinchanAuth&&RinchanAuth.requireUser)RinchanAuth.requireUser({redirect:false});
+      if(window.RinchanSync&&RinchanSync.sync)await RinchanSync.sync({silent:true});
+      if(window.RinchanGrowth&&RinchanGrowth.renderHome)RinchanGrowth.renderHome();
+      if(window.RinchanChart&&RinchanChart.renderWeeklySteps)RinchanChart.renderWeeklySteps();
+      if(window.RinchanGuide&&RinchanGuide.render)RinchanGuide.render();
+      if(window.RinchanNews&&RinchanNews.updateBadges)RinchanNews.updateBadges();
+      if(window.RinchanVoice&&RinchanVoice.renderHome)RinchanVoice.renderHome();
+    }catch(e){console.warn(e);}
   }
-  window.renderRinchanHomeAuth = apply; document.addEventListener('DOMContentLoaded', apply); window.addEventListener('pageshow', apply); setTimeout(apply, 300); setTimeout(apply, 1200);
+  document.addEventListener('DOMContentLoaded',boot);
+  window.addEventListener('pageshow',function(){setTimeout(boot,100);});
 })();
 </script>
 </body>
