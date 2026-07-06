@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.59';
+  const VERSION = 'v1.0.63';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) button.textContent = label; }
@@ -12,9 +12,18 @@ const RinchanAuth = (() => {
   async function api(action, payload) { if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {}); if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {}); if (typeof v051Api === 'function') return v051Api(action, payload || {}); return { ok: false, reason: 'api_not_ready' }; }
   function applyState(result) { if (typeof RinchanSync !== 'undefined' && RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result); if (window.RinchanSync && typeof window.RinchanSync.applyApiResult === 'function') return window.RinchanSync.applyApiResult(result); if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(result); return result; }
   function switchUserLocalData(nextId) { const current = participant(); const currentId = current && (current.employeeId || current.id); if (currentId && nextId && String(currentId) !== String(nextId)) clearUserData(); }
-  function loginPath() { return location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html'; }
   function makeButton(label, className) { const button = document.createElement('button'); button.type = 'button'; button.textContent = label; button.className = className; return button; }
-  function escapeHtml(text) { return String(text || '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch])); }
+
+  function focusEmployeeId() {
+    const el = document.getElementById('employeeId');
+    if (!el) return;
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+    setTimeout(() => {
+      try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (ignore) {} }
+      try { el.select(); } catch (e) {}
+    }, 180);
+  }
+
   function injectAuthDialogStyles() {
     if (document.getElementById('rinchanAuthDialogStyles')) return;
     const style = document.createElement('style');
@@ -22,6 +31,7 @@ const RinchanAuth = (() => {
     style.textContent = '@keyframes rinchanOverlayFade{from{opacity:0}to{opacity:1}}@keyframes rinchanModalPoyon{0%{opacity:0;transform:scale(.85) translateY(12px)}58%{opacity:1;transform:scale(1.05) translateY(-4px)}78%{transform:scale(.98) translateY(1px)}100%{opacity:1;transform:scale(1) translateY(0)}}@keyframes rinchanFaceHop{0%{transform:translateY(0) scale(.96)}45%{transform:translateY(-8px) scale(1.04)}75%{transform:translateY(2px) scale(.99)}100%{transform:translateY(0) scale(1)}}@keyframes rinchanSpeechFloat{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}#authDialogOverlay.rinchan-auth-dialog-animated{animation:rinchanOverlayFade .18s ease-out both}.rinchan-auth-panel-animated{animation:rinchanModalPoyon .46s cubic-bezier(.2,.9,.25,1.25) both;transform-origin:center}.rinchan-auth-face-animated{animation:rinchanFaceHop .58s ease-out .08s both}.rinchan-auth-speech-animated{opacity:0;animation:rinchanSpeechFloat .28s ease-out .16s both}@media (prefers-reduced-motion:reduce){#authDialogOverlay.rinchan-auth-dialog-animated,.rinchan-auth-panel-animated,.rinchan-auth-face-animated,.rinchan-auth-speech-animated{animation:none!important;opacity:1!important;transform:none!important}}';
     document.head.appendChild(style);
   }
+
   function showAuthDialog(options) {
     const opts = options || {};
     const old = document.getElementById('authDialogOverlay');
@@ -62,57 +72,44 @@ const RinchanAuth = (() => {
       visual.appendChild(icon);
     }
 
-    const title = document.createElement('h2');
-    title.textContent = opts.title || '確認してください';
-    title.style.cssText = 'margin:0 0 12px;font-size:22px;font-weight:900;color:#2f3f34;';
-
     const body = document.createElement('div');
     body.style.cssText = 'font-size:14px;line-height:1.65;margin:0 0 20px;color:#667568;font-weight:800;';
-    if (opts.html) body.innerHTML = opts.html;
-    else body.textContent = opts.message || '';
+    body.textContent = opts.message || '';
 
     const actions = document.createElement('div');
     actions.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;';
-
-    const closeButton = makeButton(opts.closeText || '閉じる', 'auth-dialog-close');
-    closeButton.style.cssText = 'border:0;border-radius:999px;padding:12px 18px;background:#eef4ee;color:#405146;font-weight:900;min-width:116px;cursor:pointer;';
-    closeButton.addEventListener('click', () => overlay.remove());
-
-    if (opts.loginButton) {
-      const loginButton = makeButton(opts.loginText || 'ログインする', 'auth-dialog-login');
-      loginButton.style.cssText = 'border:0;border-radius:999px;padding:12px 18px;background:#2E7D32;color:#fff;font-weight:900;min-width:136px;cursor:pointer;box-shadow:0 8px 18px rgba(46,125,50,.22);';
-      loginButton.addEventListener('click', () => { location.href = loginPath(); });
-      actions.appendChild(loginButton);
-    }
+    const closeButton = makeButton(opts.closeText || 'OK', 'auth-dialog-close');
+    closeButton.style.cssText = 'border:0;border-radius:999px;padding:12px 18px;background:#2E7D32;color:#fff;font-weight:900;min-width:136px;cursor:pointer;box-shadow:0 8px 18px rgba(46,125,50,.22);';
+    closeButton.addEventListener('click', () => { overlay.remove(); if (typeof opts.onClose === 'function') opts.onClose(); });
     actions.appendChild(closeButton);
 
     panel.appendChild(visual);
-    if (opts.title) panel.appendChild(title);
-    if (opts.html || opts.message) panel.appendChild(body);
+    if (opts.message) panel.appendChild(body);
     panel.appendChild(actions);
     overlay.appendChild(panel);
-    overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
     document.body.appendChild(overlay);
     setTimeout(() => { const first = actions.querySelector('button'); if (first) first.focus(); }, 0);
   }
-  function showError(message) { showAuthDialog({ icon: '⚠️', title: '確認してください', message, closeText: 'OK' }); }
-  function showDuplicateEmployeeDialog(employeeId) {
-    const safeEmployeeId = escapeHtml(employeeId);
+
+  function showError(message) { showAuthDialog({ icon: '⚠️', message, closeText: 'OK' }); }
+  function showDuplicateEmployeeDialog() {
+    if (window.RinchanModal && typeof RinchanModal.duplicateEmployee === 'function') {
+      RinchanModal.duplicateEmployee(focusEmployeeId);
+      return;
+    }
     showAuthDialog({
       rinchan: true,
-      speech: 'この社員番号は\nもう登録されているみたい。\nログインしてね♪',
-      html: '社員番号 <strong>' + safeEmployeeId + '</strong>',
-      loginButton: true,
-      loginText: 'ログインする',
-      closeText: '閉じる'
+      speech: 'あれれ？\nこの社員番号は\nもう使われているみたい。\nもう一度確認してね♪',
+      message: '社員番号を確認してみてね。',
+      closeText: '社員番号を確認する',
+      onClose: focusEmployeeId
     });
   }
-  function clearError() { const box = document.getElementById('authErrorBox'); if (box) box.remove(); const dialog = document.getElementById('authDialogOverlay'); if (dialog) dialog.remove(); }
+  function clearError() { const box = document.getElementById('authErrorBox'); if (box) box.remove(); const dialog = document.getElementById('authDialogOverlay'); if (dialog) dialog.remove(); if (window.RinchanModal && typeof RinchanModal.close === 'function') RinchanModal.close(); }
   function setSyncStatus(status, message) { try { if (window.RinchanSync && RinchanSync.setStatus) RinchanSync.setStatus(status, message || ''); else writeJson('rinchanSyncStatus', { status, message: message || '', at: new Date().toISOString() }); } catch (e) {} }
   function enqueueLoginCheck(employeeId, pin4) { try { writeJson('rinchanPendingLoginCheck', { employeeId, pin4, at: new Date().toISOString(), deviceId: deviceId() }); } catch (e) {} }
   function sameReturningUser(employeeId, pin4) { const user = participant(); return !!(user && String(user.employeeId || user.id || '') === String(employeeId || '') && String(user.pin4 || '') === String(pin4 || '')); }
   function goHome() { location.href = '../index.html'; }
-  function duplicateMessage(employeeId) { return '社員番号 ' + employeeId + ' はすでに登録されています。新規登録はできません。登録済みの方はログインしてください。'; }
   function isDuplicateResult(result) { const reason = String((result && (result.reason || result.error)) || '').toLowerCase(); return !!(result && (result.exists === true || result.duplicate === true || result.alreadyExists === true || reason === 'duplicate_employee_id' || reason === 'employee_id_exists' || reason === 'already_registered' || reason === 'duplicate'));
   }
   function hasCachedEmployee(employeeId) { const id = String(employeeId || ''); const current = participant(); if (current && String(current.employeeId || current.id || '') === id) return true; const known = readJson('rinchanKnownUsers', []); if (Array.isArray(known) && known.some(user => String(user.employeeId || user.id || '') === id)) return true; const members = readJson('rinchanMoriMembers', []); if (Array.isArray(members) && members.some(user => String(user.employeeId || user.id || user.participantId || '') === id)) return true; return false; }
@@ -132,31 +129,31 @@ const RinchanAuth = (() => {
     form.addEventListener('submit', async event => {
       event.preventDefault(); event.stopImmediatePropagation(); clearError();
       const button = form.querySelector('button[type="submit"],button'); const employeeId = value('employeeId'); const pin4 = value('pin4');
-      if (!employeeId) { alert('社員番号を入力してください。'); return; }
-      if (!value('userName')) { alert('氏名を入力してください。'); return; }
-      if (!value('dept')) { alert('所属を選択してください。'); return; }
-      if (!/^\d{4}$/.test(pin4)) { alert('誕生日4桁を入力してください。例：4月8日なら0408'); return; }
+      if (!employeeId) { showAuthDialog({ rinchan: true, speech: '社員番号を\n教えてくれるとうれしいな♪', closeText: '入力する', onClose: focusEmployeeId }); return; }
+      if (!value('userName')) { showAuthDialog({ rinchan: true, speech: 'お名前を\n教えてね♪', closeText: '入力する', onClose: () => { const el = document.getElementById('userName'); if (el) el.focus(); } }); return; }
+      if (!value('dept')) { showAuthDialog({ rinchan: true, speech: '所属を\n選んでね♪', closeText: '選ぶ', onClose: () => { const el = document.getElementById('dept'); if (el) el.focus(); } }); return; }
+      if (!/^\d{4}$/.test(pin4)) { showAuthDialog({ rinchan: true, speech: '誕生日4桁を\n入れてね♪', message: '例：4月8日なら 0408', closeText: '入力する', onClose: () => { const el = document.getElementById('pin4'); if (el) el.focus(); } }); return; }
 
-      setBusy(button, true, '確認中...');
+      setBusy(button, true, '杜に植えてるよ...');
       const check = await checkEmployeeAvailable(employeeId);
       if (check.ok && check.available === false) {
-        setBusy(button, false, '登録する');
-        showDuplicateEmployeeDialog(employeeId);
+        setBusy(button, false, '🌱 杜に参加する');
+        showDuplicateEmployeeDialog();
         return;
       }
       if (!check.ok) {
-        setBusy(button, false, '登録する');
-        showError('社員番号の重複確認ができませんでした。通信状態またはApps Scriptの checkEmployeeId 対応を確認してください。');
+        setBusy(button, false, '🌱 杜に参加する');
+        showAuthDialog({ rinchan: true, speech: '通信が少し\n迷子みたい。\nもう一度ためしてね♪', message: '社員番号の確認ができませんでした。', closeText: 'OK' });
         return;
       }
 
-      setBusy(button, true, '登録中...'); switchUserLocalData(employeeId); const now = new Date().toISOString();
+      setBusy(button, true, '杜に植えてるよ...'); switchUserLocalData(employeeId); const now = new Date().toISOString();
       const user = { id: employeeId, employeeId, participantId: employeeId, deviceId: deviceId(), name: value('userName'), dept: value('dept'), nick: value('nick'), email: value('email'), pin4, declaration: '', weeklyGoal: '', weeklyStepGoal: '', createdAt: now, updatedAt: now, version: VERSION, createOnly: true };
       const result = await api('saveUser', user);
       if (result && result.ok) { const savedUser = Object.assign({}, user, result.user || {}, { weeklyGoal: (result.user && result.user.weeklyGoal) || user.weeklyGoal || '' }); saveParticipant(savedUser); applyState(result); location.href = 'welcome.html'; return; }
-      setBusy(button, false, '登録する');
-      if (isDuplicateResult(result)) { showDuplicateEmployeeDialog(employeeId); return; }
-      showError('登録を保存できませんでした。Apps ScriptのデプロイURLまたはusersシートを確認してください。理由: ' + ((result && (result.reason || result.error)) || 'unknown'));
+      setBusy(button, false, '🌱 杜に参加する');
+      if (isDuplicateResult(result)) { showDuplicateEmployeeDialog(); return; }
+      showAuthDialog({ rinchan: true, speech: '保存が少し\nうまくいかなかったみたい。\nもう一度ためしてね♪', message: '通信状態を確認してください。', closeText: 'OK' });
     }, true);
   }
 
@@ -165,16 +162,16 @@ const RinchanAuth = (() => {
     form.addEventListener('submit', async event => {
       event.preventDefault(); event.stopImmediatePropagation();
       const button = form.querySelector('button[type="submit"],button'); const employeeId = value('loginEmployeeId'); const pin4 = value('loginPin4');
-      if (!employeeId) { alert('社員番号を入力してください。'); return; }
-      if (!/^\d{4}$/.test(pin4)) { alert('誕生日4桁を入力してください。例：4月8日なら0408'); return; }
-      setBusy(button, true, 'ログイン中...');
-      if (sameReturningUser(employeeId, pin4)) { setBusy(button, true, 'ログインしました'); setTimeout(() => verifyLoginInBackground(employeeId, pin4), 10); setTimeout(goHome, 80); return; }
+      if (!employeeId) { showAuthDialog({ rinchan: true, speech: '社員番号を\n教えてね♪', closeText: '入力する', onClose: () => { const el = document.getElementById('loginEmployeeId'); if (el) el.focus(); } }); return; }
+      if (!/^\d{4}$/.test(pin4)) { showAuthDialog({ rinchan: true, speech: '誕生日4桁を\n入れてね♪', message: '例：4月8日なら 0408', closeText: '入力する', onClose: () => { const el = document.getElementById('loginPin4'); if (el) el.focus(); } }); return; }
+      setBusy(button, true, '杜へ向かってるよ...');
+      if (sameReturningUser(employeeId, pin4)) { setBusy(button, true, 'おかえり♪'); setTimeout(() => verifyLoginInBackground(employeeId, pin4), 10); setTimeout(goHome, 80); return; }
       const cachedUsers = readJson('rinchanKnownUsers', []);
       const cached = Array.isArray(cachedUsers) ? cachedUsers.find(user => String(user.employeeId || user.id || '') === String(employeeId) && String(user.pin4 || '') === String(pin4)) : null;
-      if (cached) { switchUserLocalData(employeeId); saveParticipant(Object.assign({}, cached, { pin4, lastLoginAt: new Date().toISOString() })); setBusy(button, true, 'ログインしました'); setTimeout(() => verifyLoginInBackground(employeeId, pin4), 10); setTimeout(goHome, 80); return; }
+      if (cached) { switchUserLocalData(employeeId); saveParticipant(Object.assign({}, cached, { pin4, lastLoginAt: new Date().toISOString() })); setBusy(button, true, 'おかえり♪'); setTimeout(() => verifyLoginInBackground(employeeId, pin4), 10); setTimeout(goHome, 80); return; }
       const result = await api('loginUser', { employeeId, pin4 });
       if (result && result.ok && result.user) { switchUserLocalData(employeeId); clearUserData(); const user = Object.assign({}, result.user, { pin4, lastLoginAt: new Date().toISOString() }); saveParticipant(user); const known = readJson('rinchanKnownUsers', []); const list = Array.isArray(known) ? known.filter(row => String(row.employeeId || row.id || '') !== String(employeeId)) : []; list.unshift(user); writeJson('rinchanKnownUsers', list.slice(0, 5)); applyState(result); location.href = '../index.html'; return; }
-      setBusy(button, false, 'ログインする'); alert('ログインできませんでした。社員番号と誕生日4桁を確認してください。');
+      setBusy(button, false, '杜へ行く🌳'); showAuthDialog({ rinchan: true, speech: 'あれれ？\n番号か誕生日が\n少し違うみたい。', message: 'もう一度確認してみてね。', closeText: '確認する' });
     }, true);
   }
 
