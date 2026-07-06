@@ -1,0 +1,24 @@
+/* v1.0.78 りんちゃんワールド磨き込み */
+:root{--rinchan-ease:cubic-bezier(.2,.9,.25,1.15)}
+.card,.intro,.tree-stage,.mori-visual{transition:transform .18s var(--rinchan-ease),box-shadow .18s ease}
+.card:active,.intro:active{transform:translateY(1px)}
+.submit,.pill-button,.icon-button,.back,.nav a,.big-action a,button{transition:transform .14s var(--rinchan-ease),filter .14s ease,box-shadow .14s ease}
+.submit:active,.pill-button:active,.icon-button:active,.back:active,.nav a:active,.big-action a:active,button:active{transform:scale(.97)}
+.rin-img,.rin-face-brand,.rin-face-hero,.rin-face-small{animation:rinchanGentleFloat 5.6s ease-in-out infinite;transform-origin:center bottom}
+.tree,#treeIcon,.tree-large,.forest-hero-icon{animation:rinchanTreeBreathe 4.8s ease-in-out infinite;transform-origin:center bottom}
+.tree-world,.growth-world,.mori-game-map{position:relative;overflow:hidden}
+.tree-world::after,.growth-world::after,.mori-game-map::after{content:'✨';position:absolute;right:14%;top:14%;font-size:18px;opacity:0;animation:rinchanSoftSparkle 6.5s ease-in-out infinite;pointer-events:none}
+.tree-world::before,.growth-world::before{content:'🍃';position:absolute;left:18%;top:22%;font-size:18px;opacity:.72;animation:rinchanLeafDrift 7.2s ease-in-out infinite;pointer-events:none}
+.mori-game-map::before{content:'🦋';position:absolute;left:12%;top:20%;font-size:22px;opacity:.78;animation:rinchanButterflyWander 9s ease-in-out infinite;pointer-events:none;z-index:3}
+.rinchan-common-modal-button,.auth-button,.thanks-submit{position:relative;overflow:hidden}
+.rinchan-common-modal-button::after,.auth-button::after,.thanks-submit::after,.submit::after{content:'';position:absolute;inset:auto auto 50% 50%;width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.46);opacity:0;transform:translate(-50%,50%) scale(1);pointer-events:none}
+.rinchan-common-modal-button:active::after,.auth-button:active::after,.thanks-submit:active::after,.submit:active::after{animation:rinchanButtonBloom .42s ease-out both}
+.received-thanks-item.is-unread,.flower-memory-item:has(.flower-memory-icon:first-child){animation:rinchanUnreadPulse 2.8s ease-in-out infinite}
+@keyframes rinchanGentleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes rinchanTreeBreathe{0%,100%{transform:scale(1) rotate(0deg)}50%{transform:scale(1.025) rotate(.6deg)}}
+@keyframes rinchanSoftSparkle{0%,76%,100%{opacity:0;transform:scale(.65) rotate(0deg)}84%{opacity:.9;transform:scale(1.12) rotate(12deg)}92%{opacity:.25;transform:scale(.9) rotate(0deg)}}
+@keyframes rinchanLeafDrift{0%,100%{transform:translate(0,0) rotate(-8deg);opacity:.28}45%{transform:translate(26px,-18px) rotate(18deg);opacity:.74}70%{transform:translate(42px,-4px) rotate(-4deg);opacity:.42}}
+@keyframes rinchanButterflyWander{0%,100%{transform:translate(0,0) rotate(-8deg)}25%{transform:translate(38px,-18px) rotate(10deg)}55%{transform:translate(96px,8px) rotate(-6deg)}78%{transform:translate(42px,24px) rotate(8deg)}}
+@keyframes rinchanButtonBloom{0%{opacity:.8;transform:translate(-50%,50%) scale(1)}100%{opacity:0;transform:translate(-50%,50%) scale(26)}}
+@keyframes rinchanUnreadPulse{0%,100%{box-shadow:0 10px 22px rgba(178,103,137,.08)}50%{box-shadow:0 12px 28px rgba(226,133,178,.18)}}
+@media (prefers-reduced-motion:reduce){.rin-img,.rin-face-brand,.rin-face-hero,.rin-face-small,.tree,#treeIcon,.tree-large,.forest-hero-icon,.tree-world::after,.growth-world::after,.mori-game-map::after,.tree-world::before,.growth-world::before,.mori-game-map::before,.received-thanks-item.is-unread{animation:none!important}.card,.intro,.tree-stage,.mori-visual,.submit,.pill-button,.icon-button,.back,.nav a,.big-action a,button{transition:none!important}}
