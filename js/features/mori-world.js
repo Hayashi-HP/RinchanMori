@@ -1,5 +1,5 @@
 const RinchanMoriWorld = (() => {
-  const VERSION = 'v1.0.67';
+  const VERSION = 'v1.0.72';
 
   function readJson(key, fallback) {
     try {
@@ -10,12 +10,7 @@ const RinchanMoriWorld = (() => {
   }
 
   function uniqueThanks() {
-    const sources = [
-      readJson('rinchanThanks', []),
-      readJson('rinchanSentThanks', []),
-      readJson('rinchanReceivedThanks', []),
-      readJson('rinchanGoodTimeline', [])
-    ];
+    const sources = [readJson('rinchanThanks', []), readJson('rinchanSentThanks', []), readJson('rinchanReceivedThanks', []), readJson('rinchanGoodTimeline', [])];
     const map = {};
     sources.forEach(list => {
       if (!Array.isArray(list)) return;
@@ -31,19 +26,46 @@ const RinchanMoriWorld = (() => {
   function stats() {
     const list = uniqueThanks();
     const flowers = list.length;
-    return {
-      flowers,
-      butterflies: Math.floor(flowers / 5),
-      birds: Math.floor(flowers / 10)
-    };
+    return { flowers, butterflies: Math.floor(flowers / 5), birds: Math.floor(flowers / 10) };
   }
 
   function message(s) {
+    if (s.flowers >= 100) return 'わぁ✨\n杜が花でいっぱいになってるよ🌸🌸🌸';
     if (s.flowers >= 50) return 'ありがとうの花がたくさん咲いて、杜がとてもにぎやかです🌸';
     if (s.flowers >= 20) return '花の香りに、ちょうちょや小鳥が集まってきました🦋';
     if (s.flowers >= 10) return 'ありがとうの花が増えて、杜がやさしい色になってきました🌸';
     if (s.flowers >= 1) return '最初のありがとうの花が咲きました。ここから杜がもっと広がります🌱';
-    return 'ありがとうが届くと、ここに花が咲いていくよ🌸';
+    return '今日はまだ静かな杜だね🌱\nありがとうが届くと、ここに花が咲いていくよ🌸';
+  }
+
+  function daypartMessage(s) {
+    const now = new Date();
+    const h = now.getHours();
+    const day = now.getDay();
+    if (s.flowers >= 100) return 'わぁ✨\n杜が花でいっぱいだよ。\nみんなのおかげだね😊';
+    if (s.flowers >= 20) return '今日はありがとうが\nたくさん届いているね🌸';
+    if (day === 1) return '今週も一歩ずつ。\nやさしい杜にしていこう🌱';
+    if (day === 5) return '一週間おつかれさま。\n杜にもやさしい風が吹いてるよ😊';
+    if (h >= 5 && h < 11) return 'おはよう♪\n朝の杜は、空気がきれいだね🌱';
+    if (h >= 11 && h < 17) return 'こんにちは♪\n今日の杜を少し見ていこう🌳';
+    if (h >= 17 && h < 21) return 'おつかれさま♪\n今日も杜が育っているよ🌸';
+    return '今日もありがとう♪\nゆっくり休んでね🌙';
+  }
+
+  function ensureDailyCard() {
+    if (document.getElementById('moriDailyLetterCard')) return;
+    const intro = document.querySelector('.mori-page-intro');
+    if (!intro) return;
+    const card = document.createElement('section');
+    card.id = 'moriDailyLetterCard';
+    card.className = 'card mori-thanks-world-card mori-daily-letter-card';
+    card.innerHTML = [
+      '<div class="rinchan-world-row" style="display:flex;align-items:center;gap:14px;">',
+      '<img src="../assets/rinchan-face.svg?v=1049" alt="りんちゃん" style="width:58px;height:auto;filter:drop-shadow(0 8px 12px rgba(63,113,70,.12));">',
+      '<div><p class="label">🐿️ りんちゃんの杜だより</p><h2 id="moriDailyLetterText" style="margin:4px 0 0;font-size:18px;line-height:1.6;color:#2f5139;white-space:pre-line;">今日の杜を見ていこう♪</h2></div>',
+      '</div>'
+    ].join('');
+    intro.insertAdjacentElement('afterend', card);
   }
 
   function ensureCard() {
@@ -54,16 +76,43 @@ const RinchanMoriWorld = (() => {
     card.className = 'card mori-thanks-world-card';
     card.id = 'moriThanksWorldCard';
     card.innerHTML = [
-      '<p class="label">🌸 ありがとうの花</p>',
+      '<p class="label">🌸 杜の花だより</p>',
       '<h2>やさしさで育つ杜</h2>',
       '<div class="mori-flower-stats">',
       '<div class="mori-flower-stat"><strong id="moriFlowerCount">0</strong><small>咲いた花</small></div>',
       '<div class="mori-flower-stat"><strong id="moriButterflyCount">0</strong><small>ちょうちょ</small></div>',
       '<div class="mori-flower-stat"><strong id="moriBirdCount">0</strong><small>小鳥</small></div>',
       '</div>',
-      '<p class="mori-thanks-note" id="moriThanksWorldNote">ありがとうが届くと、ここに花が咲いていくよ🌸</p>'
+      '<p class="mori-thanks-note" id="moriThanksWorldNote">ありがとうが届くと、ここに花が咲いていくよ🌸</p>',
+      '<div id="moriDeptFlowers" class="mori-thanks-note"></div>'
     ].join('');
     statusCard.insertAdjacentElement('afterend', card);
+  }
+
+  function renderDailyLetter() {
+    ensureDailyCard();
+    const el = document.getElementById('moriDailyLetterText');
+    if (el) el.textContent = daypartMessage(stats());
+  }
+
+  function deptFlowers() {
+    const counts = {};
+    uniqueThanks().forEach(item => {
+      const dept = item.toDept || item.targetDept || item.receiverDept || item.toDepartment || item.fromDept || item.senderDept || '杜の仲間';
+      counts[dept] = (counts[dept] || 0) + 1;
+    });
+    return Object.keys(counts).sort().slice(0, 8).map(dept => ({ dept, count: counts[dept] }));
+  }
+
+  function renderDeptFlowers() {
+    const box = document.getElementById('moriDeptFlowers');
+    if (!box) return;
+    const rows = deptFlowers();
+    if (!rows.length) { box.innerHTML = ''; return; }
+    box.innerHTML = '<div style="margin-top:12px;display:grid;gap:8px;">' + rows.map(row => {
+      const blooms = '🌸'.repeat(Math.min(8, row.count));
+      return '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;background:rgba(255,255,255,.70);border-radius:16px;padding:9px 10px;"><strong style="color:#405146;">' + escapeHtml(row.dept) + '</strong><span aria-label="花 ' + row.count + '輪">' + blooms + '</span></div>';
+    }).join('') + '</div>';
   }
 
   function renderCard() {
@@ -77,6 +126,7 @@ const RinchanMoriWorld = (() => {
     if (butterflies) butterflies.textContent = s.butterflies.toLocaleString('ja-JP') + '匹';
     if (birds) birds.textContent = s.birds.toLocaleString('ja-JP') + '羽';
     if (note) note.textContent = message(s);
+    renderDeptFlowers();
   }
 
   function renderMapDecorations() {
@@ -131,7 +181,10 @@ const RinchanMoriWorld = (() => {
     });
   }
 
+  function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[c])); }
+
   function renderAll() {
+    renderDailyLetter();
     renderCard();
     renderMapDecorations();
     renderHighlight();
@@ -151,6 +204,6 @@ const RinchanMoriWorld = (() => {
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
 
-  return { VERSION, renderAll, stats };
+  return { VERSION, renderAll, stats, deptFlowers };
 })();
 window.RinchanMoriWorld = RinchanMoriWorld;
