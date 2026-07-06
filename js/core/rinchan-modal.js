@@ -1,5 +1,5 @@
 const RinchanModal = (() => {
-  const VERSION = 'v1.0.59';
+  const VERSION = 'v1.0.60';
   const STYLE_ID = 'rinchanCommonModalStyles';
   const OVERLAY_ID = 'rinchanCommonModalOverlay';
 
@@ -103,10 +103,10 @@ const RinchanModal = (() => {
     return overlay;
   }
 
-  function duplicateEmployee(employeeId) {
+  function duplicateEmployee() {
     return show({
       speech: 'この社員番号は\nもう登録されているみたい。\nログインしてね♪',
-      noteHtml: '社員番号 <strong>' + escapeHtml(employeeId) + '</strong>',
+      note: '社員番号が見つかりました。',
       primaryText: 'ログインする',
       onPrimary: () => { location.href = rootPath() + 'pages/login.html'; },
       closeText: '閉じる'
