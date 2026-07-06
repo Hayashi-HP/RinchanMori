@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.56';
+  const VERSION = 'v1.0.57';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) button.textContent = label; }
@@ -14,6 +14,7 @@ const RinchanAuth = (() => {
   function switchUserLocalData(nextId) { const current = participant(); const currentId = current && (current.employeeId || current.id); if (currentId && nextId && String(currentId) !== String(nextId)) clearUserData(); }
   function loginPath() { return location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html'; }
   function makeButton(label, className) { const button = document.createElement('button'); button.type = 'button'; button.textContent = label; button.className = className; return button; }
+  function escapeHtml(text) { return String(text || '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch])); }
   function showAuthDialog(options) {
     const opts = options || {};
     const old = document.getElementById('authDialogOverlay');
@@ -26,11 +27,28 @@ const RinchanAuth = (() => {
     overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(30,46,38,.48);display:flex;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;';
 
     const panel = document.createElement('div');
-    panel.style.cssText = 'width:min(420px,100%);background:#fff;border-radius:26px;padding:26px 22px 20px;box-shadow:0 22px 60px rgba(39,70,53,.28);text-align:center;color:#2f3f34;border:1px solid rgba(113,161,123,.28);';
+    panel.style.cssText = 'width:min(430px,100%);background:#fff;border-radius:28px;padding:24px 22px 20px;box-shadow:0 22px 60px rgba(39,70,53,.28);text-align:center;color:#2f3f34;border:1px solid rgba(113,161,123,.28);';
 
-    const icon = document.createElement('div');
-    icon.textContent = opts.icon || '⚠️';
-    icon.style.cssText = 'font-size:42px;line-height:1;margin-bottom:10px;';
+    const visual = document.createElement('div');
+    visual.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:10px;';
+    if (opts.rinchan) {
+      const img = document.createElement('img');
+      img.src = opts.rinchanSrc || '../assets/rinchan-face.svg?v=1049';
+      img.alt = 'りんちゃん';
+      img.style.cssText = 'width:76px;height:76px;border-radius:50%;object-fit:cover;background:#f2f8ef;border:3px solid #d8efd2;box-shadow:0 8px 18px rgba(71,122,76,.18);';
+      visual.appendChild(img);
+      if (opts.speech) {
+        const speech = document.createElement('div');
+        speech.textContent = opts.speech;
+        speech.style.cssText = 'max-width:310px;background:#f3fbef;border:1px solid #d8efd2;border-radius:18px;padding:10px 12px;color:#2f6b35;font-size:14px;font-weight:900;line-height:1.55;';
+        visual.appendChild(speech);
+      }
+    } else {
+      const icon = document.createElement('div');
+      icon.textContent = opts.icon || '⚠️';
+      icon.style.cssText = 'font-size:42px;line-height:1;';
+      visual.appendChild(icon);
+    }
 
     const title = document.createElement('h2');
     title.textContent = opts.title || '確認してください';
@@ -56,7 +74,7 @@ const RinchanAuth = (() => {
     }
     actions.appendChild(closeButton);
 
-    panel.appendChild(icon);
+    panel.appendChild(visual);
     panel.appendChild(title);
     panel.appendChild(body);
     panel.appendChild(actions);
@@ -67,9 +85,10 @@ const RinchanAuth = (() => {
   }
   function showError(message) { showAuthDialog({ icon: '⚠️', title: '確認してください', message, closeText: 'OK' }); }
   function showDuplicateEmployeeDialog(employeeId) {
-    const safeEmployeeId = String(employeeId || '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
+    const safeEmployeeId = escapeHtml(employeeId);
     showAuthDialog({
-      icon: '❌',
+      rinchan: true,
+      speech: 'その社員番号はもう登録されているみたい！ログインしてね♪',
       title: '登録できません',
       html: '社員番号 <strong>' + safeEmployeeId + '</strong> はすでに登録されています。<br><br>新規登録はできません。<br>登録済みの方は <strong>ログイン</strong> してください。',
       loginButton: true,
