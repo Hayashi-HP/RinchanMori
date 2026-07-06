@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.55';
+  const VERSION = 'v1.0.56';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) button.textContent = label; }
@@ -12,8 +12,72 @@ const RinchanAuth = (() => {
   async function api(action, payload) { if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {}); if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {}); if (typeof v051Api === 'function') return v051Api(action, payload || {}); return { ok: false, reason: 'api_not_ready' }; }
   function applyState(result) { if (typeof RinchanSync !== 'undefined' && RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result); if (window.RinchanSync && typeof window.RinchanSync.applyApiResult === 'function') return window.RinchanSync.applyApiResult(result); if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(result); return result; }
   function switchUserLocalData(nextId) { const current = participant(); const currentId = current && (current.employeeId || current.id); if (currentId && nextId && String(currentId) !== String(nextId)) clearUserData(); }
-  function showError(message) { const form = document.getElementById('registerForm') || document.getElementById('loginForm'); if (!form) { alert(message); return; } let box = document.getElementById('authErrorBox'); if (!box) { box = document.createElement('p'); box.id = 'authErrorBox'; box.className = 'empty-note'; box.style.color = '#d24c7d'; box.style.fontWeight = '900'; form.insertBefore(box, form.firstChild); } box.textContent = message; box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-  function clearError() { const box = document.getElementById('authErrorBox'); if (box) box.textContent = ''; }
+  function loginPath() { return location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html'; }
+  function makeButton(label, className) { const button = document.createElement('button'); button.type = 'button'; button.textContent = label; button.className = className; return button; }
+  function showAuthDialog(options) {
+    const opts = options || {};
+    const old = document.getElementById('authDialogOverlay');
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'authDialogOverlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(30,46,38,.48);display:flex;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;';
+
+    const panel = document.createElement('div');
+    panel.style.cssText = 'width:min(420px,100%);background:#fff;border-radius:26px;padding:26px 22px 20px;box-shadow:0 22px 60px rgba(39,70,53,.28);text-align:center;color:#2f3f34;border:1px solid rgba(113,161,123,.28);';
+
+    const icon = document.createElement('div');
+    icon.textContent = opts.icon || '⚠️';
+    icon.style.cssText = 'font-size:42px;line-height:1;margin-bottom:10px;';
+
+    const title = document.createElement('h2');
+    title.textContent = opts.title || '確認してください';
+    title.style.cssText = 'margin:0 0 12px;font-size:22px;font-weight:900;color:#2f3f34;';
+
+    const body = document.createElement('div');
+    body.style.cssText = 'font-size:15px;line-height:1.75;margin:0 0 20px;color:#405146;font-weight:700;';
+    if (opts.html) body.innerHTML = opts.html;
+    else body.textContent = opts.message || '';
+
+    const actions = document.createElement('div');
+    actions.style.cssText = 'display:flex;gap:10px;justify-content:center;flex-wrap:wrap;';
+
+    const closeButton = makeButton(opts.closeText || '閉じる', 'auth-dialog-close');
+    closeButton.style.cssText = 'border:0;border-radius:999px;padding:12px 18px;background:#eef4ee;color:#405146;font-weight:900;min-width:116px;cursor:pointer;';
+    closeButton.addEventListener('click', () => overlay.remove());
+
+    if (opts.loginButton) {
+      const loginButton = makeButton(opts.loginText || 'ログインする', 'auth-dialog-login');
+      loginButton.style.cssText = 'border:0;border-radius:999px;padding:12px 18px;background:#2E7D32;color:#fff;font-weight:900;min-width:136px;cursor:pointer;box-shadow:0 8px 18px rgba(46,125,50,.22);';
+      loginButton.addEventListener('click', () => { location.href = loginPath(); });
+      actions.appendChild(loginButton);
+    }
+    actions.appendChild(closeButton);
+
+    panel.appendChild(icon);
+    panel.appendChild(title);
+    panel.appendChild(body);
+    panel.appendChild(actions);
+    overlay.appendChild(panel);
+    overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+    setTimeout(() => { const first = actions.querySelector('button'); if (first) first.focus(); }, 0);
+  }
+  function showError(message) { showAuthDialog({ icon: '⚠️', title: '確認してください', message, closeText: 'OK' }); }
+  function showDuplicateEmployeeDialog(employeeId) {
+    const safeEmployeeId = String(employeeId || '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch]));
+    showAuthDialog({
+      icon: '❌',
+      title: '登録できません',
+      html: '社員番号 <strong>' + safeEmployeeId + '</strong> はすでに登録されています。<br><br>新規登録はできません。<br>登録済みの方は <strong>ログイン</strong> してください。',
+      loginButton: true,
+      loginText: 'ログインする',
+      closeText: '閉じる'
+    });
+  }
+  function clearError() { const box = document.getElementById('authErrorBox'); if (box) box.remove(); const dialog = document.getElementById('authDialogOverlay'); if (dialog) dialog.remove(); }
   function setSyncStatus(status, message) { try { if (window.RinchanSync && RinchanSync.setStatus) RinchanSync.setStatus(status, message || ''); else writeJson('rinchanSyncStatus', { status, message: message || '', at: new Date().toISOString() }); } catch (e) {} }
   function enqueueLoginCheck(employeeId, pin4) { try { writeJson('rinchanPendingLoginCheck', { employeeId, pin4, at: new Date().toISOString(), deviceId: deviceId() }); } catch (e) {} }
   function sameReturningUser(employeeId, pin4) { const user = participant(); return !!(user && String(user.employeeId || user.id || '') === String(employeeId || '') && String(user.pin4 || '') === String(pin4 || '')); }
@@ -47,7 +111,7 @@ const RinchanAuth = (() => {
       const check = await checkEmployeeAvailable(employeeId);
       if (check.ok && check.available === false) {
         setBusy(button, false, '登録する');
-        showError(duplicateMessage(employeeId));
+        showDuplicateEmployeeDialog(employeeId);
         return;
       }
       if (!check.ok) {
@@ -61,7 +125,7 @@ const RinchanAuth = (() => {
       const result = await api('saveUser', user);
       if (result && result.ok) { const savedUser = Object.assign({}, user, result.user || {}, { weeklyGoal: (result.user && result.user.weeklyGoal) || user.weeklyGoal || '' }); saveParticipant(savedUser); applyState(result); location.href = 'welcome.html'; return; }
       setBusy(button, false, '登録する');
-      if (isDuplicateResult(result)) { showError(duplicateMessage(employeeId)); return; }
+      if (isDuplicateResult(result)) { showDuplicateEmployeeDialog(employeeId); return; }
       showError('登録を保存できませんでした。Apps ScriptのデプロイURLまたはusersシートを確認してください。理由: ' + ((result && (result.reason || result.error)) || 'unknown'));
     }, true);
   }
