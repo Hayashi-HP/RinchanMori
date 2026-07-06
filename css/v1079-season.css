@@ -1,0 +1,16 @@
+/* v1.0.79 今日だけの杜・季節エンジン */
+.rinchan-season-spring .home-hero,.rinchan-season-spring .mori-page-intro{background:linear-gradient(180deg,#fff4fb 0%,#f7fff4 100%)}
+.rinchan-season-summer .home-hero,.rinchan-season-summer .mori-page-intro{background:linear-gradient(180deg,#e9fbff 0%,#f2fff0 100%)}
+.rinchan-season-autumn .home-hero,.rinchan-season-autumn .mori-page-intro{background:linear-gradient(180deg,#fff6e8 0%,#fffaf0 58%,#f7fff4 100%)}
+.rinchan-season-winter .home-hero,.rinchan-season-winter .mori-page-intro{background:linear-gradient(180deg,#eef7ff 0%,#ffffff 62%,#f7fff9 100%)}
+.rinchan-time-night .home-hero,.rinchan-time-night .mori-page-intro{background:linear-gradient(180deg,#eaf0ff 0%,#f5f8ff 50%,#f8fff6 100%)}
+.rinchan-weather-rain .home-hero::after,.rinchan-weather-rain .mori-page-intro::after{content:'☔  ☔  ☔';position:absolute;left:0;right:0;bottom:10px;text-align:center;opacity:.42;font-size:18px;letter-spacing:12px;pointer-events:none;animation:rinchanRainSoft 3.6s ease-in-out infinite}
+.rinchan-weather-rainbow .home-hero::after,.rinchan-weather-rainbow .mori-page-intro::after{content:'🌈';position:absolute;right:22px;top:22px;font-size:34px;opacity:.88;pointer-events:none;animation:rinchanRainbowPoyon .8s cubic-bezier(.2,.9,.25,1.25) both}
+.rinchan-season-spring .tree-world::before,.rinchan-season-spring .growth-world::before{content:'🌸'}
+.rinchan-season-summer .tree-world::before,.rinchan-season-summer .growth-world::before{content:'🍃'}
+.rinchan-season-autumn .tree-world::before,.rinchan-season-autumn .growth-world::before{content:'🍁'}
+.rinchan-season-winter .tree-world::before,.rinchan-season-winter .growth-world::before{content:'❄️'}
+.rinchan-time-night .tree-world::after,.rinchan-time-night .growth-world::after,.rinchan-time-night .mori-game-map::after{content:'🌙'}
+@keyframes rinchanRainSoft{0%,100%{transform:translateY(0);opacity:.32}50%{transform:translateY(5px);opacity:.52}}
+@keyframes rinchanRainbowPoyon{0%{opacity:0;transform:scale(.4) translateY(8px)}70%{opacity:1;transform:scale(1.12) translateY(-2px)}100%{opacity:.88;transform:scale(1) translateY(0)}}
+@media (prefers-reduced-motion:reduce){.rinchan-weather-rain .home-hero::after,.rinchan-weather-rain .mori-page-intro::after,.rinchan-weather-rainbow .home-hero::after,.rinchan-weather-rainbow .mori-page-intro::after{animation:none!important}}
