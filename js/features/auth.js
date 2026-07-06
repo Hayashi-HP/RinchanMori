@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.58';
+  const VERSION = 'v1.0.59';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) button.textContent = label; }
@@ -40,19 +40,19 @@ const RinchanAuth = (() => {
     panel.style.cssText = 'width:min(430px,100%);background:#fff;border-radius:28px;padding:24px 22px 20px;box-shadow:0 22px 60px rgba(39,70,53,.28);text-align:center;color:#2f3f34;border:1px solid rgba(113,161,123,.28);';
 
     const visual = document.createElement('div');
-    visual.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:10px;';
+    visual.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:14px;';
     if (opts.rinchan) {
       const img = document.createElement('img');
       img.className = 'rinchan-auth-face-animated';
       img.src = opts.rinchanSrc || '../assets/rinchan-face.svg?v=1049';
       img.alt = 'りんちゃん';
-      img.style.cssText = 'width:76px;height:76px;border-radius:50%;object-fit:cover;background:#f2f8ef;border:3px solid #d8efd2;box-shadow:0 8px 18px rgba(71,122,76,.18);';
+      img.style.cssText = 'width:84px;height:auto;object-fit:contain;background:transparent;border:0;box-shadow:none;';
       visual.appendChild(img);
       if (opts.speech) {
         const speech = document.createElement('div');
         speech.className = 'rinchan-auth-speech-animated';
         speech.textContent = opts.speech;
-        speech.style.cssText = 'max-width:310px;background:#f3fbef;border:1px solid #d8efd2;border-radius:18px;padding:10px 12px;color:#2f6b35;font-size:14px;font-weight:900;line-height:1.55;';
+        speech.style.cssText = 'max-width:320px;background:#f3fbef;border:1px solid #d8efd2;border-radius:18px;padding:12px 14px;color:#2f6b35;font-size:16px;font-weight:900;line-height:1.65;white-space:pre-line;';
         visual.appendChild(speech);
       }
     } else {
@@ -67,7 +67,7 @@ const RinchanAuth = (() => {
     title.style.cssText = 'margin:0 0 12px;font-size:22px;font-weight:900;color:#2f3f34;';
 
     const body = document.createElement('div');
-    body.style.cssText = 'font-size:15px;line-height:1.75;margin:0 0 20px;color:#405146;font-weight:700;';
+    body.style.cssText = 'font-size:14px;line-height:1.65;margin:0 0 20px;color:#667568;font-weight:800;';
     if (opts.html) body.innerHTML = opts.html;
     else body.textContent = opts.message || '';
 
@@ -87,8 +87,8 @@ const RinchanAuth = (() => {
     actions.appendChild(closeButton);
 
     panel.appendChild(visual);
-    panel.appendChild(title);
-    panel.appendChild(body);
+    if (opts.title) panel.appendChild(title);
+    if (opts.html || opts.message) panel.appendChild(body);
     panel.appendChild(actions);
     overlay.appendChild(panel);
     overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
@@ -100,9 +100,8 @@ const RinchanAuth = (() => {
     const safeEmployeeId = escapeHtml(employeeId);
     showAuthDialog({
       rinchan: true,
-      speech: 'その社員番号はもう登録されているみたい！ログインしてね♪',
-      title: '登録できません',
-      html: '社員番号 <strong>' + safeEmployeeId + '</strong> はすでに登録されています。<br><br>新規登録はできません。<br>登録済みの方は <strong>ログイン</strong> してください。',
+      speech: 'この社員番号は\nもう登録されているみたい。\nログインしてね♪',
+      html: '社員番号 <strong>' + safeEmployeeId + '</strong>',
       loginButton: true,
       loginText: 'ログインする',
       closeText: '閉じる'
