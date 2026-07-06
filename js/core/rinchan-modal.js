@@ -1,5 +1,5 @@
 const RinchanModal = (() => {
-  const VERSION = 'v1.0.61';
+  const VERSION = 'v1.0.62';
   const STYLE_ID = 'rinchanCommonModalStyles';
   const OVERLAY_ID = 'rinchanCommonModalOverlay';
 
@@ -93,23 +93,28 @@ const RinchanModal = (() => {
     if (opts.primaryText) {
       actions.appendChild(makeButton(opts.primaryText, 'rinchan-common-modal-primary', opts.onPrimary || close));
     }
-    actions.appendChild(makeButton(opts.closeText || '閉じる', 'rinchan-common-modal-secondary', close));
+    if (opts.hideClose !== true) {
+      actions.appendChild(makeButton(opts.closeText || '閉じる', 'rinchan-common-modal-secondary', close));
+    }
 
     panel.appendChild(actions);
     overlay.appendChild(panel);
-    overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+    overlay.addEventListener('click', event => { if (event.target === overlay && opts.blockBackdropClose !== true) close(); });
     document.body.appendChild(overlay);
     setTimeout(() => { const first = actions.querySelector('button'); if (first) first.focus(); }, 0);
     return overlay;
   }
 
-  function duplicateEmployee() {
+  function duplicateEmployee(onBack) {
     return show({
-      speech: 'この社員番号は\nもう使われているみたい。\n番号を確認してね♪',
-      note: '社員番号をもう一度入力してください。',
-      primaryText: '入力に戻る',
-      onPrimary: close,
-      closeText: '閉じる'
+      speech: 'あれれ？\nこの社員番号は\nもう使われているみたい。\nもう一度確認してね♪',
+      note: '社員番号を確認してみてね。',
+      primaryText: '社員番号を確認する',
+      onPrimary: () => {
+        close();
+        if (typeof onBack === 'function') setTimeout(onBack, 30);
+      },
+      hideClose: true
     });
   }
 
