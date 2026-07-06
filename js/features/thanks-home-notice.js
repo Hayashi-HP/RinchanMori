@@ -1,5 +1,5 @@
 const RinchanThanksHomeNotice = (() => {
-  const VERSION = 'v1.0.82';
+  const VERSION = 'v1.0.84';
 
   function readJson(key, fallback) {
     try {
@@ -37,13 +37,7 @@ const RinchanThanksHomeNotice = (() => {
         if (me && toId && toId !== me) return;
         const id = String(item.thanksId || item.id || item.createdAt || JSON.stringify(item));
         if (!id) return;
-        map[id] = {
-          id,
-          fromName: item.fromName || item.senderName || '杜の仲間',
-          reason: item.reason || 'ありがとう',
-          comment: item.comment || item.message || '',
-          createdAt: item.createdAt || item.savedAt || item.date || ''
-        };
+        map[id] = { id, fromName: item.fromName || item.senderName || '杜の仲間', reason: item.reason || 'ありがとう', comment: item.comment || item.message || '', createdAt: item.createdAt || item.savedAt || item.date || '' };
       });
     });
     return Object.values(map).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
@@ -72,7 +66,7 @@ const RinchanThanksHomeNotice = (() => {
 
   function ensureCard() {
     if (document.getElementById('thanksHomeNotice')) return document.getElementById('thanksHomeNotice');
-    const anchor = document.getElementById('guestEntryPanel') || document.querySelector('.home-hero');
+    const anchor = document.querySelector('.home-hero');
     if (!anchor) return null;
     const card = document.createElement('section');
     card.id = 'thanksHomeNotice';
@@ -93,10 +87,7 @@ const RinchanThanksHomeNotice = (() => {
     const rows = unreadFlowers();
     const card = ensureCard();
     if (!card) return;
-    if (!rows.length) {
-      card.classList.add('hidden');
-      return;
-    }
+    if (!rows.length) { card.classList.add('hidden'); return; }
     const first = rows[0];
     const title = document.getElementById('thanksHomeNoticeTitle');
     const text = document.getElementById('thanksHomeNoticeText');
@@ -105,10 +96,7 @@ const RinchanThanksHomeNotice = (() => {
     card.classList.remove('hidden');
   }
 
-  function install() {
-    render();
-    setTimeout(render, 700);
-  }
+  function install() { render(); setTimeout(render, 700); }
 
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
