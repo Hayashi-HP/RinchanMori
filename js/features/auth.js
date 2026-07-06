@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.57';
+  const VERSION = 'v1.0.58';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) button.textContent = label; }
@@ -15,30 +15,42 @@ const RinchanAuth = (() => {
   function loginPath() { return location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html'; }
   function makeButton(label, className) { const button = document.createElement('button'); button.type = 'button'; button.textContent = label; button.className = className; return button; }
   function escapeHtml(text) { return String(text || '').replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch])); }
+  function injectAuthDialogStyles() {
+    if (document.getElementById('rinchanAuthDialogStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'rinchanAuthDialogStyles';
+    style.textContent = '@keyframes rinchanOverlayFade{from{opacity:0}to{opacity:1}}@keyframes rinchanModalPoyon{0%{opacity:0;transform:scale(.85) translateY(12px)}58%{opacity:1;transform:scale(1.05) translateY(-4px)}78%{transform:scale(.98) translateY(1px)}100%{opacity:1;transform:scale(1) translateY(0)}}@keyframes rinchanFaceHop{0%{transform:translateY(0) scale(.96)}45%{transform:translateY(-8px) scale(1.04)}75%{transform:translateY(2px) scale(.99)}100%{transform:translateY(0) scale(1)}}@keyframes rinchanSpeechFloat{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}#authDialogOverlay.rinchan-auth-dialog-animated{animation:rinchanOverlayFade .18s ease-out both}.rinchan-auth-panel-animated{animation:rinchanModalPoyon .46s cubic-bezier(.2,.9,.25,1.25) both;transform-origin:center}.rinchan-auth-face-animated{animation:rinchanFaceHop .58s ease-out .08s both}.rinchan-auth-speech-animated{opacity:0;animation:rinchanSpeechFloat .28s ease-out .16s both}@media (prefers-reduced-motion:reduce){#authDialogOverlay.rinchan-auth-dialog-animated,.rinchan-auth-panel-animated,.rinchan-auth-face-animated,.rinchan-auth-speech-animated{animation:none!important;opacity:1!important;transform:none!important}}';
+    document.head.appendChild(style);
+  }
   function showAuthDialog(options) {
     const opts = options || {};
     const old = document.getElementById('authDialogOverlay');
     if (old) old.remove();
+    injectAuthDialogStyles();
 
     const overlay = document.createElement('div');
     overlay.id = 'authDialogOverlay';
+    overlay.className = 'rinchan-auth-dialog-animated';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(30,46,38,.48);display:flex;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;';
 
     const panel = document.createElement('div');
+    panel.className = 'rinchan-auth-panel-animated';
     panel.style.cssText = 'width:min(430px,100%);background:#fff;border-radius:28px;padding:24px 22px 20px;box-shadow:0 22px 60px rgba(39,70,53,.28);text-align:center;color:#2f3f34;border:1px solid rgba(113,161,123,.28);';
 
     const visual = document.createElement('div');
     visual.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:10px;';
     if (opts.rinchan) {
       const img = document.createElement('img');
+      img.className = 'rinchan-auth-face-animated';
       img.src = opts.rinchanSrc || '../assets/rinchan-face.svg?v=1049';
       img.alt = 'りんちゃん';
       img.style.cssText = 'width:76px;height:76px;border-radius:50%;object-fit:cover;background:#f2f8ef;border:3px solid #d8efd2;box-shadow:0 8px 18px rgba(71,122,76,.18);';
       visual.appendChild(img);
       if (opts.speech) {
         const speech = document.createElement('div');
+        speech.className = 'rinchan-auth-speech-animated';
         speech.textContent = opts.speech;
         speech.style.cssText = 'max-width:310px;background:#f3fbef;border:1px solid #d8efd2;border-radius:18px;padding:10px 12px;color:#2f6b35;font-size:14px;font-weight:900;line-height:1.55;';
         visual.appendChild(speech);
