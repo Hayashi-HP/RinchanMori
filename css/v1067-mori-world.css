@@ -1,0 +1,12 @@
+.mori-thanks-world-card{background:linear-gradient(180deg,#fff 0%,#fff7fb 48%,#f6fff2 100%);border:1px solid rgba(226,133,178,.20);box-shadow:0 16px 38px rgba(178,103,137,.10)}
+.mori-thanks-world-card .mori-flower-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.mori-flower-stat{border-radius:20px;background:rgba(255,255,255,.84);border:1px solid rgba(226,133,178,.16);padding:12px 8px;text-align:center}
+.mori-flower-stat strong{display:block;font-size:22px;color:#513149;line-height:1.2}.mori-flower-stat small{display:block;margin-top:5px;color:#667568;font-weight:900;line-height:1.3}
+.mori-game-map{position:relative;overflow:hidden;background:linear-gradient(180deg,#ecfbff 0%,#f5fff0 52%,#fff7e8 100%)}
+.mori-world-flower,.mori-world-friend{position:absolute;z-index:1;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(90,120,80,.10));animation:moriWorldFloat 3.8s ease-in-out infinite;font-size:22px}
+.mori-world-friend{font-size:25px;animation:moriWorldFly 5.2s ease-in-out infinite}
+.mori-map .dept-node,.mori-map .mori-tree-node{position:relative;z-index:2}
+@keyframes moriWorldFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes moriWorldFly{0%,100%{transform:translate(0,0) rotate(-4deg)}50%{transform:translate(10px,-10px) rotate(6deg)}}
+.mori-thanks-note{margin-top:12px;color:#5b6d60;font-weight:900;line-height:1.65;white-space:pre-line}
+@media(max-width:430px){.mori-thanks-world-card .mori-flower-stats{grid-template-columns:1fr 1fr}.mori-flower-stat strong{font-size:20px}}
