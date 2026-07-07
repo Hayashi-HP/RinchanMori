@@ -1,10 +1,14 @@
-const RINCHAN_V127_DEPARTMENTS='v1.0.48';
+const RINCHAN_V127_DEPARTMENTS='v1.1.37';
 
 const RINCHAN_DEFAULT_DEPARTMENTS=[
-  {deptId:'caresupport',deptName:'ケアサポ',displayOrder:10,active:true,mapKey:'caresupport'},
-  {deptId:'medicaltech',deptName:'医療技術部',displayOrder:20,active:true,mapKey:'medicaltech'},
-  {deptId:'nurse',deptName:'看護部',displayOrder:30,active:true,mapKey:'nurse'},
-  {deptId:'office',deptName:'事務部',displayOrder:40,active:true,mapKey:'office'}
+  {deptId:'doctor',deptName:'医局',displayOrder:10,active:true,mapKey:'doctor'},
+  {deptId:'nurse',deptName:'看護部',displayOrder:20,active:true,mapKey:'nurse'},
+  {deptId:'medicaltech',deptName:'医療技術部',displayOrder:30,active:true,mapKey:'medicaltech'},
+  {deptId:'renkei',deptName:'地域医療連携室',displayOrder:40,active:true,mapKey:'renkei'},
+  {deptId:'office',deptName:'事務部',displayOrder:50,active:true,mapKey:'office'},
+  {deptId:'grouphome',deptName:'グループホーム',displayOrder:60,active:true,mapKey:'grouphome'},
+  {deptId:'caresupport',deptName:'ケアサポ',displayOrder:70,active:true,mapKey:'caresupport'},
+  {deptId:'other',deptName:'その他',displayOrder:80,active:true,mapKey:'other'}
 ];
 
 function v127ReadJson(key,fallback){
@@ -51,6 +55,8 @@ function v127NormalizeDepartments(list){
   return rows.filter(d=>{const key=String(d.deptName);if(seen[key])return false;seen[key]=true;return true;}).sort((a,b)=>(Number(a.displayOrder||999)-Number(b.displayOrder||999))||String(a.deptName).localeCompare(String(b.deptName),'ja'));
 }
 
+function v127DefaultDepartments(){return v127NormalizeDepartments(RINCHAN_DEFAULT_DEPARTMENTS);}
+
 function v127CachedDepartments(){
   const cached=v127ReadJson('rinchanDepartments',null);
   if(Array.isArray(cached))return v127NormalizeDepartments(cached);
@@ -73,8 +79,6 @@ function v127ApplyState(result){
 }
 
 async function v127FetchDepartments(){
-  const cached=v127CachedDepartments();
-  if(cached.length)return cached;
   try{
     const direct=await v127Request('departments',{force:true,ts:Date.now()});
     if(direct&&direct.ok){
@@ -82,7 +86,7 @@ async function v127FetchDepartments(){
       if(rows.length){v127WriteJson('rinchanDepartments',rows);return rows;}
       v127ApplyState(direct);
       const after=v127CachedDepartments();
-      if(after.length)return after;
+      if(after.length){v127WriteJson('rinchanDepartments',after);return after;}
     }
   }catch(e){}
   try{
@@ -92,16 +96,16 @@ async function v127FetchDepartments(){
       const state=await v127Request('getUserState',{employeeId,force:true,ts:Date.now()});
       v127ApplyState(state);
       const after=v127CachedDepartments();
-      if(after.length)return after;
+      if(after.length){v127WriteJson('rinchanDepartments',after);return after;}
     }
   }catch(e){}
-  return RINCHAN_DEFAULT_DEPARTMENTS;
+  return v127CachedDepartments().length?v127CachedDepartments():v127DefaultDepartments();
 }
 
 function v127FillSelect(select,departments,currentValue){
   if(!select)return;
   const current=currentValue!==undefined?String(currentValue||''):String(select.value||'');
-  const list=v127NormalizeDepartments(departments&&departments.length?departments:RINCHAN_DEFAULT_DEPARTMENTS);
+  const list=v127NormalizeDepartments(departments&&departments.length?departments:v127DefaultDepartments());
   select.innerHTML='<option value="">選択してください</option>'+list.map(d=>'<option value="'+v127Esc(d.deptName)+'">'+v127Esc(d.deptName)+'</option>').join('');
   if(current){
     const has=list.some(d=>String(d.deptName)===String(current));
@@ -114,16 +118,15 @@ function v127Esc(value){return String(value||'').replace(/[&<>'"]/g,c=>({'&':'&a
 
 async function v127InitDepartmentSelects(){
   const p=v127Participant();
-  const cached=v127CachedDepartments();
   const dept=document.getElementById('dept');
   const editDept=document.getElementById('editDept');
-  if(cached.length){
-    v127FillSelect(dept,cached,dept?dept.value:'');
-    v127FillSelect(editDept,cached,p.dept||p.department||'');
-  }
+  const currentDept=dept?dept.value:'';
+  const currentEdit=p.dept||p.department||'';
+  v127FillSelect(dept,v127DefaultDepartments(),currentDept);
+  v127FillSelect(editDept,v127DefaultDepartments(),currentEdit);
   const departments=await v127FetchDepartments();
-  v127FillSelect(dept,departments,dept?dept.value:'');
-  v127FillSelect(editDept,departments,p.dept||p.department||'');
+  v127FillSelect(dept,departments,dept?dept.value:currentDept);
+  v127FillSelect(editDept,departments,currentEdit);
 }
 
 window.v127ReloadDepartments=v127InitDepartmentSelects;
