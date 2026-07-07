@@ -1,27 +1,27 @@
 const RinchanSeasonEngine = (() => {
-  const VERSION = 'v1.0.79';
+  const VERSION = 'v1.1.27';
 
   function season(now) {
     const m = (now || new Date()).getMonth() + 1;
     if (m >= 3 && m <= 5) return { key: 'spring', icon: '🌸', name: '春', phrase: '春の風が気持ちいいね♪' };
-    if (m >= 6 && m <= 8) return { key: 'summer', icon: '🌿', name: '夏', phrase: '木かげでひとやすみしよう🌿' };
-    if (m >= 9 && m <= 11) return { key: 'autumn', icon: '🍁', name: '秋', phrase: '落ち葉がふわりと舞っているよ🍁' };
-    return { key: 'winter', icon: '❄️', name: '冬', phrase: 'あたたかくして杜を見ていこう❄️' };
+    if (m >= 6 && m <= 8) return { key: 'summer', icon: '🌿', name: '夏', phrase: '木かげでひとやすみ🌿' };
+    if (m >= 9 && m <= 11) return { key: 'autumn', icon: '🍁', name: '秋', phrase: '秋の杜です🍁' };
+    return { key: 'winter', icon: '❄️', name: '冬', phrase: 'あたたかくしてね❄️' };
   }
 
   function timeMood(now) {
     const h = (now || new Date()).getHours();
-    if (h >= 5 && h < 11) return { key: 'morning', label: '朝', phrase: '朝露でキラキラしているよ✨' };
-    if (h >= 11 && h < 17) return { key: 'day', label: '昼', phrase: 'おひさまが見守っているよ☀️' };
-    if (h >= 17 && h < 21) return { key: 'evening', label: '夕方', phrase: '夕焼けの杜もきれいだね🌇' };
-    return { key: 'night', label: '夜', phrase: '月あかりの杜へようこそ🌙' };
+    if (h >= 5 && h < 11) return { key: 'morning', label: '朝', phrase: '朝の杜です✨' };
+    if (h >= 11 && h < 17) return { key: 'day', label: '昼', phrase: 'おひさまの杜☀️' };
+    if (h >= 17 && h < 21) return { key: 'evening', label: '夕方', phrase: '夕方の杜🌇' };
+    return { key: 'night', label: '夜', phrase: '夜の杜🌙' };
   }
 
   function pickWeather(now) {
     const d = now || new Date();
     const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-    if (seed % 17 === 0) return { key: 'rainbow', icon: '🌈', phrase: 'わぁ、虹が出たよ✨' };
-    if (seed % 7 === 0) return { key: 'rain', icon: '☔', phrase: '雨の日は、木も水を飲めてうれしそう🌱' };
+    if (seed % 17 === 0) return { key: 'rainbow', icon: '🌈', phrase: '虹が出たよ🌈' };
+    if (seed % 7 === 0) return { key: 'rain', icon: '☔', phrase: '雨で木が元気です🌱' };
     return { key: 'clear', icon: '', phrase: '' };
   }
 
@@ -36,7 +36,13 @@ const RinchanSeasonEngine = (() => {
   function message() {
     const data = today();
     if (data.weather.phrase) return data.weather.phrase;
-    return data.time.phrase + '\n' + data.season.phrase;
+    return data.time.phrase + ' ' + data.season.phrase;
+  }
+
+  function moriMessage() {
+    const data = today();
+    if (data.weather.phrase) return data.weather.phrase;
+    return data.time.phrase;
   }
 
   function applyBodyClass() {
@@ -56,8 +62,8 @@ const RinchanSeasonEngine = (() => {
   function applyMori() {
     const seasonMsg = document.getElementById('moriSeasonMessage');
     const highlight = document.getElementById('moriHighlightText');
-    if (seasonMsg) seasonMsg.textContent = message();
-    if (highlight && !highlight.dataset.rinchanSeasonLocked) highlight.textContent = message();
+    if (seasonMsg) seasonMsg.textContent = moriMessage();
+    if (highlight && !highlight.dataset.rinchanSeasonLocked) highlight.textContent = moriMessage();
   }
 
   function install() {
@@ -69,6 +75,6 @@ const RinchanSeasonEngine = (() => {
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 80));
 
-  return { VERSION, today, message, install };
+  return { VERSION, today, message, moriMessage, install };
 })();
 window.RinchanSeasonEngine = RinchanSeasonEngine;
