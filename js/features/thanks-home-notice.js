@@ -1,5 +1,5 @@
 const RinchanThanksHomeNotice = (() => {
-  const VERSION = 'v1.0.84';
+  const VERSION = 'v1.1.21';
 
   function readJson(key, fallback) {
     try {
@@ -18,7 +18,7 @@ const RinchanThanksHomeNotice = (() => {
 
   function employeeId() {
     const user = participant();
-    return user && (user.employeeId || user.id) ? String(user.employeeId || user.id) : '';
+    return user && (user.employeeId || user.id || user.participantId) ? String(user.employeeId || user.id || user.participantId) : '';
   }
 
   function readFlowerIds() {
@@ -26,18 +26,41 @@ const RinchanThanksHomeNotice = (() => {
     return Array.isArray(ids) ? ids.map(String) : [];
   }
 
+  function itemToId(item) {
+    return String(
+      item.toParticipantId || item.toEmployeeId || item.receiverId || item.receiverEmployeeId ||
+      item.toId || item.targetId || item.targetEmployeeId || item.to || ''
+    ).trim();
+  }
+
+  function itemFromName(item) {
+    return item.fromName || item.senderName || item.fromEmployeeName || item.sender || item.from || '杜の仲間';
+  }
+
   function receivedThanks() {
     const me = employeeId();
-    const sources = [readJson('rinchanReceivedThanks', []), readJson('rinchanThanks', []), readJson('rinchanSentThanks', [])];
+    const sources = [
+      readJson('rinchanReceivedThanks', []),
+      readJson('rinchanThanks', []),
+      readJson('rinchanSentThanks', []),
+      readJson('rinchanGoodTimeline', [])
+    ];
     const map = {};
     sources.forEach(list => {
       if (!Array.isArray(list)) return;
       list.forEach(item => {
-        const toId = String(item.toParticipantId || item.toEmployeeId || item.receiverId || '').trim();
+        if (!item) return;
+        const toId = itemToId(item);
         if (me && toId && toId !== me) return;
-        const id = String(item.thanksId || item.id || item.createdAt || JSON.stringify(item));
+        const id = String(item.thanksId || item.id || item.createdAt || item.savedAt || JSON.stringify(item));
         if (!id) return;
-        map[id] = { id, fromName: item.fromName || item.senderName || '杜の仲間', reason: item.reason || 'ありがとう', comment: item.comment || item.message || '', createdAt: item.createdAt || item.savedAt || item.date || '' };
+        map[id] = {
+          id,
+          fromName: itemFromName(item),
+          reason: item.reason || 'ありがとう',
+          comment: item.comment || item.message || item.publicBody || item.body || '',
+          createdAt: item.createdAt || item.savedAt || item.date || ''
+        };
       });
     });
     return Object.values(map).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
@@ -48,16 +71,22 @@ const RinchanThanksHomeNotice = (() => {
     return receivedThanks().filter(item => !opened.includes(String(item.id)));
   }
 
+  function displayFlowers() {
+    const unread = unreadFlowers();
+    return unread.length ? unread : receivedThanks();
+  }
+
   function injectStyles() {
     if (document.getElementById('rinchanThanksHomeNoticeStyles')) return;
     const style = document.createElement('style');
     style.id = 'rinchanThanksHomeNoticeStyles';
     style.textContent = [
-      '.thanks-home-notice{background:linear-gradient(180deg,#fff 0%,#fff7fb 100%);border:1px solid rgba(226,133,178,.22);box-shadow:0 16px 38px rgba(178,103,137,.10);cursor:pointer}',
-      '.thanks-home-notice-row{display:flex;gap:14px;align-items:center}',
+      '.thanks-home-notice{background:linear-gradient(180deg,#fff 0%,#fff7fb 100%);border:1px solid rgba(226,133,178,.22);box-shadow:0 16px 38px rgba(178,103,137,.10);cursor:pointer;overflow:hidden}',
+      '.thanks-home-notice-row{display:flex;gap:14px;align-items:center;min-width:0}',
+      '.thanks-home-notice-row>div:last-child{min-width:0;overflow:hidden}',
       '.thanks-home-notice-flower{width:54px;height:54px;border-radius:20px;background:#fff0f7;display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 auto;animation:thanksHomeFlowerPulse 2.8s ease-in-out infinite}',
-      '.thanks-home-notice h2{margin:2px 0 4px;color:#513149;font-size:19px;line-height:1.45}',
-      '.thanks-home-notice p{margin:0;color:#667568;font-weight:900;line-height:1.6}',
+      '.thanks-home-notice h2{margin:2px 0 4px;color:#513149;font-size:clamp(22px,5.8vw,30px);line-height:1.25;letter-spacing:-.045em;overflow-wrap:anywhere;word-break:keep-all}',
+      '.thanks-home-notice p{margin:0;color:#667568;font-weight:900;line-height:1.55}',
       '@keyframes thanksHomeFlowerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}',
       '@media (prefers-reduced-motion:reduce){.thanks-home-notice-flower{animation:none!important}}'
     ].join('');
@@ -84,23 +113,28 @@ const RinchanThanksHomeNotice = (() => {
 
   function render() {
     injectStyles();
-    const rows = unreadFlowers();
     const card = ensureCard();
     if (!card) return;
+    const rows = displayFlowers();
     if (!rows.length) { card.classList.add('hidden'); return; }
+    const unread = unreadFlowers();
     const first = rows[0];
     const title = document.getElementById('thanksHomeNoticeTitle');
     const text = document.getElementById('thanksHomeNoticeText');
     if (title) title.textContent = first.fromName + 'さんから花が届いたよ🌸';
-    if (text) text.textContent = rows.length > 1 ? 'ほかにも ' + (rows.length - 1) + '輪の花が待っています。' : 'タップして、ありがとうを受け取ってね。';
+    if (text) {
+      if (unread.length > 1) text.textContent = 'ほかにも ' + (unread.length - 1) + '輪の花が待っています。';
+      else if (unread.length === 1) text.textContent = 'タップして、ありがとうを受け取ってね。';
+      else text.textContent = '受け取った花を通信で見られます。';
+    }
     card.classList.remove('hidden');
   }
 
-  function install() { render(); setTimeout(render, 700); }
+  function install() { render(); setTimeout(render, 300); setTimeout(render, 1200); }
 
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
 
-  return { VERSION, install, render, unreadFlowers };
+  return { VERSION, install, render, unreadFlowers, receivedThanks };
 })();
 window.RinchanThanksHomeNotice = RinchanThanksHomeNotice;
