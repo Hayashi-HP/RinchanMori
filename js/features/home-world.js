@@ -1,6 +1,5 @@
 const RinchanHomeWorld = (() => {
-  const VERSION = 'v1.0.64';
-  const DEFAULT_DAILY_GOAL = 9000;
+  const VERSION = 'v1.1.1';
 
   const oneWords = [
     '一歩ずつで大丈夫♪', '今日も会えてうれしい♪', 'ありがとうは元気の種🌱', '無理しすぎないでね😊', '階段もいい運動だよ♪',
@@ -62,11 +61,6 @@ const RinchanHomeWorld = (() => {
     return Number(value || 0).toLocaleString('ja-JP');
   }
 
-  function dailyGoal() {
-    const user = participant() || {};
-    return Number(String(user.dailyStepGoal || user.stepGoal || '').replace(/,/g, '')) || DEFAULT_DAILY_GOAL;
-  }
-
   function pick(list, salt) {
     const d = new Date();
     const seed = d.getFullYear() * 372 + (d.getMonth() + 1) * 31 + d.getDate() + (salt || 0);
@@ -75,77 +69,33 @@ const RinchanHomeWorld = (() => {
 
   function greeting() {
     const h = new Date().getHours();
+    const steps = todaySteps();
+    if (steps > 0) return { hello: 'おかえり♪', message: '今日は ' + number(steps) + '歩、杜に届いているよ🌱' };
     if (h >= 5 && h < 11) return { hello: 'おはよう♪', message: '今日も一緒に杜を育てよう🌱' };
-    if (h >= 11 && h < 17) return { hello: 'こんにちは♪', message: '今日もいい一日になりそうだね。' };
-    if (h >= 17 && h < 21) return { hello: 'おつかれさま♪', message: '今日も木が大きくなってるよ🌳' };
+    if (h >= 11 && h < 17) return { hello: 'こんにちは♪', message: '今日の杜を少し見ていこう🌳' };
+    if (h >= 17 && h < 21) return { hello: 'おつかれさま♪', message: '今日も無理せず、できる範囲で大丈夫😊' };
     return { hello: '今日もありがとう♪', message: 'ゆっくり休んでね😊' };
   }
 
   function renderHero() {
     const user = participant() || {};
+    const loggedIn = !!(user.employeeId || user.id);
     const name = document.getElementById('name');
     const dailyGreeting = document.getElementById('dailyGreeting');
     const dailyMessage = document.getElementById('dailyMessage');
     const challenge = document.getElementById('todayChallenge');
     const g = greeting();
-    if (name) name.textContent = user.nick || user.name || 'ゲスト';
-    if (dailyGreeting) dailyGreeting.textContent = g.hello;
-    if (dailyMessage) dailyMessage.textContent = g.message;
-    if (challenge) challenge.textContent = pick(oneWords, 7);
+    if (name) name.textContent = user.nick || user.name || user.displayName || 'ゲスト';
+    if (dailyGreeting) dailyGreeting.textContent = loggedIn ? g.hello : 'こんにちは';
+    if (dailyMessage) dailyMessage.textContent = loggedIn ? g.message : 'りんちゃんの杜へようこそ。';
+    if (challenge) challenge.textContent = loggedIn ? pick(oneWords, todaySteps() % 17) : 'まずは杜に参加してみよう🌱';
   }
 
-  function ensureWorldCards() {
-    const hero = document.querySelector('.home-hero');
-    if (!hero || document.getElementById('rinchanTodayCard')) return;
-
-    const word = document.createElement('section');
-    word.className = 'card rinchan-world-card rinchan-oneword-card';
-    word.innerHTML = '<div class="rinchan-world-row"><img src="assets/rinchan-face.svg?v=1049" alt="りんちゃん"><div><p class="label">🐿️ 今日のひとこと</p><h2 id="rinchanOneWord">一歩ずつで大丈夫♪</h2></div></div>';
-    hero.insertAdjacentElement('afterend', word);
-
-    const card = document.createElement('section');
-    card.className = 'card rinchan-world-card rinchan-today-card';
-    card.id = 'rinchanTodayCard';
-    card.innerHTML = [
-      '<div class="rinchan-world-head"><div><p class="label">👟 今日の歩み</p><h2>今日はここまで♪</h2></div><span id="rinchanTodayPercent" class="rinchan-world-pill">0%</span></div>',
-      '<div class="rinchan-today-progress"><div id="rinchanTodayBar"></div></div>',
-      '<div class="rinchan-today-steps"><strong id="rinchanTodaySteps">0歩</strong><p id="rinchanTodayNote">今日の一歩を待ってるよ🌱</p></div>'
-    ].join('');
-    word.insertAdjacentElement('afterend', card);
-  }
-
-  function renderTodayCard() {
-    ensureWorldCards();
-    const steps = todaySteps();
-    const goal = dailyGoal();
-    const pct = goal ? Math.min(100, Math.round((steps / goal) * 100)) : 0;
-    const remaining = Math.max(0, goal - steps);
-    const oneWord = document.getElementById('rinchanOneWord');
-    const percent = document.getElementById('rinchanTodayPercent');
-    const bar = document.getElementById('rinchanTodayBar');
-    const stepsEl = document.getElementById('rinchanTodaySteps');
-    const note = document.getElementById('rinchanTodayNote');
-    if (oneWord) oneWord.textContent = pick(oneWords, steps % 17);
-    if (percent) percent.textContent = pct + '%';
-    if (bar) bar.style.width = pct + '%';
-    if (stepsEl) stepsEl.textContent = number(steps) + '歩';
-    if (note) note.textContent = remaining > 0 ? 'あと' + number(remaining) + '歩で今日の目標♪' : 'やったー！今日の目標達成♪';
-    showGoalModalOnce(steps, goal);
-  }
-
-  function showGoalModalOnce(steps, goal) {
-    if (!goal || steps < goal || !window.RinchanModal) return;
-    const key = 'rinchanGoalShown:' + dateKey(new Date());
-    if (localStorage.getItem(key) === '1') return;
-    localStorage.setItem(key, '1');
-    setTimeout(() => {
-      RinchanModal.show({
-        speech: 'やったー！\n今日の目標達成♪',
-        note: '今日の歩みで、杜の木がまた元気になったよ🌳',
-        primaryText: 'ありがとう♪',
-        hideClose: true
-      });
-    }, 500);
+  function removeLegacyTodayCard() {
+    const oldToday = document.getElementById('rinchanTodayCard');
+    if (oldToday) oldToday.remove();
+    const oldOneWord = document.querySelector('.rinchan-oneword-card');
+    if (oldOneWord) oldOneWord.remove();
   }
 
   function installTreeTalk() {
@@ -165,8 +115,8 @@ const RinchanHomeWorld = (() => {
   }
 
   function renderHome() {
+    removeLegacyTodayCard();
     renderHero();
-    renderTodayCard();
     installTreeTalk();
     document.body.classList.add('rinchan-world-home');
   }
@@ -176,6 +126,6 @@ const RinchanHomeWorld = (() => {
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 60));
 
-  return { VERSION, renderHome, renderHero, renderTodayCard, installTreeTalk };
+  return { VERSION, renderHome, renderHero, installTreeTalk, todaySteps };
 })();
 window.RinchanHomeWorld = RinchanHomeWorld;
