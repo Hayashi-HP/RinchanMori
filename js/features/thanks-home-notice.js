@@ -1,5 +1,5 @@
 const RinchanThanksHomeNotice = (() => {
-  const VERSION = 'v1.1.21';
+  const VERSION = 'v1.1.29';
 
   function readJson(key, fallback) {
     try {
@@ -27,10 +27,7 @@ const RinchanThanksHomeNotice = (() => {
   }
 
   function itemToId(item) {
-    return String(
-      item.toParticipantId || item.toEmployeeId || item.receiverId || item.receiverEmployeeId ||
-      item.toId || item.targetId || item.targetEmployeeId || item.to || ''
-    ).trim();
+    return String(item.toParticipantId || item.toEmployeeId || item.receiverId || item.receiverEmployeeId || item.toId || item.targetId || item.targetEmployeeId || item.to || '').trim();
   }
 
   function itemFromName(item) {
@@ -39,12 +36,7 @@ const RinchanThanksHomeNotice = (() => {
 
   function receivedThanks() {
     const me = employeeId();
-    const sources = [
-      readJson('rinchanReceivedThanks', []),
-      readJson('rinchanThanks', []),
-      readJson('rinchanSentThanks', []),
-      readJson('rinchanGoodTimeline', [])
-    ];
+    const sources = [readJson('rinchanReceivedThanks', []), readJson('rinchanThanks', []), readJson('rinchanGoodTimeline', [])];
     const map = {};
     sources.forEach(list => {
       if (!Array.isArray(list)) return;
@@ -54,13 +46,7 @@ const RinchanThanksHomeNotice = (() => {
         if (me && toId && toId !== me) return;
         const id = String(item.thanksId || item.id || item.createdAt || item.savedAt || JSON.stringify(item));
         if (!id) return;
-        map[id] = {
-          id,
-          fromName: itemFromName(item),
-          reason: item.reason || 'ありがとう',
-          comment: item.comment || item.message || item.publicBody || item.body || '',
-          createdAt: item.createdAt || item.savedAt || item.date || ''
-        };
+        map[id] = { id, fromName: itemFromName(item), reason: item.reason || 'ありがとう', comment: item.comment || item.message || item.publicBody || item.body || '', createdAt: item.createdAt || item.savedAt || item.date || '' };
       });
     });
     return Object.values(map).sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
@@ -69,11 +55,6 @@ const RinchanThanksHomeNotice = (() => {
   function unreadFlowers() {
     const opened = readFlowerIds();
     return receivedThanks().filter(item => !opened.includes(String(item.id)));
-  }
-
-  function displayFlowers() {
-    const unread = unreadFlowers();
-    return unread.length ? unread : receivedThanks();
   }
 
   function injectStyles() {
@@ -100,14 +81,9 @@ const RinchanThanksHomeNotice = (() => {
     const card = document.createElement('section');
     card.id = 'thanksHomeNotice';
     card.className = 'card thanks-home-notice hidden';
-    card.innerHTML = [
-      '<div class="thanks-home-notice-row">',
-      '<div class="thanks-home-notice-flower">🌷</div>',
-      '<div><p class="label">🌸 花が届いているよ</p><h2 id="thanksHomeNoticeTitle">ありがとうの花が届いています</h2><p id="thanksHomeNoticeText">タップして受け取ってね。</p></div>',
-      '</div>'
-    ].join('');
+    card.innerHTML = '<div class="thanks-home-notice-row"><div class="thanks-home-notice-flower">🌷</div><div><p class="label">🌸 花が届いているよ</p><h2 id="thanksHomeNoticeTitle">ありがとうの花が届いています</h2><p id="thanksHomeNoticeText">マイページで受け取れます。</p></div></div>';
     anchor.insertAdjacentElement('afterend', card);
-    card.addEventListener('click', () => { location.href = 'pages/news.html'; });
+    card.addEventListener('click', () => { location.href = 'pages/mypage.html#thanks'; });
     return card;
   }
 
@@ -115,18 +91,13 @@ const RinchanThanksHomeNotice = (() => {
     injectStyles();
     const card = ensureCard();
     if (!card) return;
-    const rows = displayFlowers();
-    if (!rows.length) { card.classList.add('hidden'); return; }
     const unread = unreadFlowers();
-    const first = rows[0];
+    if (!unread.length) { card.classList.add('hidden'); return; }
+    const first = unread[0];
     const title = document.getElementById('thanksHomeNoticeTitle');
     const text = document.getElementById('thanksHomeNoticeText');
     if (title) title.textContent = first.fromName + 'さんから花が届いたよ🌸';
-    if (text) {
-      if (unread.length > 1) text.textContent = 'ほかにも ' + (unread.length - 1) + '輪の花が待っています。';
-      else if (unread.length === 1) text.textContent = 'タップして、ありがとうを受け取ってね。';
-      else text.textContent = '受け取った花を通信で見られます。';
-    }
+    if (text) text.textContent = unread.length > 1 ? 'マイページで ' + unread.length + '輪の花を受け取れます。' : 'マイページで花を受け取ってね。';
     card.classList.remove('hidden');
   }
 
