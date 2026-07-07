@@ -47,12 +47,62 @@ const RinchanFlowerReceiveEffect = (() => {
     setTimeout(() => { if (layer.parentNode) layer.parentNode.removeChild(layer); }, 1550);
   }
 
+  function readJson(key, fallback) {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function findThanks(id) {
+    const sources = [readJson('rinchanReceivedThanks', []), readJson('rinchanThanks', []), readJson('rinchanGoodTimeline', [])];
+    for (const list of sources) {
+      if (!Array.isArray(list)) continue;
+      const item = list.find(row => String(row && (row.thanksId || row.id || row.createdAt || row.savedAt)) === String(id));
+      if (item) return item;
+    }
+    return null;
+  }
+
+  function senderText(item) {
+    if (!item) return 'あなたの木に、やさしい気持ちが届きました。';
+    const dept = String(item.fromDept || item.senderDept || item.fromDepartment || '').trim();
+    const name = String(item.fromName || item.senderName || item.fromEmployeeName || item.sender || item.from || '').trim();
+    if (dept && name) return dept + '　' + name + 'さんより';
+    if (name) return name + 'さんより';
+    if (dept) return dept + 'より';
+    return '杜の仲間より';
+  }
+
+  function wrapThanksReceive() {
+    if (!window.RinchanThanks || typeof window.RinchanThanks.receiveFlower !== 'function') return false;
+    if (window.RinchanThanks.__flowerEffectWrapped) return true;
+    const original = window.RinchanThanks.receiveFlower;
+    window.RinchanThanks.receiveFlower = function(id) {
+      const opened = readJson('rinchanReadThanksFlowerIds', []).map(String);
+      const wasUnread = !opened.includes(String(id));
+      const item = findThanks(id);
+      if (wasUnread) play({ title: 'ありがとうの花が咲きました', note: senderText(item) });
+      return original.apply(window.RinchanThanks, arguments);
+    };
+    window.RinchanThanks.__flowerEffectWrapped = true;
+    return true;
+  }
+
+  function install() {
+    injectStyles();
+    wrapThanksReceive();
+    setTimeout(wrapThanksReceive, 300);
+    setTimeout(wrapThanksReceive, 1200);
+  }
+
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[c]));
   }
 
-  function install() { injectStyles(); }
   document.addEventListener('DOMContentLoaded', install);
+  window.addEventListener('pageshow', () => setTimeout(install, 100));
   return { VERSION, install, play };
 })();
 window.RinchanFlowerReceiveEffect = RinchanFlowerReceiveEffect;
