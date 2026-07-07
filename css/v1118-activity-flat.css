@@ -1,4 +1,12 @@
-/* v1.1.8 activity page flat polish */
+/* v1.1.9 activity page flat polish */
+#activityForm.form,
+form#activityForm{
+  background:#fff!important;
+  border:1px solid rgba(93,130,105,.12)!important;
+  border-radius:28px!important;
+  box-shadow:0 12px 28px rgba(24,50,40,.06)!important;
+  padding:24px 20px!important;
+}
 #activityForm label.check,
 .form label.check,
 .activity-edit-check{
@@ -16,9 +24,7 @@
   margin-right:10px!important;
 }
 .activity-tools-list .activity-tool-row,
-.activity-tools-list .activity-row,
-.activity-row,
-.activity-row.compact-row{
+.activity-tools-list .activity-row{
   background:transparent!important;
   border:0!important;
   box-shadow:none!important;
@@ -39,10 +45,6 @@
 }
 #activityForm .submit,
 #activityForm .pill-button{
-  color:#fff!important;
-}
-#activityForm .submit::first-letter,
-#activityForm .pill-button::first-letter{
   color:#fff!important;
 }
 .activity-submit-icon,
