@@ -1,0 +1,54 @@
+/* v1.1.8 activity page flat polish */
+#activityForm label.check,
+.form label.check,
+.activity-edit-check{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  padding:10px 0!important;
+  border-radius:0!important;
+}
+#activityForm label.check input,
+.form label.check input{
+  width:24px!important;
+  height:24px!important;
+  min-height:24px!important;
+  margin-right:10px!important;
+}
+.activity-tools-list .activity-tool-row,
+.activity-tools-list .activity-row,
+.activity-row,
+.activity-row.compact-row{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:0!important;
+}
+.activity-tools-list .activity-row,
+.activity-tools-list .activity-tool-row{
+  border-bottom:1px solid rgba(93,130,105,.12)!important;
+  padding:10px 0!important;
+}
+.activity-tools-list .activity-row:last-child,
+.activity-tools-list .activity-tool-row:last-child{
+  border-bottom:0!important;
+}
+.activity-tool-actions button,
+.activity-row-actions button{
+  box-shadow:none!important;
+}
+#activityForm .submit,
+#activityForm .pill-button{
+  color:#fff!important;
+}
+#activityForm .submit::first-letter,
+#activityForm .pill-button::first-letter{
+  color:#fff!important;
+}
+.activity-submit-icon,
+.submit .activity-submit-icon,
+.pill-button .activity-submit-icon{
+  color:#fff!important;
+  filter:brightness(0) invert(1) drop-shadow(0 1px 1px rgba(0,0,0,.12));
+  margin-right:6px;
+}
