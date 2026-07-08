@@ -93,10 +93,12 @@ function getUserState(ss, data) {
   const receivedThanks = getMyThanks(ss, { employeeId: id });
   const sentThanks = getMySentThanks(ss, { employeeId: id });
   const thanksTimeline = getPublicThanksTimeline(ss);
-  const readNewsIds = getReadNewsIds(ss, id);
+  const userReads = getUserReadState(ss, id);
+  const readNewsIds = userReads.readNewsIds || [];
+  const readThanksFlowerIds = userReads.readThanksFlowerIds || [];
   const thanksStats = getMyThanksStats(ss, { employeeId: id });
   const globalState = getGlobalForestState(ss);
-  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats, globalState);
+  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState);
 
   if (clientToken && clientToken === syncToken) {
     return {
@@ -122,6 +124,8 @@ function getUserState(ss, data) {
     sentThanks,
     thanksTimeline,
     readNewsIds,
+    readThanksFlowerIds,
+    userReads,
     thanksStats,
     syncToken,
     unchanged: false,
@@ -177,7 +181,7 @@ function getGlobalForestState(ss) {
   };
 }
 
-function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, thanksStats, globalState) {
+function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState) {
   const parts = [
     user ? [user.id, user.updatedAt, user.weeklyGoal, user.weeklyStepGoal, user.dept, user.declaration].join('|') : '',
     listToken(activities, 'activityId', 'savedAt'),
@@ -185,6 +189,7 @@ function createUserStateToken(user, activities, receivedThanks, sentThanks, than
     listToken(sentThanks, 'thanksId', 'savedAt'),
     listToken(thanksTimeline, 'id', 'createdAt'),
     (readNewsIds || []).join(','),
+    (readThanksFlowerIds || []).join(','),
     thanksStats ? [thanksStats.sentCount, thanksStats.receivedCount, thanksStats.totalCount].join('|') : '',
     globalState && globalState.mori ? [globalState.mori.totalSteps, globalState.mori.memberCount, globalState.mori.activityCount].join('|') : '',
     globalState ? listToken(globalState.allActivities, 'activityId', 'savedAt') : '',
