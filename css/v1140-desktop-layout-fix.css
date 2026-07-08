@@ -1,0 +1,138 @@
+/* v1.1.40 desktop layout fixes for narrow app frame */
+
+/* Home flower notice: keep desktop browser view tidy */
+.thanks-home-notice{
+  padding:20px 18px!important;
+}
+.thanks-home-notice-row{
+  display:grid!important;
+  grid-template-columns:54px minmax(0,1fr)!important;
+  gap:14px!important;
+  align-items:center!important;
+}
+.thanks-home-notice-row>div:last-child{
+  min-width:0!important;
+  overflow:visible!important;
+}
+.thanks-home-notice h2,
+#thanksHomeNoticeTitle{
+  font-size:clamp(20px,4.8vw,24px)!important;
+  line-height:1.34!important;
+  letter-spacing:-.055em!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  max-width:100%!important;
+}
+.thanks-home-notice p,
+#thanksHomeNoticeText{
+  font-size:clamp(13px,3.4vw,15px)!important;
+  line-height:1.6!important;
+}
+
+/* Mori department card: prevent numeric stats from breaking vertically on desktop */
+#treeInfoCard .mini-stats{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+  align-items:stretch!important;
+  width:100%!important;
+}
+#treeInfoCard .mini-stats>div{
+  min-width:0!important;
+  padding:12px 6px!important;
+  border-radius:18px!important;
+  background:rgba(248,255,250,.82)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+  gap:5px!important;
+}
+#treeInfoCard .mini-stats strong{
+  display:block!important;
+  width:100%!important;
+  font-size:clamp(17px,4.4vw,22px)!important;
+  line-height:1.15!important;
+  letter-spacing:-.06em!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#treeInfoCard .mini-stats small{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  font-size:clamp(11px,2.9vw,13px)!important;
+  line-height:1.25!important;
+  letter-spacing:-.04em!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:keep-all!important;
+}
+#treeInfoCard .dept-card-title{
+  font-size:clamp(25px,6vw,31px)!important;
+  line-height:1.28!important;
+  letter-spacing:-.05em!important;
+  word-break:keep-all!important;
+}
+
+/* Thank-you reason modal: compact two-column choices in desktop browsers */
+.thanks-reason-panel{
+  width:min(390px,calc(100% - 34px))!important;
+  padding:22px!important;
+  box-sizing:border-box!important;
+}
+.thanks-reason-options{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.thanks-reason-options button,
+.thanks-reason-choice{
+  min-width:0!important;
+  min-height:62px!important;
+  padding:10px 8px!important;
+  display:grid!important;
+  grid-template-columns:24px minmax(0,1fr)!important;
+  grid-template-rows:auto!important;
+  align-items:center!important;
+  justify-items:center!important;
+  column-gap:6px!important;
+  row-gap:0!important;
+  text-align:center!important;
+  box-sizing:border-box!important;
+}
+.thanks-reason-choice strong{
+  display:block!important;
+  min-width:0!important;
+  max-width:100%!important;
+  font-size:15px!important;
+  line-height:1.25!important;
+  letter-spacing:-.04em!important;
+  white-space:normal!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+}
+.thanks-reason-choice .choice-sub{
+  display:none!important;
+}
+.thanks-reason-choice .choice-number{
+  width:24px!important;
+  height:24px!important;
+  margin:0!important;
+  flex:0 0 24px!important;
+  font-size:12px!important;
+}
+@media(max-width:360px){
+  #treeInfoCard .mini-stats{gap:8px!important;}
+  #treeInfoCard .mini-stats>div{padding:11px 4px!important;}
+  #treeInfoCard .mini-stats strong{font-size:17px!important;}
+  #treeInfoCard .mini-stats small{font-size:11px!important;}
+  .thanks-reason-panel{width:calc(100% - 28px)!important;padding:20px!important;}
+  .thanks-reason-choice strong{font-size:14px!important;}
+}
