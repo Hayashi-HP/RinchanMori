@@ -1,5 +1,5 @@
 const RinchanThanksHomeNotice = (() => {
-  const VERSION = 'v1.1.29';
+  const VERSION = 'v1.1.40';
 
   function readJson(key, fallback) {
     try {
@@ -66,7 +66,7 @@ const RinchanThanksHomeNotice = (() => {
       '.thanks-home-notice-row{display:flex;gap:14px;align-items:center;min-width:0}',
       '.thanks-home-notice-row>div:last-child{min-width:0;overflow:hidden}',
       '.thanks-home-notice-flower{width:54px;height:54px;border-radius:20px;background:#fff0f7;display:flex;align-items:center;justify-content:center;font-size:30px;flex:0 0 auto;animation:thanksHomeFlowerPulse 2.8s ease-in-out infinite}',
-      '.thanks-home-notice h2{margin:2px 0 4px;color:#513149;font-size:clamp(22px,5.8vw,30px);line-height:1.25;letter-spacing:-.045em;overflow-wrap:anywhere;word-break:keep-all}',
+      '.thanks-home-notice h2{margin:2px 0 4px;color:#513149;font-size:clamp(20px,4.8vw,24px);line-height:1.34;letter-spacing:-.055em;overflow-wrap:normal;word-break:keep-all}',
       '.thanks-home-notice p{margin:0;color:#667568;font-weight:900;line-height:1.55}',
       '@keyframes thanksHomeFlowerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}',
       '@media (prefers-reduced-motion:reduce){.thanks-home-notice-flower{animation:none!important}}'
@@ -81,7 +81,7 @@ const RinchanThanksHomeNotice = (() => {
     const card = document.createElement('section');
     card.id = 'thanksHomeNotice';
     card.className = 'card thanks-home-notice hidden';
-    card.innerHTML = '<div class="thanks-home-notice-row"><div class="thanks-home-notice-flower">🌷</div><div><p class="label">🌸 花が届いているよ</p><h2 id="thanksHomeNoticeTitle">ありがとうの花が届いています</h2><p id="thanksHomeNoticeText">マイページで受け取れます。</p></div></div>';
+    card.innerHTML = '<div class="thanks-home-notice-row"><div class="thanks-home-notice-flower">🌷</div><div><p class="label">🌸 花が届いているよ</p><h2 id="thanksHomeNoticeTitle">花が届いています🌸</h2><p id="thanksHomeNoticeText">マイページで受け取れます。</p></div></div>';
     anchor.insertAdjacentElement('afterend', card);
     card.addEventListener('click', () => { location.href = 'pages/mypage.html#thanks'; });
     return card;
@@ -93,10 +93,9 @@ const RinchanThanksHomeNotice = (() => {
     if (!card) return;
     const unread = unreadFlowers();
     if (!unread.length) { card.classList.add('hidden'); return; }
-    const first = unread[0];
     const title = document.getElementById('thanksHomeNoticeTitle');
     const text = document.getElementById('thanksHomeNoticeText');
-    if (title) title.textContent = first.fromName + 'さんから花が届いたよ🌸';
+    if (title) title.textContent = '花が届いています🌸';
     if (text) text.textContent = unread.length > 1 ? 'マイページで ' + unread.length + '輪の花を受け取れます。' : 'マイページで花を受け取ってね。';
     card.classList.remove('hidden');
   }
