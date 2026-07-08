@@ -32,7 +32,7 @@ function setupProject(ss) {
   ensureSheet(ss, SHEET_BACKUP_LOGS, [
     'createdAt', 'label', 'actorEmployeeId', 'copiedCount', 'sourceCount', 'ok', 'detailJson', 'version'
   ]);
-  ensureSheet(ss, SHEET_USER_READS, ['employeeId', 'readNewsIds', 'updatedAt', 'version']);
+  ensureSheet(ss, SHEET_USER_READS, ['employeeId', 'readNewsIds', 'readThanksFlowerIds', 'updatedAt', 'version']);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);
