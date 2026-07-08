@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.1.38
+- 既読管理を端末内保存から `user_reads` シート中心のサーバー保存へ作り替え
+- お知らせ確認は `markNewsRead` / `markRead` で `user_reads.readNewsIds` に保存
+- ありがとうの花受け取りは `markThanksRead` で `user_reads.readThanksFlowerIds` に保存
+- `getUserState` が `readNewsIds`、`readThanksFlowerIds`、`userReads` を返すように修正
+- PCとスマホで既読・未読状態が同期されるように修正
+- `user_reads` の列構成を `employeeId / readNewsIds / readThanksFlowerIds / updatedAt / version` に拡張
+- ホーム、通信、マイページの関連JSキャッシュを `1138` に更新
+- Apps Script版を `v1.1.38` に更新
+
 ## v1.1.37
 - ログインしていない状態で、通知バッジに全員分のありがとう未受取数まで加算される問題を修正
 - ゲスト状態の通知バッジは、お知らせ未読件数だけを表示するように変更
