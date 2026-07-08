@@ -97,9 +97,21 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, state: getUserState(ss, data), version: VERSION });
   }
 
+  if (action === 'markRead') {
+    const state = markUserRead(ss, data);
+    auditAction(ss, 'markRead', data, 'ok', 'user_read', { employeeId: data.employeeId || data.id || '', type: data.type || '', targetId: data.targetId || data.newsId || data.thanksId || '' });
+    return jsonOutput({ ok: true, action, state, version: VERSION });
+  }
+
   if (action === 'markNewsRead') {
     const state = markNewsRead(ss, data);
-    auditAction(ss, 'markNewsRead', data, 'ok', 'news_read', { employeeId: data.employeeId || data.id || '' });
+    auditAction(ss, 'markNewsRead', data, 'ok', 'news_read', { employeeId: data.employeeId || data.id || '', newsId: data.newsId || data.noticeId || data.targetId || '' });
+    return jsonOutput({ ok: true, action, state, version: VERSION });
+  }
+
+  if (action === 'markThanksRead') {
+    const state = markThanksRead(ss, data);
+    auditAction(ss, 'markThanksRead', data, 'ok', 'thanks_read', { employeeId: data.employeeId || data.id || '', thanksId: data.thanksId || data.flowerId || data.targetId || '' });
     return jsonOutput({ ok: true, action, state, version: VERSION });
   }
 
@@ -144,32 +156,16 @@ function handlePost(action, data, ss) {
     const saved = saveUser(ss, data);
     invalidateUserCaches();
     writeLog(ss, action, data.deviceId, saved.user.id, 'ok', '');
-    auditAction(ss, 'saveUser', Object.assign({}, data, { employeeId: saved.user.employeeId }), 'ok', 'user_saved', {
-      targetEmployeeId: saved.user.employeeId,
-      dept: saved.user.dept || ''
-    });
-    return jsonOutput({
-      ok: true,
-      action,
-      saved,
-      user: saved.user,
-      state: getUserState(ss, { employeeId: saved.user.employeeId }),
-      version: VERSION
-    });
+    auditAction(ss, action, Object.assign({}, data, { employeeId: saved.user.employeeId }), 'ok', 'user_saved', { targetEmployeeId: saved.user.employeeId, dept: saved.user.dept || '' });
+    return jsonOutput({ ok: true, action, saved, user: saved.user, state: getUserState(ss, { employeeId: saved.user.employeeId }), version: VERSION });
   }
 
   if (action === 'loginUser') {
     const user = loginUser(ss, data);
     writeLog(ss, action, data.deviceId, user ? user.id : '', user ? 'ok' : 'ng', user ? '' : 'login_failed');
-    auditAction(ss, 'loginUser', Object.assign({}, data, { employeeId: data.employeeId || data.id || '' }), user ? 'ok' : 'ng', user ? 'login_success' : 'login_failed');
+    auditAction(ss, action, Object.assign({}, data, { employeeId: data.employeeId || data.id || '' }), user ? 'ok' : 'ng', user ? 'login_success' : 'login_failed');
     if (!user) return jsonOutput({ ok: false, error: 'login_failed', version: VERSION });
-    return jsonOutput({
-      ok: true,
-      action,
-      user,
-      state: getUserState(ss, { employeeId: user.employeeId }),
-      version: VERSION
-    });
+    return jsonOutput({ ok: true, action, user, state: getUserState(ss, { employeeId: user.employeeId }), version: VERSION });
   }
 
   if (action === 'saveActivity') {
@@ -177,18 +173,8 @@ function handlePost(action, data, ss) {
     invalidateActivityCaches();
     const employeeId = data.participantId || data.employeeId || data.id;
     writeLog(ss, action, data.deviceId, employeeId, 'ok', '');
-    auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId }), 'ok', 'activity_saved', {
-      date: data.date || '',
-      steps: data.steps || '',
-      activityId: saved.activityId || ''
-    });
-    return jsonOutput({
-      ok: true,
-      action,
-      saved,
-      state: getUserState(ss, { employeeId }),
-      version: VERSION
-    });
+    auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId }), 'ok', 'activity_saved', { date: data.date || '', steps: data.steps || '', activityId: saved.activityId || '' });
+    return jsonOutput({ ok: true, action, saved, state: getUserState(ss, { employeeId }), version: VERSION });
   }
 
   if (action === 'deleteActivity') {
@@ -196,16 +182,8 @@ function handlePost(action, data, ss) {
     const deleted = deleteActivity(ss, data);
     if (deleted.deleted) invalidateActivityCaches();
     writeLog(ss, action, data.deviceId, employeeId, deleted.deleted ? 'ok' : 'ng', deleted.deleted ? '' : 'not_found');
-    auditAction(ss, 'deleteActivity', Object.assign({}, data, { employeeId }), deleted.deleted ? 'ok' : 'ng', deleted.deleted ? 'activity_deleted' : 'activity_not_found', {
-      activityId: data.activityId || ''
-    });
-    return jsonOutput({
-      ok: true,
-      action,
-      deleted,
-      state: getUserState(ss, { employeeId }),
-      version: VERSION
-    });
+    auditAction(ss, 'deleteActivity', Object.assign({}, data, { employeeId }), deleted.deleted ? 'ok' : 'ng', deleted.deleted ? 'activity_deleted' : 'activity_not_found', { activityId: data.activityId || '' });
+    return jsonOutput({ ok: true, action, deleted, state: getUserState(ss, { employeeId }), version: VERSION });
   }
 
   if (action === 'saveThanks') {
@@ -216,11 +194,7 @@ function handlePost(action, data, ss) {
       try { writeLog(ss, action, data.deviceId || data.fromParticipantId || '', data.toParticipantId || '', 'ok', ''); } catch (ignoreLog) {}
       try {
         if (typeof auditAction === 'function') {
-          auditAction(ss, 'saveThanks', Object.assign({}, data, { employeeId }), 'ok', 'thanks_saved', {
-            thanksId: saved.thanksId || '',
-            toParticipantId: data.toParticipantId || '',
-            reason: data.reason || ''
-          });
+          auditAction(ss, 'saveThanks', Object.assign({}, data, { employeeId }), 'ok', 'thanks_saved', { thanksId: saved.thanksId || '', toParticipantId: data.toParticipantId || '', reason: data.reason || '' });
         }
       } catch (ignoreAudit) {}
 
