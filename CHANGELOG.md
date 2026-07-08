@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.2.1
+- Step2 Cleanup1を開始
+- `CLEANUP_PLAN.md` を追加
+- `HTML_ASSET_AUDIT.md` を追加
+- `CACHE_AUDIT.md` にログイン・新規登録・管理画面の確認結果を追記
+- `HTML_ASSET_AUDIT.md` にログイン・新規登録・管理画面の読み込み構成を追記
+- 管理画面の表示ラベルが `v1.2.0` になっていることを確認
+- READMEに正式管理文書一覧を追記
+
 ## v1.2.0
 - Phase2「杜を生きた世界にする」を開始
 - `js/features/mori-world-engine.js` を追加
