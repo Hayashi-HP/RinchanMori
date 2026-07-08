@@ -1,0 +1,17 @@
+/* v1.2.2 Mori creature engine */
+.mori-creature-layer{position:absolute!important;inset:0!important;z-index:2!important;pointer-events:none!important;overflow:hidden!important;border-radius:inherit!important}
+.mori-creature{position:absolute!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:34px!important;height:34px!important;border-radius:999px!important;background:rgba(255,255,255,.48)!important;font-size:22px!important;line-height:1!important;filter:drop-shadow(0 8px 10px rgba(45,85,60,.12));pointer-events:auto!important;cursor:pointer!important;user-select:none!important;touch-action:manipulation!important;will-change:transform,opacity!important}
+.mori-creature-butterfly{left:12%;top:24%;animation:moriCreatureButterfly 8s ease-in-out infinite}
+.mori-creature-bird{right:16%;top:18%;animation:moriCreatureBird 11s ease-in-out infinite}
+.mori-creature-rabbit{left:18%;bottom:13%;animation:moriCreaturePeek 5.5s ease-in-out infinite}
+.mori-creature-squirrel{right:20%;bottom:18%;animation:moriCreatureRun 7.5s ease-in-out infinite}
+.mori-creature-firefly{left:50%;top:42%;font-size:17px!important;width:26px!important;height:26px!important;background:rgba(255,255,210,.52)!important;box-shadow:0 0 18px rgba(255,240,120,.7);animation:moriCreatureGlow 3s ease-in-out infinite}
+.mori-creature-message{position:absolute;left:50%;top:16px;transform:translateX(-50%);z-index:8;max-width:86%;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.94);border:1px solid rgba(93,130,105,.14);box-shadow:0 12px 26px rgba(24,50,40,.10);color:#244038;font-size:13px;font-weight:950;line-height:1.45;text-align:center;opacity:0;pointer-events:none;animation:moriCreatureMessage 2200ms ease-out forwards}
+@keyframes moriCreatureButterfly{0%,100%{transform:translate(0,0) rotate(-8deg)}25%{transform:translate(38px,-22px) rotate(12deg)}50%{transform:translate(76px,8px) rotate(-4deg)}75%{transform:translate(34px,24px) rotate(10deg)}}
+@keyframes moriCreatureBird{0%,100%{transform:translate(0,0)}45%{transform:translate(-92px,18px)}70%{transform:translate(-54px,-12px)}}
+@keyframes moriCreaturePeek{0%,100%{transform:translateY(18px);opacity:.72}35%,70%{transform:translateY(0);opacity:1}}
+@keyframes moriCreatureRun{0%,100%{transform:translateX(0) scaleX(1)}45%{transform:translateX(-68px) scaleX(1)}46%{transform:translateX(-68px) scaleX(-1)}85%{transform:translateX(0) scaleX(-1)}86%{transform:translateX(0) scaleX(1)}}
+@keyframes moriCreatureGlow{0%,100%{opacity:.35;transform:translate(0,0) scale(.86)}50%{opacity:1;transform:translate(22px,-18px) scale(1.1)}}
+@keyframes moriCreatureMessage{0%{opacity:0;transform:translate(-50%,-8px)}12%,78%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}
+@media(max-width:430px){.mori-creature{width:30px!important;height:30px!important;font-size:20px!important}.mori-creature-butterfly{left:8%;top:22%}.mori-creature-bird{right:8%;top:16%}.mori-creature-rabbit{left:10%;bottom:11%}.mori-creature-squirrel{right:12%;bottom:15%}.mori-creature-message{font-size:12px;top:12px}}
+@media(prefers-reduced-motion:reduce){.mori-creature{animation:none!important}.mori-creature-message{animation:none!important;opacity:1}}
