@@ -1,0 +1,79 @@
+/* v1.1.39 home header restore */
+.home-v1100>.top,
+body.is-guest .home-v1100>.top,
+body.is-logged-in .home-v1100>.top{
+  display:grid!important;
+  visibility:visible!important;
+  opacity:1!important;
+  position:sticky!important;
+  top:0!important;
+  z-index:1000!important;
+  width:100%!important;
+  max-width:430px!important;
+  min-height:76px!important;
+  height:76px!important;
+  margin:0 auto!important;
+  padding:0 22px!important;
+  grid-template-columns:minmax(0,1fr) 58px!important;
+  align-items:center!important;
+  background:rgba(255,255,255,.98)!important;
+  border-bottom:1px solid rgba(93,130,105,.13)!important;
+  box-shadow:0 8px 18px rgba(24,50,40,.04)!important;
+  box-sizing:border-box!important;
+}
+.home-v1100>.top .brand.rinchan-brand{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  grid-column:1!important;
+  justify-self:start!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-width:0!important;
+  max-width:100%!important;
+  background:transparent!important;
+}
+.home-v1100>.top .brand.rinchan-brand img,
+.home-v1100>.top .rin-face-brand{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+  object-fit:contain!important;
+}
+.home-v1100>.top .brand.rinchan-brand span{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-width:0!important;
+  color:#244038!important;
+  font-size:19px!important;
+  font-weight:950!important;
+  line-height:1.2!important;
+  letter-spacing:-.03em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.home-v1100>.top .bell-link{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  grid-column:2!important;
+  justify-self:end!important;
+  width:52px!important;
+  height:52px!important;
+  min-width:52px!important;
+  min-height:52px!important;
+  border-radius:50%!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:#eef8fb!important;
+  color:#244038!important;
+  font-size:24px!important;
+  text-decoration:none!important;
+  position:relative!important;
+}
+.home-v1100>.home-hero{margin-top:16px!important;}
