@@ -1,11 +1,11 @@
 const RinchanCreatureEngineV122 = (() => {
-  const VERSION = 'v1.2.2';
+  const VERSION = 'v1.2.3';
   const WORDS = {
-    butterfly: 'ちょうちょが遊びに来たよ♪',
-    bird: '小鳥が気持ちよさそうに歌っているね♪',
-    rabbit: 'うさぎが顔を出したよ♪',
-    squirrel: 'りすが木のそばを走っているよ♪',
-    firefly: '夜の杜にホタルが光っているよ✨'
+    butterfly: ['ちょうちょが遊びに来たよ♪','花の近くをひらひら飛んでいるよ♪','今日はちょうちょ日和だね🦋'],
+    bird: ['小鳥が気持ちよさそうに歌っているね♪','枝の上で小鳥が休んでいるよ♪','杜に小鳥の声が聞こえるよ🐦'],
+    rabbit: ['うさぎが顔を出したよ♪','草むらからうさぎがのぞいているよ♪','うさぎがぴょんと遊びに来たよ🐰'],
+    squirrel: ['りすが木のそばを走っているよ♪','りすが実を探しているみたい♪','木の根元でりすを見つけたよ🐿️'],
+    firefly: ['夜の杜にホタルが光っているよ✨','ホタルが静かに光っているね✨','夜だけの小さな光を見つけたよ✨']
   };
 
   function timeKey() {
@@ -16,15 +16,42 @@ const RinchanCreatureEngineV122 = (() => {
     return 'night';
   }
 
+  function seedValue() {
+    const d = new Date();
+    const base = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    let n = 0;
+    for (let i = 0; i < base.length; i += 1) n = (n * 31 + base.charCodeAt(i)) % 9973;
+    return n;
+  }
+
+  function pickDailyCreatures() {
+    const t = timeKey();
+    const seed = seedValue();
+    const daytime = ['butterfly','bird','rabbit','squirrel'];
+    const evening = ['butterfly','bird','squirrel'];
+    const night = ['firefly','bird','rabbit'];
+    const pool = t === 'night' ? night : (t === 'evening' ? evening : daytime);
+    const count = t === 'night' ? 2 : 3;
+    const result = [];
+    for (let i = 0; i < pool.length && result.length < count; i += 1) {
+      const index = (seed + i * 2) % pool.length;
+      const key = pool[index];
+      if (!result.includes(key)) result.push(key);
+    }
+    if (t === 'night' && !result.includes('firefly')) result.unshift('firefly');
+    return result.slice(0, count);
+  }
+
+  function emoji(key) {
+    return { butterfly:'🦋', bird:'🐦', rabbit:'🐰', squirrel:'🐿️', firefly:'✨' }[key] || '🌿';
+  }
+
+  function label(key) {
+    return { butterfly:'ちょうちょ', bird:'小鳥', rabbit:'うさぎ', squirrel:'りす', firefly:'ホタル' }[key] || '杜の仲間';
+  }
+
   function creatureHtml() {
-    const night = timeKey() === 'night';
-    return [
-      '<button type="button" class="mori-creature mori-creature-butterfly" data-creature="butterfly" aria-label="ちょうちょ">🦋</button>',
-      '<button type="button" class="mori-creature mori-creature-bird" data-creature="bird" aria-label="小鳥">🐦</button>',
-      '<button type="button" class="mori-creature mori-creature-rabbit" data-creature="rabbit" aria-label="うさぎ">🐰</button>',
-      '<button type="button" class="mori-creature mori-creature-squirrel" data-creature="squirrel" aria-label="りす">🐿️</button>',
-      night ? '<button type="button" class="mori-creature mori-creature-firefly" data-creature="firefly" aria-label="ホタル">✨</button>' : ''
-    ].join('');
+    return pickDailyCreatures().map(key => '<button type="button" class="mori-creature mori-creature-' + key + '" data-creature="' + key + '" aria-label="' + label(key) + '">' + emoji(key) + '</button>').join('');
   }
 
   function ensureLayer(map) {
@@ -39,9 +66,15 @@ const RinchanCreatureEngineV122 = (() => {
       btn.addEventListener('click', function(ev) {
         ev.preventDefault();
         ev.stopPropagation();
-        showMessage(map, WORDS[this.dataset.creature] || '杜の仲間を見つけたよ♪');
+        showMessage(map, pickWord(this.dataset.creature));
       });
     });
+  }
+
+  function pickWord(key) {
+    const list = WORDS[key] || ['杜の仲間を見つけたよ♪'];
+    const index = (seedValue() + String(key || '').length) % list.length;
+    return list[index];
   }
 
   function showMessage(map, text) {
