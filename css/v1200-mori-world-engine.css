@@ -1,0 +1,36 @@
+/* v1.2.0 Phase2 Mori world engine */
+.mori-world-sky{
+  position:absolute!important;
+  inset:0!important;
+  z-index:0!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  border-radius:inherit!important;
+}
+.mori-world-sky span{
+  position:absolute!important;
+  display:block!important;
+  opacity:.82!important;
+  pointer-events:none!important;
+  will-change:transform,opacity!important;
+}
+.mori-cloud{width:74px;height:26px;border-radius:999px;background:rgba(255,255,255,.72);box-shadow:22px 4px 0 rgba(255,255,255,.55),-18px 7px 0 rgba(255,255,255,.45);animation:moriCloudDrift 28s linear infinite}
+.mori-cloud.c1{left:-90px;top:28px}.mori-cloud.c2{left:-140px;top:88px;transform:scale(.8);animation-duration:36s;animation-delay:-12s}
+.mori-leaf{font-size:22px;animation:moriLeafFall 9s ease-in-out infinite}.mori-leaf.l1{left:10%;top:-20px;animation-delay:-1s}.mori-leaf.l2{left:72%;top:-20px;animation-delay:-5s}.mori-leaf.l3{left:42%;top:-20px;animation-delay:-7s}
+.mori-star{font-size:14px;animation:moriTwinkle 2.4s ease-in-out infinite}.mori-star.s1{left:18%;top:32px}.mori-star.s2{left:62%;top:64px;animation-delay:-.8s}.mori-star.s3{left:84%;top:26px;animation-delay:-1.4s}
+.mori-game-map.rinchan-time-morning{background:linear-gradient(180deg,#fff4cf 0%,#e8fbff 48%,#f1ffe4 100%)!important}
+.mori-game-map.rinchan-time-day{background:linear-gradient(180deg,#dff7ff 0%,#ecfff2 52%,#fff7e8 100%)!important}
+.mori-game-map.rinchan-time-evening{background:linear-gradient(180deg,#ffe0cf 0%,#fff3d9 46%,#e9ffd8 100%)!important}
+.mori-game-map.rinchan-time-night{background:linear-gradient(180deg,#20355d 0%,#35597e 52%,#dff2db 100%)!important}
+.mori-game-map.rinchan-time-night .dept-node,.mori-game-map.rinchan-time-night .mori-tree-node{background:rgba(255,255,255,.9)!important}
+.mori-game-map.rinchan-season-spring{box-shadow:inset 0 0 0 999px rgba(255,231,241,.10)}
+.mori-game-map.rinchan-season-summer{box-shadow:inset 0 0 0 999px rgba(218,255,224,.10)}
+.mori-game-map.rinchan-season-autumn{box-shadow:inset 0 0 0 999px rgba(255,231,190,.14)}
+.mori-game-map.rinchan-season-winter{box-shadow:inset 0 0 0 999px rgba(230,248,255,.18)}
+.mori-tree-node.dept-node span{animation:moriTreeBreath 4.2s ease-in-out infinite;transform-origin:center bottom}
+@keyframes moriCloudDrift{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 240px))}}
+@keyframes moriLeafFall{0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0deg)}12%{opacity:.9}100%{opacity:0;transform:translate3d(38px,430px,0) rotate(240deg)}}
+@keyframes moriTwinkle{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes moriTreeBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@media(max-width:430px){.mori-cloud{width:62px;height:22px}.mori-leaf{font-size:19px}.mori-star{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.mori-cloud,.mori-leaf,.mori-star,.mori-tree-node.dept-node span{animation:none!important}}
