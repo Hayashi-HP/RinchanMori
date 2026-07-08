@@ -1,0 +1,39 @@
+/* v1.1.36 mobile mori decoration layer */
+.mori-game-map{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  min-height:440px!important;
+}
+.mori-game-map .mori-world-flower,
+.mori-game-map .mori-world-friend{
+  display:block!important;
+  visibility:visible!important;
+  opacity:.95!important;
+  position:absolute!important;
+  z-index:1!important;
+  pointer-events:none!important;
+  will-change:transform,opacity!important;
+}
+.mori-game-map .dept-node,
+.mori-game-map .mori-tree-node{
+  position:relative!important;
+  z-index:3!important;
+}
+@media(max-width:430px){
+  .mori-game-map{
+    overflow:hidden!important;
+    min-height:440px!important;
+  }
+  .mori-game-map .mori-world-flower{
+    font-size:20px!important;
+  }
+  .mori-game-map .mori-world-friend{
+    font-size:24px!important;
+  }
+}
+@media(max-width:360px){
+  .mori-game-map{
+    min-height:420px!important;
+  }
+}
