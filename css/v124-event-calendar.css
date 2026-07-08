@@ -1,0 +1,18 @@
+/* v1.2.4 event calendar */
+.mori-game-map[class*="rinchan-event-"]{transition:background 450ms ease, box-shadow 450ms ease}
+.rinchan-event-newyear{box-shadow:inset 0 0 0 999px rgba(255,250,230,.14)!important}
+.rinchan-event-sakura{box-shadow:inset 0 0 0 999px rgba(255,225,238,.18)!important}
+.rinchan-event-tanabata{box-shadow:inset 0 0 0 999px rgba(220,235,255,.16)!important}
+.rinchan-event-summer{box-shadow:inset 0 0 0 999px rgba(255,241,190,.14)!important}
+.rinchan-event-halloween{box-shadow:inset 0 0 0 999px rgba(255,218,170,.16)!important}
+.rinchan-event-christmas{box-shadow:inset 0 0 0 999px rgba(226,255,236,.16)!important}
+.rinchan-event-sakura .mori-world-sky:after,.rinchan-event-tanabata .mori-world-sky:after,.rinchan-event-summer .mori-world-sky:after,.rinchan-event-halloween .mori-world-sky:after,.rinchan-event-christmas .mori-world-sky:after,.rinchan-event-newyear .mori-world-sky:after{position:absolute;right:16px;top:16px;font-size:34px;opacity:.88;filter:drop-shadow(0 8px 12px rgba(40,70,50,.14));animation:moriEventFloat 4.8s ease-in-out infinite;content:'🌳'}
+.rinchan-event-newyear .mori-world-sky:after{content:'🎍'}
+.rinchan-event-sakura .mori-world-sky:after{content:'🌸'}
+.rinchan-event-tanabata .mori-world-sky:after{content:'🎋'}
+.rinchan-event-summer .mori-world-sky:after{content:'🎆'}
+.rinchan-event-halloween .mori-world-sky:after{content:'🎃'}
+.rinchan-event-christmas .mori-world-sky:after{content:'🎄'}
+@keyframes moriEventFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+@media(max-width:430px){.rinchan-event-sakura .mori-world-sky:after,.rinchan-event-tanabata .mori-world-sky:after,.rinchan-event-summer .mori-world-sky:after,.rinchan-event-halloween .mori-world-sky:after,.rinchan-event-christmas .mori-world-sky:after,.rinchan-event-newyear .mori-world-sky:after{right:12px;top:12px;font-size:28px}}
+@media(prefers-reduced-motion:reduce){.mori-world-sky:after{animation:none!important}}
