@@ -60,6 +60,7 @@ Phase1 の基本機能はおおむね完成。
 
 ## 直近の重要な修正
 
+- v1.2.1：Cleanup1開始、管理画面ラベル確認、管理文書一覧を整理
 - v1.1.42：ありがとう履歴のサーバー同期待ち表示を追加
 - v1.1.41：ホームのフッターナビ復旧
 - v1.1.40：PC表示崩れ修正
@@ -76,12 +77,21 @@ Phase1 の基本機能はおおむね完成。
 - Phase2 以降は新機能追加前にドキュメント更新を必須とする
 - 開発指示はこのチャットに一本化する
 
-## ドキュメント構成
+## 正式管理文書
 
-- `README.md`：現在地、機能一覧、運用方針
-- `CHANGELOG.md`：変更履歴
-- `ROADMAP.md`：今後の開発計画
-- `ARCHITECTURE.md`：設計・構成・データ方針
+| 文書 | 役割 |
+|---|---|
+| `README.md` | プロジェクト概要・現在地 |
+| `CHANGELOG.md` | 更新履歴 |
+| `ROADMAP.md` | 開発計画 |
+| `ARCHITECTURE.md` | システム設計 |
+| `HOTFIX_AUDIT.md` | HotFix整理計画 |
+| `CACHE_AUDIT.md` | キャッシュ管理 |
+| `HTML_ASSET_AUDIT.md` | HTML読み込み監査 |
+| `TECH_DEBT.md` | 技術的負債管理 |
+| `DEVELOPMENT_GUIDE.md` | 開発標準 |
+| `DECISIONS.md` | 設計判断記録 |
+| `CLEANUP_PLAN.md` | Cleanup実行計画 |
 
 ## 同期方針
 
