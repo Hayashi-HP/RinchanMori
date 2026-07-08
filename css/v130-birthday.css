@@ -1,0 +1,17 @@
+/* v1.3.0 birthday event */
+.birthday-layer{position:absolute!important;inset:0!important;z-index:3!important;pointer-events:none!important;overflow:hidden!important;border-radius:inherit!important}
+.birthday-item{position:absolute!important;display:block!important;will-change:transform,opacity!important;filter:drop-shadow(0 9px 14px rgba(70,50,55,.14))}
+.birthday-cake{left:50%;bottom:13%;font-size:38px;transform:translateX(-50%);animation:birthdayCake 4.2s ease-in-out infinite}
+.birthday-balloon{font-size:30px;animation:birthdayBalloon 5.4s ease-in-out infinite;opacity:.92}
+.birthday-balloon.b1{left:14%;top:20%;animation-delay:-.8s}.birthday-balloon.b2{right:16%;top:18%;animation-delay:-1.9s}.birthday-balloon.b3{left:26%;bottom:22%;animation-delay:-2.8s}
+.birthday-gift{right:18%;bottom:14%;font-size:30px;animation:birthdayGift 3.8s ease-in-out infinite}
+.birthday-sparkle{font-size:17px;animation:birthdaySparkle 2.4s ease-in-out infinite;opacity:.78}
+.birthday-sparkle.s1{left:38%;top:22%}.birthday-sparkle.s2{right:34%;top:30%;animation-delay:-.9s}.birthday-sparkle.s3{left:56%;bottom:28%;animation-delay:-1.6s}
+.birthday-message{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:9;max-width:88%;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.95);border:1px solid rgba(255,190,120,.35);box-shadow:0 14px 28px rgba(45,45,35,.12);font-size:13px;font-weight:950;line-height:1.45;color:#4a3928;text-align:center;animation:birthdayMessage 5200ms ease-out forwards}
+@keyframes birthdayCake{0%,100%{transform:translateX(-50%) translateY(0) rotate(-2deg)}50%{transform:translateX(-50%) translateY(-7px) rotate(3deg)}}
+@keyframes birthdayBalloon{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-18px) rotate(5deg)}}
+@keyframes birthdayGift{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(5deg)}}
+@keyframes birthdaySparkle{0%,100%{transform:scale(.7);opacity:.28}50%{transform:scale(1.25);opacity:1}}
+@keyframes birthdayMessage{0%{opacity:0;transform:translate(-50%,-8px)}10%,86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}
+@media(max-width:430px){.birthday-cake{font-size:34px}.birthday-balloon,.birthday-gift{font-size:27px}.birthday-message{font-size:12px;top:12px}}
+@media(prefers-reduced-motion:reduce){.birthday-item,.birthday-message{animation:none!important}}
