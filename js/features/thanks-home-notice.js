@@ -1,5 +1,5 @@
 const RinchanThanksHomeNotice = (() => {
-  const VERSION = 'v1.4.7';
+  const VERSION = 'v1.4.11';
 
   function readJson(key, fallback) {
     try {
@@ -92,7 +92,7 @@ const RinchanThanksHomeNotice = (() => {
     const card = document.createElement('section');
     card.id = 'thanksHomeNotice';
     card.className = 'card thanks-home-notice hidden';
-    card.innerHTML = '<div class="thanks-home-notice-row"><div class="thanks-home-notice-flower">🌷</div><div><p class="label">🌸 花が届いているよ</p><h2 id="thanksHomeNoticeTitle">花が届いています🌸</h2><p id="thanksHomeNoticeText">マイページで受け取れます。</p></div></div>';
+    card.innerHTML = '<div class="thanks-home-notice-row"><div class="thanks-home-notice-flower">🌷</div><div><p class="label">🌸 花が届いているよ</p><h2 id="thanksHomeNoticeTitle">花が届いています🌸</h2><p id="thanksHomeNoticeText">パスポートで受け取れます。</p></div></div>';
     anchor.insertAdjacentElement('afterend', card);
     card.addEventListener('click', () => { location.href = 'pages/mypage.html#thanks'; });
     return card;
@@ -107,7 +107,7 @@ const RinchanThanksHomeNotice = (() => {
     const title = document.getElementById('thanksHomeNoticeTitle');
     const text = document.getElementById('thanksHomeNoticeText');
     if (title) title.textContent = '花が届いています🌸';
-    if (text) text.textContent = unread.length > 1 ? 'マイページで ' + unread.length + '輪の花を受け取れます。' : 'マイページで花を受け取ってね。';
+    if (text) text.textContent = unread.length > 1 ? 'パスポートで ' + unread.length + '輪の花を受け取れます。' : 'パスポートで花を受け取ってね。';
     card.classList.remove('hidden');
   }
 
