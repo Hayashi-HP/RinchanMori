@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.10
+- `apps-script/Code.gs` に `testUserReadsManual()` を追加
+- Apps Scriptエディタ上で `user_reads` 保存処理を単体テストできるようにした
+- `testUserReadsManual()` 実行時に、テスト用のお知らせ既読IDと花受け取りIDを `user_reads` に保存するようにした
+- `apps-script/Config.gs` の `VERSION` を `v1.4.10` に更新
+- `APPS_SCRIPT_DEPLOY_CHECKLIST.md` を v1.4.10 手順へ更新
+- READMEをv1.4.10へ更新
+
 ## v1.4.9
 - `pages/diagnostics.html` にサーバー確認カードを追加
 - `js/features/diagnostics.js` に `checkServer()` を追加
