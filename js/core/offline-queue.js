@@ -1,8 +1,9 @@
 const RinchanOfflineQueue = (() => {
-  const VERSION = 'v1.4.3';
+  const VERSION = 'v1.4.4';
   const QUEUE_KEY = 'rinchanPendingQueue';
   const FLUSHING_KEY = 'rinchanQueueFlushing';
   const RETRY_ACTIONS = ['saveActivity', 'deleteActivity', 'saveThanks', 'saveUser', 'markNewsRead'];
+  const LOCK_LIMIT_MS = 30000;
 
   function readJson(key, fallback) {
     if (window.RinchanStorage) return RinchanStorage.readJson(key, fallback);
@@ -54,6 +55,36 @@ const RinchanOfflineQueue = (() => {
       msg: result.msg || result.message || reason,
       message: result.message || result.msg || reason
     });
+  }
+
+  function lockAgeMs(raw) {
+    if (!raw) return 0;
+    if (raw === '1') return LOCK_LIMIT_MS + 1;
+    const t = Date.parse(raw);
+    if (isNaN(t)) return LOCK_LIMIT_MS + 1;
+    return Date.now() - t;
+  }
+
+  function isLocked() {
+    const raw = localStorage.getItem(FLUSHING_KEY);
+    if (!raw) return false;
+    if (lockAgeMs(raw) > LOCK_LIMIT_MS) {
+      localStorage.removeItem(FLUSHING_KEY);
+      return false;
+    }
+    return true;
+  }
+
+  function setLock() {
+    localStorage.setItem(FLUSHING_KEY, new Date().toISOString());
+  }
+
+  function clearLock() {
+    localStorage.removeItem(FLUSHING_KEY);
+  }
+
+  function clearStaleLock() {
+    if (localStorage.getItem(FLUSHING_KEY) && !isLocked()) renderStatus();
   }
 
   function enqueue(action, payload, reason) {
@@ -114,7 +145,10 @@ const RinchanOfflineQueue = (() => {
 
   async function flush(options) {
     const silent = options && options.silent === true;
-    if (localStorage.getItem(FLUSHING_KEY) === '1') return;
+    if (isLocked()) {
+      renderStatus();
+      return;
+    }
     if (!online()) {
       setSyncStatus('error', 'オフラインのため未送信があります。');
       return;
@@ -122,11 +156,12 @@ const RinchanOfflineQueue = (() => {
 
     let current = queue();
     if (!current.length) {
+      clearLock();
       renderStatus();
       return;
     }
 
-    localStorage.setItem(FLUSHING_KEY, '1');
+    setLock();
     if (!silent) setSyncStatus('syncing', '未送信データを送信中...');
 
     const remaining = [];
@@ -152,7 +187,7 @@ const RinchanOfflineQueue = (() => {
         setSyncStatus('error', '未送信データがあります。');
       }
     } finally {
-      localStorage.removeItem(FLUSHING_KEY);
+      clearLock();
       renderStatus();
     }
   }
@@ -181,6 +216,12 @@ const RinchanOfflineQueue = (() => {
     patchApi('rinchanApi');
   }
 
+  function clearQueue() {
+    saveQueue([]);
+    clearLock();
+    setSyncStatus('synced', '');
+  }
+
   function renderStatus() {
     const page = document.querySelector('.app');
     if (!page) return;
@@ -204,6 +245,7 @@ const RinchanOfflineQueue = (() => {
   }
 
   function install() {
+    clearStaleLock();
     patchApis();
     renderStatus();
     setTimeout(() => flush({ silent: true }), 600);
@@ -212,9 +254,10 @@ const RinchanOfflineQueue = (() => {
   }
 
   document.addEventListener('DOMContentLoaded', install);
+  setTimeout(clearStaleLock, 200);
   setTimeout(patchApis, 500);
   setTimeout(patchApis, 1500);
 
-  return { VERSION, queue, enqueue, flush, renderStatus, patchApis, normalizeResult };
+  return { VERSION, queue, enqueue, flush, renderStatus, patchApis, normalizeResult, clearQueue, clearStaleLock };
 })();
 window.RinchanOfflineQueue = RinchanOfflineQueue;
