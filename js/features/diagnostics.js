@@ -1,5 +1,5 @@
 const RinchanDiagnostics = (() => {
-  const VERSION = 'v1.4.9';
+  const VERSION = 'v1.4.12';
 
   function byId(id) { return document.getElementById(id); }
   function setText(id, text) { const el = byId(id); if (el) el.textContent = text; }
@@ -14,6 +14,21 @@ const RinchanDiagnostics = (() => {
   function participant() { return window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function' ? RinchanStorage.getParticipant() : safeJson('rinchanParticipant', null); }
   function employeeId() { const p = participant(); return p && (p.employeeId || p.id || p.participantId) ? String(p.employeeId || p.id || p.participantId) : ''; }
   async function api(action, payload) { if (window.RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {}); return { ok: false, error: 'api_not_ready' }; }
+
+  function parseVersion(version) {
+    const m = String(version || '').match(/v?(\d+)\.(\d+)\.(\d+)/);
+    if (!m) return null;
+    return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) };
+  }
+
+  function versionAtLeast(version, required) {
+    const v = parseVersion(version);
+    const r = parseVersion(required);
+    if (!v || !r) return false;
+    if (v.major !== r.major) return v.major > r.major;
+    if (v.minor !== r.minor) return v.minor > r.minor;
+    return v.patch >= r.patch;
+  }
 
   function checks() {
     try {
@@ -114,9 +129,11 @@ const RinchanDiagnostics = (() => {
       const readNewsIds = Array.isArray(state.readNewsIds) ? state.readNewsIds : (Array.isArray(reads.readNewsIds) ? reads.readNewsIds : []);
       const readThanksFlowerIds = Array.isArray(state.readThanksFlowerIds) ? state.readThanksFlowerIds : (Array.isArray(reads.readThanksFlowerIds) ? reads.readThanksFlowerIds : []);
       const version = result.version || state.version || '-';
-      const expected = version === 'v1.4.8' || version === 'v1.4.9';
-      box.innerHTML = '<div class="admin-member-row diag-row ' + (expected ? 'diag-ok' : 'diag-warn') + '"><div><strong>' + (expected ? '✅' : '⚠️') + ' Apps Script version: ' + escapeHtml(version) + '</strong><small>' + (expected ? 'v1.4.8以降が反映されています。' : 'まだ古いApps Scriptの可能性があります。') + '</small></div></div>' +
-        '<div class="info-grid"><span>employeeId</span><strong>' + escapeHtml(state.employeeId || id) + '</strong><span>readNewsIds</span><strong>' + readNewsIds.length + '件</strong><span>readThanksFlowerIds</span><strong>' + readThanksFlowerIds.length + '件</strong><span>userReads</span><strong>' + (state.userReads ? 'あり' : 'なし') + '</strong></div>';
+      const expected = versionAtLeast(version, 'v1.4.8');
+      const hasUserReads = !!state.userReads;
+      const ok = expected && hasUserReads;
+      box.innerHTML = '<div class="admin-member-row diag-row ' + (ok ? 'diag-ok' : 'diag-warn') + '"><div><strong>' + (ok ? '✅' : '⚠️') + ' Apps Script version: ' + escapeHtml(version) + '</strong><small>' + (ok ? 'v1.4.8以降が反映されています。' : 'user_reads応答またはApps Scriptバージョンを確認してください。') + '</small></div></div>' +
+        '<div class="info-grid"><span>employeeId</span><strong>' + escapeHtml(state.employeeId || id) + '</strong><span>readNewsIds</span><strong>' + readNewsIds.length + '件</strong><span>readThanksFlowerIds</span><strong>' + readThanksFlowerIds.length + '件</strong><span>userReads</span><strong>' + (hasUserReads ? 'あり' : 'なし') + '</strong></div>';
     } catch (e) {
       box.innerHTML = '<div class="admin-member-row diag-row diag-error"><div><strong>❌ サーバー確認エラー</strong><small>' + escapeHtml(e.message || 'server_check_failed') + '</small></div></div>';
     }
@@ -171,6 +188,6 @@ const RinchanDiagnostics = (() => {
   }
 
   document.addEventListener('DOMContentLoaded', install);
-  return { VERSION, render, clearErrors, clearQueue, retryQueue, checkServer };
+  return { VERSION, render, clearErrors, clearQueue, retryQueue, checkServer, versionAtLeast };
 })();
 window.RinchanDiagnostics = RinchanDiagnostics;
