@@ -1,5 +1,5 @@
 const RinchanActivity = (() => {
-  const VERSION = 'v1.0.65';
+  const VERSION = 'v1.4.6';
 
   function readJson(key, fallback) {
     if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -71,9 +71,12 @@ const RinchanActivity = (() => {
     return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + ' ' + days[dt.getDay()];
   }
   function normalizeActivity(item) {
+    const employeeId = String(item.employeeId || item.participantId || item.id || '');
     return {
       activityId: String(item.activityId || 'A' + Date.now().toString(36)),
-      participantId: String(item.participantId || item.employeeId || item.id || ''),
+      participantId: employeeId,
+      employeeId: employeeId,
+      id: employeeId,
       deviceId: String(item.deviceId || deviceId()),
       date: normalizeDateKey(item.date || item.createdAt),
       steps: Number(item.steps || 0),
@@ -103,11 +106,12 @@ const RinchanActivity = (() => {
   function buildActivityPayload(existingId) {
     const user = participant();
     if (!user || !(user.employeeId || user.id)) return null;
+    const employeeId = String(user.employeeId || user.id || '');
     const steps = Number(value('steps') || 0);
     if (!steps || steps < 0) return null;
     const date = value('activityDate') || todayKey();
     const id = existingId || findExistingIdByDate(date) || 'A' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    return normalizeActivity({ activityId: id, participantId: user.employeeId || user.id, employeeId: user.employeeId || user.id, deviceId: deviceId(), date, steps, challenge: checked('challenge'), comment: value('comment'), createdAt: new Date().toISOString(), version: VERSION });
+    return normalizeActivity({ activityId: id, participantId: employeeId, employeeId: employeeId, id: employeeId, deviceId: deviceId(), date, steps, challenge: checked('challenge'), comment: value('comment'), createdAt: new Date().toISOString(), version: VERSION });
   }
   function refreshLocalViews() {
     try { renderRecentActivities(); } catch (e) {}
@@ -128,13 +132,14 @@ const RinchanActivity = (() => {
     }
   }
   async function syncActivityInBackground(payload) {
+    const safePayload = normalizeActivity(payload || {});
     try {
       setSyncStatus('syncing', '杜に届けてるよ...');
-      const result = await api('saveActivity', payload);
+      const result = await api('saveActivity', safePayload);
       if (result && result.ok) { applyResult(result); setSyncStatus('synced', ''); refreshLocalViews(); return true; }
-      enqueueOffline('saveActivity', payload, (result && (result.reason || result.error)) || 'send_failed');
+      enqueueOffline('saveActivity', safePayload, (result && (result.reason || result.error || result.message || result.msg)) || 'send_failed');
       return false;
-    } catch (e) { enqueueOffline('saveActivity', payload, e.message || 'send_failed'); return false; }
+    } catch (e) { enqueueOffline('saveActivity', safePayload, e.message || 'send_failed'); return false; }
   }
   async function saveActivity(event) {
     if (event) event.preventDefault();
@@ -166,10 +171,10 @@ const RinchanActivity = (() => {
     refreshLocalViews();
     setTimeout(async () => {
       try {
-        const result = await api('deleteActivity', { activityId, employeeId, participantId: employeeId });
+        const result = await api('deleteActivity', { activityId, employeeId, participantId: employeeId, id: employeeId });
         if (result && result.ok) applyResult(result);
-        else enqueueOffline('deleteActivity', { activityId, employeeId, participantId: employeeId }, (result && (result.reason || result.error)) || 'send_failed');
-      } catch (e) { enqueueOffline('deleteActivity', { activityId, employeeId, participantId: employeeId }, e.message || 'send_failed'); }
+        else enqueueOffline('deleteActivity', { activityId, employeeId, participantId: employeeId, id: employeeId }, (result && (result.reason || result.error)) || 'send_failed');
+      } catch (e) { enqueueOffline('deleteActivity', { activityId, employeeId, participantId: employeeId, id: employeeId }, e.message || 'send_failed'); }
     }, 20);
   }
   function editActivity(activityId) {
@@ -195,24 +200,16 @@ const RinchanActivity = (() => {
     if (!rows.length) { box.innerHTML = '<p class="empty-note">まだ記録がありません。最初の一歩を杜に届けてみよう🌱</p>'; return; }
     box.innerHTML = rows.map(item => {
       const date = formatDateLabel(item.date);
-      const steps = Number(item.steps || 0).toLocaleString();
-      const comment = item.comment ? '<small>' + escapeHtml(item.comment) + '</small>' : '';
-      return '<div class="activity-tool-row"><div class="activity-tool-main"><strong>' + date + '　' + steps + '歩</strong>' + comment + '</div><div class="activity-tool-actions"><button type="button" class="activity-edit-btn" aria-label="修正" onclick="RinchanActivity.editActivity(\'' + escapeAttr(item.activityId) + '\')">✏️</button><button type="button" class="activity-delete-btn" aria-label="削除" onclick="RinchanActivity.deleteActivity(\'' + escapeAttr(item.activityId) + '\')">🗑️</button></div></div>';
+      return '<div class="activity-tool-row"><div><strong>' + date + '</strong><small>' + Number(item.steps || 0).toLocaleString('ja-JP') + '歩</small></div><div class="activity-tool-actions"><button type="button" onclick="RinchanActivity.editActivity(\'' + item.activityId + '\')">✏️</button><button type="button" onclick="RinchanActivity.deleteActivity(\'' + item.activityId + '\')">🗑️</button></div></div>';
     }).join('');
-    writeJson('rinchanActivities', activities().map(normalizeActivity));
   }
-  function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c])); }
-  function escapeAttr(value) { return escapeHtml(value).replace(/`/g, '&#96;'); }
   function install() {
     initDate();
     renderRecentActivities();
     const form = document.getElementById('activityForm');
-    if (form && !form.__rinchanActivityInstalled) { form.__rinchanActivityInstalled = true; form.addEventListener('submit', saveActivity, true); }
-    const btn = form ? form.querySelector('button[type="submit"],button.submit') : null;
-    if (btn && btn.textContent === '記録する') btn.textContent = '🌱 杜に届ける';
-    window.v102RenderActivityTools = renderRecentActivities;
+    if (form && !form.__rinchanActivityInstalled) { form.__rinchanActivityInstalled = true; form.addEventListener('submit', saveActivity); }
   }
   document.addEventListener('DOMContentLoaded', install);
-  return { VERSION, install, saveActivity, renderRecentActivities, editActivity, deleteActivity, upsertLocalActivity };
+  return { VERSION, saveActivity, editActivity, deleteActivity, renderRecentActivities, normalizeActivity, syncActivityInBackground };
 })();
 window.RinchanActivity = RinchanActivity;
