@@ -1,5 +1,5 @@
 const RINCHAN_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbzy-Qjf_UDzA17FaUuyRIFf5oiAr-8OgSukDrjWcuNgo39xAH1k7Z4Q4zrqjPnVlRYC/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbywz086IvFx5dWyiT_rtE96e0gNigshZwETmUv9icEZt9wmQYuQVwUWj_YC-PDihRnW/exec",
   UI_VERSION: "v1.0.57"
 };
 window.RINCHAN_CONFIG = RINCHAN_CONFIG;
