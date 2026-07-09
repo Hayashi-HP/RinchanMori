@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.8
+- `apps-script/UserReads.gs` を追加
+- `user_reads` シートへお知らせ既読IDと花受け取りIDを保存する関数を追加
+- `getUserReadState()` / `markUserRead()` / `markNewsRead()` / `markThanksRead()` を追加
+- クライアントから送られた既読IDリストとサーバー既読IDリストを合算して保存
+- `apps-script/Config.gs` の `VERSION` を `v1.4.8` に更新
+- READMEをv1.4.8へ更新
+
 ## v1.4.7
 - `js/features/news.js` を更新し、曜日配列に抜けていた「木」を追加
 - お知らせ既読IDをローカル値とサーバー値の合算で扱うように修正
