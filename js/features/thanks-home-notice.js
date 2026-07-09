@@ -1,5 +1,5 @@
 const RinchanThanksHomeNotice = (() => {
-  const VERSION = 'v1.1.40';
+  const VERSION = 'v1.4.7';
 
   function readJson(key, fallback) {
     try {
@@ -21,13 +21,21 @@ const RinchanThanksHomeNotice = (() => {
     return user && (user.employeeId || user.id || user.participantId) ? String(user.employeeId || user.id || user.participantId) : '';
   }
 
+  function arrayUnique(list) { return Array.from(new Set((list || []).map(String).filter(Boolean))); }
+
   function readFlowerIds() {
-    const ids = readJson('rinchanReadThanksFlowerIds', []);
-    return Array.isArray(ids) ? ids.map(String) : [];
+    const userReads = readJson('rinchanUserReads', {});
+    const local = readJson('rinchanReadThanksFlowerIds', []);
+    const server = userReads && Array.isArray(userReads.readThanksFlowerIds) ? userReads.readThanksFlowerIds : [];
+    return arrayUnique([].concat(local, server));
   }
 
   function itemToId(item) {
     return String(item.toParticipantId || item.toEmployeeId || item.receiverId || item.receiverEmployeeId || item.toId || item.targetId || item.targetEmployeeId || item.to || '').trim();
+  }
+
+  function itemFromId(item) {
+    return String(item.fromParticipantId || item.fromEmployeeId || item.senderId || item.senderEmployeeId || item.fromId || item.from || '').trim();
   }
 
   function itemFromName(item) {
@@ -36,14 +44,17 @@ const RinchanThanksHomeNotice = (() => {
 
   function receivedThanks() {
     const me = employeeId();
-    const sources = [readJson('rinchanReceivedThanks', []), readJson('rinchanThanks', []), readJson('rinchanGoodTimeline', [])];
+    if (!me) return [];
+    const sources = [readJson('rinchanReceivedThanks', []), readJson('rinchanThanks', [])];
     const map = {};
     sources.forEach(list => {
       if (!Array.isArray(list)) return;
       list.forEach(item => {
         if (!item) return;
         const toId = itemToId(item);
-        if (me && toId && toId !== me) return;
+        const fromId = itemFromId(item);
+        if (toId && toId !== me) return;
+        if (!toId && fromId && fromId === me) return;
         const id = String(item.thanksId || item.id || item.createdAt || item.savedAt || JSON.stringify(item));
         if (!id) return;
         map[id] = { id, fromName: itemFromName(item), reason: item.reason || 'ありがとう', comment: item.comment || item.message || item.publicBody || item.body || '', createdAt: item.createdAt || item.savedAt || item.date || '' };
