@@ -1,5 +1,5 @@
 const RinchanOfflineQueue = (() => {
-  const VERSION = 'v1.0.30';
+  const VERSION = 'v1.4.3';
   const QUEUE_KEY = 'rinchanPendingQueue';
   const FLUSHING_KEY = 'rinchanQueueFlushing';
   const RETRY_ACTIONS = ['saveActivity', 'deleteActivity', 'saveThanks', 'saveUser', 'markNewsRead'];
@@ -16,7 +16,8 @@ const RinchanOfflineQueue = (() => {
   }
 
   function queue() {
-    return readJson(QUEUE_KEY, []);
+    const list = readJson(QUEUE_KEY, []);
+    return Array.isArray(list) ? list : [];
   }
 
   function saveQueue(list) {
@@ -27,6 +28,32 @@ const RinchanOfflineQueue = (() => {
   function actionKey(action, payload, fallbackId) {
     const id = payload && (payload.activityId || payload.thanksId || payload.employeeId || payload.id || payload.newsId);
     return action + ':' + String(id || fallbackId || Date.now());
+  }
+
+  function reasonOf(value, fallback) {
+    if (!value) return fallback || 'send_failed';
+    if (typeof value === 'string') return value;
+    return String(value.reason || value.error || value.message || value.msg || fallback || 'send_failed');
+  }
+
+  function normalizeResult(result, fallback) {
+    if (!result || typeof result !== 'object') {
+      const reason = fallback || 'empty_response';
+      return { ok: false, reason, error: reason, msg: reason, raw: result || null };
+    }
+    if (result.ok === true) {
+      if (!result.msg && result.message) result.msg = result.message;
+      if (!result.message && result.msg) result.message = result.msg;
+      return result;
+    }
+    const reason = reasonOf(result, fallback || 'send_failed');
+    return Object.assign({}, result, {
+      ok: false,
+      reason,
+      error: result.error || reason,
+      msg: result.msg || result.message || reason,
+      message: result.message || result.msg || reason
+    });
   }
 
   function enqueue(action, payload, reason) {
@@ -43,7 +70,7 @@ const RinchanOfflineQueue = (() => {
     };
     item.key = actionKey(item.action, item.payload, item.id);
 
-    const exists = current.some(old => old.key === item.key);
+    const exists = current.some(old => old && old.key === item.key);
     if (!exists) current.push(item);
     saveQueue(current.slice(-50));
     setSyncStatus('error', '通信できないため未送信として保存しました。');
@@ -63,17 +90,26 @@ const RinchanOfflineQueue = (() => {
   }
 
   async function request(action, payload) {
-    if (window.RinchanApi) return RinchanApi.request(action, payload || {});
-    if (typeof v051Api === 'function') return v051Api(action, payload || {});
-    if (typeof rinchanApi === 'function') return rinchanApi(action, payload || {});
-    return { ok: false, reason: 'api_not_ready' };
+    try {
+      if (window.RinchanApi && typeof RinchanApi.request === 'function') return normalizeResult(await RinchanApi.request(action, payload || {}), 'send_failed');
+      if (typeof v051Api === 'function') return normalizeResult(await v051Api(action, payload || {}), 'send_failed');
+      if (typeof rinchanApi === 'function') return normalizeResult(await rinchanApi(action, payload || {}), 'send_failed');
+    } catch (e) {
+      return normalizeResult(null, e && e.message ? e.message : 'send_failed');
+    }
+    return normalizeResult(null, 'api_not_ready');
   }
 
   function applyResult(result) {
-    if (!result || !result.ok) return result;
-    if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(result);
-    if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(result);
-    return result;
+    const safe = normalizeResult(result, 'send_failed');
+    if (!safe.ok) return safe;
+    try {
+      if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') return RinchanSync.applyApiResult(safe) || safe;
+      if (typeof v135ApplyApiResult === 'function') return v135ApplyApiResult(safe) || safe;
+    } catch (e) {
+      return normalizeResult(null, e && e.message ? e.message : 'apply_failed');
+    }
+    return safe;
   }
 
   async function flush(options) {
@@ -96,13 +132,14 @@ const RinchanOfflineQueue = (() => {
     const remaining = [];
     try {
       for (const item of current) {
+        if (!item || !item.action) continue;
         const next = Object.assign({}, item, { retryCount: Number(item.retryCount || 0) + 1, lastTriedAt: new Date().toISOString() });
         try {
-          const result = await request(item.action, item.payload || {});
-          if (result && result.ok) applyResult(result);
-          else { next.reason = (result && (result.reason || result.error)) || 'send_failed'; remaining.push(next); }
+          const result = normalizeResult(await request(item.action, item.payload || {}), 'send_failed');
+          if (result.ok) applyResult(result);
+          else { next.reason = reasonOf(result, 'send_failed'); remaining.push(next); }
         } catch (e) {
-          next.reason = e.message || 'send_failed';
+          next.reason = e && e.message ? e.message : 'send_failed';
           remaining.push(next);
         }
       }
@@ -110,7 +147,7 @@ const RinchanOfflineQueue = (() => {
       saveQueue(remaining.slice(-50));
       if (!remaining.length) {
         setSyncStatus('synced', '');
-        if (window.RinchanSync && typeof RinchanSync.sync === 'function') RinchanSync.sync({ silent: true });
+        try { if (window.RinchanSync && typeof RinchanSync.sync === 'function') RinchanSync.sync({ silent: true }); } catch(e) {}
       } else {
         setSyncStatus('error', '未送信データがあります。');
       }
@@ -124,9 +161,15 @@ const RinchanOfflineQueue = (() => {
     const original = window[name];
     if (typeof original !== 'function' || original.__rinchanCoreQueuePatched) return;
     const patched = async function(action, payload) {
-      const result = await original.apply(this, arguments);
-      if (result && result.ok === false && RETRY_ACTIONS.includes(String(action))) enqueue(action, payload || {}, result.reason || result.error || 'api_failed');
-      return result;
+      try {
+        const result = normalizeResult(await original.apply(this, arguments), 'api_failed');
+        if (result.ok === false && RETRY_ACTIONS.includes(String(action))) enqueue(action, payload || {}, reasonOf(result, 'api_failed'));
+        return result;
+      } catch (e) {
+        const result = normalizeResult(null, e && e.message ? e.message : 'api_failed');
+        if (RETRY_ACTIONS.includes(String(action))) enqueue(action, payload || {}, reasonOf(result, 'api_failed'));
+        return result;
+      }
     };
     patched.__rinchanCoreQueuePatched = true;
     patched.__original = original;
@@ -172,6 +215,6 @@ const RinchanOfflineQueue = (() => {
   setTimeout(patchApis, 500);
   setTimeout(patchApis, 1500);
 
-  return { VERSION, queue, enqueue, flush, renderStatus, patchApis };
+  return { VERSION, queue, enqueue, flush, renderStatus, patchApis, normalizeResult };
 })();
 window.RinchanOfflineQueue = RinchanOfflineQueue;
