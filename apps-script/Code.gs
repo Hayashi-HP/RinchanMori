@@ -1,6 +1,6 @@
 /*
  * RinchanMori Apps Script
- * Version: v0.9.64
+ * Version: v1.4.10
  *
  * Code.gs is intentionally kept small.
  * API branching lives in Router.gs.
@@ -36,4 +36,39 @@ function doPost(e) {
 
 function setupProjectManual() {
   return setupProject(SpreadsheetApp.getActiveSpreadsheet());
+}
+
+function testUserReadsManual() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  setupProject(ss);
+
+  const employeeId = '2110401';
+  const newsId = 'manual-test-news-' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMddHHmmss');
+  const thanksId = 'manual-test-thanks-' + Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyyMMddHHmmss');
+
+  const newsState = markNewsRead(ss, {
+    employeeId: employeeId,
+    newsId: newsId,
+    readNewsIds: [newsId]
+  });
+
+  const thanksState = markThanksRead(ss, {
+    employeeId: employeeId,
+    thanksId: thanksId,
+    readThanksFlowerIds: [thanksId]
+  });
+
+  const result = {
+    ok: true,
+    version: VERSION,
+    employeeId: employeeId,
+    newsId: newsId,
+    thanksId: thanksId,
+    userReads: getUserReadState(ss, employeeId),
+    newsStateHasUserReads: !!(newsState && newsState.userReads),
+    thanksStateHasUserReads: !!(thanksState && thanksState.userReads)
+  };
+
+  Logger.log(JSON.stringify(result, null, 2));
+  return result;
 }
