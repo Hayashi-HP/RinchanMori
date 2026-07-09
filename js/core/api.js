@@ -1,5 +1,5 @@
 const RinchanApi = (() => {
-  const VERSION = 'v1.0.18';
+  const VERSION = 'v1.4.3';
 
   function apiUrl() {
     return (typeof RINCHAN_CONFIG !== 'undefined' && RINCHAN_CONFIG.API_URL)
@@ -19,9 +19,35 @@ const RinchanApi = (() => {
     return id;
   }
 
+  function normalizeError(value, fallback) {
+    if (!value) return fallback || 'api_error';
+    if (typeof value === 'string') return value;
+    return String(value.error || value.reason || value.message || value.msg || fallback || 'api_error');
+  }
+
+  function normalizeResponse(json, fallbackReason) {
+    if (!json || typeof json !== 'object') {
+      return { ok: false, reason: fallbackReason || 'empty_response', error: fallbackReason || 'empty_response', msg: fallbackReason || 'empty_response', raw: json || null };
+    }
+    if (json.ok === true) {
+      if (!json.msg && json.message) json.msg = json.message;
+      if (!json.message && json.msg) json.message = json.msg;
+      return json;
+    }
+    const reason = normalizeError(json, fallbackReason || 'api_error');
+    return Object.assign({}, json, {
+      ok: false,
+      reason,
+      error: json.error || reason,
+      msg: json.msg || json.message || reason,
+      message: json.message || json.msg || reason,
+      raw: json
+    });
+  }
+
   async function request(action, payload) {
     const url = apiUrl();
-    if (!url) return { ok: false, reason: 'api_url_empty' };
+    if (!url) return normalizeResponse(null, 'api_url_empty');
 
     try {
       const res = await fetch(url, {
@@ -34,17 +60,26 @@ const RinchanApi = (() => {
           appVersion: VERSION
         }, payload || {}))
       });
-      const json = await res.json();
-      return json && json.ok ? json : { ok: false, reason: (json && (json.error || json.reason)) || 'api_error', raw: json };
+
+      let json = null;
+      try {
+        json = await res.json();
+      } catch (e) {
+        return normalizeResponse(null, res && res.ok ? 'invalid_json_response' : 'network_response_error');
+      }
+
+      return normalizeResponse(json, res && res.ok ? 'api_error' : 'network_response_error');
     } catch (e) {
-      return { ok: false, reason: e.message || 'network_error' };
+      const reason = e && (e.message || e.name) ? String(e.message || e.name) : 'network_error';
+      return normalizeResponse(null, reason || 'network_error');
     }
   }
 
   return {
     VERSION,
     request,
-    apiUrl
+    apiUrl,
+    normalizeResponse
   };
 })();
 
