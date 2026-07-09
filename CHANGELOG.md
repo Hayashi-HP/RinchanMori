@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.6
+- `js/features/activity.js` を更新し、歩数保存payloadで `employeeId` を保持するよう修正
+- `normalizeActivity()` が `participantId` / `employeeId` / `id` を同一社員番号で保持するように変更
+- `js/core/offline-queue.js` を更新し、既存の未送信キュー再送時にも `employeeId` を自動補完するよう修正
+- `saveActivity` / `deleteActivity` の再送payloadを安全化
+- 歩数記録画面と診断画面のキャッシュ番号を `146` に更新
+- READMEをv1.4.6へ更新
+
 ## v1.4.5
 - 診断画面に未送信キュー詳細カードを追加
 - 未送信データの `action` / 日付 / 歩数 / 理由 / retry回数 / payload を画面で確認できるようにした
