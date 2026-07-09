@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.4.7
+- `js/features/news.js` を更新し、曜日配列に抜けていた「木」を追加
+- お知らせ既読IDをローカル値とサーバー値の合算で扱うように修正
+- 確認ボタン押下時に `markNewsRead` をサーバーへ送るように修正
+- `js/core/sync.js` を更新し、同期時に既読状態を上書きせず合算するように変更
+- 自分宛の花判定から公開用ありがとうタイムラインを除外
+- `js/features/thanks-home-notice.js` を更新し、ホーム花通知を未受け取りの自分宛だけに限定
+- `index.html` と `pages/news.html` のキャッシュ番号を `147` に更新
+- READMEをv1.4.7へ更新
+
 ## v1.4.6
 - `js/features/activity.js` を更新し、歩数保存payloadで `employeeId` を保持するよう修正
 - `normalizeActivity()` が `participantId` / `employeeId` / `id` を同一社員番号で保持するように変更
