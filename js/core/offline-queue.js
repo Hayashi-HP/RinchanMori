@@ -1,5 +1,5 @@
 const RinchanOfflineQueue = (() => {
-  const VERSION = 'v1.4.4';
+  const VERSION = 'v1.4.6';
   const QUEUE_KEY = 'rinchanPendingQueue';
   const FLUSHING_KEY = 'rinchanQueueFlushing';
   const RETRY_ACTIONS = ['saveActivity', 'deleteActivity', 'saveThanks', 'saveUser', 'markNewsRead'];
@@ -16,6 +16,18 @@ const RinchanOfflineQueue = (() => {
     return value;
   }
 
+  function participant() {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
+    } catch(e) {}
+    return readJson('rinchanParticipant', null) || {};
+  }
+
+  function currentEmployeeId() {
+    const p = participant() || {};
+    return String(p.employeeId || p.id || p.participantId || '').trim();
+  }
+
   function queue() {
     const list = readJson(QUEUE_KEY, []);
     return Array.isArray(list) ? list : [];
@@ -27,8 +39,29 @@ const RinchanOfflineQueue = (() => {
   }
 
   function actionKey(action, payload, fallbackId) {
-    const id = payload && (payload.activityId || payload.thanksId || payload.employeeId || payload.id || payload.newsId);
+    const id = payload && (payload.activityId || payload.thanksId || payload.employeeId || payload.id || payload.participantId || payload.newsId);
     return action + ':' + String(id || fallbackId || Date.now());
+  }
+
+  function repairPayload(action, payload) {
+    const p = Object.assign({}, payload || {});
+    if (String(action) === 'saveActivity' || String(action) === 'deleteActivity') {
+      const eid = String(p.employeeId || p.participantId || p.id || currentEmployeeId() || '').trim();
+      if (eid) {
+        p.employeeId = eid;
+        p.participantId = eid;
+        p.id = eid;
+      }
+      if (p.steps != null) p.steps = Number(p.steps || 0);
+      if (p.date) p.date = String(p.date).slice(0, 10);
+    }
+    return p;
+  }
+
+  function repairItem(item) {
+    if (!item || !item.action) return item;
+    const payload = repairPayload(item.action, item.payload || {});
+    return Object.assign({}, item, { payload, key: actionKey(item.action, payload, item.id || item.key) });
   }
 
   function reasonOf(value, fallback) {
@@ -90,10 +123,11 @@ const RinchanOfflineQueue = (() => {
   function enqueue(action, payload, reason) {
     if (!action || !RETRY_ACTIONS.includes(String(action))) return null;
     const current = queue();
+    const fixedPayload = repairPayload(action, payload || {});
     const item = {
       id: 'Q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
       action: String(action),
-      payload: payload || {},
+      payload: fixedPayload,
       reason: reason || 'offline',
       retryCount: 0,
       createdAt: new Date().toISOString(),
@@ -122,9 +156,10 @@ const RinchanOfflineQueue = (() => {
 
   async function request(action, payload) {
     try {
-      if (window.RinchanApi && typeof RinchanApi.request === 'function') return normalizeResult(await RinchanApi.request(action, payload || {}), 'send_failed');
-      if (typeof v051Api === 'function') return normalizeResult(await v051Api(action, payload || {}), 'send_failed');
-      if (typeof rinchanApi === 'function') return normalizeResult(await rinchanApi(action, payload || {}), 'send_failed');
+      const fixedPayload = repairPayload(action, payload || {});
+      if (window.RinchanApi && typeof RinchanApi.request === 'function') return normalizeResult(await RinchanApi.request(action, fixedPayload), 'send_failed');
+      if (typeof v051Api === 'function') return normalizeResult(await v051Api(action, fixedPayload), 'send_failed');
+      if (typeof rinchanApi === 'function') return normalizeResult(await rinchanApi(action, fixedPayload), 'send_failed');
     } catch (e) {
       return normalizeResult(null, e && e.message ? e.message : 'send_failed');
     }
@@ -154,7 +189,8 @@ const RinchanOfflineQueue = (() => {
       return;
     }
 
-    let current = queue();
+    let current = queue().map(repairItem).filter(Boolean);
+    saveQueue(current);
     if (!current.length) {
       clearLock();
       renderStatus();
@@ -166,7 +202,8 @@ const RinchanOfflineQueue = (() => {
 
     const remaining = [];
     try {
-      for (const item of current) {
+      for (const rawItem of current) {
+        const item = repairItem(rawItem);
         if (!item || !item.action) continue;
         const next = Object.assign({}, item, { retryCount: Number(item.retryCount || 0) + 1, lastTriedAt: new Date().toISOString() });
         try {
@@ -197,12 +234,13 @@ const RinchanOfflineQueue = (() => {
     if (typeof original !== 'function' || original.__rinchanCoreQueuePatched) return;
     const patched = async function(action, payload) {
       try {
-        const result = normalizeResult(await original.apply(this, arguments), 'api_failed');
-        if (result.ok === false && RETRY_ACTIONS.includes(String(action))) enqueue(action, payload || {}, reasonOf(result, 'api_failed'));
+        const fixedPayload = repairPayload(action, payload || {});
+        const result = normalizeResult(await original.call(this, action, fixedPayload), 'api_failed');
+        if (result.ok === false && RETRY_ACTIONS.includes(String(action))) enqueue(action, fixedPayload, reasonOf(result, 'api_failed'));
         return result;
       } catch (e) {
         const result = normalizeResult(null, e && e.message ? e.message : 'api_failed');
-        if (RETRY_ACTIONS.includes(String(action))) enqueue(action, payload || {}, reasonOf(result, 'api_failed'));
+        if (RETRY_ACTIONS.includes(String(action))) enqueue(action, repairPayload(action, payload || {}), reasonOf(result, 'api_failed'));
         return result;
       }
     };
@@ -258,6 +296,6 @@ const RinchanOfflineQueue = (() => {
   setTimeout(patchApis, 500);
   setTimeout(patchApis, 1500);
 
-  return { VERSION, queue, enqueue, flush, renderStatus, patchApis, normalizeResult, clearQueue, clearStaleLock };
+  return { VERSION, queue, enqueue, flush, renderStatus, patchApis, normalizeResult, clearQueue, clearStaleLock, repairPayload };
 })();
 window.RinchanOfflineQueue = RinchanOfflineQueue;
