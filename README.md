@@ -3,7 +3,7 @@
 みんなで育てる、健康と笑顔の杜。
 
 ## 現在バージョン
-**v1.4.9**
+**v1.4.10**
 
 ## 最終更新
 2026-07-10
@@ -69,9 +69,18 @@ Phase1 の基本機能はおおむね完成。
 - 未送信payloadのemployeeId補完
 - 未読・既読の合算同期
 - Apps Script側の既読保存
+- Apps Script側のuser_reads単体テスト
 - Apps Script反映チェックリスト
 - Apps Script / Google Sheets 同期
 - GitHub Pages 対応
+
+## v1.4.10 で修正された内容
+
+- `apps-script/Code.gs` に `testUserReadsManual()` を追加
+- Apps Scriptエディタ上で `user_reads` 保存処理を単体テストできるようにした
+- `testUserReadsManual()` 実行時に、テスト用のお知らせ既読IDと花受け取りIDを `user_reads` に保存するようにした
+- Apps Script側の `VERSION` を `v1.4.10` に更新
+- `APPS_SCRIPT_DEPLOY_CHECKLIST.md` を v1.4.10 手順へ更新
 
 ## v1.4.9 で修正された内容
 
@@ -91,6 +100,7 @@ Phase1 の基本機能はおおむね完成。
 
 ## 直近の重要な修正
 
+- v1.4.10：Apps Script側にuser_reads単体テスト関数を追加
 - v1.4.9：診断画面にサーバー確認カードを追加、Apps Script反映チェックリストを追加
 - v1.4.8：Apps Script側の既読保存関数を追加
 - v1.4.7：未読・曜日・花通知の不整合を修正
@@ -100,14 +110,14 @@ Phase1 の基本機能はおおむね完成。
 - v1.4.3：API応答と未送信キュー再送処理を安全化、`response.msg` エラー対策
 - v1.4.2：パスポートのチャレンジ表示順を整理、部署チャレンジ表示を復旧
 - v1.4.1：病院全体チャレンジをパスポートへ接続
-- v1.4.0：病院全体チャレンジエンジンを追加
 
 ## 現在の注意点
 
 - CSS / JS の HotFix ファイルが増えているため、今後整理が必要
 - 画面ごとにキャッシュ番号が異なるため、検証時はキャッシュ更新に注意
-- v1.4.8のApps Script変更は、GitHub反映後にApps Scriptへ反映・再デプロイが必要
-- v1.4.9反映後、診断画面の「サーバー確認」でApps Script側がv1.4.8以降か確認する
+- v1.4.10のApps Script変更は、GitHub反映後にApps Scriptへ反映・再デプロイが必要
+- Apps Script反映後は `setupProjectManual()` → `testUserReadsManual()` → Webアプリ再デプロイの順で確認する
+- v1.4.9反映後、診断画面の「サーバー確認」でApps Script側がv1.4.10以降か確認する
 
 ## 正式管理文書
 
