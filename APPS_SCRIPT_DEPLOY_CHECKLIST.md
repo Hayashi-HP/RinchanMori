@@ -2,7 +2,7 @@
 
 ## 対象バージョン
 
-- Apps Script: v1.4.8
+- Apps Script: v1.4.10
 - 診断画面: v1.4.9
 
 ## 目的
@@ -14,7 +14,8 @@
 | ファイル | 内容 |
 |---|---|
 | `apps-script/UserReads.gs` | 既読・花受け取り状態の保存関数を追加 |
-| `apps-script/Config.gs` | `VERSION` を `v1.4.8` に更新 |
+| `apps-script/Config.gs` | `VERSION` を `v1.4.10` に更新 |
+| `apps-script/Code.gs` | `testUserReadsManual()` を追加 |
 
 ## 反映前の確認
 
@@ -35,10 +36,36 @@ employeeId, readNewsIds, readThanksFlowerIds, updatedAt, version
 1. Google Apps Scriptを開く
 2. GitHubの `apps-script/UserReads.gs` を新規ファイルとして追加
 3. GitHubの `apps-script/Config.gs` の内容をApps Script側へ反映
-4. 保存
-5. `setupProjectManual()` を一度実行
-6. Webアプリを新しいバージョンでデプロイ
-7. 公開URLは既存のまま変えない
+4. GitHubの `apps-script/Code.gs` の内容をApps Script側へ反映
+5. 保存
+6. `setupProjectManual()` を一度実行
+7. `testUserReadsManual()` を一度実行
+8. 実行ログに `ok: true` が出ることを確認
+9. スプレッドシートの `user_reads` に社員番号 `2110401` の行が追加・更新されていることを確認
+10. Webアプリを新しいバージョンでデプロイ
+11. 公開URLは既存のまま変えない
+
+## Apps Scriptエディタでの単体テスト
+
+`testUserReadsManual()` を実行すると、以下をテスト保存します。
+
+- `manual-test-news-日時`
+- `manual-test-thanks-日時`
+
+正常なら、ログに以下のような結果が出る。
+
+```json
+{
+  "ok": true,
+  "version": "v1.4.10",
+  "employeeId": "2110401",
+  "userReads": {
+    "employeeId": "2110401",
+    "readNewsIds": ["manual-test-news-..."],
+    "readThanksFlowerIds": ["manual-test-thanks-..."]
+  }
+}
+```
 
 ## デプロイ後の確認
 
@@ -52,7 +79,7 @@ employeeId, readNewsIds, readThanksFlowerIds, updatedAt, version
 
 | 確認項目 | 正常値 |
 |---|---|
-| Apps Script version | `v1.4.8` 以降 |
+| Apps Script version | `v1.4.10` 以降 |
 | getUserState | 成功 |
 | userReads | あり |
 | readNewsIds | 件数表示あり |
@@ -72,9 +99,13 @@ employeeId, readNewsIds, readThanksFlowerIds, updatedAt, version
 
 ## 失敗時の見方
 
-### 診断画面で `v1.4.8` が出ない
+### 診断画面で `v1.4.10` が出ない
 
 Apps Script側の再デプロイが未完了、または古いデプロイURLを見ている可能性がある。
+
+### `testUserReadsManual()` が失敗する
+
+`UserReads.gs` が未反映、または `getUserState()` / `rowToObject()` / `findRowByValue()` など既存共通関数との接続に問題がある。
 
 ### `userReads` が `なし`
 
