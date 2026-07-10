@@ -1,9 +1,5 @@
 const RinchanPassportLayoutFix = (() => {
-  const VERSION = 'v1.4.28';
-
-  function isAndroid() {
-    return /Android/i.test(navigator.userAgent || '');
-  }
+  const VERSION = 'v1.4.29';
 
   function setImportant(el, prop, value) {
     if (!el || !el.style) return;
@@ -23,13 +19,14 @@ const RinchanPassportLayoutFix = (() => {
     ['monthlyChallengeSection', 'departmentChallengeSection', 'hospitalChallengeSection'].forEach((id, index) => {
       const el = document.getElementById(id);
       if (!el) return;
-      setImportant(el, 'width', 'calc(100% - 32px)');
-      setImportant(el, 'max-width', '398px');
+      setImportant(el, 'width', 'auto');
+      setImportant(el, 'max-width', 'none');
       setImportant(el, 'box-sizing', 'border-box');
-      setImportant(el, 'margin-left', 'auto');
-      setImportant(el, 'margin-right', 'auto');
+      setImportant(el, 'margin-left', '16px');
+      setImportant(el, 'margin-right', '16px');
       setImportant(el, 'margin-bottom', '14px');
       setImportant(el, 'margin-top', index === 0 ? '14px' : '0');
+      setImportant(el, 'padding', '20px');
     });
   }
 
