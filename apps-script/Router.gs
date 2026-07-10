@@ -168,13 +168,15 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, user, state: getUserState(ss, { employeeId: user.employeeId }), version: VERSION });
   }
 
-  if (action === 'saveActivity') {
+  if (action === 'saveActivity' || action === 'saveHealthSteps') {
+    const originalAction = action;
+    data.action = 'saveActivity';
     const saved = saveActivity(ss, data);
     invalidateActivityCaches();
     const employeeId = data.participantId || data.employeeId || data.id;
-    writeLog(ss, action, data.deviceId, employeeId, 'ok', '');
-    auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId }), 'ok', 'activity_saved', { date: data.date || '', steps: data.steps || '', activityId: saved.activityId || '' });
-    return jsonOutput({ ok: true, action, saved, state: getUserState(ss, { employeeId }), version: VERSION });
+    writeLog(ss, originalAction, data.deviceId, employeeId, 'ok', originalAction === 'saveHealthSteps' ? 'shortcut_alias_saveActivity' : '');
+    auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId, originalAction }), 'ok', 'activity_saved', { date: data.date || '', steps: data.steps || '', activityId: saved.activityId || '' });
+    return jsonOutput({ ok: true, action: originalAction, normalizedAction: 'saveActivity', saved, state: getUserState(ss, { employeeId }), version: VERSION });
   }
 
   if (action === 'deleteActivity') {
