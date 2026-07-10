@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.4.22
+- `js/features/rinchan-passport-render.js` を更新し、イベント参加欄の未参加表示を説明型に変更
+- 未参加時の `🌳 これから参加` 表示を廃止
+- 未参加時は `まだ参加したイベントはありません` と表示
+- `七夕・夏祭りなどに参加すると、ここに参加バッジが表示されます。` の説明文を追加
+- イベント参加欄の補足として `季節イベントに参加すると、記念バッジとして残ります。` を追加
+- `css/v132-passport.css` に未参加メッセージ用CSSを追加
+- `pages/mypage.html` のキャッシュ番号を `162` に更新
+- READMEをv1.4.22へ更新
+
 ## v1.4.21
 - `css/v1200-mori-world-engine.css` を更新し、杜の成長セクションに進捗バーCSSを追加
 - 既にHTMLとJSで用意されていた `moriStatusProgressBar` を見える表示へ調整
@@ -33,12 +43,3 @@
 - 今日の記録数、今日の歩数、累計歩数、ありがとう件数を再計算
 - 杜レベル、進捗バー、次レベルまでの歩数を再計算
 - `pages/news.html` と `pages/mori.html` のキャッシュ番号を `158` に更新
-- READMEをv1.4.18へ更新
-
-## v1.4.17
-- `css/v128-mobile-polish.css` を更新し、Android Chromeで全ページの縦スクロールができない問題へ対応
-- `html` / `body` に `height:auto`、`overflow-y:auto`、`-webkit-overflow-scrolling:touch` を追加
-- `.app` に `min-height:100dvh`、`height:auto`、`overflow-y:visible` を設定
-- `body.scroll-lock` / `html.scroll-lock` が残っても縦スクロールできるように保護
-- ホーム、杜、歩数記録、通信、パスポート、管理画面のキャッシュ番号を `157` に更新
-- READMEをv1.4.17へ更新
