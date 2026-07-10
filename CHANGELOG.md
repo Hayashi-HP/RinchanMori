@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.17
+- `css/v128-mobile-polish.css` を更新し、Android Chromeで全ページの縦スクロールができない問題へ対応
+- `html` / `body` に `height:auto`、`overflow-y:auto`、`-webkit-overflow-scrolling:touch` を追加
+- `.app` に `min-height:100dvh`、`height:auto`、`overflow-y:visible` を設定
+- `body.scroll-lock` / `html.scroll-lock` が残っても縦スクロールできるように保護
+- ホーム、杜、歩数記録、通信、パスポート、管理画面のキャッシュ番号を `157` に更新
+- READMEをv1.4.17へ更新
+
 ## v1.4.16
 - `js/features/monthly-challenge-engine.js` を更新し、月間チャレンジが0歩になる問題を修正
 - 古い `rinchanSteps` だけでなく、現在使っている `rinchanActivities` / `rinchanUserActivities` / `rinchanAllActivities` を集計元に追加
