@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.4.18
+- `js/features/forest-summary-fix.js` を追加
+- りんちゃん通信の「今日のまとめ」を `rinchanAllActivities` 優先で再計算する補正を追加
+- 杜画面の「杜の成長」を `rinchanAllActivities` 優先で再計算する補正を追加
+- 古い `rinchanForestSummary` が0を返す場合でも、全員歩数データがある場合はそちらを優先
+- 今日の記録数、今日の歩数、累計歩数、ありがとう件数を再計算
+- 杜レベル、進捗バー、次レベルまでの歩数を再計算
+- `pages/news.html` と `pages/mori.html` のキャッシュ番号を `158` に更新
+- READMEをv1.4.18へ更新
+
 ## v1.4.17
 - `css/v128-mobile-polish.css` を更新し、Android Chromeで全ページの縦スクロールができない問題へ対応
 - `html` / `body` に `height:auto`、`overflow-y:auto`、`-webkit-overflow-scrolling:touch` を追加
