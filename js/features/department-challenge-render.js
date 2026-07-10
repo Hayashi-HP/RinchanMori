@@ -1,19 +1,13 @@
 const RinchanDepartmentChallengeRender = (() => {
-  const VERSION = 'v1.4.30';
+  const VERSION = 'v1.4.31';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 
   function applyCardLayout(host) {
     if (!host || !host.style) return;
-    host.style.setProperty('width', 'auto', 'important');
-    host.style.setProperty('max-width', 'none', 'important');
-    host.style.setProperty('box-sizing', 'border-box', 'important');
     host.style.setProperty('margin', '0 16px 14px', 'important');
     host.style.setProperty('padding', '20px', 'important');
-    host.style.setProperty('background', '#fff', 'important');
-    host.style.setProperty('border', '1px solid var(--line)', 'important');
-    host.style.setProperty('border-radius', '28px', 'important');
-    host.style.setProperty('box-shadow', '0 12px 26px rgba(60,120,90,.08)', 'important');
+    host.style.setProperty('box-sizing', 'border-box', 'important');
   }
 
   function render() {
@@ -22,7 +16,7 @@ const RinchanDepartmentChallengeRender = (() => {
     if (!window.RinchanDepartmentChallengeEngine || typeof RinchanDepartmentChallengeEngine.build !== 'function') return;
     const c = RinchanDepartmentChallengeEngine.build();
     const dept = c.department || '所属部署';
-    host.className = 'department-challenge-card' + (c.available ? '' : ' is-waiting');
+    host.className = 'card department-challenge-card' + (c.available ? '' : ' is-waiting');
     applyCardLayout(host);
     host.innerHTML = '' +
       '<div class="department-challenge-head"><div><h3 class="department-challenge-title">🌳 ' + c.title + '</h3><p class="department-challenge-scope">部署チャレンジ｜今月</p></div><span class="department-challenge-pill">' + c.rate + '%</span></div>' +
