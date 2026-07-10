@@ -1,5 +1,5 @@
 const RinchanMonthlyChallengeEngine = (() => {
-  const VERSION = 'v1.3.8';
+  const VERSION = 'v1.4.16';
 
   const MONTHLY = {
     1: { icon:'🎍', name:'お正月ウォーク', target:160000, copy:'新しい一年を、無理のない一歩から始めよう。' },
@@ -16,6 +16,26 @@ const RinchanMonthlyChallengeEngine = (() => {
     12:{ icon:'🎄', name:'クリスマスチャレンジ', target:180000, copy:'一年の締めくくりに、あたたかい一歩を。' }
   };
 
+  function readJson(key, fallback) {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch(e) { return fallback; }
+  }
+
+  function participant() {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
+    } catch(e) {}
+    return readJson('rinchanParticipant', null) || {};
+  }
+
+  function employeeId() {
+    const p = participant();
+    return String(p.employeeId || p.id || p.participantId || '').trim();
+  }
+
   function challenge(date) {
     const d = date || new Date();
     return MONTHLY[d.getMonth() + 1] || { icon:'👟', name:'月間チャレンジ', target:200000, copy:'今月も無理なく歩こう。' };
@@ -26,25 +46,67 @@ const RinchanMonthlyChallengeEngine = (() => {
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
   }
 
-  function getSteps() {
+  function normalizeDateKey(value) {
+    const raw = String(value || '').trim();
+    const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (iso) return iso[1] + '-' + String(iso[2]).padStart(2, '0') + '-' + String(iso[3]).padStart(2, '0');
+    const parsed = new Date(raw);
+    if (!isNaN(parsed)) return parsed.getFullYear() + '-' + String(parsed.getMonth() + 1).padStart(2, '0') + '-' + String(parsed.getDate()).padStart(2, '0');
+    return raw.slice(0, 10);
+  }
+
+  function getRows() {
+    const candidates = [
+      readJson('rinchanActivities', []),
+      readJson('rinchanUserActivities', []),
+      readJson('rinchanSteps', []),
+      readJson('rinchanAllActivities', [])
+    ];
+    for (const rows of candidates) {
+      if (Array.isArray(rows) && rows.length) return rows;
+    }
     try {
-      if (window.RinchanStorage && typeof RinchanStorage.getSteps === 'function') return RinchanStorage.getSteps();
+      if (window.RinchanStorage && typeof RinchanStorage.getSteps === 'function') {
+        const rows = RinchanStorage.getSteps();
+        if (Array.isArray(rows) && rows.length) return rows;
+      }
     } catch(e) {}
-    try { return JSON.parse(localStorage.getItem('rinchanSteps') || '[]'); } catch(e) { return []; }
+    return [];
   }
 
   function rowDate(row) {
-    return String(row.date || row.activityDate || row.createdAt || row.datetime || '').slice(0, 10);
+    return normalizeDateKey(row.date || row.activityDate || row.createdAt || row.savedAt || row.datetime || '');
+  }
+
+  function rowOwner(row) {
+    return String(row.employeeId || row.participantId || row.id || row.userId || row.staffId || '').trim();
+  }
+
+  function rowSteps(row) {
+    return Number(row.steps || row.step || row.count || 0);
+  }
+
+  function rowKey(row) {
+    const activityId = String(row.activityId || row.recordId || '').trim();
+    if (activityId) return 'activity:' + activityId;
+    return [rowOwner(row), rowDate(row), rowSteps(row), row.createdAt || row.savedAt || ''].join('|');
   }
 
   function monthlySteps(date) {
     const key = ym(date);
-    const rows = getSteps();
-    if (!Array.isArray(rows)) return 0;
+    const me = employeeId();
+    const rows = getRows();
+    if (!Array.isArray(rows) || !rows.length) return 0;
+    const seen = {};
     return rows.reduce((sum, row) => {
       const d = rowDate(row);
       if (!d || !d.startsWith(key)) return sum;
-      return sum + Number(row.steps || row.step || row.count || 0);
+      const owner = rowOwner(row);
+      if (me && owner && owner !== me) return sum;
+      const k = rowKey(row);
+      if (seen[k]) return sum;
+      seen[k] = true;
+      return sum + rowSteps(row);
     }, 0);
   }
 
