@@ -1,5 +1,5 @@
 const RinchanPassportRender = (() => {
-  const VERSION = 'v1.4.11';
+  const VERSION = 'v1.4.22';
 
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
@@ -23,13 +23,20 @@ const RinchanPassportRender = (() => {
     return '<h3 class="rinchan-passport-section-title">📖 バッジ図鑑 ' + unlocked + '/' + list.length + '</h3><p class="rinchan-passport-section-note">これから集められるバッジの一覧です。</p><div class="rinchan-passport-badges">' + cards + '</div>';
   }
 
+  function eventCards(events) {
+    const list = Array.isArray(events) ? events : [];
+    if (list.length) {
+      return '<div class="rinchan-passport-events">' + list.map(e => '<span class="rinchan-passport-event">' + escapeHtml(e.icon) + ' ' + escapeHtml(e.label) + '</span>').join('') + '</div>';
+    }
+    return '<div class="rinchan-passport-event-empty"><strong>まだ参加したイベントはありません</strong><small>七夕・夏祭りなどに参加すると、ここに参加バッジが表示されます。</small></div>';
+  }
+
   function render() {
     const host = document.getElementById('rinchanPassportSection');
     if (!host) return;
     if (!window.RinchanPassportEngine || typeof RinchanPassportEngine.build !== 'function') return;
     const data = RinchanPassportEngine.build();
-    const events = (data.events || []).length ? (data.events || []).map(e => '<span class="rinchan-passport-event">' + escapeHtml(e.icon) + ' ' + escapeHtml(e.label) + '</span>').join('') : '<span class="rinchan-passport-event">🌳 これから参加</span>';
-    host.innerHTML = '<p class="label">🌳 りんちゃんパスポート</p><div class="rinchan-passport-head"><div class="rinchan-passport-avatar">🌳</div><div><h2 class="rinchan-passport-title">' + escapeHtml(data.name) + 'さんの歩み</h2><p class="rinchan-passport-sub">' + escapeHtml(data.joinYm || '入職年月 未設定') + ' / ' + escapeHtml(data.tenureLabel || '勤続年数 未設定') + '</p></div></div><div class="rinchan-passport-stats"><div><strong>' + formatSteps(data.totalSteps) + '</strong><small>総歩数</small></div><div><strong>' + Number((data.thanks && data.thanks.received) || 0).toLocaleString('ja-JP') + '件</strong><small>もらったありがとう</small></div></div>' + badgeCatalogCards() + '<h3 class="rinchan-passport-section-title">🎪 イベント参加</h3><div class="rinchan-passport-events">' + events + '</div>';
+    host.innerHTML = '<p class="label">🌳 りんちゃんパスポート</p><div class="rinchan-passport-head"><div class="rinchan-passport-avatar">🌳</div><div><h2 class="rinchan-passport-title">' + escapeHtml(data.name) + 'さんの歩み</h2><p class="rinchan-passport-sub">' + escapeHtml(data.joinYm || '入職年月 未設定') + ' / ' + escapeHtml(data.tenureLabel || '勤続年数 未設定') + '</p></div></div><div class="rinchan-passport-stats"><div><strong>' + formatSteps(data.totalSteps) + '</strong><small>総歩数</small></div><div><strong>' + Number((data.thanks && data.thanks.received) || 0).toLocaleString('ja-JP') + '件</strong><small>もらったありがとう</small></div></div>' + badgeCatalogCards() + '<h3 class="rinchan-passport-section-title">🎪 イベント参加</h3><p class="rinchan-passport-section-note">季節イベントに参加すると、記念バッジとして残ります。</p>' + eventCards(data.events || []);
   }
 
   function install() {
