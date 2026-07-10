@@ -1,5 +1,5 @@
 const RinchanPassportLayoutFix = (() => {
-  const VERSION = 'v1.4.27';
+  const VERSION = 'v1.4.28';
 
   function isAndroid() {
     return /Android/i.test(navigator.userAgent || '');
@@ -19,6 +19,7 @@ const RinchanPassportLayoutFix = (() => {
       setImportant(stack, 'margin', '0');
       setImportant(stack, 'padding', '0');
     }
+
     ['monthlyChallengeSection', 'departmentChallengeSection', 'hospitalChallengeSection'].forEach((id, index) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -32,8 +33,7 @@ const RinchanPassportLayoutFix = (() => {
     });
   }
 
-  function fixAndroidScroll() {
-    if (!isAndroid()) return;
+  function fixScrollAndNav() {
     const html = document.documentElement;
     const body = document.body;
     const app = document.getElementById('mypageV070') || document.querySelector('main.app');
@@ -73,18 +73,27 @@ const RinchanPassportLayoutFix = (() => {
 
   function apply() {
     fixChallengeCards();
-    fixAndroidScroll();
+    fixScrollAndNav();
   }
 
   function install() {
     apply();
+    setTimeout(apply, 0);
     setTimeout(apply, 100);
-    setTimeout(apply, 500);
+    setTimeout(apply, 300);
+    setTimeout(apply, 700);
     setTimeout(apply, 1200);
     setTimeout(apply, 2500);
+    setTimeout(apply, 4000);
   }
 
-  document.addEventListener('DOMContentLoaded', install);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', install);
+  } else {
+    install();
+  }
+
+  window.addEventListener('load', install);
   window.addEventListener('pageshow', () => setTimeout(install, 100));
   window.addEventListener('resize', () => setTimeout(apply, 100));
 
