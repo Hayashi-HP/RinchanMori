@@ -1,4 +1,4 @@
-/* v1.4.17 mobile layout polish - Android Chrome scroll fix */
+/* v1.4.24 mobile layout polish - Android Chrome scroll and footer overlap fix */
 html,
 body{
   width:100%!important;
@@ -6,7 +6,7 @@ body{
   min-height:100%!important;
   height:auto!important;
   overflow-x:hidden!important;
-  overflow-y:auto!important;
+  overflow-y:scroll!important;
   overscroll-behavior-x:none!important;
   -webkit-overflow-scrolling:touch!important;
 }
@@ -15,30 +15,52 @@ html{
 }
 body{
   position:relative!important;
+  min-height:100dvh!important;
   touch-action:pan-y!important;
   background:#eefbfb!important;
 }
 body.scroll-lock,
 html.scroll-lock{
-  overflow-y:auto!important;
+  overflow-y:scroll!important;
   position:static!important;
   height:auto!important;
 }
 .app{
   width:min(100%,430px)!important;
   max-width:430px!important;
-  min-height:100dvh!important;
+  min-height:calc(100dvh + 1px)!important;
   height:auto!important;
   overflow-x:hidden!important;
   overflow-y:visible!important;
-  padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important;
+  padding-bottom:calc(190px + env(safe-area-inset-bottom,0px))!important;
 }
 main.app{
   display:block!important;
   position:relative!important;
 }
 .nav{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:0!important;
+  transform:translateX(-50%) translateZ(0)!important;
+  width:min(430px,100%)!important;
+  height:calc(86px + env(safe-area-inset-bottom,0px))!important;
+  padding-bottom:env(safe-area-inset-bottom,0px)!important;
+  background:rgba(255,255,255,.96)!important;
+  backdrop-filter:blur(14px)!important;
+  -webkit-backdrop-filter:blur(14px)!important;
+  border-top:1px solid rgba(225,240,232,.95)!important;
+  z-index:999!important;
   touch-action:manipulation!important;
+}
+.nav a{
+  min-width:0!important;
+  min-height:64px!important;
+  justify-content:center!important;
+}
+.nav small{
+  line-height:1.15!important;
 }
 button,
 a,
@@ -90,9 +112,10 @@ button:disabled,
   white-space:nowrap!important;
 }
 .app::after{
-  content:none!important;
-  display:none!important;
-  height:0!important;
+  content:''!important;
+  display:block!important;
+  height:calc(120px + env(safe-area-inset-bottom,0px))!important;
+  flex:0 0 auto!important;
 }
 .top,
 .card,
