@@ -1,5 +1,5 @@
 const RinchanHospitalChallengeRender = (() => {
-  const VERSION = 'v1.4.1';
+  const VERSION = 'v1.4.20';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 
@@ -11,7 +11,11 @@ const RinchanHospitalChallengeRender = (() => {
     host.className = 'monthly-challenge-card hospital-challenge-card' + (c.achieved ? ' is-achieved' : '') + (c.available ? '' : ' is-pending');
     const currentText = c.available ? fmt(c.current) + '歩' : '準備中';
     const targetText = fmt(c.target) + '歩';
-    host.innerHTML = '<div class="monthly-challenge-head"><h3 class="monthly-challenge-title">' + c.title + '</h3><span class="monthly-challenge-pill">' + (c.available ? c.rate + '%' : '準備中') + '</span></div><div class="monthly-challenge-main"><div><strong>' + currentText + '</strong><small>病院全体の今月歩数</small></div><div><strong>' + targetText + '</strong><small>目標</small></div></div><div class="monthly-challenge-bar"><span style="width:' + (c.available ? c.rate : 0) + '%"></span></div><p class="monthly-challenge-note">' + c.message + '</p>';
+    host.innerHTML = '' +
+      '<div class="monthly-challenge-head"><div><h3 class="monthly-challenge-title">' + c.title + '</h3><p class="monthly-challenge-scope">病院全体チャレンジ｜今月</p></div><span class="monthly-challenge-pill">' + (c.available ? c.rate + '%' : '準備中') + '</span></div>' +
+      '<div class="monthly-challenge-main"><div><strong>' + currentText + '</strong><small>病院全体の今月歩数</small></div><div><strong>' + targetText + '</strong><small>病院全体目標</small></div></div>' +
+      '<div class="monthly-challenge-bar"><span style="width:' + (c.available ? c.rate : 0) + '%"></span></div>' +
+      '<p class="monthly-challenge-note">' + c.message + '</p>';
   }
 
   function install() {
