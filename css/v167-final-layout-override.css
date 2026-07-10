@@ -1,4 +1,4 @@
-/* v1.4.32 final layout override - must be loaded last */
+/* v1.4.33 final layout override - must be loaded last */
 html,
 body{
   height:auto!important;
@@ -44,8 +44,8 @@ main.app,.app{
 #monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{
   width:auto!important;
   max-width:none!important;
-  margin-left:24px!important;
-  margin-right:24px!important;
+  margin-left:20px!important;
+  margin-right:20px!important;
   margin-bottom:14px!important;
   padding:20px!important;
   box-sizing:border-box!important;
