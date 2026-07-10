@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.4.19
+- `js/features/forest-summary-fix.js` を更新し、今日判定を `Asia/Tokyo` 固定に変更
+- 端末のタイムゾーンやブラウザ差で、今日の記録・今日の歩数がズレる可能性を低減
+- ISO時刻の `createdAt` / `savedAt` を日本時間の日付へ変換して判定
+- 通信画面の日付表示を日本時間基準へ変更
+- 杜画面の全員データ反映時刻を日本時間表示へ変更
+- `pages/news.html` と `pages/mori.html` のキャッシュ番号を `159` に更新
+- READMEをv1.4.19へ更新
+
 ## v1.4.18
 - `js/features/forest-summary-fix.js` を追加
 - りんちゃん通信の「今日のまとめ」を `rinchanAllActivities` 優先で再計算する補正を追加
