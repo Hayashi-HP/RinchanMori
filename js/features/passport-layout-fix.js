@@ -1,5 +1,5 @@
 const RinchanPassportLayoutFix = (() => {
-  const VERSION = 'v1.4.32';
+  const VERSION = 'v1.4.33';
 
   function setImportant(el, prop, value) {
     if (!el || !el.style) return;
@@ -20,7 +20,7 @@ const RinchanPassportLayoutFix = (() => {
       const el = document.getElementById(id);
       if (!el) return;
       if (!el.classList.contains('card')) el.classList.add('card');
-      setImportant(el, 'margin', index === 0 ? '14px 24px 14px' : '0 24px 14px');
+      setImportant(el, 'margin', index === 0 ? '14px 20px 14px' : '0 20px 14px');
       setImportant(el, 'padding', '20px');
       setImportant(el, 'box-sizing', 'border-box');
     });
