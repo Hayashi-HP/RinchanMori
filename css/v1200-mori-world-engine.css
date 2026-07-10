@@ -1,4 +1,4 @@
-/* v1.2.0 Phase2 Mori world engine */
+/* v1.4.21 Phase2 Mori world engine */
 .mori-world-sky{
   position:absolute!important;
   inset:0!important;
@@ -28,6 +28,10 @@
 .mori-game-map.rinchan-season-autumn{box-shadow:inset 0 0 0 999px rgba(255,231,190,.14)}
 .mori-game-map.rinchan-season-winter{box-shadow:inset 0 0 0 999px rgba(230,248,255,.18)}
 .mori-tree-node.dept-node span{animation:moriTreeBreath 4.2s ease-in-out infinite;transform-origin:center bottom}
+#moriStatusCard .forest-progress-wrap{display:block!important;margin-top:18px!important;width:100%!important}
+#moriStatusCard .forest-progress{display:block!important;width:100%!important;height:14px!important;border-radius:999px!important;background:#e8f1ed!important;overflow:hidden!important;box-shadow:inset 0 0 0 1px rgba(80,120,90,.08)!important}
+#moriStatusCard .forest-progress div,#moriStatusCard .forest-progress span,#moriStatusProgressBar{display:block!important;height:100%!important;min-width:4px!important;border-radius:999px!important;background:linear-gradient(90deg,#25b8c9,#58bd72)!important;transition:width .45s ease!important}
+#moriStatusCard .forest-progress-note{margin:10px 0 0!important;color:#667568!important;font-size:14px!important;font-weight:900!important;line-height:1.55!important;text-align:left!important}
 @keyframes moriCloudDrift{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 240px))}}
 @keyframes moriLeafFall{0%{opacity:0;transform:translate3d(0,-20px,0) rotate(0deg)}12%{opacity:.9}100%{opacity:0;transform:translate3d(38px,430px,0) rotate(240deg)}}
 @keyframes moriTwinkle{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
