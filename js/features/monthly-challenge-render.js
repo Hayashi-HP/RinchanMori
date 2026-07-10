@@ -1,7 +1,18 @@
 const RinchanMonthlyChallengeRender = (() => {
-  const VERSION = 'v1.4.20';
+  const VERSION = 'v1.4.28';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
+
+  function applyCardLayout(host) {
+    if (!host || !host.style) return;
+    host.style.setProperty('width', 'calc(100% - 48px)', 'important');
+    host.style.setProperty('max-width', '382px', 'important');
+    host.style.setProperty('box-sizing', 'border-box', 'important');
+    host.style.setProperty('margin-left', 'auto', 'important');
+    host.style.setProperty('margin-right', 'auto', 'important');
+    host.style.setProperty('margin-top', '14px', 'important');
+    host.style.setProperty('margin-bottom', '14px', 'important');
+  }
 
   function render() {
     const host = document.getElementById('monthlyChallengeSection');
@@ -9,6 +20,7 @@ const RinchanMonthlyChallengeRender = (() => {
     if (!window.RinchanMonthlyChallengeEngine || typeof RinchanMonthlyChallengeEngine.build !== 'function') return;
     const c = RinchanMonthlyChallengeEngine.build();
     host.className = 'monthly-challenge-card' + (c.achieved ? ' is-achieved' : '');
+    applyCardLayout(host);
     host.innerHTML = '' +
       '<div class="monthly-challenge-head"><div><h3 class="monthly-challenge-title">' + c.title + '</h3><p class="monthly-challenge-scope">個人チャレンジ｜今月</p></div><span class="monthly-challenge-pill">' + c.rate + '%</span></div>' +
       '<div class="monthly-challenge-main"><div><strong>' + fmt(c.current) + '歩</strong><small>あなたの今月歩数</small></div><div><strong>' + fmt(c.target) + '歩</strong><small>個人目標</small></div></div>' +
@@ -18,8 +30,9 @@ const RinchanMonthlyChallengeRender = (() => {
 
   function install() {
     render();
-    setTimeout(render, 600);
-    setTimeout(render, 1600);
+    setTimeout(render, 300);
+    setTimeout(render, 900);
+    setTimeout(render, 1800);
   }
 
   document.addEventListener('DOMContentLoaded', install);
