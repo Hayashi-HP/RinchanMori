@@ -1,6 +1,19 @@
 const RinchanDepartmentChallengeRender = (() => {
-  const VERSION = 'v1.4.20';
+  const VERSION = 'v1.4.28';
+
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
+
+  function applyCardLayout(host) {
+    if (!host || !host.style) return;
+    host.style.setProperty('width', 'calc(100% - 48px)', 'important');
+    host.style.setProperty('max-width', '382px', 'important');
+    host.style.setProperty('box-sizing', 'border-box', 'important');
+    host.style.setProperty('margin-left', 'auto', 'important');
+    host.style.setProperty('margin-right', 'auto', 'important');
+    host.style.setProperty('margin-top', '0', 'important');
+    host.style.setProperty('margin-bottom', '14px', 'important');
+  }
+
   function render() {
     const host = document.getElementById('departmentChallengeSection');
     if (!host) return;
@@ -8,13 +21,15 @@ const RinchanDepartmentChallengeRender = (() => {
     const c = RinchanDepartmentChallengeEngine.build();
     const dept = c.department || '所属部署';
     host.className = 'department-challenge-card' + (c.available ? '' : ' is-waiting');
+    applyCardLayout(host);
     host.innerHTML = '' +
       '<div class="department-challenge-head"><div><h3 class="department-challenge-title">🌳 ' + c.title + '</h3><p class="department-challenge-scope">部署チャレンジ｜今月</p></div><span class="department-challenge-pill">' + c.rate + '%</span></div>' +
       '<div class="department-challenge-main"><div><strong>' + fmt(c.current) + '歩</strong><small>' + dept + '全体の今月歩数</small></div><div><strong>' + fmt(c.target) + '歩</strong><small>部署目標</small></div></div>' +
       '<div class="department-challenge-bar"><span style="width:' + c.rate + '%"></span></div>' +
       '<p class="department-challenge-note">' + c.message + '</p>';
   }
-  function install() { render(); setTimeout(render, 700); setTimeout(render, 1700); }
+
+  function install() { render(); setTimeout(render, 300); setTimeout(render, 900); setTimeout(render, 1800); }
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
   return { VERSION, install, render };
