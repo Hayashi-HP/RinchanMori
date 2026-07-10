@@ -1,19 +1,13 @@
 const RinchanHospitalChallengeRender = (() => {
-  const VERSION = 'v1.4.30';
+  const VERSION = 'v1.4.31';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 
   function applyCardLayout(host) {
     if (!host || !host.style) return;
-    host.style.setProperty('width', 'auto', 'important');
-    host.style.setProperty('max-width', 'none', 'important');
-    host.style.setProperty('box-sizing', 'border-box', 'important');
     host.style.setProperty('margin', '0 16px 14px', 'important');
     host.style.setProperty('padding', '20px', 'important');
-    host.style.setProperty('background', '#fff', 'important');
-    host.style.setProperty('border', '1px solid var(--line)', 'important');
-    host.style.setProperty('border-radius', '28px', 'important');
-    host.style.setProperty('box-shadow', '0 12px 26px rgba(60,120,90,.08)', 'important');
+    host.style.setProperty('box-sizing', 'border-box', 'important');
   }
 
   function render() {
@@ -21,7 +15,7 @@ const RinchanHospitalChallengeRender = (() => {
     if (!host) return;
     if (!window.RinchanHospitalChallengeEngine || typeof RinchanHospitalChallengeEngine.build !== 'function') return;
     const c = RinchanHospitalChallengeEngine.build();
-    host.className = 'monthly-challenge-card hospital-challenge-card' + (c.achieved ? ' is-achieved' : '') + (c.available ? '' : ' is-pending');
+    host.className = 'card monthly-challenge-card hospital-challenge-card' + (c.achieved ? ' is-achieved' : '') + (c.available ? '' : ' is-pending');
     applyCardLayout(host);
     const currentText = c.available ? fmt(c.current) + '歩' : '準備中';
     const targetText = fmt(c.target) + '歩';
