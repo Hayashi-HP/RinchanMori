@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.4.21
+- `css/v1200-mori-world-engine.css` を更新し、杜の成長セクションに進捗バーCSSを追加
+- 既にHTMLとJSで用意されていた `moriStatusProgressBar` を見える表示へ調整
+- バーの高さ、背景、グラデーション、余白、説明文を整備
+- `pages/mori.html` のキャッシュ番号を `161` に更新
+- READMEをv1.4.21へ更新
+
 ## v1.4.20
 - `js/features/monthly-challenge-render.js` を更新し、月間イベント名を残したまま `個人チャレンジ｜今月` を表示
 - `js/features/department-challenge-render.js` を更新し、`部署チャレンジ｜今月` を表示
@@ -35,17 +42,3 @@
 - `body.scroll-lock` / `html.scroll-lock` が残っても縦スクロールできるように保護
 - ホーム、杜、歩数記録、通信、パスポート、管理画面のキャッシュ番号を `157` に更新
 - READMEをv1.4.17へ更新
-
-## v1.4.16
-- `js/features/monthly-challenge-engine.js` を更新し、月間チャレンジが0歩になる問題を修正
-- 古い `rinchanSteps` だけでなく、現在使っている `rinchanActivities` / `rinchanUserActivities` / `rinchanAllActivities` を集計元に追加
-- 社員番号で本人分の当月歩数だけを抽出
-- 活動IDまたは社員番号・日付ベースで重複行を除外
-- `pages/mypage.html` のキャッシュ番号を `156` に更新
-- READMEをv1.4.16へ更新
-
-## v1.4.15
-- `pages/mypage.html` を更新し、月間チャレンジ・部署チャレンジ・病院全体チャレンジの表示枠を `rinchanPassportSection` の外へ移動
-- `rinchan-passport-render.js` がパスポート本体を再描画しても、チャレンジ表示枠が消えない構成へ変更
-- パスポート画面のキャッシュ番号を `155` に更新
-- READMEをv1.4.15へ更新
