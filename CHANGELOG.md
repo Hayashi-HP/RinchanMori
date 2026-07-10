@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.4.23
+- `css/v132-passport.css` を更新し、パスポート内の3つのチャレンジカードの左右余白を他セクションと統一
+- `passport-challenge-stack` に `width: calc(100% - 32px)`、`max-width: 398px`、`margin: 14px auto 0` を指定
+- 月間チャレンジ、部署チャレンジ、病院全体チャレンジを同じカード幅に統一
+- `pages/mypage.html` のキャッシュ番号を `163` に更新
+- READMEをv1.4.23へ更新
+
 ## v1.4.22
 - `js/features/rinchan-passport-render.js` を更新し、イベント参加欄の未参加表示を説明型に変更
 - 未参加時の `🌳 これから参加` 表示を廃止
@@ -34,12 +41,3 @@
 - 杜画面の全員データ反映時刻を日本時間表示へ変更
 - `pages/news.html` と `pages/mori.html` のキャッシュ番号を `159` に更新
 - READMEをv1.4.19へ更新
-
-## v1.4.18
-- `js/features/forest-summary-fix.js` を追加
-- りんちゃん通信の「今日のまとめ」を `rinchanAllActivities` 優先で再計算する補正を追加
-- 杜画面の「杜の成長」を `rinchanAllActivities` 優先で再計算する補正を追加
-- 古い `rinchanForestSummary` が0を返す場合でも、全員歩数データがある場合はそちらを優先
-- 今日の記録数、今日の歩数、累計歩数、ありがとう件数を再計算
-- 杜レベル、進捗バー、次レベルまでの歩数を再計算
-- `pages/news.html` と `pages/mori.html` のキャッシュ番号を `158` に更新
