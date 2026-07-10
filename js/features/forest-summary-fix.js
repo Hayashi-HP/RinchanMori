@@ -1,5 +1,5 @@
 const RinchanForestSummaryFix = (() => {
-  const VERSION = 'v1.4.18';
+  const VERSION = 'v1.4.19';
 
   function readJson(key, fallback) {
     try {
@@ -9,8 +9,37 @@ const RinchanForestSummaryFix = (() => {
     } catch (e) { return fallback; }
   }
 
-  function dateKeyFromDate(date) {
-    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  function tokyoParts(date) {
+    const d = date || new Date();
+    const parts = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(d).reduce((acc, part) => {
+      acc[part.type] = part.value;
+      return acc;
+    }, {});
+    return parts;
+  }
+
+  function tokyoDateKey(date) {
+    const p = tokyoParts(date || new Date());
+    return p.year + '-' + p.month + '-' + p.day;
+  }
+
+  function tokyoMonthDay(date) {
+    const p = tokyoParts(date || new Date());
+    return Number(p.month) + '/' + Number(p.day) + ' ' + String(p.weekday || '').replace('曜日', '');
+  }
+
+  function tokyoTime(date) {
+    const p = tokyoParts(date || new Date());
+    return p.hour + ':' + p.minute;
   }
 
   function normalizeDateKey(value) {
@@ -18,7 +47,7 @@ const RinchanForestSummaryFix = (() => {
     const iso = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
     if (iso) return iso[1] + '-' + String(iso[2]).padStart(2, '0') + '-' + String(iso[3]).padStart(2, '0');
     const parsed = new Date(raw);
-    if (!isNaN(parsed)) return dateKeyFromDate(parsed);
+    if (!isNaN(parsed)) return tokyoDateKey(parsed);
     return raw.slice(0, 10);
   }
 
@@ -64,7 +93,7 @@ const RinchanForestSummaryFix = (() => {
   }
 
   function summary() {
-    const today = dateKeyFromDate(new Date());
+    const today = tokyoDateKey(new Date());
     const rows = uniqueRows();
     const todayRows = rows.filter(row => rowDate(row) === today);
     const totalSteps = rows.reduce((sum, row) => sum + steps(row), 0);
@@ -74,6 +103,7 @@ const RinchanForestSummaryFix = (() => {
     const thanksStats = readJson('rinchanThanksStats', {}) || {};
     return {
       version: VERSION,
+      timezone: 'Asia/Tokyo',
       today,
       todayActivities: todayRows.length || Number(server.todayActivities || 0),
       todaySteps: todaySteps || Number(server.todaySteps || 0),
@@ -81,11 +111,6 @@ const RinchanForestSummaryFix = (() => {
       thanksCount: Array.isArray(timeline) && timeline.length ? timeline.length : Number(thanksStats.total || thanksStats.count || 0),
       rows: rows.length
     };
-  }
-
-  function formatMonthDay(date) {
-    const days = ['日','月','火','水','木','金','土'];
-    return (date.getMonth() + 1) + '/' + date.getDate() + ' ' + days[date.getDay()];
   }
 
   function stat(icon, value, label) {
@@ -114,7 +139,7 @@ const RinchanForestSummaryFix = (() => {
     if (!statsEl) return;
     const data = summary();
     const dateEl = document.getElementById('newsSummaryDate');
-    if (dateEl) dateEl.textContent = formatMonthDay(new Date());
+    if (dateEl) dateEl.textContent = tokyoMonthDay(new Date());
     statsEl.innerHTML = [
       stat('📝', data.todayActivities, '今日の記録'),
       stat('👟', data.todaySteps, '今日の歩数'),
@@ -141,7 +166,7 @@ const RinchanForestSummaryFix = (() => {
       const remain = Math.max(0, level.next - Number(data.totalSteps || 0));
       note.textContent = remain > 0 ? 'あと' + remain.toLocaleString('ja-JP') + '歩でレベル ' + (level.level + 1) : '最高レベルに到達しました';
     }
-    if (updated) updated.textContent = '全員データ反映 ' + new Date().toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+    if (updated) updated.textContent = '全員データ反映 ' + tokyoTime(new Date());
   }
 
   function renderAll() {
@@ -159,6 +184,6 @@ const RinchanForestSummaryFix = (() => {
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
 
-  return { VERSION, summary, renderAll };
+  return { VERSION, summary, renderAll, tokyoDateKey };
 })();
 window.RinchanForestSummaryFix = RinchanForestSummaryFix;
