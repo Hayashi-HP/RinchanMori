@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.4.15
+- `pages/mypage.html` を更新し、月間チャレンジ・部署チャレンジ・病院全体チャレンジの表示枠を `rinchanPassportSection` の外へ移動
+- `rinchan-passport-render.js` がパスポート本体を再描画しても、チャレンジ表示枠が消えない構成へ変更
+- パスポート画面のキャッシュ番号を `155` に更新
+- READMEをv1.4.15へ更新
+
 ## v1.4.14
 - `js/features/hospital-challenge-engine.js` を更新し、病院全体チャレンジを全員データ優先に修正
 - `rinchanAllActivities` / `rinchanAllSteps` / `rinchanStepRecords` から当月の病院全体歩数を集計
@@ -33,30 +39,3 @@
 - `apps-script/Config.gs` の `VERSION` を `v1.4.10` に更新
 - `APPS_SCRIPT_DEPLOY_CHECKLIST.md` を v1.4.10 手順へ更新
 - READMEをv1.4.10へ更新
-
-## v1.4.9
-- `pages/diagnostics.html` にサーバー確認カードを追加
-- `js/features/diagnostics.js` に `checkServer()` を追加
-- 診断画面からApps Scriptの応答バージョンを確認できるようにした
-- `getUserState` の応答、`userReads`、`readNewsIds`、`readThanksFlowerIds` の有無と件数を診断画面で確認できるようにした
-- 診断画面のキャッシュ番号を `149` に更新
-- `APPS_SCRIPT_DEPLOY_CHECKLIST.md` を追加
-- READMEをv1.4.9へ更新
-
-## v1.4.8
-- `apps-script/UserReads.gs` を追加
-- `user_reads` シートへお知らせ既読IDと花受け取りIDを保存する関数を追加
-- `getUserReadState()` / `markUserRead()` / `markNewsRead()` / `markThanksRead()` を追加
-- クライアントから送られた既読IDリストとサーバー既読IDリストを合算して保存
-- `apps-script/Config.gs` の `VERSION` を `v1.4.8` に更新
-- READMEをv1.4.8へ更新
-
-## v1.4.7
-- `js/features/news.js` を更新し、曜日配列に抜けていた「木」を追加
-- お知らせ既読IDをローカル値とサーバー値の合算で扱うように修正
-- 確認ボタン押下時に `markNewsRead` をサーバーへ送るように修正
-- `js/core/sync.js` を更新し、同期時に既読状態を上書きせず合算するように変更
-- 自分宛の花判定から公開用ありがとうタイムラインを除外
-- `js/features/thanks-home-notice.js` を更新し、ホーム花通知を未受け取りの自分宛だけに限定
-- `index.html` と `pages/news.html` のキャッシュ番号を `147` に更新
-- READMEをv1.4.7へ更新
