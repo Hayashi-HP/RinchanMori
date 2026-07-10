@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.26
+- `css/v132-passport.css` を更新し、チャレンジカードの左右余白修正方式を変更
+- `passport-challenge-stack` を `display: contents` に変更し、外枠の幅指定を廃止
+- 月間チャレンジ、部署チャレンジ、病院全体チャレンジの各カード自身に `margin: 0 16px 14px` を直接指定
+- `pages/mypage.html` のインラインCSSにも同じ指定を追加
+- `pages/mypage.html` のキャッシュ番号を `165` に更新
+- READMEをv1.4.26へ更新
+
 ## v1.4.25
 - `apps-script/Router.gs` を更新し、iPhoneショートカットの `saveHealthSteps` を受け付けるようにした
 - `saveHealthSteps` を `saveActivity` の互換actionとして処理
@@ -23,6 +31,3 @@
 - 月間チャレンジ、部署チャレンジ、病院全体チャレンジを同じカード幅に統一
 - `pages/mypage.html` のキャッシュ番号を `163` に更新
 - READMEをv1.4.23へ更新
-
-## v1.4.22
-- `js/features/rinchan-passport-render.js` を更新し、イベント参加欄の未参加表示を説明型に変更
