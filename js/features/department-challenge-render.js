@@ -1,17 +1,15 @@
 const RinchanDepartmentChallengeRender = (() => {
-  const VERSION = 'v1.4.28';
+  const VERSION = 'v1.4.29';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 
   function applyCardLayout(host) {
     if (!host || !host.style) return;
-    host.style.setProperty('width', 'calc(100% - 48px)', 'important');
-    host.style.setProperty('max-width', '382px', 'important');
+    host.style.setProperty('width', 'auto', 'important');
+    host.style.setProperty('max-width', 'none', 'important');
     host.style.setProperty('box-sizing', 'border-box', 'important');
-    host.style.setProperty('margin-left', 'auto', 'important');
-    host.style.setProperty('margin-right', 'auto', 'important');
-    host.style.setProperty('margin-top', '0', 'important');
-    host.style.setProperty('margin-bottom', '14px', 'important');
+    host.style.setProperty('margin', '0 16px 14px', 'important');
+    host.style.setProperty('padding', '20px', 'important');
   }
 
   function render() {
