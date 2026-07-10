@@ -1,11 +1,11 @@
 const RinchanMonthlyChallengeRender = (() => {
-  const VERSION = 'v1.4.32';
+  const VERSION = 'v1.4.33';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 
   function applyCardLayout(host) {
     if (!host || !host.style) return;
-    host.style.setProperty('margin', '14px 24px 14px', 'important');
+    host.style.setProperty('margin', '14px 20px 14px', 'important');
     host.style.setProperty('padding', '20px', 'important');
     host.style.setProperty('box-sizing', 'border-box', 'important');
   }
