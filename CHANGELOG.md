@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.27
+- `js/features/passport-layout-fix.js` を追加し、パスポート画面のチャレンジカード左右余白をJSで最終補正
+- 描画後の月間チャレンジ、部署チャレンジ、病院全体チャレンジに `width: calc(100% - 32px)` と `max-width: 398px` を直接指定
+- `css/v128-mobile-polish.css` を更新し、固定フッター `position: fixed` を解除
+- ナビゲーションをページ末尾の通常配置カード型へ変更し、Android Chromeのスクロールを優先
+- ホーム、杜、歩数記録、通信、パスポート画面のキャッシュ番号を `166` に更新
+- READMEをv1.4.27へ更新
+
 ## v1.4.26
 - `css/v132-passport.css` を更新し、チャレンジカードの左右余白修正方式を変更
 - `passport-challenge-stack` を `display: contents` に変更し、外枠の幅指定を廃止
