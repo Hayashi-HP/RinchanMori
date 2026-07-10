@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.4.16
+- `js/features/monthly-challenge-engine.js` を更新し、月間チャレンジが0歩になる問題を修正
+- 古い `rinchanSteps` だけでなく、現在使っている `rinchanActivities` / `rinchanUserActivities` / `rinchanAllActivities` を集計元に追加
+- 社員番号で本人分の当月歩数だけを抽出
+- 活動IDまたは社員番号・日付ベースで重複行を除外
+- `pages/mypage.html` のキャッシュ番号を `156` に更新
+- READMEをv1.4.16へ更新
+
 ## v1.4.15
 - `pages/mypage.html` を更新し、月間チャレンジ・部署チャレンジ・病院全体チャレンジの表示枠を `rinchanPassportSection` の外へ移動
 - `rinchan-passport-render.js` がパスポート本体を再描画しても、チャレンジ表示枠が消えない構成へ変更
