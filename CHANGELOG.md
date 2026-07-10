@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.4.24
+- `css/v128-mobile-polish.css` を更新し、Android Chromeのスクロールと固定フッター重なりを再修正
+- `.app` の下余白を拡大し、固定フッター下までスクロールできるように調整
+- `.app::after` を復活させ、下部に安全なスクロール余白を追加
+- `.nav` の高さ、背景、重なり順、表示位置を再調整
+- `pages/mypage.html` のインラインCSSにもチャレンジカード左右余白と下余白を明示
+- ホーム、杜、歩数記録、通信、パスポート画面のキャッシュ番号を `164` に更新
+- READMEをv1.4.24へ更新
+
 ## v1.4.23
 - `css/v132-passport.css` を更新し、パスポート内の3つのチャレンジカードの左右余白を他セクションと統一
 - `passport-challenge-stack` に `width: calc(100% - 32px)`、`max-width: 398px`、`margin: 14px auto 0` を指定
@@ -32,12 +41,3 @@
 - `css/v137-monthly-challenge.css` と `css/v139-department-challenge.css` を更新し、対象・期間表示を整形
 - `pages/mypage.html` のキャッシュ番号を `160` に更新
 - READMEをv1.4.20へ更新
-
-## v1.4.19
-- `js/features/forest-summary-fix.js` を更新し、今日判定を `Asia/Tokyo` 固定に変更
-- 端末のタイムゾーンやブラウザ差で、今日の記録・今日の歩数がズレる可能性を低減
-- ISO時刻の `createdAt` / `savedAt` を日本時間の日付へ変換して判定
-- 通信画面の日付表示を日本時間基準へ変更
-- 杜画面の全員データ反映時刻を日本時間表示へ変更
-- `pages/news.html` と `pages/mori.html` のキャッシュ番号を `159` に更新
-- READMEをv1.4.19へ更新
