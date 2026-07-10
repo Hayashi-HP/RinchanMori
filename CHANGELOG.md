@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v1.4.29
+- チャレンジカードを通常カードと同じ外側余白・内側余白に統一
+- `width: calc(100% - 48px)` と `max-width: 382px` 方式を廃止
+- 月間チャレンジ、部署チャレンジ、病院全体チャレンジを `margin: 0 16px 14px` に統一
+- 月間チャレンジのみ上余白として `margin-top: 14px` を指定
+- 各チャレンジカードの内側余白を `padding: 20px` に統一
+- `monthly-challenge-render.js` / `department-challenge-render.js` / `hospital-challenge-render.js` の描画側を修正
+- `v167-final-layout-override.css` と `pages/mypage.html` のインラインCSSも同じ指定へ更新
+- パスポート画面のキャッシュ番号を `169` に更新
+- READMEをv1.4.29へ更新
+
+## v1.4.28
+- チャレンジカードの左右余白をCSSではなく描画JS本体で固定
+- `monthly-challenge-render.js` にカード幅・左右余白の直接指定を追加
+- `department-challenge-render.js` にカード幅・左右余白の直接指定を追加
+- `hospital-challenge-render.js` にカード幅・左右余白の直接指定を追加
+- `css/v167-final-layout-override.css` を追加し、最終上書きCSSを用意
+
 ## v1.4.27
 - `js/features/passport-layout-fix.js` を追加し、パスポート画面のチャレンジカード左右余白をJSで最終補正
 - 描画後の月間チャレンジ、部署チャレンジ、病院全体チャレンジに `width: calc(100% - 32px)` と `max-width: 398px` を直接指定
