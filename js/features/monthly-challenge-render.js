@@ -1,5 +1,5 @@
 const RinchanMonthlyChallengeRender = (() => {
-  const VERSION = 'v1.4.29';
+  const VERSION = 'v1.4.30';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
 
@@ -10,6 +10,10 @@ const RinchanMonthlyChallengeRender = (() => {
     host.style.setProperty('box-sizing', 'border-box', 'important');
     host.style.setProperty('margin', '14px 16px 14px', 'important');
     host.style.setProperty('padding', '20px', 'important');
+    host.style.setProperty('background', '#fff', 'important');
+    host.style.setProperty('border', '1px solid var(--line)', 'important');
+    host.style.setProperty('border-radius', '28px', 'important');
+    host.style.setProperty('box-shadow', '0 12px 26px rgba(60,120,90,.08)', 'important');
   }
 
   function render() {
