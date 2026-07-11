@@ -1,0 +1,64 @@
+/* v1.4.34 daily rinchan hunt */
+.daily-rinchan-find{
+  position:absolute;
+  z-index:8;
+  width:64px;
+  height:64px;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 10px 22px rgba(60,120,90,.18);
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:dailyRinchanPeek 2.4s ease-in-out infinite;
+}
+.daily-rinchan-find img{
+  width:54px;
+  height:54px;
+  object-fit:contain;
+  display:block;
+}
+.daily-rinchan-find span{
+  position:absolute;
+  left:50%;
+  bottom:-20px;
+  transform:translateX(-50%);
+  white-space:nowrap;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#fff;
+  color:#2f6b35;
+  font-size:10px;
+  font-weight:950;
+  box-shadow:0 5px 12px rgba(60,120,90,.12);
+}
+.daily-rinchan-find.is-found{
+  animation:none;
+  opacity:.72;
+}
+.daily-rinchan-find.is-found span{
+  content:'';
+  background:#eef8f2;
+  color:#61766e;
+}
+.daily-rinchan-hunt-card{
+  background:linear-gradient(180deg,#fff 0%,#f7fff9 100%);
+}
+.daily-rinchan-hunt-card h2{
+  margin:0 0 8px;
+}
+.daily-rinchan-hunt-card p{
+  margin:0;
+}
+@keyframes dailyRinchanPeek{
+  0%,100%{transform:translate(-50%,-50%) translateY(0) rotate(-2deg)}
+  50%{transform:translate(-50%,-50%) translateY(-7px) rotate(2deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .daily-rinchan-find{animation:none!important;}
+}
