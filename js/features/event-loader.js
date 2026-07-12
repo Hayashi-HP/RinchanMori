@@ -1,38 +1,29 @@
 const RinchanEventLoader = (() => {
-  const VERSION = 'v1.3.0';
+  const VERSION = 'v1.4.35';
   const LOADED = { css: new Set(), js: new Set() };
-  const EVENTS = {
+
+  const FALLBACK_EVENTS = {
     tanabata: {
-      css: '../css/v125-tanabata.css?v=130',
-      js: '../js/features/tanabata-event.js?v=130',
+      css: '../css/v125-tanabata.css?v=135',
+      js: '../js/features/tanabata-event.js?v=135',
       global: 'RinchanTanabataEvent'
     },
     summer: {
-      css: '../css/v126-summer-festival.css?v=130',
-      js: '../js/features/summer-festival-event.js?v=130',
+      css: '../css/v126-summer-festival.css?v=135',
+      js: '../js/features/summer-festival-event.js?v=135',
       global: 'RinchanSummerFestivalEvent'
     },
     halloween: {
-      css: '../css/v127-halloween.css?v=130',
-      js: '../js/features/halloween-event.js?v=130',
+      css: '../css/v127-halloween.css?v=135',
+      js: '../js/features/halloween-event.js?v=135',
       global: 'RinchanHalloweenEvent'
     },
     birthday: {
-      css: '../css/v130-birthday.css?v=130',
-      js: '../js/features/birthday-event.js?v=130',
+      css: '../css/v130-birthday.css?v=135',
+      js: '../js/features/birthday-event.js?v=135',
       global: 'RinchanBirthdayEvent'
     }
   };
-
-  function eventKey() {
-    try {
-      if (isBirthdayToday()) return 'birthday';
-      if (window.RinchanEventCalendarEngine && typeof RinchanEventCalendarEngine.currentEvent === 'function') {
-        return RinchanEventCalendarEngine.currentEvent().key || 'normal';
-      }
-    } catch(e) {}
-    return 'normal';
-  }
 
   function currentParticipant() {
     try {
@@ -62,6 +53,25 @@ const RinchanEventLoader = (() => {
     if (!md) return false;
     const d = new Date();
     return md.month === d.getMonth() + 1 && md.day === d.getDate();
+  }
+
+  function currentEvent() {
+    if (isBirthdayToday()) return { key: 'birthday', module: FALLBACK_EVENTS.birthday };
+    try {
+      if (window.RinchanEventCalendarEngine && typeof RinchanEventCalendarEngine.currentEvent === 'function') {
+        return RinchanEventCalendarEngine.currentEvent() || { key: 'normal' };
+      }
+    } catch(e) {}
+    return { key: 'normal' };
+  }
+
+  function eventKey() {
+    return currentEvent().key || 'normal';
+  }
+
+  function moduleConfig(event) {
+    if (event && event.module) return event.module;
+    return FALLBACK_EVENTS[event && event.key ? event.key : 'normal'] || null;
   }
 
   function loadCss(href) {
@@ -102,15 +112,15 @@ const RinchanEventLoader = (() => {
   }
 
   async function apply() {
-    const key = eventKey();
-    const config = EVENTS[key];
-    if (!config) return key;
+    const event = currentEvent();
+    const config = moduleConfig(event);
+    if (!config) return event.key || 'normal';
     await loadCss(config.css);
     await loadJs(config.js);
     installEvent(config);
     setTimeout(() => installEvent(config), 300);
     setTimeout(() => installEvent(config), 1200);
-    return key;
+    return event.key || 'normal';
   }
 
   function install() {
@@ -121,6 +131,7 @@ const RinchanEventLoader = (() => {
 
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
-  return { VERSION, EVENTS, install, apply, eventKey, isBirthdayToday };
+
+  return { VERSION, FALLBACK_EVENTS, install, apply, eventKey, currentEvent, isBirthdayToday };
 })();
 window.RinchanEventLoader = RinchanEventLoader;
