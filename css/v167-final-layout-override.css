@@ -1,34 +1,36 @@
-/* v1.4.33 final layout override - must be loaded last */
+/* v1.4.37 final layout override - iOS fixed nav, Android static nav */
 html,
 body{
   height:auto!important;
   min-height:100%!important;
   overflow-x:hidden!important;
   overflow-y:auto!important;
-  position:static!important;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
 }
 body{min-height:100vh!important;}
 main.app,.app{
-  height:auto!important;
   min-height:100vh!important;
-  overflow-y:visible!important;
+  height:auto!important;
   overflow-x:hidden!important;
-  padding-bottom:24px!important;
+  padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;
 }
-.app::after,main.app::after{content:none!important;display:none!important;height:0!important;}
+.app::after,main.app::after{
+  content:''!important;
+  display:block!important;
+  height:70px!important;
+}
 .nav{
-  position:static!important;
-  left:auto!important;
+  position:fixed!important;
+  left:50%!important;
   right:auto!important;
   top:auto!important;
-  bottom:auto!important;
-  transform:none!important;
+  bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;
+  transform:translateX(-50%)!important;
   width:calc(100% - 32px)!important;
   max-width:398px!important;
   height:78px!important;
-  margin:20px auto 20px!important;
+  margin:0!important;
   padding:0!important;
   display:grid!important;
   grid-template-columns:repeat(5,1fr)!important;
@@ -36,10 +38,34 @@ main.app,.app{
   background:rgba(255,255,255,.98)!important;
   border:1px solid rgba(225,240,232,.95)!important;
   border-radius:28px!important;
-  box-shadow:0 10px 24px rgba(60,120,90,.10)!important;
-  z-index:auto!important;
+  box-shadow:0 10px 24px rgba(60,120,90,.14)!important;
+  z-index:1000!important;
 }
 .nav a{min-width:0!important;min-height:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;}
+
+html.is-android,
+html.is-android body{
+  position:static!important;
+  height:auto!important;
+  overflow-y:auto!important;
+}
+html.is-android main.app,
+html.is-android .app{
+  padding-bottom:24px!important;
+  overflow-y:visible!important;
+}
+html.is-android .app::after,
+html.is-android main.app::after{content:none!important;display:none!important;height:0!important;}
+html.is-android .nav{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  margin:20px auto 20px!important;
+  z-index:auto!important;
+}
+
 #passportChallengeStack{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;}
 #monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{
   width:auto!important;
