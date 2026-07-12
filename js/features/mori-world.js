@@ -1,5 +1,5 @@
 const RinchanMoriWorld = (() => {
-  const VERSION = 'v1.0.72';
+  const VERSION = 'v1.4.36';
 
   function readJson(key, fallback) {
     try {
@@ -156,7 +156,20 @@ const RinchanMoriWorld = (() => {
     }
   }
 
+  function activeEventKey() {
+    const map = document.getElementById('moriMap');
+    if (map && map.dataset && map.dataset.eventKey && map.dataset.eventKey !== 'normal') return map.dataset.eventKey;
+    try {
+      if (window.RinchanEventCalendarEngine && typeof RinchanEventCalendarEngine.currentEvent === 'function') {
+        const event = RinchanEventCalendarEngine.currentEvent();
+        if (event && event.key && event.key !== 'normal') return event.key;
+      }
+    } catch (e) {}
+    return 'normal';
+  }
+
   function renderHighlight() {
+    if (activeEventKey() !== 'normal') return;
     const title = document.getElementById('moriHighlightTitle');
     const text = document.getElementById('moriHighlightText');
     const s = stats();
