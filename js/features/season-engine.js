@@ -1,5 +1,5 @@
 const RinchanSeasonEngine = (() => {
-  const VERSION = 'v1.1.27';
+  const VERSION = 'v1.4.37';
 
   function season(now) {
     const m = (now || new Date()).getMonth() + 1;
@@ -45,6 +45,18 @@ const RinchanSeasonEngine = (() => {
     return data.time.phrase;
   }
 
+  function activeEventKey() {
+    const map = document.getElementById('moriMap');
+    if (map && map.dataset && map.dataset.eventKey && map.dataset.eventKey !== 'normal') return map.dataset.eventKey;
+    try {
+      if (window.RinchanEventCalendarEngine && typeof RinchanEventCalendarEngine.currentEvent === 'function') {
+        const event = RinchanEventCalendarEngine.currentEvent();
+        if (event && event.key && event.key !== 'normal') return event.key;
+      }
+    } catch(e) {}
+    return 'normal';
+  }
+
   function applyBodyClass() {
     const data = today();
     document.body.classList.remove('rinchan-season-spring','rinchan-season-summer','rinchan-season-autumn','rinchan-season-winter','rinchan-time-morning','rinchan-time-day','rinchan-time-evening','rinchan-time-night','rinchan-weather-rain','rinchan-weather-rainbow');
@@ -60,6 +72,7 @@ const RinchanSeasonEngine = (() => {
   }
 
   function applyMori() {
+    if (activeEventKey() !== 'normal') return;
     const seasonMsg = document.getElementById('moriSeasonMessage');
     const highlight = document.getElementById('moriHighlightText');
     if (seasonMsg) seasonMsg.textContent = moriMessage();
