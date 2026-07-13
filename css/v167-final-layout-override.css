@@ -1,7 +1,5 @@
-/* v1.5.5 stable mobile layout: sticky top navigation */
-:root{
-  --rinchan-nav-height:72px;
-}
+/* v1.5.5 stable navigation and natural page scrolling */
+:root{--rinchan-nav-height:68px;}
 html,body{
   width:100%!important;
   min-height:100%!important;
@@ -9,14 +7,10 @@ html,body{
   margin:0!important;
   overflow-x:hidden!important;
   overflow-y:auto!important;
-  overscroll-behavior-y:auto!important;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
 }
-body{
-  position:relative!important;
-  min-height:100vh!important;
-}
+body{position:relative!important;}
 body::before{content:none!important;display:none!important;}
 main.app,.app{
   position:relative!important;
@@ -30,16 +24,16 @@ main.app,.app{
 .app::after,main.app::after{content:none!important;display:none!important;height:0!important;}
 .nav{
   position:sticky!important;
-  top:0!important;
-  bottom:auto!important;
+  top:6px!important;
   left:auto!important;
   right:auto!important;
+  bottom:auto!important;
   transform:none!important;
-  width:min(calc(100% - 16px),430px)!important;
+  width:calc(100% - 24px)!important;
   max-width:430px!important;
   min-width:0!important;
   height:var(--rinchan-nav-height)!important;
-  margin:8px auto 18px!important;
+  margin:8px auto 14px!important;
   padding:0!important;
   box-sizing:border-box!important;
   display:grid!important;
@@ -48,21 +42,23 @@ main.app,.app{
   background:rgba(255,255,255,.96)!important;
   -webkit-backdrop-filter:blur(14px)!important;
   backdrop-filter:blur(14px)!important;
-  border:1px solid rgba(225,240,232,.95)!important;
-  border-radius:24px!important;
+  border:1px solid rgba(225,240,232,.96)!important;
+  border-radius:22px!important;
   box-shadow:0 8px 20px rgba(60,120,90,.12)!important;
   z-index:1001!important;
 }
 .nav a{
   position:relative!important;
-  z-index:1!important;
   min-width:0!important;
-  min-height:60px!important;
+  min-height:56px!important;
   display:flex!important;
   flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
+  gap:2px!important;
+  font-size:22px!important;
 }
+.nav a small{font-size:11px!important;line-height:1.15!important;white-space:nowrap!important;}
 html.is-android,html.is-android body{
   height:auto!important;
   min-height:100%!important;
@@ -73,7 +69,6 @@ html.is-android main.app,html.is-android .app{
   height:auto!important;
   min-height:100vh!important;
   overflow:visible!important;
-  padding-bottom:24px!important;
 }
 #passportChallengeStack{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;}
 #monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{width:auto!important;max-width:none!important;margin-left:20px!important;margin-right:20px!important;margin-bottom:14px!important;padding:20px!important;box-sizing:border-box!important;}
