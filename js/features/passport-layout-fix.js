@@ -15,7 +15,6 @@ const RinchanPassportLayoutFix = (() => {
       setImportant(stack, 'margin', '0');
       setImportant(stack, 'padding', '0');
     }
-
     ['monthlyChallengeSection', 'departmentChallengeSection', 'hospitalChallengeSection'].forEach((id, index) => {
       const el = document.getElementById(id);
       if (!el) return;
