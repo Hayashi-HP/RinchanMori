@@ -1,4 +1,4 @@
-/* v1.4.37 final layout override - iOS fixed nav, Android static nav */
+/* v1.4.38 final layout override - iOS fixed nav, Android static nav */
 html,
 body{
   height:auto!important;
@@ -9,11 +9,22 @@ body{
   -webkit-overflow-scrolling:touch!important;
 }
 body{min-height:100vh!important;}
+body::before{
+  content:'';
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:calc(104px + env(safe-area-inset-bottom,0px));
+  background:#fbfdf8;
+  z-index:999;
+  pointer-events:none;
+}
 main.app,.app{
   min-height:100vh!important;
   height:auto!important;
   overflow-x:hidden!important;
-  padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important;
+  padding-bottom:calc(136px + env(safe-area-inset-bottom,0px))!important;
 }
 .app::after,main.app::after{
   content:''!important;
@@ -35,14 +46,15 @@ main.app,.app{
   display:grid!important;
   grid-template-columns:repeat(5,1fr)!important;
   align-items:center!important;
-  background:rgba(255,255,255,.98)!important;
+  background:#fff!important;
   border:1px solid rgba(225,240,232,.95)!important;
   border-radius:28px!important;
   box-shadow:0 10px 24px rgba(60,120,90,.14)!important;
-  z-index:1000!important;
+  z-index:1001!important;
 }
 .nav a{min-width:0!important;min-height:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;}
 
+html.is-android body::before{display:none!important;content:none!important;}
 html.is-android,
 html.is-android body{
   position:static!important;
