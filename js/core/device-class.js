@@ -9,8 +9,8 @@
     const isPage = script && /\/pages\//.test(script.src || '');
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = (isPage ? '../' : '') + 'css/v150-mobile-foundation.css?v=155';
-    link.dataset.rinchanMobileFoundation = 'v1.5.5';
+    link.href = (isPage ? '../' : '') + 'css/v150-mobile-foundation.css?v=158';
+    link.dataset.rinchanMobileFoundation = 'v1.5.8';
     document.head.appendChild(link);
   }
 
@@ -37,6 +37,7 @@
     app.style.setProperty('height','auto','important');
     app.style.setProperty('min-height','100vh','important');
     app.style.setProperty('overflow','visible','important');
+    app.style.setProperty('padding-bottom','24px','important');
 
     if (nav && header && nav.previousElementSibling !== header) {
       header.insertAdjacentElement('afterend', nav);
