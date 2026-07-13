@@ -1,53 +1,67 @@
-/* v1.5.9 tanabata event */
-.rinchan-event-tanabata{position:relative!important;isolation:isolate!important;overflow:hidden!important;}
-.rinchan-event-tanabata .mori-world-sky{z-index:0!important;}
+/* v1.5.10 tanabata event: background only */
+.rinchan-event-tanabata{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  contain:paint!important;
+  background:linear-gradient(180deg,#263f72 0%,#526f99 55%,#dcefdc 100%)!important;
+}
+.rinchan-event-tanabata .mori-world-sky{z-index:0!important;opacity:.42!important;}
 .rinchan-event-tanabata .mori-world-flower,
-.rinchan-event-tanabata .mori-world-friend{z-index:1!important;opacity:.72!important;}
+.rinchan-event-tanabata .mori-world-friend{z-index:2!important;}
 .rinchan-event-tanabata .department-card,
 .rinchan-event-tanabata .mori-department-card,
 .rinchan-event-tanabata [class*="department-card"],
-.rinchan-event-tanabata [class*="dept-card"]{position:relative!important;z-index:5!important;}
+.rinchan-event-tanabata [class*="dept-card"]{
+  position:relative!important;
+  z-index:5!important;
+}
 
 .tanabata-layer{
   position:absolute!important;
   inset:0!important;
-  z-index:12!important;
+  z-index:1!important;
   pointer-events:none!important;
   overflow:hidden!important;
   border-radius:inherit!important;
+}
+.tanabata-milkyway{
+  position:absolute!important;
+  left:-12%!important;
+  top:17%!important;
+  width:124%!important;
+  height:34%!important;
+  border-radius:50%!important;
+  transform:rotate(-12deg)!important;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.06) 18%,rgba(225,241,255,.24) 50%,rgba(255,255,255,.06) 82%,transparent 100%)!important;
+  filter:blur(8px)!important;
+  opacity:.72!important;
 }
 .tanabata-item{
   position:absolute!important;
   display:block!important;
   pointer-events:none!important;
-  will-change:transform,opacity!important;
-  filter:drop-shadow(0 8px 12px rgba(40,70,90,.13));
+  filter:drop-shadow(0 4px 8px rgba(20,35,70,.22));
 }
-.tanabata-bamboo{right:4px;bottom:50px;font-size:48px;animation:tanabataSway 4.8s ease-in-out infinite;transform-origin:center bottom;z-index:14!important;}
-.tanabata-star{font-size:16px;animation:tanabataTwinkle 2.6s ease-in-out infinite;opacity:.9;z-index:13!important;}
-.tanabata-star.st1{left:5%;top:6%;}
-.tanabata-star.st2{right:8%;top:7%;animation-delay:-.9s;}
-.tanabata-star.st3{left:7%;bottom:20%;animation-delay:-1.7s;}
-.tanabata-star.st4{right:5%;top:38%;animation-delay:-2.1s;}
-.tanabata-wish-area{
-  position:absolute!important;
-  left:10px!important;
-  right:58px!important;
-  bottom:8px!important;
-  z-index:16!important;
-  display:flex!important;
-  gap:6px!important;
-  align-items:flex-end!important;
-  pointer-events:auto!important;
-  padding:6px 8px!important;
-  border-radius:16px!important;
-  background:rgba(255,255,255,.78)!important;
-  -webkit-backdrop-filter:blur(8px)!important;
-  backdrop-filter:blur(8px)!important;
+.tanabata-star{
+  font-size:14px!important;
+  color:#fff7bf!important;
+  animation:tanabataTwinkle 3.2s ease-in-out infinite!important;
 }
-.tanabata-wish-button,.tanabata-wish-card{pointer-events:auto!important;position:relative!important;z-index:17!important;max-width:110px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+.tanabata-star.st1{left:8%!important;top:9%!important;}
+.tanabata-star.st2{left:36%!important;top:17%!important;animation-delay:-1.1s!important;}
+.tanabata-star.st3{right:27%!important;top:8%!important;animation-delay:-2s!important;}
+.tanabata-star.st4{right:9%!important;top:29%!important;animation-delay:-.6s!important;}
+.tanabata-bamboo{
+  right:8px!important;
+  top:8px!important;
+  font-size:36px!important;
+  opacity:.92!important;
+  animation:tanabataSway 5.4s ease-in-out infinite!important;
+  transform-origin:center bottom!important;
+}
 
-@keyframes tanabataSway{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(4deg) translateY(-4px)}}
-@keyframes tanabataTwinkle{0%,100%{transform:scale(.82);opacity:.35}50%{transform:scale(1.18);opacity:1}}
-@media(max-width:430px){.tanabata-bamboo{font-size:40px;right:2px;bottom:48px}.tanabata-star{font-size:14px}.tanabata-wish-area{right:48px!important}.tanabata-wish-button,.tanabata-wish-card{max-width:92px!important;font-size:11px!important;}}
-@media(prefers-reduced-motion:reduce){.tanabata-item{animation:none!important;}}
+@keyframes tanabataSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}
+@keyframes tanabataTwinkle{0%,100%{transform:scale(.9);opacity:.35}50%{transform:scale(1.12);opacity:.95}}
+@media(max-width:430px){.tanabata-bamboo{font-size:32px!important}.tanabata-star{font-size:13px!important}}
+@media(prefers-reduced-motion:reduce){.tanabata-item{animation:none!important}}
