@@ -1,31 +1,30 @@
-/* v1.5.1 mobile layout foundation - visible fixed nav without overlay */
+/* v1.5.2 mobile layout foundation */
 :root{
   --rinchan-nav-height:78px;
-  --rinchan-nav-gap:10px;
-  --rinchan-nav-space:calc(118px + env(safe-area-inset-bottom,0px));
+  --rinchan-nav-space:calc(96px + env(safe-area-inset-bottom,0px));
 }
 html{
+  width:100%;
   min-height:100%;
   overflow-x:hidden!important;
   overflow-y:auto!important;
   overscroll-behavior-y:auto;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
+  background:transparent!important;
 }
 body{
   position:relative!important;
+  width:100%;
   min-height:100vh!important;
   height:auto!important;
   overflow-x:hidden!important;
   overflow-y:visible!important;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
-  background:#fbfdf8!important;
+  background:transparent!important;
 }
-body::before{
-  content:none!important;
-  display:none!important;
-}
+body::before{content:none!important;display:none!important;}
 main.app,.app{
   position:relative!important;
   min-height:100vh!important;
@@ -33,30 +32,29 @@ main.app,.app{
   overflow:visible!important;
   padding-bottom:var(--rinchan-nav-space)!important;
 }
-.app::after,main.app::after{
-  content:''!important;
-  display:block!important;
-  height:24px!important;
-}
+.app::after,main.app::after{content:''!important;display:block!important;height:8px!important;}
 .nav{
   position:fixed!important;
-  left:50%!important;
+  left:50vw!important;
   right:auto!important;
   top:auto!important;
-  bottom:calc(var(--rinchan-nav-gap) + env(safe-area-inset-bottom,0px))!important;
+  bottom:0!important;
   transform:translate3d(-50%,0,0)!important;
-  width:calc(100% - 32px)!important;
-  max-width:398px!important;
-  height:var(--rinchan-nav-height)!important;
+  width:min(calc(100vw - 16px),430px)!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:calc(var(--rinchan-nav-height) + env(safe-area-inset-bottom,0px))!important;
   margin:0!important;
-  padding:0!important;
+  padding:0 0 env(safe-area-inset-bottom,0px)!important;
+  box-sizing:border-box!important;
   display:grid!important;
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
   align-items:center!important;
-  background:#fff!important;
+  background:rgba(255,255,255,.96)!important;
   border:1px solid rgba(225,240,232,.95)!important;
-  border-radius:28px!important;
-  box-shadow:0 10px 24px rgba(60,120,90,.14),0 52px 0 52px #fbfdf8!important;
+  border-bottom:0!important;
+  border-radius:28px 28px 0 0!important;
+  box-shadow:0 -6px 24px rgba(60,120,90,.12)!important;
   z-index:1001!important;
 }
 .nav a{
@@ -70,32 +68,32 @@ main.app,.app{
   justify-content:center!important;
 }
 html.is-android{
-  height:auto!important;
+  height:100%!important;
   min-height:100%!important;
-  overflow-y:auto!important;
+  overflow:hidden!important;
 }
 html.is-android body{
   position:relative!important;
-  height:auto!important;
-  min-height:100vh!important;
-  overflow-y:visible!important;
+  width:100%!important;
+  height:100dvh!important;
+  min-height:100dvh!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:auto!important;
+  touch-action:pan-y!important;
+  -webkit-overflow-scrolling:touch!important;
 }
 html.is-android main.app,
 html.is-android .app{
   height:auto!important;
-  min-height:100vh!important;
+  min-height:100%!important;
   overflow:visible!important;
+  touch-action:pan-y!important;
   padding-bottom:var(--rinchan-nav-space)!important;
 }
 #passportChallengeStack{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;}
 #monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{
-  width:auto!important;
-  max-width:none!important;
-  margin-left:20px!important;
-  margin-right:20px!important;
-  margin-bottom:14px!important;
-  padding:20px!important;
-  box-sizing:border-box!important;
+  width:auto!important;max-width:none!important;margin-left:20px!important;margin-right:20px!important;margin-bottom:14px!important;padding:20px!important;box-sizing:border-box!important;
 }
 #monthlyChallengeSection{margin-top:14px!important;}
 #departmentChallengeSection,#hospitalChallengeSection{margin-top:0!important;}
