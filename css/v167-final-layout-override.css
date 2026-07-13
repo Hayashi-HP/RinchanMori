@@ -1,10 +1,9 @@
-/* v1.5.0 mobile layout foundation */
+/* v1.5.1 mobile layout foundation - visible fixed nav without overlay */
 :root{
   --rinchan-nav-height:78px;
   --rinchan-nav-gap:10px;
   --rinchan-nav-space:calc(118px + env(safe-area-inset-bottom,0px));
 }
-
 html{
   min-height:100%;
   overflow-x:hidden!important;
@@ -23,6 +22,10 @@ body{
   -webkit-overflow-scrolling:touch!important;
   background:#fbfdf8!important;
 }
+body::before{
+  content:none!important;
+  display:none!important;
+}
 main.app,.app{
   position:relative!important;
   min-height:100vh!important;
@@ -30,27 +33,11 @@ main.app,.app{
   overflow:visible!important;
   padding-bottom:var(--rinchan-nav-space)!important;
 }
-
-/* Opaque safe-area footer base for iPhone and other fixed-nav devices. */
-body::before{
-  content:'';
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:calc(100px + env(safe-area-inset-bottom,0px));
-  background:#fbfdf8;
-  z-index:999;
-  pointer-events:none;
-  transform:translateZ(0);
-}
-
 .app::after,main.app::after{
   content:''!important;
   display:block!important;
   height:24px!important;
 }
-
 .nav{
   position:fixed!important;
   left:50%!important;
@@ -69,11 +56,12 @@ body::before{
   background:#fff!important;
   border:1px solid rgba(225,240,232,.95)!important;
   border-radius:28px!important;
-  box-shadow:0 10px 24px rgba(60,120,90,.14)!important;
+  box-shadow:0 10px 24px rgba(60,120,90,.14),0 52px 0 52px #fbfdf8!important;
   z-index:1001!important;
-  isolation:isolate;
 }
 .nav a{
+  position:relative!important;
+  z-index:1!important;
   min-width:0!important;
   min-height:64px!important;
   display:flex!important;
@@ -81,8 +69,6 @@ body::before{
   align-items:center!important;
   justify-content:center!important;
 }
-
-/* Android Chrome: keep one page scroll container and avoid body/app height locks. */
 html.is-android{
   height:auto!important;
   min-height:100%!important;
@@ -101,19 +87,8 @@ html.is-android .app{
   overflow:visible!important;
   padding-bottom:var(--rinchan-nav-space)!important;
 }
-html.is-android body::before{display:block!important;}
-
-#passportChallengeStack{
-  display:block!important;
-  width:100%!important;
-  max-width:none!important;
-  margin:0!important;
-  padding:0!important;
-}
-#monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,
-#passportChallengeStack .monthly-challenge-card,
-#passportChallengeStack .department-challenge-card,
-#passportChallengeStack .hospital-challenge-card{
+#passportChallengeStack{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;}
+#monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{
   width:auto!important;
   max-width:none!important;
   margin-left:20px!important;
@@ -124,7 +99,3 @@ html.is-android body::before{display:block!important;}
 }
 #monthlyChallengeSection{margin-top:14px!important;}
 #departmentChallengeSection,#hospitalChallengeSection{margin-top:0!important;}
-
-@media(min-width:760px){
-  body::before{height:calc(108px + env(safe-area-inset-bottom,0px));}
-}
