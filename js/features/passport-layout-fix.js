@@ -1,13 +1,9 @@
 const RinchanPassportLayoutFix = (() => {
-  const VERSION = 'v1.4.38';
+  const VERSION = 'v1.5.0';
 
   function setImportant(el, prop, value) {
     if (!el || !el.style) return;
     try { el.style.setProperty(prop, value, 'important'); } catch (e) { el.style[prop] = value; }
-  }
-
-  function isAndroid() {
-    return document.documentElement.classList.contains('is-android') || /Android/i.test(navigator.userAgent || '');
   }
 
   function fixChallengeCards() {
@@ -35,48 +31,43 @@ const RinchanPassportLayoutFix = (() => {
     const body = document.body;
     const app = document.getElementById('mypageV070') || document.querySelector('main.app');
     const nav = document.querySelector('.nav');
-    const android = isAndroid();
 
-    [html, body].forEach(el => {
-      setImportant(el, 'height', 'auto');
-      setImportant(el, 'min-height', '100%');
-      setImportant(el, 'overflow-y', 'auto');
-      setImportant(el, 'overflow-x', 'hidden');
-      setImportant(el, 'touch-action', 'pan-y');
-      setImportant(el, '-webkit-overflow-scrolling', 'touch');
-    });
+    setImportant(html, 'height', 'auto');
+    setImportant(html, 'min-height', '100%');
+    setImportant(html, 'overflow-y', 'auto');
+    setImportant(html, 'overflow-x', 'hidden');
+    setImportant(html, 'touch-action', 'pan-y');
+    setImportant(html, '-webkit-overflow-scrolling', 'touch');
+
+    setImportant(body, 'position', 'relative');
+    setImportant(body, 'height', 'auto');
+    setImportant(body, 'min-height', '100vh');
+    setImportant(body, 'overflow-y', 'visible');
+    setImportant(body, 'overflow-x', 'hidden');
+    setImportant(body, 'touch-action', 'pan-y');
+    setImportant(body, '-webkit-overflow-scrolling', 'touch');
 
     if (app) {
+      setImportant(app, 'position', 'relative');
       setImportant(app, 'height', 'auto');
       setImportant(app, 'min-height', '100vh');
-      setImportant(app, 'overflow-y', 'visible');
-      setImportant(app, 'padding-bottom', android ? '24px' : 'calc(128px + env(safe-area-inset-bottom, 0px))');
+      setImportant(app, 'overflow', 'visible');
+      setImportant(app, 'padding-bottom', 'calc(118px + env(safe-area-inset-bottom, 0px))');
     }
 
     if (!nav) return;
-
+    setImportant(nav, 'position', 'fixed');
+    setImportant(nav, 'left', '50%');
+    setImportant(nav, 'right', 'auto');
+    setImportant(nav, 'top', 'auto');
+    setImportant(nav, 'bottom', 'calc(10px + env(safe-area-inset-bottom, 0px))');
+    setImportant(nav, 'transform', 'translate3d(-50%, 0, 0)');
+    setImportant(nav, 'margin', '0');
     setImportant(nav, 'width', 'calc(100% - 32px)');
     setImportant(nav, 'max-width', '398px');
     setImportant(nav, 'height', '78px');
     setImportant(nav, 'border-radius', '28px');
-
-    if (android) {
-      setImportant(nav, 'position', 'static');
-      setImportant(nav, 'left', 'auto');
-      setImportant(nav, 'right', 'auto');
-      setImportant(nav, 'bottom', 'auto');
-      setImportant(nav, 'transform', 'none');
-      setImportant(nav, 'margin', '20px auto');
-      setImportant(nav, 'z-index', 'auto');
-    } else {
-      setImportant(nav, 'position', 'fixed');
-      setImportant(nav, 'left', '50%');
-      setImportant(nav, 'right', 'auto');
-      setImportant(nav, 'bottom', 'calc(10px + env(safe-area-inset-bottom, 0px))');
-      setImportant(nav, 'transform', 'translateX(-50%)');
-      setImportant(nav, 'margin', '0');
-      setImportant(nav, 'z-index', '1001');
-    }
+    setImportant(nav, 'z-index', '1001');
   }
 
   function apply() {
