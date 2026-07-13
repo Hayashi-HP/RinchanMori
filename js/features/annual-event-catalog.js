@@ -1,5 +1,5 @@
 const RinchanAnnualEventCatalog = (() => {
-  const VERSION = 'v1.4.35';
+  const VERSION = 'v1.5.0';
 
   const EVENTS = [
     {
@@ -50,7 +50,7 @@ const RinchanAnnualEventCatalog = (() => {
       theme: '願いと歩みで天の川をつくる', collectible: '短冊',
       participationBadge: '七夕の短冊', achievementBadge: '星空ウォーカー',
       text: '短冊に願いをこめて。みんなの一歩で天の川を完成させましょう。',
-      module: { css: '../css/v125-tanabata.css?v=135', js: '../js/features/tanabata-event.js?v=135', global: 'RinchanTanabataEvent' }
+      module: { css: '../css/v125-tanabata.css?v=150', js: '../js/features/tanabata-event.js?v=150', global: 'RinchanTanabataEvent' }
     },
     {
       month: 8, key: 'summer', icon: '🎆', title: 'りんちゃん夏祭り',
@@ -58,7 +58,7 @@ const RinchanAnnualEventCatalog = (() => {
       theme: '歩いて夏祭り会場を完成させる', collectible: '屋台スタンプ',
       participationBadge: '夏祭り参加', achievementBadge: '夏祭りマスター',
       text: '歩いた分だけ提灯と屋台が増え、夏祭り会場がにぎやかになります。',
-      module: { css: '../css/v126-summer-festival.css?v=135', js: '../js/features/summer-festival-event.js?v=135', global: 'RinchanSummerFestivalEvent' }
+      module: { css: '../css/v126-summer-festival.css?v=150', js: '../js/features/summer-festival-event.js?v=150', global: 'RinchanSummerFestivalEvent' }
     },
     {
       month: 9, key: 'moon', icon: '🌕', title: 'お月見ウォーク',
@@ -73,7 +73,7 @@ const RinchanAnnualEventCatalog = (() => {
       theme: '不思議な仲間とお菓子を集める', collectible: 'お菓子',
       participationBadge: '仮装参加', achievementBadge: 'ハロウィンマスター',
       text: '杜のどこかに隠れた仲間を探しながら、お菓子を集めましょう。',
-      module: { css: '../css/v127-halloween.css?v=135', js: '../js/features/halloween-event.js?v=135', global: 'RinchanHalloweenEvent' }
+      module: { css: '../css/v127-halloween.css?v=150', js: '../js/features/halloween-event.js?v=150', global: 'RinchanHalloweenEvent' }
     },
     {
       month: 11, key: 'harvest', icon: '🍠', title: '秋の大収穫祭',
