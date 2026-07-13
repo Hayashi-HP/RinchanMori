@@ -1,110 +1,61 @@
-/* v1.5.0 cache-safe mobile layout foundation */
+/* v1.5.3 shared mobile layout */
 :root{
   --rinchan-nav-height:78px;
-  --rinchan-nav-gap:10px;
-  --rinchan-nav-space:calc(118px + env(safe-area-inset-bottom,0px));
+  --rinchan-nav-space:calc(78px + env(safe-area-inset-bottom,0px));
 }
-html{
-  min-height:100%;
+html,body{
+  width:100%!important;
+  min-height:100%!important;
+  margin:0!important;
   overflow-x:hidden!important;
-  overflow-y:auto!important;
-  overscroll-behavior-y:auto;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
+  background:transparent!important;
 }
-body{
-  position:relative!important;
-  min-height:100vh!important;
-  height:auto!important;
-  margin:0;
-  overflow-x:hidden!important;
-  overflow-y:visible!important;
-  touch-action:pan-y!important;
-  -webkit-overflow-scrolling:touch!important;
-  background:#fbfdf8;
-}
-body::before{
-  content:'';
-  position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:var(--rinchan-nav-space);
-  background:#fbfdf8;
-  z-index:998;
-  pointer-events:none;
-}
+html{height:auto!important;overflow-y:auto!important;}
+body{position:relative!important;height:auto!important;min-height:100vh!important;overflow-y:visible!important;}
+body::before{content:none!important;display:none!important;}
 main.app,.app{
   position:relative!important;
+  width:100%!important;
   min-height:100vh!important;
   height:auto!important;
   overflow:visible!important;
-  padding-bottom:calc(var(--rinchan-nav-space) + 24px)!important;
+  padding-bottom:calc(var(--rinchan-nav-space) + 12px)!important;
+  box-sizing:border-box!important;
 }
-.app::after,main.app::after{
-  content:''!important;
-  display:block!important;
-  height:24px!important;
-}
+.app::after,main.app::after{content:none!important;display:none!important;height:0!important;}
 .nav{
   position:fixed!important;
-  left:50%!important;
+  left:50vw!important;
   right:auto!important;
   top:auto!important;
-  bottom:calc(var(--rinchan-nav-gap) + env(safe-area-inset-bottom,0px))!important;
+  bottom:0!important;
   transform:translate3d(-50%,0,0)!important;
-  width:calc(100% - 32px)!important;
-  max-width:398px!important;
-  height:var(--rinchan-nav-height)!important;
+  width:min(calc(100vw - 16px),430px)!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:calc(var(--rinchan-nav-height) + env(safe-area-inset-bottom,0px))!important;
   margin:0!important;
-  padding:0!important;
+  padding:0 0 env(safe-area-inset-bottom,0px)!important;
+  box-sizing:border-box!important;
   display:grid!important;
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
   align-items:center!important;
-  background:#fff!important;
+  background:rgba(255,255,255,.94)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  backdrop-filter:blur(16px)!important;
   border:1px solid rgba(225,240,232,.95)!important;
-  border-radius:28px!important;
-  box-shadow:0 10px 24px rgba(60,120,90,.14)!important;
+  border-bottom:0!important;
+  border-radius:28px 28px 0 0!important;
+  box-shadow:0 -6px 24px rgba(60,120,90,.12)!important;
   z-index:1001!important;
-  isolation:isolate;
 }
-.nav a{
-  min-width:0!important;
-  min-height:64px!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-}
-html.is-android,
-html.is-android body{
-  height:auto!important;
-  min-height:100%!important;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
-  touch-action:pan-y!important;
-  -webkit-overflow-scrolling:touch!important;
-}
-html.is-android body{
-  position:relative!important;
-  overscroll-behavior-y:auto!important;
-}
-html.is-android main.app,
-html.is-android .app{
-  height:auto!important;
-  min-height:100vh!important;
-  overflow:visible!important;
-  touch-action:pan-y!important;
-}
+.nav a{min-width:0!important;min-height:64px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;}
+html.is-android{height:100%!important;min-height:100%!important;overflow:hidden!important;}
+html.is-android body{height:100dvh!important;min-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:auto!important;}
+html.is-android main.app,html.is-android .app{height:auto!important;min-height:calc(100dvh + 1px)!important;overflow:visible!important;padding-bottom:calc(var(--rinchan-nav-space) + 16px)!important;}
 #passportChallengeStack{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;}
-#monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{
-  width:auto!important;
-  max-width:none!important;
-  margin-left:20px!important;
-  margin-right:20px!important;
-  margin-bottom:14px!important;
-  padding:20px!important;
-  box-sizing:border-box!important;
-}
+#monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{width:auto!important;max-width:none!important;margin-left:20px!important;margin-right:20px!important;margin-bottom:14px!important;padding:20px!important;box-sizing:border-box!important;}
 #monthlyChallengeSection{margin-top:14px!important;}
 #departmentChallengeSection,#hospitalChallengeSection{margin-top:0!important;}
