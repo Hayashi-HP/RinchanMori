@@ -1,5 +1,5 @@
-/* v1.5.7 stable navigation, natural scrolling, white Safari toolbar underlay */
-:root{--rinchan-nav-height:68px;--rinchan-browser-underlay:calc(112px + env(safe-area-inset-bottom,0px));}
+/* v1.5.8 stable top navigation and natural scrolling */
+:root{--rinchan-nav-height:68px;}
 html,body{
   width:100%!important;
   min-height:100%!important;
@@ -12,27 +12,14 @@ html,body{
   background:#fff!important;
 }
 body{position:relative!important;}
-body::before{content:none!important;display:none!important;}
-body::after{
-  content:''!important;
-  position:fixed!important;
-  left:0!important;
-  right:0!important;
-  bottom:0!important;
-  width:100vw!important;
-  height:var(--rinchan-browser-underlay)!important;
-  background:#fff!important;
-  pointer-events:none!important;
-  z-index:900!important;
-}
+body::before,body::after{content:none!important;display:none!important;}
 main.app,.app{
   position:relative!important;
-  z-index:1!important;
   width:100%!important;
   min-height:100vh!important;
   height:auto!important;
   overflow:visible!important;
-  padding-bottom:calc(var(--rinchan-browser-underlay) + 24px)!important;
+  padding-bottom:24px!important;
   box-sizing:border-box!important;
   background:linear-gradient(180deg,#fff 0%,#f7fcfb 100%)!important;
 }
