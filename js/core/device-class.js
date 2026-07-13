@@ -16,17 +16,10 @@
 
   function normalizeLayout(){
     const body = document.body;
-    if (!body) return;
-
     const app = document.querySelector('main.app');
-    const header = app && app.querySelector(':scope > .top');
     const nav = document.querySelector('.nav');
-
-    if (app && header && nav && nav.parentNode !== app) {
-      app.insertBefore(nav, header.nextSibling);
-    } else if (app && header && nav && nav.previousElementSibling !== header) {
-      app.insertBefore(nav, header.nextSibling);
-    }
+    const header = app && app.querySelector(':scope > .top');
+    if (!body || !app) return;
 
     root.style.setProperty('height','auto','important');
     root.style.setProperty('min-height','100%','important');
@@ -41,11 +34,12 @@
     body.style.setProperty('touch-action','pan-y','important');
     body.style.setProperty('-webkit-overflow-scrolling','touch','important');
 
-    if (app) {
-      app.style.setProperty('height','auto','important');
-      app.style.setProperty('min-height','100vh','important');
-      app.style.setProperty('overflow','visible','important');
-      app.style.setProperty('padding-bottom','24px','important');
+    app.style.setProperty('height','auto','important');
+    app.style.setProperty('min-height','100vh','important');
+    app.style.setProperty('overflow','visible','important');
+
+    if (nav && header && nav.previousElementSibling !== header) {
+      header.insertAdjacentElement('afterend', nav);
     }
   }
 
