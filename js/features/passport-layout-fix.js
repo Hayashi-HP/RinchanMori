@@ -1,5 +1,5 @@
 const RinchanPassportLayoutFix = (() => {
-  const VERSION = 'v1.5.0';
+  const VERSION = 'v1.5.2';
 
   function setImportant(el, prop, value) {
     if (!el || !el.style) return;
@@ -15,7 +15,6 @@ const RinchanPassportLayoutFix = (() => {
       setImportant(stack, 'margin', '0');
       setImportant(stack, 'padding', '0');
     }
-
     ['monthlyChallengeSection', 'departmentChallengeSection', 'hospitalChallengeSection'].forEach((id, index) => {
       const el = document.getElementById(id);
       if (!el) return;
@@ -31,18 +30,24 @@ const RinchanPassportLayoutFix = (() => {
     const body = document.body;
     const app = document.getElementById('mypageV070') || document.querySelector('main.app');
     const nav = document.querySelector('.nav');
+    const android = html.classList.contains('is-android') || /Android/i.test(navigator.userAgent || '');
 
-    setImportant(html, 'height', 'auto');
-    setImportant(html, 'min-height', '100%');
-    setImportant(html, 'overflow-y', 'auto');
+    if (nav && nav.parentNode !== body) body.appendChild(nav);
+
+    if (android) {
+      setImportant(html, 'height', '100%');
+      setImportant(html, 'overflow', 'hidden');
+      setImportant(body, 'height', '100dvh');
+      setImportant(body, 'min-height', '100dvh');
+      setImportant(body, 'overflow-y', 'auto');
+    } else {
+      setImportant(html, 'height', 'auto');
+      setImportant(html, 'overflow-y', 'auto');
+      setImportant(body, 'height', 'auto');
+      setImportant(body, 'min-height', '100vh');
+      setImportant(body, 'overflow-y', 'visible');
+    }
     setImportant(html, 'overflow-x', 'hidden');
-    setImportant(html, 'touch-action', 'pan-y');
-    setImportant(html, '-webkit-overflow-scrolling', 'touch');
-
-    setImportant(body, 'position', 'relative');
-    setImportant(body, 'height', 'auto');
-    setImportant(body, 'min-height', '100vh');
-    setImportant(body, 'overflow-y', 'visible');
     setImportant(body, 'overflow-x', 'hidden');
     setImportant(body, 'touch-action', 'pan-y');
     setImportant(body, '-webkit-overflow-scrolling', 'touch');
@@ -50,23 +55,25 @@ const RinchanPassportLayoutFix = (() => {
     if (app) {
       setImportant(app, 'position', 'relative');
       setImportant(app, 'height', 'auto');
-      setImportant(app, 'min-height', '100vh');
+      setImportant(app, 'min-height', '100%');
       setImportant(app, 'overflow', 'visible');
-      setImportant(app, 'padding-bottom', 'calc(118px + env(safe-area-inset-bottom, 0px))');
+      setImportant(app, 'padding-bottom', 'calc(96px + env(safe-area-inset-bottom, 0px))');
     }
 
     if (!nav) return;
     setImportant(nav, 'position', 'fixed');
-    setImportant(nav, 'left', '50%');
+    setImportant(nav, 'left', '50vw');
     setImportant(nav, 'right', 'auto');
     setImportant(nav, 'top', 'auto');
-    setImportant(nav, 'bottom', 'calc(10px + env(safe-area-inset-bottom, 0px))');
+    setImportant(nav, 'bottom', '0');
     setImportant(nav, 'transform', 'translate3d(-50%, 0, 0)');
     setImportant(nav, 'margin', '0');
-    setImportant(nav, 'width', 'calc(100% - 32px)');
-    setImportant(nav, 'max-width', '398px');
-    setImportant(nav, 'height', '78px');
-    setImportant(nav, 'border-radius', '28px');
+    setImportant(nav, 'width', 'min(calc(100vw - 16px), 430px)');
+    setImportant(nav, 'max-width', 'none');
+    setImportant(nav, 'height', 'calc(78px + env(safe-area-inset-bottom, 0px))');
+    setImportant(nav, 'padding-bottom', 'env(safe-area-inset-bottom, 0px)');
+    setImportant(nav, 'box-sizing', 'border-box');
+    setImportant(nav, 'border-radius', '28px 28px 0 0');
     setImportant(nav, 'z-index', '1001');
   }
 
