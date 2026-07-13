@@ -1,13 +1,15 @@
 const RinchanTanabataEvent = (() => {
-  const VERSION = 'v1.5.0';
+  const VERSION = 'v1.5.9';
   const STORAGE_KEY = 'rinchanTanabataWishes';
   let observer = null;
+  let heartbeat = null;
   let rendering = false;
 
   function isTanabata() {
     try {
       if (window.RinchanEventCalendarEngine && typeof RinchanEventCalendarEngine.currentEvent === 'function') {
-        return RinchanEventCalendarEngine.currentEvent().key === 'tanabata';
+        const event = RinchanEventCalendarEngine.currentEvent();
+        return !!event && event.key === 'tanabata';
       }
     } catch(e) {}
     const d = new Date();
@@ -31,7 +33,7 @@ const RinchanTanabataEvent = (() => {
   }
 
   function escapeHtml(value) {
-    return String(value || '').replace(/[&<>"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[ch]));
+    return String(value || '').replace(/[&<>\"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;' }[ch]));
   }
 
   function wishHtml() {
@@ -40,28 +42,39 @@ const RinchanTanabataEvent = (() => {
     return wishes.map((w, i) => '<button type="button" class="tanabata-wish-card w' + (i + 1) + '" title="願いを書く">' + escapeHtml(w.text) + '</button>').join('') + '<button type="button" class="tanabata-wish-button small">＋</button>';
   }
 
+  function applyEventState(map) {
+    Array.from(map.classList).filter(name => name.indexOf('rinchan-event-') === 0 && name !== 'rinchan-event-tanabata').forEach(name => map.classList.remove(name));
+    map.classList.add('rinchan-event-tanabata');
+    map.dataset.eventKey = 'tanabata';
+  }
+
   function render() {
     const map = document.getElementById('moriMap');
     if (!map || rendering) return;
-    const old = map.querySelector('.tanabata-layer');
+    let layer = map.querySelector(':scope > .tanabata-layer');
     if (!isTanabata()) {
-      if (old && old.parentNode) old.parentNode.removeChild(old);
+      if (layer) layer.remove();
+      map.classList.remove('rinchan-event-tanabata');
+      if (map.dataset.eventKey === 'tanabata') map.dataset.eventKey = 'normal';
       return;
     }
 
     rendering = true;
     try {
-      map.classList.add('rinchan-event-tanabata');
-      map.dataset.eventKey = 'tanabata';
-      let layer = old;
+      applyEventState(map);
       if (!layer) {
         layer = document.createElement('div');
         layer.className = 'tanabata-layer';
         map.appendChild(layer);
-      } else if (layer !== map.lastElementChild) {
-        map.appendChild(layer);
       }
-      layer.innerHTML = '<span class="tanabata-item tanabata-bamboo">🎋</span><span class="tanabata-item tanabata-strip s1"></span><span class="tanabata-item tanabata-strip s2"></span><span class="tanabata-item tanabata-strip s3"></span><span class="tanabata-item tanabata-star st1">✨</span><span class="tanabata-item tanabata-star st2">✦</span><span class="tanabata-item tanabata-star st3">✨</span><div class="tanabata-wish-area">' + wishHtml() + '</div>';
+      layer.innerHTML = [
+        '<span class="tanabata-item tanabata-bamboo">🎋</span>',
+        '<span class="tanabata-item tanabata-star st1">✨</span>',
+        '<span class="tanabata-item tanabata-star st2">✦</span>',
+        '<span class="tanabata-item tanabata-star st3">✨</span>',
+        '<span class="tanabata-item tanabata-star st4">⭐</span>',
+        '<div class="tanabata-wish-area">' + wishHtml() + '</div>'
+      ].join('');
       layer.querySelectorAll('.tanabata-wish-button,.tanabata-wish-card').forEach(btn => {
         btn.addEventListener('click', ev => {
           ev.preventDefault();
@@ -69,6 +82,7 @@ const RinchanTanabataEvent = (() => {
           openWishPrompt();
         });
       });
+      if (layer !== map.lastElementChild) map.appendChild(layer);
     } finally {
       rendering = false;
     }
@@ -76,13 +90,13 @@ const RinchanTanabataEvent = (() => {
 
   function watchMap() {
     const map = document.getElementById('moriMap');
-    if (!map || observer) return;
+    if (!map) return;
+    if (observer) observer.disconnect();
     observer = new MutationObserver(() => {
       if (!isTanabata() || rendering) return;
-      const layer = map.querySelector('.tanabata-layer');
-      if (!layer || layer !== map.lastElementChild) requestAnimationFrame(render);
+      requestAnimationFrame(render);
     });
-    observer.observe(map, { childList:true, subtree:false });
+    observer.observe(map, { childList:true, subtree:true });
   }
 
   function openWishPrompt() {
@@ -100,7 +114,9 @@ const RinchanTanabataEvent = (() => {
   function install() {
     render();
     watchMap();
-    [100, 400, 900, 1600, 3000, 5000].forEach(delay => setTimeout(render, delay));
+    [100, 400, 900, 1600, 3000].forEach(delay => setTimeout(render, delay));
+    if (heartbeat) clearInterval(heartbeat);
+    heartbeat = setInterval(render, 2500);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
