@@ -1,11 +1,11 @@
 const RinchanEventLoader = (() => {
-  const VERSION = 'v1.4.35';
+  const VERSION = 'v1.5.9';
   const LOADED = { css: new Set(), js: new Set() };
 
   const FALLBACK_EVENTS = {
     tanabata: {
-      css: '../css/v125-tanabata.css?v=135',
-      js: '../js/features/tanabata-event.js?v=135',
+      css: '../css/v125-tanabata.css?v=159',
+      js: '../js/features/tanabata-event.js?v=159',
       global: 'RinchanTanabataEvent'
     },
     summer: {
@@ -65,14 +65,8 @@ const RinchanEventLoader = (() => {
     return { key: 'normal' };
   }
 
-  function eventKey() {
-    return currentEvent().key || 'normal';
-  }
-
-  function moduleConfig(event) {
-    if (event && event.module) return event.module;
-    return FALLBACK_EVENTS[event && event.key ? event.key : 'normal'] || null;
-  }
+  function eventKey() { return currentEvent().key || 'normal'; }
+  function moduleConfig(event) { return event && event.module ? event.module : (FALLBACK_EVENTS[event && event.key ? event.key : 'normal'] || null); }
 
   function loadCss(href) {
     if (!href || LOADED.css.has(href)) return Promise.resolve();
