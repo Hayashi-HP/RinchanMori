@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.5.0
+- Android Chromeのスクロール領域を再設計し、`html` / `body` / `.app` の高さ・overflow・touch-actionの競合を解消
+- Androidだけナビゲーションを通常配置へ切り替える処理を廃止し、全端末で固定フッターへ統一
+- iPhoneのホーム、杜、通信、パスポートで固定フッター下部が透けないよう、safe-areaを含む背景レイヤーを追加
+- パスポート画面の固定フッターを他の主要画面と同じ位置・高さ・余白へ統一
+- `css/v150-mobile-foundation.css` を追加し、モバイルレイアウトの最終上書きを一元化
+- `js/core/device-class.js` から共通モバイルCSSを読み込むよう変更
+- `css/v125-tanabata.css` の演出レイヤーを部署カードより前面へ変更
+- `js/features/tanabata-event.js` で七夕イベントクラスと `data-event-key` を再描画時にも維持
+- `js/features/annual-event-catalog.js` をv1.5.0へ更新し、イベントモジュールのキャッシュ番号を `150` に変更
+- READMEをv1.5.0へ更新
+
 ## v1.4.36
 - `js/features/mori-world.js` を更新し、イベント表示中は `杜の見どころ` を通常表示で上書きしないように修正
 - `moriMap.dataset.eventKey` または `event-calendar-engine` の現在イベントが `normal` 以外の場合、`renderHighlight()` が処理を抜けるようにした
