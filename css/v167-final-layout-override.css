@@ -1,4 +1,4 @@
-/* v1.5.5 stable navigation and natural page scrolling */
+/* v1.5.6 stable navigation, natural scrolling, white browser underlay */
 :root{--rinchan-nav-height:68px;}
 html,body{
   width:100%!important;
@@ -9,6 +9,7 @@ html,body{
   overflow-y:auto!important;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
+  background:#fff!important;
 }
 body{position:relative!important;}
 body::before{content:none!important;display:none!important;}
@@ -20,6 +21,7 @@ main.app,.app{
   overflow:visible!important;
   padding-bottom:24px!important;
   box-sizing:border-box!important;
+  background:linear-gradient(180deg,#fff 0%,#f7fcfb 100%)!important;
 }
 .app::after,main.app::after{content:none!important;display:none!important;height:0!important;}
 .nav{
