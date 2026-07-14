@@ -24,7 +24,6 @@ window.RINCHAN_CONFIG = RINCHAN_CONFIG;
     addCss('rinchanHomeButtonFooterCss', prefix + 'css/v1046-home-button-footer.css?v=1057');
     addCss('rinchanBalanceFixesCss', prefix + 'css/v1047-balance-fixes.css?v=1057');
     addCss('rinchanLayoutFinalizeCss', prefix + 'css/v1049-layout-finalize.css?v=1057');
-    addCss('rinchanEmptyThanksCss', prefix + 'css/v1050-empty-thanks.css?v=1057');
     addCss('rinchanFormNewsCss', prefix + 'css/v1051-form-news.css?v=1057');
     addCss('rinchanMapFooterCss', prefix + 'css/v1051-map-footer.css?v=1057');
     addCss('rinchanCircleMapCss', prefix + 'css/v1052-circle-map.css?v=1057');
