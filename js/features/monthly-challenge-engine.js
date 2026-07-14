@@ -28,11 +28,13 @@ const RinchanMonthlyChallengeEngine = (() => {
     try {
       if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
     } catch(e) {}
-    return readJson('rinchanParticipant', null) || {};
+    const p = readJson('rinchanParticipant', null);
+    return p || null;
   }
 
   function employeeId() {
     const p = participant();
+    if (!p || typeof p !== 'object') return '';
     return String(p.employeeId || p.id || p.participantId || '').trim();
   }
 
