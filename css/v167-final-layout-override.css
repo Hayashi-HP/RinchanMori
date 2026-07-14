@@ -1,53 +1,83 @@
-/* v1.5.8 stable top navigation and natural scrolling */
-:root{--rinchan-nav-height:68px;}
+/* v1.5.12 shared mobile layout for stable scrolling */
+:root{
+  --rinchan-nav-height:84px;
+  --rinchan-safe-bottom:max(12px, env(safe-area-inset-bottom, 0px));
+}
 html,body{
   width:100%!important;
   min-height:100%!important;
-  height:auto!important;
+  height:100%!important;
   margin:0!important;
   overflow-x:hidden!important;
-  overflow-y:auto!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-y:contain!important;
   touch-action:pan-y!important;
   -webkit-overflow-scrolling:touch!important;
   background:#fff!important;
 }
-body{position:relative!important;}
+body{
+  position:relative!important;
+}
 body::before,body::after{content:none!important;display:none!important;}
 main.app,.app{
   position:relative!important;
   width:100%!important;
-  min-height:100vh!important;
-  height:auto!important;
-  overflow:visible!important;
-  padding-bottom:24px!important;
+  max-width:430px!important;
+  min-height:100%!important;
+  height:100%!important;
+  margin:0 auto!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:0 0 calc(110px + var(--rinchan-safe-bottom))!important;
   box-sizing:border-box!important;
   background:linear-gradient(180deg,#fff 0%,#f7fcfb 100%)!important;
 }
 .app::after,main.app::after{content:none!important;display:none!important;height:0!important;}
-.nav{
+.top{
   position:sticky!important;
-  top:6px!important;
-  left:auto!important;
-  right:auto!important;
-  bottom:auto!important;
-  transform:none!important;
-  width:calc(100% - 24px)!important;
+  top:0!important;
+  z-index:40!important;
+  width:min(100%,430px)!important;
+  max-width:430px!important;
+  height:62px!important;
+  margin:0 auto 10px!important;
+  padding:0 18px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  background:rgba(255,255,255,.96)!important;
+  border-bottom:1px solid rgba(225,240,232,.96)!important;
+  backdrop-filter:blur(10px)!important;
+}
+.top .brand span,
+.top .page-title{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.nav{
+  position:fixed!important;
+  left:50%!important;
+  bottom:calc(12px + var(--rinchan-safe-bottom))!important;
+  transform:translateX(-50%)!important;
+  width:min(430px,calc(100% - 24px))!important;
   max-width:430px!important;
   min-width:0!important;
   height:var(--rinchan-nav-height)!important;
-  margin:8px auto 14px!important;
-  padding:0!important;
+  margin:0!important;
+  padding:0 8px!important;
   box-sizing:border-box!important;
   display:grid!important;
   grid-template-columns:repeat(5,minmax(0,1fr))!important;
   align-items:center!important;
   background:rgba(255,255,255,.96)!important;
-  -webkit-backdrop-filter:blur(14px)!important;
-  backdrop-filter:blur(14px)!important;
   border:1px solid rgba(225,240,232,.96)!important;
-  border-radius:22px!important;
+  border-radius:24px!important;
   box-shadow:0 8px 20px rgba(60,120,90,.12)!important;
-  z-index:1001!important;
+  z-index:1003!important;
 }
 .nav a{
   position:relative!important;
@@ -68,9 +98,13 @@ html.is-android,html.is-android body{
   overflow-y:auto!important;
 }
 html.is-android main.app,html.is-android .app{
-  height:auto!important;
-  min-height:100vh!important;
+  min-height:100dvh!important;
   overflow:visible!important;
+}
+@media (max-width:430px){
+  .top{height:58px!important;padding:0 14px!important;}
+  .nav{height:80px!important;bottom:calc(8px + var(--rinchan-safe-bottom))!important;}
+  .nav a{min-height:54px!important;font-size:20px!important;}
 }
 #passportChallengeStack{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;}
 #monthlyChallengeSection,#departmentChallengeSection,#hospitalChallengeSection,#passportChallengeStack .monthly-challenge-card,#passportChallengeStack .department-challenge-card,#passportChallengeStack .hospital-challenge-card{width:auto!important;max-width:none!important;margin-left:20px!important;margin-right:20px!important;margin-bottom:14px!important;padding:20px!important;box-sizing:border-box!important;}
