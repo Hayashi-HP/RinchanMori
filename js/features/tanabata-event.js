@@ -1,5 +1,5 @@
 const RinchanTanabataEvent = (() => {
-  const VERSION = 'v1.5.10';
+  const VERSION = 'v1.5.13';
   let observer = null;
   let rendering = false;
 
@@ -22,6 +22,15 @@ const RinchanTanabataEvent = (() => {
     map.dataset.eventKey = 'tanabata';
   }
 
+  function hideBaseDecorations(map) {
+    map.querySelectorAll('.mori-world-flower, .mori-world-friend, .mori-world-bird').forEach((el) => {
+      el.style.setProperty('display', 'none', 'important');
+      el.style.setProperty('visibility', 'hidden', 'important');
+      el.style.setProperty('opacity', '0', 'important');
+      el.style.setProperty('animation', 'none', 'important');
+    });
+  }
+
   function render() {
     const map = document.getElementById('moriMap');
     if (!map || rendering) return;
@@ -37,19 +46,23 @@ const RinchanTanabataEvent = (() => {
     rendering = true;
     try {
       applyEventState(map);
+      hideBaseDecorations(map);
       if (!layer) {
         layer = document.createElement('div');
         layer.className = 'tanabata-layer';
         map.prepend(layer);
       }
-      layer.innerHTML = [
-        '<span class="tanabata-milkyway" aria-hidden="true"></span>',
-        '<span class="tanabata-item tanabata-star st1" aria-hidden="true">✦</span>',
-        '<span class="tanabata-item tanabata-star st2" aria-hidden="true">✨</span>',
-        '<span class="tanabata-item tanabata-star st3" aria-hidden="true">✦</span>',
-        '<span class="tanabata-item tanabata-star st4" aria-hidden="true">✨</span>',
-        '<span class="tanabata-item tanabata-bamboo" aria-hidden="true">🎋</span>'
-      ].join('');
+      if (!layer.querySelector('.tanabata-layer-content')) {
+        layer.innerHTML = [
+          '<div class="tanabata-layer-content" aria-hidden="true">',
+          '<span class="tanabata-milkyway"></span>',
+          '<span class="tanabata-item tanabata-star st1">✦</span>',
+          '<span class="tanabata-item tanabata-star st2">✦</span>',
+          '<span class="tanabata-item tanabata-star st3">✦</span>',
+          '<span class="tanabata-item tanabata-bamboo">🎋</span>',
+          '</div>'
+        ].join('');
+      }
       if (layer !== map.firstElementChild) map.prepend(layer);
     } finally {
       rendering = false;
@@ -71,7 +84,6 @@ const RinchanTanabataEvent = (() => {
   function install() {
     render();
     watchMap();
-    [150, 600, 1500, 3200].forEach(delay => setTimeout(render, delay));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);

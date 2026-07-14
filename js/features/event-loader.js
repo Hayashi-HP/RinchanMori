@@ -1,11 +1,11 @@
 const RinchanEventLoader = (() => {
-  const VERSION = 'v1.5.11';
+  const VERSION = 'v1.5.13';
   const LOADED = { css: new Set(), js: new Set() };
 
   const FALLBACK_EVENTS = {
     tanabata: {
-      css: '../css/v125-tanabata.css?v=161',
-      js: '../js/features/tanabata-event.js?v=160',
+      css: '../css/v125-tanabata.css?v=192',
+      js: '../js/features/tanabata-event.js?v=192',
       global: 'RinchanTanabataEvent'
     },
     summer: {
