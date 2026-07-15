@@ -1,5 +1,5 @@
 const RinchanAdmin = (() => {
-  const VERSION = 'v1.0.33';
+  const VERSION = 'v1.0.34';
 
   function readJson(key, fallback) {
     try {

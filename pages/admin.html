@@ -13,11 +13,59 @@
   <link rel="stylesheet" href="../css/v1014-hotfix.css?v=157">
   <link rel="stylesheet" href="../css/v1026-admin-mypage.css?v=157">
   <link rel="stylesheet" href="../css/v1030-capsule-buttons.css?v=157">
+  <link rel="stylesheet" href="../css/v133-admin-hub.css?v=158">
 </head>
 <body>
 <main class="app admin-app-v132">
   <header class="top"><a href="mypage.html" class="back">←</a><div class="page-title">管理画面</div><button class="icon-button" id="adminRefresh" type="button">↻</button></header>
   <section class="admin-hero"><p class="label">v1.4.17</p><h1>運用チェック</h1><p>今日の記録状況、声かけ候補、部署別の動き、利用者状態を確認します。</p><div class="admin-updated" id="adminStatus">読み込み中...</div></section>
+  <section class="admin-card admin-hub-card">
+    <h2>管理メニュー</h2>
+    <p class="admin-note">管理トップは集計確認と各管理機能への入口に限定し、編集は専用画面へ分離します。</p>
+    <div class="admin-hub-groups">
+      <section class="admin-hub-group">
+        <h3>第1段階</h3>
+        <div class="admin-hub-list">
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true">
+            <strong>歩数修正</strong>
+            <small>歩数の修正・削除を行う専用画面</small>
+            <span class="admin-hub-state">準備中</span>
+          </button>
+          <a class="admin-hub-item is-live" href="diagnostics.html">
+            <strong>管理者権限確認</strong>
+            <small>診断画面でサーバー応答と管理系動作を確認</small>
+            <span class="admin-hub-state">利用可能</span>
+          </a>
+        </div>
+      </section>
+      <section class="admin-hub-group">
+        <h3>第2段階</h3>
+        <div class="admin-hub-list">
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>お知らせ・通信管理</strong><small>お知らせ作成、公開、停止</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>職員管理</strong><small>職員情報の登録・更新</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>部署管理</strong><small>部署マスタの整理</small><span class="admin-hub-state">準備中</span></button>
+        </div>
+      </section>
+      <section class="admin-hub-group">
+        <h3>第3段階</h3>
+        <div class="admin-hub-list">
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>チャレンジ管理</strong><small>目標設定と運用管理</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>バッジ管理</strong><small>バッジ定義と付与管理</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>イベント管理</strong><small>季節イベントの設定・切替</small><span class="admin-hub-state">準備中</span></button>
+        </div>
+      </section>
+      <section class="admin-hub-group">
+        <h3>第4段階</h3>
+        <div class="admin-hub-list">
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>バックアップ</strong><small>バックアップ作成と履歴確認</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>監査ログ</strong><small>管理操作ログの確認</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>エラーログ</strong><small>サーバーエラー履歴の確認</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>キャッシュ管理</strong><small>キャッシュ状態の確認とクリア</small><span class="admin-hub-state">準備中</span></button>
+          <button class="admin-hub-item is-soon" type="button" disabled aria-disabled="true"><strong>その他設定</strong><small>運用設定の保守管理</small><span class="admin-hub-state">準備中</span></button>
+        </div>
+      </section>
+    </div>
+  </section>
   <section class="big-action focus-action admin-return-action"><a href="diagnostics.html"><span>🩺</span><strong>動作診断を開く</strong><small>端末・通信・同期状態を確認</small></a></section>
   <section class="admin-grid"><div class="admin-stat"><strong id="adminTotalUsers">-</strong><small>登録者</small></div><div class="admin-stat"><strong id="adminTodayUsers">-</strong><small>今日の記録者</small></div><div class="admin-stat"><strong id="adminTodayActivities">-</strong><small>今日の記録</small></div><div class="admin-stat"><strong id="adminTodaySteps">-</strong><small>今日の歩数</small></div></section>
   <section class="admin-card admin-warning"><h2>対応が必要な項目</h2><p class="admin-note">所属未設定や記録が止まっている人を確認します。</p><div id="adminOperations"><p class="admin-empty">読み込み中...</p></div></section>
