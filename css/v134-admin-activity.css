@@ -1,0 +1,128 @@
+/* v1.0.0 admin activity correction */
+.admin-activity-filters {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-activity-filters label {
+  display: grid;
+  gap: 6px;
+  color: #456356;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.admin-activity-filters input,
+.admin-activity-filters select,
+.admin-activity-editor-grid input,
+#adminEditReason {
+  width: 100%;
+  border: 1px solid #d6e7df;
+  border-radius: 12px;
+  background: #fff;
+  padding: 10px 12px;
+  color: #244038;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.admin-activity-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-activity-row {
+  border: 1px solid #e2eee8;
+  border-radius: 16px;
+  background: #fbfffd;
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-activity-main strong {
+  display: block;
+  color: #244038;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.admin-activity-main small {
+  color: #61766e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-activity-meta {
+  display: grid;
+  gap: 4px;
+  color: #446359;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-activity-meta b {
+  color: #203b34;
+  font-size: 14px;
+}
+
+.admin-activity-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.admin-activity-editor-grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.admin-activity-editor-grid label,
+#adminActivityEditor > label {
+  display: grid;
+  gap: 6px;
+  color: #456356;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-activity-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-activity-message {
+  margin-top: 12px;
+  min-height: 22px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.admin-activity-message.is-success {
+  color: #22794f;
+}
+
+.admin-activity-message.is-error {
+  color: #a44134;
+}
+
+.admin-activity-message.is-info {
+  color: #476b5f;
+}
+
+.admin-updated.is-error {
+  color: #a44134 !important;
+}
+
+@media (min-width: 760px) {
+  .admin-activity-filters {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .admin-activity-editor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

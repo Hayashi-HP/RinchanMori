@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>歩数修正｜りんちゃんの杜</title>
+  <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css?v=157">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=157">
+  <link rel="stylesheet" href="../css/v129-admin.css?v=157">
+  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=157">
+  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=157">
+  <link rel="stylesheet" href="../css/v1026-admin-mypage.css?v=157">
+  <link rel="stylesheet" href="../css/v1030-capsule-buttons.css?v=157">
+  <link rel="stylesheet" href="../css/v134-admin-activity.css?v=201">
+</head>
+<body>
+<main class="app admin-app-v132 admin-activity-app">
+  <header class="top"><a href="admin.html" class="back">←</a><div class="page-title">歩数修正</div><button class="icon-button" id="adminActivityRefresh" type="button">↻</button></header>
+  <section class="admin-hero">
+    <p class="label">管理者専用</p>
+    <h1>日別歩数の修正</h1>
+    <p>対象日と職員を絞り込み、必要な場合のみ安全に歩数を修正します。</p>
+    <div class="admin-updated" id="adminActivityStatus">読み込み中...</div>
+  </section>
+
+  <section class="admin-card">
+    <h2>検索条件</h2>
+    <div class="admin-activity-filters">
+      <label>対象日<input id="adminActivityDate" type="date"></label>
+      <label>職員検索<input id="adminActivityQuery" type="search" placeholder="氏名・社員番号・部署"></label>
+      <label>部署<select id="adminActivityDept"><option value="">全部署</option></select></label>
+    </div>
+  </section>
+
+  <section class="admin-card">
+    <h2>歩数一覧</h2>
+    <p class="admin-note">対象日の現在歩数を表示します。修正は「修正」ボタンから行ってください。</p>
+    <div id="adminActivityList" class="admin-activity-list"><p class="admin-empty">読み込み中...</p></div>
+  </section>
+
+  <section class="admin-card hidden" id="adminActivityEditor">
+    <h2>歩数修正フォーム</h2>
+    <p id="adminActivityTarget" class="admin-note">対象者を選択してください。</p>
+    <div class="admin-activity-editor-grid">
+      <label>現在歩数<input id="adminCurrentSteps" type="text" readonly></label>
+      <label>新しい歩数<input id="adminNewSteps" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></label>
+    </div>
+    <label>修正理由（必須）<textarea id="adminEditReason" rows="3" placeholder="例: Appleショートカット誤送信のため"></textarea></label>
+    <div class="admin-activity-actions">
+      <button type="button" class="admin-button" id="adminEditSave">保存</button>
+      <button type="button" class="admin-button soft" id="adminEditCancel">キャンセル</button>
+    </div>
+    <div id="adminActivityMessage" class="admin-activity-message" aria-live="polite"></div>
+  </section>
+
+  <section class="big-action focus-action admin-return-action"><a href="admin.html"><span>⚙️</span><strong>管理画面へ戻る</strong><small>運用チェックへ戻る</small></a></section>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">📘<small>パスポート</small></a></nav>
+</main>
+<script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=157"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=180"></script><script src="../js/core/sync.js?v=157"></script><script src="../js/core/offline-queue.js?v=157"></script><script src="../js/features/admin-activity.js?v=202"></script>
+</body>
+</html>

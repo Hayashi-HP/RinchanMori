@@ -191,3 +191,184 @@ function rankMembers(members) {
     return b.activityCount - a.activityCount;
   });
 }
+
+function normalizeAdminActivityDate(value) {
+  const raw = String(value || '').trim();
+  const m = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (m) {
+    return m[1] + '-' + String(Number(m[2])).padStart(2, '0') + '-' + String(Number(m[3])).padStart(2, '0');
+  }
+  const parsed = new Date(raw);
+  if (!isNaN(parsed.getTime())) {
+    return Utilities.formatDate(parsed, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return '';
+}
+
+function adminTodayDateKey() {
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function detectActivitySource(deviceId) {
+  const raw = String(deviceId || '').trim();
+  const lower = raw.toLowerCase();
+  if (!raw) return '-';
+  if (lower.indexOf('admin-correction') >= 0) return '管理者修正';
+  if (lower.indexOf('iphone-health') >= 0 || lower.indexOf('apple') >= 0) return 'Appleショートカット';
+  if (raw.indexOf('D') === 0) return '手入力/アプリ';
+  return raw;
+}
+
+function parseAdminSteps(raw) {
+  const text = String(raw === undefined || raw === null ? '' : raw).trim();
+  if (!text) throw new Error('steps_required');
+  if (!/^\d+$/.test(text)) throw new Error('steps_integer_required');
+  const value = Number(text);
+  if (!isFinite(value) || value < 0) throw new Error('steps_invalid');
+  if (value > 200000) throw new Error('steps_too_large');
+  return value;
+}
+
+function getAdminActivityRows(ss, data) {
+  const dateKey = normalizeAdminActivityDate(data.date || adminTodayDateKey());
+  if (!dateKey) throw new Error('date_required');
+  const today = adminTodayDateKey();
+  if (dateKey > today) throw new Error('future_date_not_allowed');
+
+  const query = String(data.query || '').trim().toLowerCase();
+  const deptFilter = String(data.dept || '').trim();
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const rowByEmployee = {};
+
+  activities.forEach(item => {
+    const participantId = normalizeEmployeeId(item.participantId || '');
+    if (!participantId) return;
+    if (normalizeAdminActivityDate(item.date || '') !== dateKey) return;
+
+    const current = rowByEmployee[participantId];
+    const currentKey = current ? String(current.savedAt || current.createdAt || '') : '';
+    const nextKey = String(item.savedAt || item.createdAt || '');
+    if (!current || nextKey >= currentKey) rowByEmployee[participantId] = item;
+  });
+
+  const rows = users
+    .map(user => {
+      const employeeId = normalizeEmployeeId(user.employeeId || user.id || '');
+      if (!employeeId) return null;
+      const name = String(user.name || user.nick || employeeId);
+      const dept = String(user.dept || '所属未設定');
+      const searchText = [name, employeeId, dept, String(user.nick || '')].join(' ').toLowerCase();
+      if (query && searchText.indexOf(query) < 0) return null;
+      if (deptFilter && dept !== deptFilter) return null;
+
+      const act = rowByEmployee[employeeId] || null;
+      const currentSteps = act ? Number(act.steps || 0) : 0;
+      return {
+        employeeId,
+        name,
+        dept,
+        currentSteps,
+        source: act ? detectActivitySource(act.deviceId || '') : '-',
+        updatedAt: act ? String(act.savedAt || act.createdAt || '') : '',
+        activityId: act ? String(act.activityId || '') : '',
+        hasRecord: !!act
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => String(a.dept || '').localeCompare(String(b.dept || '')) || String(a.name || '').localeCompare(String(b.name || '')));
+
+  const departments = Array.from(new Set(users.map(user => String(user.dept || '').trim()).filter(Boolean))).sort();
+  return { date: dateKey, total: rows.length, departments, rows };
+}
+
+function saveAdminActivityCorrection(ss, data) {
+  const dateKey = normalizeAdminActivityDate(data.date || '');
+  if (!dateKey) throw new Error('date_required');
+  if (dateKey > adminTodayDateKey()) throw new Error('future_date_not_allowed');
+
+  const targetEmployeeId = normalizeEmployeeId(data.targetEmployeeId || data.employeeIdTarget || data.participantId || '');
+  if (!targetEmployeeId) throw new Error('target_employee_id_required');
+
+  const reason = String(data.reason || '').trim();
+  if (!reason) throw new Error('reason_required');
+  if (reason.length > 200) throw new Error('reason_too_long');
+
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const targetUser = users.find(user => normalizeEmployeeId(user.employeeId || user.id || '') === targetEmployeeId);
+  if (!targetUser) throw new Error('target_user_not_found');
+
+  const newSteps = parseAdminSteps(data.newSteps !== undefined ? data.newSteps : data.steps);
+  const activitySheet = ss.getSheetByName(SHEET_ACTIVITIES);
+  const rows = readTable(activitySheet)
+    .filter(item => normalizeEmployeeId(item.participantId || '') === targetEmployeeId)
+    .filter(item => normalizeAdminActivityDate(item.date || '') === dateKey)
+    .sort((a, b) => String(b.savedAt || b.createdAt || '').localeCompare(String(a.savedAt || a.createdAt || '')));
+
+  const latest = rows.length ? rows[0] : null;
+  const beforeSteps = latest ? Number(latest.steps || 0) : 0;
+  if (beforeSteps === newSteps) throw new Error('same_steps');
+
+  const activityId = latest && latest.activityId
+    ? String(latest.activityId)
+    : (targetEmployeeId + '_' + String(dateKey || '').replace(/-/g, ''));
+
+  const saved = saveActivity(ss, {
+    activityId,
+    participantId: targetEmployeeId,
+    deviceId: 'admin-correction',
+    date: dateKey,
+    steps: newSteps,
+    challenge: latest ? (latest.challenge === true || String(latest.challenge).toUpperCase() === 'TRUE') : false,
+    comment: latest ? String(latest.comment || '') : '',
+    createdAt: latest ? String(latest.createdAt || new Date().toISOString()) : new Date().toISOString(),
+    version: VERSION
+  });
+
+  invalidateActivityCaches();
+
+  const savedRow = saved && saved.row > 1 ? rowToObject(activitySheet, saved.row) : null;
+  const actor = getUserPermissionContext(ss, data || {}) || {};
+  const correctedAt = new Date().toISOString();
+
+  auditAction(
+    ss,
+    'adminActivityCorrection',
+    Object.assign({}, data || {}, {
+      targetType: 'activity',
+      targetId: activityId
+    }),
+    'ok',
+    'activity_corrected',
+    {
+      targetEmployeeId,
+      targetName: String(targetUser.name || targetUser.nick || targetEmployeeId),
+      targetDate: dateKey,
+      beforeSteps,
+      afterSteps: newSteps,
+      reason,
+      adminEmployeeId: String(actor.employeeId || ''),
+      adminName: String(actor.name || ''),
+      correctedAt,
+      operationType: 'activity_correction',
+      activityId
+    }
+  );
+
+  return {
+    targetEmployeeId,
+    targetName: String(targetUser.name || targetUser.nick || targetEmployeeId),
+    targetDept: String(targetUser.dept || '所属未設定'),
+    date: dateKey,
+    beforeSteps,
+    afterSteps: newSteps,
+    reason,
+    adminEmployeeId: String(actor.employeeId || ''),
+    adminName: String(actor.name || ''),
+    correctedAt,
+    operationType: 'activity_correction',
+    activityId,
+    source: detectActivitySource(savedRow ? savedRow.deviceId : 'admin-correction'),
+    updatedAt: String(savedRow ? (savedRow.savedAt || savedRow.createdAt || correctedAt) : correctedAt)
+  };
+}

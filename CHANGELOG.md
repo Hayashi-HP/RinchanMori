@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.5.20
+- 管理者向け「歩数修正」専用画面 `pages/admin-activity.html` を追加
+- 管理トップの第1段階メニューから歩数修正画面へ遷移可能に変更（準備中表示を解除）
+- `js/features/admin-activity.js` を追加し、対象日/検索/部署フィルタ/修正フォーム/入力検証/二重送信防止を実装
+- `css/v134-admin-activity.css` を追加し、歩数修正画面の一覧・フォーム・モバイル表示を実装
+- Apps Script に `adminActivityRows` / `adminUpdateActivity` を追加し、`requireAdminAction` で管理者権限を強制
+- `apps-script/Admin.gs` に歩数修正用ロジック（対象日正規化・日別最新レコード抽出・修正保存・監査情報返却）を追加
+- 歩数修正時の監査ログ `adminActivityCorrection` を追加（before/after/reason/target/admin を記録）
+- 管理関連ページのキャッシュクエリを更新（admin / diagnostics / mypage / admin-activity）
+- `ADMIN_PLAN.md` を更新し、歩数修正実装内容を反映
+- README を v1.5.20 に更新
+
 ## v1.5.19
 - 管理画面（admin / diagnostics）に未ログイン・一般職員・管理者の 3 状態アクセスガードを実装
 - 未ログインは login へ遷移、一般職員は mypage へ遷移し拒否メッセージを表示、管理者のみ管理画面利用可能

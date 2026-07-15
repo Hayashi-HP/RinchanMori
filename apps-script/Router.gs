@@ -158,6 +158,31 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, data: getCachedAdminStats(ss), version: VERSION, cached: true });
   }
 
+  if (action === 'adminActivityRows') {
+    const denied = requireAdminAction('adminActivityRows', ss, data);
+    if (denied) return denied;
+    try {
+      const list = getAdminActivityRows(ss, data || {});
+      auditAction(ss, 'adminActivityRows', data, 'ok', 'view_admin_activity_rows', { date: list.date, total: list.total });
+      return jsonOutput({ ok: true, action, data: list, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminActivityRows', data, 'ng', e.message || 'admin_activity_rows_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_activity_rows_failed', reason: e.message || 'admin_activity_rows_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminUpdateActivity') {
+    const denied = requireAdminAction('adminUpdateActivity', ss, data);
+    if (denied) return denied;
+    try {
+      const corrected = saveAdminActivityCorrection(ss, data || {});
+      return jsonOutput({ ok: true, action, corrected, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminUpdateActivity', data, 'ng', e.message || 'admin_activity_update_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_activity_update_failed', reason: e.message || 'admin_activity_update_failed', version: VERSION });
+    }
+  }
+
   if (action === 'saveUser') {
     const saved = saveUser(ss, data);
     invalidateUserCaches();
