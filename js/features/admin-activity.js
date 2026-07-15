@@ -86,6 +86,41 @@ const RinchanAdminActivity = (() => {
     box.classList.add(type === 'error' ? 'is-error' : (type === 'success' ? 'is-success' : 'is-info'));
   }
 
+  function showListMessage(text, isError) {
+    const box = byId('adminActivityList');
+    if (!box) return;
+    box.innerHTML = '<p class="admin-empty' + (isError ? ' is-error' : '') + '">' + escapeHtml(text || '') + '</p>';
+  }
+
+  function explainApiFailure(result) {
+    const raw = result && (result.error || result.reason || result.message || result.msg)
+      ? String(result.error || result.reason || result.message || result.msg)
+      : 'api_error';
+    const lower = raw.toLowerCase();
+
+    if (lower === 'api_not_ready' || lower === 'api_url_empty') {
+      return {
+        status: 'APIが呼び出せません。',
+        message: 'API設定を確認してください。(' + raw + ')',
+        list: '一覧を取得できませんでした。API設定を確認してください。'
+      };
+    }
+
+    if (lower === 'api_timeout' || lower === 'network_error' || lower === 'network_response_error' || lower.indexOf('failed to fetch') >= 0) {
+      return {
+        status: 'API通信に失敗しました。',
+        message: '通信エラーが発生しました。(' + raw + ')',
+        list: '一覧を取得できませんでした。通信状態を確認してください。'
+      };
+    }
+
+    return {
+      status: 'APIエラーが発生しました。',
+      message: 'APIエラー: ' + raw,
+      list: '一覧を取得できませんでした。(' + raw + ')'
+    };
+  }
+
   function updateDeptOptions(list) {
     const select = byId('adminActivityDept');
     if (!select) return;
@@ -100,7 +135,7 @@ const RinchanAdminActivity = (() => {
     const box = byId('adminActivityList');
     if (!box) return;
     if (!state.rows.length) {
-      box.innerHTML = '<p class="admin-empty">条件に合う職員が見つかりません。</p>';
+      box.innerHTML = '<p class="admin-empty">対象データがありません。</p>';
       return;
     }
     box.innerHTML = state.rows.map(row => (
@@ -170,6 +205,7 @@ const RinchanAdminActivity = (() => {
     if (state.loading) return;
     state.loading = true;
     setStatus('一覧を読み込み中...', false);
+    setMessage('', 'info');
     try {
       const auth = authState();
       const result = await api('adminActivityRows', {
@@ -180,16 +216,38 @@ const RinchanAdminActivity = (() => {
       });
 
       if (!result || !result.ok || !result.data) {
+        const detail = explainApiFailure(result || { error: 'api_error' });
         state.rows = [];
-        renderRows();
-        setStatus('一覧を取得できませんでした。', true);
+        showListMessage(detail.list, true);
+        setStatus(detail.status, true);
+        setMessage(detail.message, 'error');
         return;
       }
 
       state.rows = Array.isArray(result.data.rows) ? result.data.rows : [];
       updateDeptOptions(result.data.departments || []);
-      renderRows();
-      setStatus('対象日 ' + (result.data.date || value('adminActivityDate')) + ' / ' + state.rows.length + '件', false);
+      try {
+        renderRows();
+      } catch (renderError) {
+        const reason = renderError && renderError.message ? renderError.message : 'render_failed';
+        state.rows = [];
+        showListMessage('一覧の描画に失敗しました。画面を再読み込みしてください。', true);
+        setStatus('一覧の描画に失敗しました。', true);
+        setMessage('描画エラー: ' + reason, 'error');
+        return;
+      }
+
+      const dateText = result.data.date || value('adminActivityDate');
+      setStatus('対象日 ' + dateText + ' / ' + state.rows.length + '件', false);
+      if (!state.rows.length) {
+        setMessage('対象データがありません。', 'info');
+      }
+    } catch (e) {
+      const reason = e && e.message ? e.message : 'js_error';
+      state.rows = [];
+      showListMessage('JavaScriptエラーが発生しました。画面を再読み込みしてください。', true);
+      setStatus('JavaScriptエラーが発生しました。', true);
+      setMessage('JavaScriptエラー: ' + reason, 'error');
     } finally {
       state.loading = false;
     }

@@ -7,6 +7,7 @@
 .admin-activity-filters label {
   display: grid;
   gap: 6px;
+  min-width: 0;
   color: #456356;
   font-weight: 900;
   font-size: 13px;
@@ -16,14 +17,33 @@
 .admin-activity-filters select,
 .admin-activity-editor-grid input,
 #adminEditReason {
+  min-width: 0;
   width: 100%;
   border: 1px solid #d6e7df;
   border-radius: 12px;
   background: #fff;
-  padding: 10px 12px;
+  padding: 0 12px;
   color: #244038;
   font: inherit;
   box-sizing: border-box;
+}
+
+.admin-activity-filters input,
+.admin-activity-filters select,
+.admin-activity-editor-grid input {
+  height: 44px;
+  min-height: 44px;
+  line-height: 1.2;
+}
+
+.admin-activity-filters input[type="date"] {
+  appearance: none;
+}
+
+#adminEditReason {
+  min-height: 96px;
+  padding: 10px 12px;
+  resize: vertical;
 }
 
 .admin-activity-list {
@@ -81,6 +101,7 @@
 #adminActivityEditor > label {
   display: grid;
   gap: 6px;
+  min-width: 0;
   color: #456356;
   font-size: 13px;
   font-weight: 900;
@@ -115,6 +136,22 @@
 
 .admin-updated.is-error {
   color: #a44134 !important;
+}
+
+.admin-empty.is-error {
+  color: #a44134;
+  font-weight: 900;
+}
+
+.footer-wrapper {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(112px + env(safe-area-inset-bottom, 0px));
+  background: #eefbfb;
+  pointer-events: none;
+  z-index: 999;
 }
 
 @media (min-width: 760px) {
