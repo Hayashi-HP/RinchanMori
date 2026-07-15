@@ -1,5 +1,5 @@
 const RinchanEventLoader = (() => {
-  const VERSION = 'v1.5.14';
+  const VERSION = 'v1.5.16';
   const LOADED = { css: new Set(), js: new Set() };
 
   const FALLBACK_EVENTS = {
@@ -12,6 +12,11 @@ const RinchanEventLoader = (() => {
       css: '../css/v126-summer-festival.css?v=193',
       js: '../js/features/summer-festival-event.js?v=193',
       global: 'RinchanSummerFestivalEvent'
+    },
+    moon: {
+      css: '../css/v131-moon-event.css?v=195',
+      js: '../js/features/moon-event.js?v=195',
+      global: 'RinchanMoonEvent'
     },
     halloween: {
       css: '../css/v127-halloween.css?v=135',

@@ -1,0 +1,85 @@
+/* v1.5.16 moon event: stable background only */
+.rinchan-event-moon{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  contain:paint!important;
+  background:linear-gradient(180deg,#243b62 0%,#4b6b96 54%,#d4e0c4 100%)!important;
+}
+
+.rinchan-event-moon .mori-world-sky{z-index:0!important;opacity:.42!important;}
+
+.rinchan-event-moon .dept-node,
+.rinchan-event-moon .mori-tree-node,
+.rinchan-event-moon .department-card,
+.rinchan-event-moon .mori-department-card,
+.rinchan-event-moon [class*="department-card"],
+.rinchan-event-moon [class*="dept-card"]{
+  position:relative!important;
+  z-index:6!important;
+}
+
+.moon-event-layer{
+  position:absolute!important;
+  inset:0!important;
+  z-index:1!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  border-radius:inherit!important;
+}
+
+.moon-event-layer-content{
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+}
+
+.moon-event-item{
+  position:absolute!important;
+  display:block!important;
+  pointer-events:none!important;
+  transform:none!important;
+}
+
+.moon-night-sky{
+  left:0!important;
+  top:0!important;
+  width:100%!important;
+  height:48%!important;
+  text-indent:-9999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.05) 0%,rgba(222,234,255,.08) 58%,transparent 100%)!important;
+}
+
+.moon-full{
+  top:8%!important;
+  right:12%!important;
+  font-size:48px!important;
+  opacity:.78!important;
+  filter:drop-shadow(0 4px 10px rgba(255,245,193,.34));
+}
+
+.moon-rabbit{
+  top:24%!important;
+  right:22%!important;
+  font-size:16px!important;
+  opacity:.52!important;
+}
+
+.moon-grass{
+  bottom:9%!important;
+  font-size:22px!important;
+  opacity:.5!important;
+}
+
+.moon-grass.g1{left:8%!important;}
+.moon-grass.g2{right:8%!important;}
+
+@media (max-width:430px){
+  .moon-full{font-size:40px!important;right:10%!important;}
+  .moon-rabbit{font-size:13px!important;top:25%!important;right:20%!important;}
+  .moon-grass{font-size:18px!important;}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .moon-event-item{animation:none!important;}
+}
