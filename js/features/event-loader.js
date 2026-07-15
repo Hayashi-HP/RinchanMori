@@ -1,5 +1,5 @@
 const RinchanEventLoader = (() => {
-  const VERSION = 'v1.5.13';
+  const VERSION = 'v1.5.14';
   const LOADED = { css: new Set(), js: new Set() };
 
   const FALLBACK_EVENTS = {
@@ -9,8 +9,8 @@ const RinchanEventLoader = (() => {
       global: 'RinchanTanabataEvent'
     },
     summer: {
-      css: '../css/v126-summer-festival.css?v=135',
-      js: '../js/features/summer-festival-event.js?v=135',
+      css: '../css/v126-summer-festival.css?v=193',
+      js: '../js/features/summer-festival-event.js?v=193',
       global: 'RinchanSummerFestivalEvent'
     },
     halloween: {
