@@ -1,5 +1,5 @@
 const RinchanApi = (() => {
-  const VERSION = 'v1.4.3';
+  const VERSION = 'v1.4.4';
 
   function apiUrl() {
     return (typeof RINCHAN_CONFIG !== 'undefined' && RINCHAN_CONFIG.API_URL)
@@ -17,6 +17,39 @@ const RinchanApi = (() => {
       localStorage.setItem('rinchanDeviceId', id);
     }
     return id;
+  }
+
+  function participant() {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') {
+        return RinchanStorage.getParticipant();
+      }
+      const raw = localStorage.getItem('rinchanParticipant');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function isAdminUser(user) {
+    return !!(user && (
+      String(user.admin || '') === '1' ||
+      user.admin === true ||
+      String(user.role || '').toLowerCase() === 'admin'
+    ));
+  }
+
+  function authState() {
+    const user = participant();
+    const employeeId = user && (user.employeeId || user.id || user.participantId)
+      ? String(user.employeeId || user.id || user.participantId)
+      : '';
+    return {
+      user,
+      employeeId,
+      loggedIn: !!employeeId,
+      isAdmin: isAdminUser(user)
+    };
   }
 
   function normalizeError(value, fallback) {
@@ -79,7 +112,10 @@ const RinchanApi = (() => {
     VERSION,
     request,
     apiUrl,
-    normalizeResponse
+    normalizeResponse,
+    participant,
+    isAdminUser,
+    authState
   };
 })();
 

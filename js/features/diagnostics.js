@@ -1,5 +1,5 @@
 const RinchanDiagnostics = (() => {
-  const VERSION = 'v1.4.12';
+  const VERSION = 'v1.4.13';
 
   function byId(id) { return document.getElementById(id); }
   function setText(id, text) { const el = byId(id); if (el) el.textContent = text; }
@@ -11,9 +11,50 @@ const RinchanDiagnostics = (() => {
   function errorLogs() { try { const logs = (window.RinchanErrorLog && typeof RinchanErrorLog.readLogs === 'function') ? RinchanErrorLog.readLogs() : safeJson('rinchanErrorLogs', []); return Array.isArray(logs) ? logs.filter(log => !isGenericScriptError(log)) : []; } catch (e) { return []; } }
   function status(ok, label, detail, level) { return { ok, label, detail, level: level || (ok ? 'ok' : 'error') }; }
   function queue() { const list = safeJson('rinchanPendingQueue', safeJson('rinchanOfflineQueue', [])); return Array.isArray(list) ? list : []; }
-  function participant() { return window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function' ? RinchanStorage.getParticipant() : safeJson('rinchanParticipant', null); }
+  function participant() {
+    try {
+      if (window.RinchanApi && typeof RinchanApi.authState === 'function') {
+        return RinchanApi.authState().user || null;
+      }
+    } catch (e) {}
+    return window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function' ? RinchanStorage.getParticipant() : safeJson('rinchanParticipant', null);
+  }
+  function isAdminUser(user) {
+    if (window.RinchanApi && typeof RinchanApi.isAdminUser === 'function') return RinchanApi.isAdminUser(user);
+    return !!(user && (String(user.admin || '') === '1' || user.admin === true || String(user.role || '').toLowerCase() === 'admin'));
+  }
+  function authState() {
+    if (window.RinchanApi && typeof RinchanApi.authState === 'function') return RinchanApi.authState();
+    const user = participant();
+    const id = user && (user.employeeId || user.id || user.participantId) ? String(user.employeeId || user.id || user.participantId) : '';
+    return { user, employeeId: id, loggedIn: !!id, isAdmin: isAdminUser(user) };
+  }
   function employeeId() { const p = participant(); return p && (p.employeeId || p.id || p.participantId) ? String(p.employeeId || p.id || p.participantId) : ''; }
   async function api(action, payload) { if (window.RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {}); return { ok: false, error: 'api_not_ready' }; }
+
+  function denyAndRedirect(message, url) {
+    try {
+      if (url === 'mypage.html') {
+        sessionStorage.setItem('rinchanAdminAccessNotice', message);
+      } else {
+        alert(message);
+      }
+    } catch (e) {}
+    location.href = url;
+  }
+
+  function guardPageAccess() {
+    const state = authState();
+    if (!state.loggedIn) {
+      denyAndRedirect('ログイン後に管理画面をご利用ください。', 'login.html');
+      return false;
+    }
+    if (!state.isAdmin) {
+      denyAndRedirect('管理者のみ利用できます。', 'mypage.html');
+      return false;
+    }
+    return true;
+  }
 
   function parseVersion(version) {
     const m = String(version || '').match(/v?(\d+)\.(\d+)\.(\d+)/);
@@ -178,6 +219,7 @@ const RinchanDiagnostics = (() => {
 
   function install() {
     try {
+      if (!guardPageAccess()) return;
       render();
       const refresh = byId('diagnosticsRefresh'); if (refresh && !refresh.__rinchanDiagInstalled) { refresh.__rinchanDiagInstalled = true; refresh.addEventListener('click', render); }
       const server = byId('checkServer'); if (server && !server.__rinchanDiagInstalled) { server.__rinchanDiagInstalled = true; server.addEventListener('click', checkServer); }

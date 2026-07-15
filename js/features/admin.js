@@ -1,5 +1,5 @@
 const RinchanAdmin = (() => {
-  const VERSION = 'v1.0.34';
+  const VERSION = 'v1.0.35';
 
   function readJson(key, fallback) {
     try {
@@ -20,6 +20,11 @@ const RinchanAdmin = (() => {
   }
 
   function participant() {
+    try {
+      if (window.RinchanApi && typeof RinchanApi.authState === 'function') {
+        return RinchanApi.authState().user || null;
+      }
+    } catch (e) {}
     try {
       if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
       return readJson('rinchanParticipant', null);
@@ -213,7 +218,39 @@ const RinchanAdmin = (() => {
   }
 
   function isAdminUser(user) {
+    if (window.RinchanApi && typeof RinchanApi.isAdminUser === 'function') return RinchanApi.isAdminUser(user);
     return !!(user && (String(user.admin || '') === '1' || user.admin === true || String(user.role || '').toLowerCase() === 'admin'));
+  }
+
+  function authState() {
+    if (window.RinchanApi && typeof RinchanApi.authState === 'function') return RinchanApi.authState();
+    const user = participant();
+    const id = user && (user.employeeId || user.id || user.participantId) ? String(user.employeeId || user.id || user.participantId) : '';
+    return { user, employeeId: id, loggedIn: !!id, isAdmin: isAdminUser(user) };
+  }
+
+  function denyAndRedirect(message, url) {
+    try {
+      if (url === 'mypage.html') {
+        sessionStorage.setItem('rinchanAdminAccessNotice', message);
+      } else {
+        alert(message);
+      }
+    } catch (e) {}
+    location.href = url;
+  }
+
+  function guardPageAccess() {
+    const state = authState();
+    if (!state.loggedIn) {
+      denyAndRedirect('ログイン後に管理画面をご利用ください。', 'login.html');
+      return false;
+    }
+    if (!state.isAdmin) {
+      denyAndRedirect('管理者のみ利用できます。', 'mypage.html');
+      return false;
+    }
+    return true;
   }
 
   async function loadServerStats() {
@@ -254,6 +291,7 @@ const RinchanAdmin = (() => {
   function install() {
     try {
       if (!document.querySelector('.admin-app-v132')) return;
+      if (!guardPageAccess()) return;
       renderAll();
       const search = document.getElementById('adminSearch');
       if (search && !search.__rinchanAdminInstalled) {

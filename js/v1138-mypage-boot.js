@@ -1,11 +1,22 @@
 /* v1.1.42 mypage boot: keep thanks history stable until server sync finishes */
 (function(){
+  function consumeAdminNotice(){
+    try{
+      var message=sessionStorage.getItem('rinchanAdminAccessNotice')||'';
+      if(!message)return;
+      sessionStorage.removeItem('rinchanAdminAccessNotice');
+      alert(message);
+    }catch(e){}
+  }
   function showAdminLink(){
     try{
-      var user=(window.RinchanStorage&&typeof RinchanStorage.getParticipant==='function')?RinchanStorage.getParticipant():JSON.parse(localStorage.getItem('rinchanParticipant')||'null');
-      var isAdmin=!!(user&&(String(user.admin||'')==='1'||user.admin===true||String(user.role||'').toLowerCase()==='admin'));
+      var state=(window.RinchanApi&&typeof RinchanApi.authState==='function')?RinchanApi.authState():null;
+      var user=state&&state.user?state.user:((window.RinchanStorage&&typeof RinchanStorage.getParticipant==='function')?RinchanStorage.getParticipant():JSON.parse(localStorage.getItem('rinchanParticipant')||'null'));
+      var isAdmin=state?!!state.isAdmin:!!(user&&(String(user.admin||'')==='1'||user.admin===true||String(user.role||'').toLowerCase()==='admin'));
       var link=document.getElementById('adminHeaderLink');
-      if(link&&isAdmin)link.classList.remove('hidden');
+      if(!link)return;
+      if(isAdmin)link.classList.remove('hidden');
+      else link.classList.add('hidden');
     }catch(e){}
   }
   function scrollToThanks(){
@@ -32,7 +43,7 @@
     document.body.classList.remove('thanks-syncing');
     renderAll();
   }
-  document.addEventListener('DOMContentLoaded',function(){showAdminLink();setTimeout(refreshMypage,80);});
+  document.addEventListener('DOMContentLoaded',function(){consumeAdminNotice();showAdminLink();setTimeout(refreshMypage,80);});
   window.addEventListener('pageshow',function(){showAdminLink();setTimeout(refreshMypage,80);});
   setTimeout(function(){
     if(document.body.classList.contains('thanks-syncing')){

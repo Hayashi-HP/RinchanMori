@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.5.19
+- 管理画面（admin / diagnostics）に未ログイン・一般職員・管理者の 3 状態アクセスガードを実装
+- 未ログインは login へ遷移、一般職員は mypage へ遷移し拒否メッセージを表示、管理者のみ管理画面利用可能
+- パスポート画面の管理アイコン表示を認可状態に応じて明示制御
+- `js/core/api.js` に共通の認証状態取得ヘルパー（participant / isAdminUser / authState）を追加
+- 管理系 API の権限拒否処理を `apps-script/Router.gs` の共通関数へ集約し、拒否レスポンス形式を統一
+- `js/features/admin.js` を v1.0.35 に更新
+- `js/features/diagnostics.js` を v1.4.13 に更新
+- `js/core/api.js` を v1.4.4 に更新
+- 管理関連ページのキャッシュクエリを更新（admin / diagnostics / mypage）
+- `ADMIN_PLAN.md` に確定仕様の実装反映を追記
+- README を v1.5.19 に更新
+
 ## v1.5.18
 - 管理トップを「集計確認 + 各管理機能への入口」の管理ハブとして再構成
 - 第1〜第4段階の管理メニューをグループ表示で追加

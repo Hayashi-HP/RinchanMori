@@ -22,6 +22,24 @@ function handleGet(action, e, ss, setup) {
   });
 }
 
+function adminDenied(action, ss, data) {
+  auditAction(ss, action, data, 'ng', 'admin_required');
+  return jsonOutput({
+    ok: false,
+    action,
+    error: 'admin_required',
+    reason: 'admin_required',
+    code: 'ADMIN_REQUIRED',
+    message: '管理者のみ実行できます。',
+    version: VERSION
+  });
+}
+
+function requireAdminAction(action, ss, data) {
+  if (isAdminRequest(ss, data)) return null;
+  return adminDenied(action, ss, data);
+}
+
 function handlePost(action, data, ss) {
   if (action === 'setup') {
     auditAction(ss, 'setup', data, 'ok', 'setupProject');
@@ -30,20 +48,16 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'clearCache') {
-    if (!isAdminRequest(ss, data)) {
-      auditAction(ss, 'clearCache', data, 'ng', 'admin_required');
-      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
-    }
+    const denied = requireAdminAction('clearCache', ss, data);
+    if (denied) return denied;
     const cleared = clearAppCache();
     auditAction(ss, 'clearCache', data, 'ok', 'cache_cleared');
     return jsonOutput({ ok: true, action, cleared, version: VERSION });
   }
 
   if (action === 'createBackup') {
-    if (!isAdminRequest(ss, data)) {
-      auditAction(ss, 'createBackup', data, 'ng', 'admin_required');
-      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
-    }
+    const denied = requireAdminAction('createBackup', ss, data);
+    if (denied) return denied;
     const backup = createBackup(ss, data);
     auditAction(ss, 'createBackup', data, backup.ok ? 'ok' : 'ng', backup.ok ? 'backup_created' : 'backup_failed', {
       label: backup.label,
@@ -54,10 +68,8 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'recentBackups') {
-    if (!isAdminRequest(ss, data)) {
-      auditAction(ss, 'recentBackups', data, 'ng', 'admin_required');
-      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
-    }
+    const denied = requireAdminAction('recentBackups', ss, data);
+    if (denied) return denied;
     auditAction(ss, 'recentBackups', data, 'ok', 'view_backup_logs');
     return jsonOutput({ ok: true, action, backups: getRecentBackups(ss, data.limit || 50), version: VERSION });
   }
@@ -76,19 +88,15 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'recentErrorLogs') {
-    if (!isAdminRequest(ss, data)) {
-      auditAction(ss, 'recentErrorLogs', data, 'ng', 'admin_required');
-      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
-    }
+    const denied = requireAdminAction('recentErrorLogs', ss, data);
+    if (denied) return denied;
     auditAction(ss, 'recentErrorLogs', data, 'ok', 'view_error_logs');
     return jsonOutput({ ok: true, action, logs: getRecentErrorLogs(ss, data.limit || 50), version: VERSION });
   }
 
   if (action === 'recentAuditLogs') {
-    if (!isAdminRequest(ss, data)) {
-      auditAction(ss, 'recentAuditLogs', data, 'ng', 'admin_required');
-      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
-    }
+    const denied = requireAdminAction('recentAuditLogs', ss, data);
+    if (denied) return denied;
     auditAction(ss, 'recentAuditLogs', data, 'ok', 'view_audit_logs');
     return jsonOutput({ ok: true, action, logs: getRecentAuditLogs(ss, data.limit || 100), version: VERSION });
   }
@@ -144,10 +152,8 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'adminStats') {
-    if (!isAdminRequest(ss, data)) {
-      auditAction(ss, 'adminStats', data, 'ng', 'admin_required');
-      return jsonOutput({ ok: false, error: 'admin_required', version: VERSION });
-    }
+    const denied = requireAdminAction('adminStats', ss, data);
+    if (denied) return denied;
     auditAction(ss, 'adminStats', data, 'ok', 'view_admin_stats');
     return jsonOutput({ ok: true, action, data: getCachedAdminStats(ss), version: VERSION, cached: true });
   }

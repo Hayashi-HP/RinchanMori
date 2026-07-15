@@ -136,6 +136,20 @@ manager_audit.md の S ランク 3 件（管理トップ方針、実装優先順
 - 管理トップ、診断、各管理機能画面へ遷移可能。
 - 管理 API 呼び出し可能（機能別権限を将来拡張）。
 
+### 実装反映（v1.5.19）
+- 画面側:
+	- admin.html / diagnostics.html にページ初期化ガードを実装。
+	- 未ログイン: 「ログイン後に管理画面をご利用ください。」を表示し login.html へ遷移。
+	- 一般職員: mypage.html へ戻し、mypage 側で「管理者のみ利用できます。」を 1 回表示。
+	- 管理者: そのまま管理画面を利用可能。
+- パスポート画面:
+	- 管理アイコンは admin/role 判定に一致する場合のみ表示。
+	- 非管理者は hidden を強制し、表示残りを防止。
+- API 側:
+	- clearCache, createBackup, recentBackups, recentErrorLogs, recentAuditLogs, adminStats は共通関数で管理者判定を実施。
+	- 拒否時レスポンスは Router 共通関数で統一（action, error, reason, code, message, version）。
+	- 一般利用者向け API（getUserState, myActivities, myThanks など）は変更しない。
+
 ---
 
 ## 4. 各管理画面の構成（確定版）
