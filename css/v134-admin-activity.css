@@ -163,3 +163,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 759px) {
+  .admin-activity-filters input,
+  .admin-activity-filters select,
+  .admin-activity-editor-grid input,
+  #adminEditReason {
+    font-size: 16px;
+  }
+}

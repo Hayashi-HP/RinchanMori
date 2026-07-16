@@ -1,6 +1,8 @@
 const RinchanAdminActivity = (() => {
   const VERSION = 'v1.0.0';
   const MAX_STEPS = 200000;
+  const LIST_TIMEOUT_MS = 12000;
+  const SAVE_TIMEOUT_MS = 20000;
   const state = {
     rows: [],
     selected: null,
@@ -47,10 +49,11 @@ const RinchanAdminActivity = (() => {
     return true;
   }
 
-  async function api(action, payload) {
+  async function api(action, payload, timeoutMs) {
     if (!(window.RinchanApi && typeof RinchanApi.request === 'function')) return { ok: false, error: 'api_not_ready' };
     try {
-      const timeout = new Promise(resolve => setTimeout(() => resolve({ ok: false, error: 'api_timeout', reason: 'api_timeout' }), 12000));
+      const wait = Number(timeoutMs) > 0 ? Number(timeoutMs) : LIST_TIMEOUT_MS;
+      const timeout = new Promise(resolve => setTimeout(() => resolve({ ok: false, error: 'api_timeout', reason: 'api_timeout' }), wait));
       const response = await Promise.race([RinchanApi.request(action, payload || {}), timeout]);
       return response || { ok: false, error: 'empty_response' };
     } catch (e) {
@@ -201,11 +204,12 @@ const RinchanAdminActivity = (() => {
     button.textContent = busy ? '保存中...' : '保存';
   }
 
-  async function loadRows() {
+  async function loadRows(options) {
+    const opt = options || {};
     if (state.loading) return;
     state.loading = true;
     setStatus('一覧を読み込み中...', false);
-    setMessage('', 'info');
+    if (!opt.preserveMessage) setMessage('', 'info');
     try {
       const auth = authState();
       const result = await api('adminActivityRows', {
@@ -213,7 +217,7 @@ const RinchanAdminActivity = (() => {
         date: value('adminActivityDate'),
         query: value('adminActivityQuery'),
         dept: value('adminActivityDept')
-      });
+      }, LIST_TIMEOUT_MS);
 
       if (!result || !result.ok || !result.data) {
         const detail = explainApiFailure(result || { error: 'api_error' });
@@ -271,16 +275,41 @@ const RinchanAdminActivity = (() => {
     setSaveBusy(true);
     setMessage('保存中です...', 'info');
 
+    const targetEmployeeId = String(selected.employeeId || '');
+    const targetSteps = Number(valid.steps || 0);
+
     const result = await api('adminUpdateActivity', {
       employeeId: auth.employeeId,
       targetEmployeeId: selected.employeeId,
       date: value('adminActivityDate'),
       newSteps: valid.steps,
       reason: valid.reason
-    });
+    }, SAVE_TIMEOUT_MS);
 
     if (!result || !result.ok || !result.corrected) {
       const reason = result && (result.error || result.reason || result.message || result.msg) ? (result.error || result.reason || result.message || result.msg) : 'save_failed';
+
+      if (String(reason) === 'api_timeout') {
+        setMessage('保存結果を確認しています。しばらくお待ちください...', 'info');
+        await loadRows({ preserveMessage: true });
+
+        const refreshed = state.rows.find(row => String(row.employeeId || '') === targetEmployeeId);
+        if (refreshed && Number(refreshed.currentSteps || 0) === targetSteps) {
+          setStatus('保存しました。対象日 ' + value('adminActivityDate'), false);
+          selectRow(targetEmployeeId);
+          setMessage('歩数を修正しました。', 'success');
+          state.saving = false;
+          setSaveBusy(false);
+          return;
+        }
+
+        setStatus('保存結果を確認中です。', true);
+        setMessage('通信が混雑しています。結果が未確定のため、再送せずに一覧を更新して確認してください。', 'error');
+        state.saving = false;
+        setSaveBusy(false);
+        return;
+      }
+
       setMessage('保存に失敗しました: ' + reason, 'error');
       state.saving = false;
       setSaveBusy(false);
