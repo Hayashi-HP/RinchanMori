@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../css/v1026-admin-mypage.css?v=152">
   <link rel="stylesheet" href="../css/v1030-capsule-buttons.css?v=152">
 </head>
-<body>
+<body class="admin-page">
 <main class="app admin-app-v132 diagnostics-app">
   <header class="top"><a href="admin.html" class="back">←</a><div class="page-title">診断</div><button class="icon-button" id="diagnosticsRefresh" type="button">↻</button></header>
   <section class="admin-hero"><p class="label">v1.4.12</p><h1>動作診断</h1><p>端末内の保存状態、主要モジュール、通信設定、エラーログを確認します。</p><div class="admin-updated" id="diagnosticsStatus">診断待ち</div></section>
@@ -24,7 +24,7 @@
   <section class="admin-card admin-warning"><div class="section-head-row"><div><h2>端末エラーログ</h2><p class="admin-note">この端末で発生した直近30件のJavaScriptエラーです。</p></div><button class="soft-button" id="clearErrorLogs" type="button">消去</button></div><div id="diagnosticsErrors"><p class="admin-empty">読み込み中...</p></div></section>
   <section class="admin-card"><h2>端末情報</h2><div id="diagnosticsDevice"><p class="admin-empty">読み込み中...</p></div></section>
   <section class="big-action focus-action admin-return-action"><a href="admin.html"><span>⚙️</span><strong>管理画面へ戻る</strong><small>運用チェックへ戻る</small></a></section>
-  <div class="footer-wrapper"><nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">📘<small>パスポート</small></a></nav></div>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">📘<small>パスポート</small></a></nav>
 </main>
 <script src="../js/config.js?v=152"></script><script src="../js/core/storage.js?v=152"></script><script src="../js/core/error-log.js?v=152"></script><script src="../js/core/api.js?v=180"></script><script src="../js/core/sync.js?v=152"></script><script src="../js/core/offline-queue.js?v=152"></script><script src="../js/features/diagnostics.js?v=153"></script>
 </body>
