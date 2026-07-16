@@ -33,6 +33,11 @@ function setupProject(ss) {
     'createdAt', 'label', 'actorEmployeeId', 'copiedCount', 'sourceCount', 'ok', 'detailJson', 'version'
   ]);
   ensureSheet(ss, SHEET_USER_READS, ['employeeId', 'readNewsIds', 'readThanksFlowerIds', 'updatedAt', 'version']);
+  ensureSheet(ss, SHEET_NOTICES, [
+    'noticeId', 'type', 'title', 'body', 'authorName', 'targetType', 'targetDept',
+    'status', 'startAt', 'endAt', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
+    'publishedAt', 'unpublishedAt', 'deleted', 'deletedAt', 'deletedBy', 'version'
+  ]);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);

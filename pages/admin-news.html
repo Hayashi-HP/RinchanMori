@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>お知らせ・通信管理｜りんちゃんの杜</title>
+  <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css?v=157">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=157">
+  <link rel="stylesheet" href="../css/v129-admin.css?v=157">
+  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=157">
+  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=157">
+  <link rel="stylesheet" href="../css/v1026-admin-mypage.css?v=157">
+  <link rel="stylesheet" href="../css/v1030-capsule-buttons.css?v=157">
+  <link rel="stylesheet" href="../css/v167-final-layout-override.css?v=191">
+  <link rel="stylesheet" href="../css/v135-admin-news.css?v=2">
+</head>
+<body class="admin-page">
+<main class="app admin-app-v132 admin-news-app">
+  <header class="top"><a href="admin.html" class="back">←</a><div class="page-title">お知らせ・通信管理</div><button class="icon-button" id="adminNewsRefresh" type="button">↻</button></header>
+
+  <section class="admin-hero">
+    <p class="label">管理者専用</p>
+    <h1>お知らせ・通信管理</h1>
+    <p>下書き保存、公開、公開停止、論理削除を管理できます。</p>
+    <div class="admin-updated" id="adminNewsStatus">読み込み中...</div>
+  </section>
+
+  <section class="admin-card">
+    <div class="admin-news-head-row">
+      <h2>一覧と絞り込み</h2>
+      <button type="button" class="admin-button" id="adminNewsCreate">新規作成</button>
+    </div>
+    <div class="admin-news-filters">
+      <label>状態
+        <select id="adminNewsFilterStatus">
+          <option value="">すべて</option>
+          <option value="draft">下書き</option>
+          <option value="published">公開中</option>
+        </select>
+      </label>
+      <label>種別
+        <select id="adminNewsFilterType">
+          <option value="">すべて</option>
+          <option value="notice">お知らせ</option>
+          <option value="group">グループニュース</option>
+        </select>
+      </label>
+      <label>対象部署
+        <select id="adminNewsFilterDept">
+          <option value="">全部署</option>
+        </select>
+      </label>
+      <label class="wide">キーワード
+        <input id="adminNewsFilterQuery" type="search" placeholder="タイトル・本文・発信者">
+      </label>
+    </div>
+    <div id="adminNewsList" class="admin-news-list"><p class="admin-empty">読み込み中...</p></div>
+  </section>
+
+  <section class="admin-card hidden" id="adminNewsEditor">
+    <h2 id="adminNewsEditorTitle">新規作成</h2>
+    <p class="admin-note" id="adminNewsEditorNote">項目を入力して保存してください。</p>
+
+    <div class="admin-news-form-grid">
+      <label>種別
+        <select id="adminNewsType">
+          <option value="notice">お知らせ</option>
+          <option value="group">グループニュース</option>
+        </select>
+      </label>
+      <label>発信者（40文字以内）
+        <input id="adminNewsAuthorName" type="text" maxlength="40" placeholder="例: 事務局">
+      </label>
+      <label class="wide">タイトル（120文字以内）
+        <input id="adminNewsTitle" type="text" maxlength="120" placeholder="タイトルを入力">
+      </label>
+      <label class="wide">本文（1000文字以内）
+        <textarea id="adminNewsBody" rows="5" maxlength="1000" placeholder="本文を入力"></textarea>
+      </label>
+      <label>対象
+        <select id="adminNewsTargetType">
+          <option value="all">全職員</option>
+          <option value="department">1部署</option>
+        </select>
+      </label>
+      <label id="adminNewsTargetDeptWrap">対象部署
+        <select id="adminNewsTargetDept">
+          <option value="">選択してください</option>
+        </select>
+      </label>
+      <label>公開開始日時（必須）
+        <input id="adminNewsStartAt" type="datetime-local">
+      </label>
+      <label>公開終了日時（任意）
+        <input id="adminNewsEndAt" type="datetime-local">
+      </label>
+    </div>
+
+    <div class="admin-news-form-actions">
+      <button type="button" class="admin-button soft" id="adminNewsSaveDraft">下書き保存</button>
+      <button type="button" class="admin-button" id="adminNewsSavePublish">公開保存</button>
+      <button type="button" class="admin-button soft" id="adminNewsCancel">キャンセル</button>
+    </div>
+
+    <div id="adminNewsMessage" class="admin-news-message" aria-live="polite"></div>
+  </section>
+
+  <section class="big-action focus-action admin-return-action"><a href="admin.html"><span>⚙️</span><strong>管理画面へ戻る</strong><small>運用チェックへ戻る</small></a></section>
+  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">📘<small>パスポート</small></a></nav>
+</main>
+
+<script src="../js/core/device-class.js?v=186"></script><script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=157"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=180"></script><script src="../js/core/sync.js?v=157"></script><script src="../js/core/offline-queue.js?v=157"></script><script src="../js/features/admin-news.js?v=2"></script>
+</body>
+</html>

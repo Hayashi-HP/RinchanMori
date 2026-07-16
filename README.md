@@ -3,10 +3,21 @@
 みんなで育てる、健康と笑顔の杜。
 
 ## 現在バージョン
-**v1.5.20**
+**v1.5.24**
 
 ## 最終更新
-2026-07-15
+2026-07-16
+
+## v1.5.24 で修正された内容
+
+- 管理者向け「お知らせ・通信管理」専用画面（admin-news）を追加
+- 管理トップ（admin）の第2段階メニューで「お知らせ・通信管理」を利用可能化
+- notices シートを正本として作成するよう Setup を拡張
+- 管理 API `adminNewsList` / `adminSaveNews` / `adminPublishNews` / `adminUnpublishNews` / `adminDeleteNews` を追加
+- 利用者向け配信 API `publicNewsList` を追加し、公開条件（公開中・期間内・対象一致・未削除）で配信
+- 削除を論理削除（deleted フラグ）で実装し、物理削除を未実装に統一
+- 通信画面（news.js）を `publicNewsList` 連携へ更新し、既読同期（markNewsRead）を継続
+- 管理操作（作成・更新・公開・公開停止・削除・一覧閲覧）を監査ログへ記録
 
 ## v1.5.20 で修正された内容
 

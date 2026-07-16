@@ -1,293 +1,235 @@
 # ADMIN_NEWS_PLAN
 
-## 目的
-- ADMIN_PLAN.md と DEVELOPMENT_RULES.md に従い、「お知らせ・通信管理（第2段階）」の現状をコード根拠で整理し、第一版の実装仕様を確定する。
-- 今回は設計文書のみを作成し、コード変更は行わない。
+## ステータス
+- 第一版を実装済み（v1.5.24）。
+- 本書は実装後仕様として更新。
 
-## 対象範囲
-- 利用者向け通信画面: pages/news.html, js/features/news.js
-- 同期・既読関連: js/core/sync.js, js/core/offline-queue.js
-- APIルーター・権限・監査: apps-script/Router.gs, apps-script/Permission.gs, apps-script/Audit.gs
-- 既読データ管理: apps-script/UserReads.gs, apps-script/News.gs, apps-script/Setup.gs, apps-script/Config.gs
-- 管理ハブ方針: pages/admin.html, ADMIN_PLAN.md
+## 実装方針（確定仕様反映）
+- noticesシートを正本とする。
+- 削除は論理削除のみ（物理削除は実装しない）。
+- 公開開始日時は必須、公開終了日時は任意。
+- 対象は `all`（全職員）または `department`（1部署）。
+- 第一版は管理者のみ操作可能（将来の manage_news 段階開放は未対応）。
+- 添付ファイル、画像、リッチテキスト、プッシュ通知、多段階承認は未実装。
 
-## 前提（方針文書との整合）
-- ADMIN_PLAN.md では「お知らせ・通信管理」は第2段階、状態は準備中。
-- pages/admin.html でも「お知らせ・通信管理」は disabled ボタン（準備中）で、遷移先ページは未接続。
-- DEVELOPMENT_RULES.md の方針に従い、既存機能への影響最小・不明点は推測せず記載する。
+## 調査した既存仕様（実装前確認）
+1. noticesシート
+- 実装前は Setup に未定義。
+- 実装後は `setupProject()` で自動作成。
 
-## 現状仕様（実装済み）
+2. Setup.gs の既存作成方式
+- `ensureSheet()` でヘッダ保証、freeze、autoResize を実施。
+- 本実装も同方式に統一。
 
-### 1. 利用者向け通信画面の表示
-- pages/news.html は以下の4領域を表示する構成。
-  - 今日のまとめ
-  - ありがとうの広がり
-  - お知らせ
-  - グループニュース
-- js/features/news.js が画面描画を担当し、`renderAll()` で各領域を再描画する。
+3. UserReads の既読保存方式
+- `user_reads` に `readNewsIds` / `readThanksFlowerIds` をCSV保存。
+- `markNewsRead` / `markThanksRead` は継続利用。
 
-### 2. お知らせデータの実態
-- サーバーの「お知らせ管理 API」は現状存在しない（Router.gs に notice/news CRUD action がない）。
-- 利用者画面のお知らせはクライアント側生成が中心。
-  - `rinchanDailyNotice()` で日次固定文面を生成
-  - `defaultNotices()` で初期2件を付与
-  - `rinchanNotices`（localStorage）に配列があればそれを優先
-- お知らせの既読は `markNewsRead` API で user_reads シートへ同期される。
+4. news.html / news.js の表示構造
+- 画面は「今日のまとめ」「ありがとう」「お知らせ」「グループニュース」。
+- ありがとう表示は `thanksTimeline` を継続。
+- お知らせ表示のみ `publicNewsList` へ接続。
 
-### 3. グループニュースの実態
-- `groupNewsAuto()` が当日歩数やありがとう件数から自動文面をクライアント生成。
-- `rinchanGroupNews`（localStorage）があれば追加ニュースとして表示。
-- サーバー側にグループニュースの保存・公開 API はない。
+5. 既存ローカルデータ
+- `rinchanNotices` / `rinchanGroupNews` は存在。
+- 第一版では API 失敗時のフォールバック用途として保持。
 
-### 4. 既読同期（現行有効）
-- フロント:
-  - `rinchanReadNewsIds`
-  - `rinchanReadThanksFlowerIds`
-  - `rinchanUserReads`
-  を保持。
-- サーバー:
-  - `markNewsRead`
-  - `markThanksRead`
-  - `markRead`
-  が Router.gs で有効。
-- 永続化先:
-  - `user_reads` シート（employeeId, readNewsIds, readThanksFlowerIds, updatedAt, version）。
+6. 権限判定
+- 管理系は `requireAdminAction` で統一。
+- 第一版は管理者のみ（`admin_required` 応答形式を維持）。
 
-### 5. 認証・認可（現行）
-- 権限定義に `manage_news` は存在（Permission.gs）。
-- ただし Router.gs の news/notice 管理 action が未実装のため、`manage_news` を使う管理 API は未接続。
-- 管理 API 共通は `requireAdminAction` / `isAdminRequest` の枠組みがあり、同方式を再利用可能。
+7. 監査ログ形式
+- `auditAction()` + `writeAuditLog()` の既存形式（detailJson）を利用。
+- noticeId、状態遷移、対象、操作者情報を detail に格納。
 
-### 6. 監査ログ（現行）
-- `auditAction()` / `writeAuditLog()` が共通化済み。
-- 既読系 action（markRead, markNewsRead, markThanksRead）は監査記録あり。
-- ただし「お知らせ作成/編集/公開停止/削除」の監査は、対象 action が未実装のため未記録。
+8. Router 実装方式
+- `if (action === '...')` 分岐 + try/catch + JSON応答。
+- 第一版も同方式で追加。
 
-## データ構造（現状と第一版方針）
+9. 管理メニュー構造
+- 第2段階「お知らせ・通信管理」は準備中だった。
+- 第一版で利用可能リンク化。
 
-### 現状データ
-- user_reads（実装済み）
-  - employeeId
-  - readNewsIds（CSV）
-  - readThanksFlowerIds（CSV）
-  - updatedAt
-  - version
-- notices（ARCHITECTURE.md では想定記載あり）
-  - ただし Setup.gs の `setupProject()` で notices シート作成は未実装。
+10. タイムゾーンと日時保存形式
+- Apps Script `Asia/Tokyo`。
+- 保存値は ISO8601 文字列（`toISOString()`）で統一。
 
-### 第一版で採用するデータ構造（提案）
-- 新規シート: notices
-- ヘッダ案（第一版）
-  - noticeId
-  - category（notice/group）
-  - title
-  - body
-  - tag
-  - senderType（office/rinchan/group）
-  - senderName
-  - status（draft/published/archived）
-  - publishedAt
-  - startAt
-  - endAt
-  - createdAt
-  - updatedAt
-  - createdByEmployeeId
-  - updatedByEmployeeId
-  - version
-- 設計意図
-  - 利用者画面は `status=published` かつ期間内のみ表示。
-  - draft と archived を分離し、公開停止を削除と分ける。
+## noticesシート構造（実装済み）
+- `noticeId`
+- `type`（notice / group）
+- `title`
+- `body`
+- `authorName`
+- `targetType`（all / department）
+- `targetDept`
+- `status`（draft / published）
+- `startAt`
+- `endAt`
+- `createdAt`
+- `createdBy`
+- `updatedAt`
+- `updatedBy`
+- `publishedAt`
+- `unpublishedAt`
+- `deleted`（TRUE / FALSE）
+- `deletedAt`
+- `deletedBy`
+- `version`
 
-## API構造（現状と第一版）
+## 管理画面（実装済み）
+### 1. 管理トップ導線
+- admin の第2段階「お知らせ・通信管理」を利用可能化。
+- `pages/admin-news.html` へ遷移。
 
-### 現状API（実装済み）
-- 通信ページで使うAPI
-  - getUserState（同期）
-  - thanksTimeline（ありがとう公開タイムライン）
-  - markNewsRead（お知らせ既読）
-  - markThanksRead（花受取既読）
-- 未実装
-  - お知らせ/グループニュースの管理CRUD API
-  - 利用者向け notices 取得専用API
-
-### 第一版API（追加提案）
-- 管理側
-  - adminNewsList
-  - adminNewsCreate
-  - adminNewsUpdate
-  - adminNewsPublish
-  - adminNewsArchive
-  - adminNewsDelete
-- 利用者側
-  - publicNewsList
-- 認可
-  - 管理側 API は `requireAdminAction` + `hasPermission(..., PERMISSION_MANAGE_NEWS)` を必須にする。
-- 監査
-  - すべて `auditAction` を必須化（before/after 差分、targetId、status を記録）。
-
-## 問題点（現状）
-1. 通信コンテンツの正本がサーバーにない
-- お知らせ/グループニュースが localStorage 中心で、端末依存となる。
-
-2. 管理画面が未接続
-- admin.html では「お知らせ・通信管理」が準備中のまま。
-
-3. 権限定義と実装のギャップ
-- `manage_news` 定義はあるが、適用先 action がない。
-
-4. 監査保証の不足
-- 既読は監査できるが、配信内容変更の監査は未整備。
-
-5. 公開状態管理が存在しない
-- draft/published/archived の状態管理が未実装で、運用フローをコードで担保できない。
-
-## 第一版の画面構成（管理UI）
-- 新規ページ案: pages/admin-news.html
-- 画面ブロック
-  - ヘッダー（戻る、再読込、ログイン/権限状態）
-  - タブ（お知らせ / グループニュース）
-  - 一覧エリア（status, 公開期間, 更新者, 更新日時）
-  - 編集フォーム（新規/編集共用）
-  - 操作ボタン（下書き保存、公開、公開停止、削除）
-  - 操作結果表示（成功/失敗、監査記録ID）
-
-## 第一版の入力項目
-- 共通必須
-  - 種別（notice/group）
+### 2. admin-news 画面
+- 一覧表示:
+  - タイトル、種別、対象、状態、公開開始、公開終了、更新日時
+  - 編集ボタン
+  - 公開/公開停止ボタン
+  - 削除ボタン（論理削除）
+- 絞り込み:
+  - 状態
+  - 種別
+  - 対象部署
+  - キーワード
+- 新規作成・編集フォーム:
+  - 種別
   - タイトル
   - 本文
-  - ステータス
-- 任意
-  - タグ
-  - 送信者表示名
-  - 掲載開始日時
-  - 掲載終了日時
-- バリデーション方針
-  - 必須未入力不可
-  - 本文最大文字数
-  - 開始 <= 終了
-  - published 遷移時に必須条件を再検証
+  - 発信者
+  - 対象
+  - 対象部署
+  - 公開開始日時
+  - 公開終了日時
+  - 下書き保存
+  - 公開保存
+  - キャンセル
 
-## 保存・編集・公開・削除の流れ（第一版）
-1. 新規作成
-- 下書きで保存（adminNewsCreate, status=draft）
-- 監査ログ: action=adminNewsCreate
+## 入力検証（実装済み）
+- タイトル必須
+- 本文必須
+- 発信者必須
+- 公開開始日時必須
+- 対象が部署の場合は対象部署必須
+- 公開終了日時がある場合は開始より後
+- 削除済みは通常一覧に非表示
+- 文字数上限:
+  - タイトル: 120文字
+  - 本文: 1000文字
+  - 発信者: 40文字
+- 保存中の二重送信防止
 
-2. 編集
-- 既存レコード読込 → 更新（adminNewsUpdate）
-- 監査ログ: action=adminNewsUpdate, before/after
+## 保存・公開フロー（実装済み）
+1. 下書き保存
+- `adminSaveNews(status=draft)`
 
-3. 公開
-- draft/archived から published へ遷移（adminNewsPublish）
-- 公開日時を自動付与
-- 監査ログ: action=adminNewsPublish
+2. 公開保存
+- `adminSaveNews(status=published)`
+
+3. 公開済み編集
+- 同一 `noticeId` を維持して更新
 
 4. 公開停止
-- published から archived へ遷移（adminNewsArchive）
-- 監査ログ: action=adminNewsArchive
+- `adminUnpublishNews`
 
-5. 削除
-- 物理削除は第一版では任意（未確定）
-- 実施する場合は adminNewsDelete で管理者のみ許可
-- 監査ログ: action=adminNewsDelete
+5. 論理削除
+- `adminDeleteNews`（deleted=TRUE）
 
-## 認証・認可
-- 画面アクセス
-  - admin系画面共通ガード（未ログインは login へ、一般職員は mypage へ戻す）を踏襲。
-- API認可
-  - `requireAdminAction` を必須。
-  - 加えて `manage_news` 権限を明示チェック（第一版で接続）。
-- 完了条件
-  - UI表示制御だけでなく、API側で拒否できることを必須とする。
+### UI動作
+- 公開前に確認ダイアログ
+- 公開停止前に確認ダイアログ
+- 削除前に確認ダイアログ
+- 成功/失敗を画面内メッセージ表示
+- 保存成功後は一覧へ即時反映
+- 既読履歴（user_reads）は変更しない
 
-## 監査ログ
-- 対象操作（第一版）
+## 利用者向け配信（実装済み）
+- `publicNewsList` を追加。
+- 返却条件:
+  - deleted=false
+  - status=published
+  - startAt <= now
+  - endAt が空、または endAt >= now
+  - targetType=all
+  - または targetType=department かつ利用者部署一致
+- 利用者画面:
+  - news.js を `publicNewsList` へ接続
+  - `markNewsRead` を継続使用
+  - `noticeId` を既読IDとして利用
+  - 非公開/終了/公開停止/削除済みは非表示
+  - ありがとうタイムラインと今日のまとめは維持
+
+## 管理API（実装済み）
+- `adminNewsList`
+- `adminSaveNews`
+- `adminPublishNews`
+- `adminUnpublishNews`
+- `adminDeleteNews`
+- `publicNewsList`
+
+### 認可
+- 管理系 action は `requireAdminAction` で管理者必須。
+- 拒否時は既存の `ADMIN_REQUIRED` 形式。
+- `publicNewsList` は一般利用者向け（返却項目は配信用に限定）。
+
+## 監査ログ（実装済み）
+- 記録対象:
   - 一覧閲覧
-  - 作成
-  - 編集
+  - 新規作成
+  - 下書き更新
   - 公開
   - 公開停止
-  - 削除（採用時）
-- 最低限の記録項目
-  - actorEmployeeId
-  - action
-  - targetType=notice
-  - targetId=noticeId
-  - status
-  - message
-  - detailJson（before/after, status遷移, version）
+  - 論理削除
+  - 公開済み編集
+- 最低限項目:
+  - noticeId
+  - 操作種別
+  - 操作者ID/名前
+  - 対象
+  - 状態変更前/後
+  - 操作日時（detail内）
 
-## 実装対象ファイル候補（第一版）
-- Apps Script
-  - apps-script/Router.gs（action分岐追加）
-  - apps-script/News.gs（news CRUDロジック集約）
-  - apps-script/Permission.gs（manage_news 判定接続）
-  - apps-script/Setup.gs（notices シート ensure 追加）
-  - apps-script/Audit.gs（必要なら detail 形式拡張）
-  - apps-script/Config.gs（SHEET_NOTICES 定数追加）
-- Frontend
-  - pages/admin.html（管理メニュー接続）
-  - pages/admin-news.html（新規）
-  - js/features/admin-news.js（新規）
-  - pages/news.html（データ取得先を publicNewsList へ切替）
-  - js/features/news.js（local生成中心からAPI取得中心へ段階移行）
-  - css/v129-admin.css（既存管理画面スタイル再利用）
-  - css/（admin-news専用CSSを必要最小限で追加）
+## 認証・認可（実装済み）
+### 画面側
+- 未ログイン: login.html へ遷移
+- 一般職員: mypage.html へ遷移
+- 管理者のみ利用可能
 
-## 実装順（第一版）
-1. サーバー基盤
-- notices シート追加
-- CRUD + 公開制御 API 追加
-- 権限チェックと監査ログ接続
+### API側
+- 管理 action は管理者のみ
+- 画面非表示ではなく API 側で強制
+- 操作者情報はサーバー側 `getUserPermissionContext()` で補完
 
-2. 管理UI
-- admin-news 画面新設
-- 一覧/作成/編集/公開停止を接続
+## 実装ファイル
+### Apps Script
+- apps-script/Config.gs
+- apps-script/Setup.gs
+- apps-script/News.gs
+- apps-script/Router.gs
 
-3. 利用者UI切替
-- news.js のお知らせ取得を publicNewsList 優先に変更
-- 既読同期（markNewsRead）は継続利用
+### Frontend
+- pages/admin.html
+- pages/admin-news.html
+- js/features/admin-news.js
+- pages/news.html
+- js/features/news.js
+- css/v135-admin-news.css
 
-4. 既存互換
-- API失敗時のみ現行の local fallback を使うか最終判断
-- 端末差異（Android/iPhone）確認を実施
+### Documentation
+- ADMIN_NEWS_PLAN.md
+- ADMIN_PLAN.md
+- README.md
+- CHANGELOG.md
 
-## 現在実装済み機能（要約）
-- 通信ページの表示枠と描画ロジック
-- ありがとう公開タイムライン取得
-- お知らせ既読・花受取既読のサーバー同期
-- 権限/監査の共通基盤
+## 非実装（仕様どおり）
+- 物理削除
+- 添付ファイル
+- 画像アップロード
+- リッチテキスト
+- プッシュ通知
+- 多段階承認
+- manage_news の段階開放
 
-## 不足機能（要約）
-- お知らせ管理画面
-- notices 正式データの保存先とCRUD API
-- 公開状態管理（draft/published/archived）
-- manage_news を使った実効認可
-- お知らせ運用操作の監査ログ
-
-## 第一版採用仕様（要約）
-- notices シートを正本にする。
-- 管理側 CRUD + 公開制御 API を追加する。
-- 利用者向けは publicNewsList で published のみ配信する。
-- markNewsRead/markThanksRead の既読同期は現行を継続活用する。
-- すべての管理操作で監査ログを必須化する。
-
-## 未確定事項
-1. 削除方式
-- 論理削除（archived運用のみ）に統一するか、物理削除 API を許可するか。
-
-2. 公開期間仕様
-- startAt/endAt を必須にするか任意にするか。
-
-3. 種別運用
-- notice/group を同一シート同一APIで持つか、将来分離するか。
-
-4. 既存localデータ移行
-- rinchanNotices / rinchanGroupNews をどこまで互換維持するか。
-
-5. 権限粒度
-- admin と manage_news を同一扱いにするか、manager/head へ段階開放するか。
-
-## 備考
-- 本書は現行コード確認に基づく設計案であり、未実装部分は「未確定」として明示した。
-- 今回はドキュメント作成のみで、実装変更は行っていない。
+## 注意事項
+- 本番 Apps Script での挙動は再デプロイ後確認が必要。
+- 未確認項目は最終報告で明示する。

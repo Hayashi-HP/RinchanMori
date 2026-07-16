@@ -159,7 +159,7 @@ manager_audit.md の S ランク 3 件（管理トップ方針、実装優先順
 | 管理トップ（管理ハブ） | 全体把握と導線提供 | 登録者数、歩数、部署別、要対応、利用者検索 | 各管理画面へ遷移 | adminStats | view_admin | 第1段階 | ハブメニュー実装 |
 | 歩数修正 | 誤記録修正 | 対象者、対象日、履歴 | 修正（理由必須）、確認、反映 | adminActivityRows, adminUpdateActivity（内部で saveActivity 利用） | view_admin | 第1段階 | Apps Script再デプロイ後に本番確認 |
 | 管理認証・認可 | 管理アクセス統制 | ログイン状態、権限状態 | 拒否時遷移、エラー表示 | loginUser, getUserState, 管理系各 API | 管理者/一般/未ログイン制御 | 第1段階 | 直アクセスガードの統一 |
-| お知らせ・通信管理 | 通知運用 | 通知一覧、公開状態 | 作成、編集、公開停止 | 未確定（要棚卸し） | manage_news 想定 | 第2段階 | API とデータ構造確定 |
+| お知らせ・通信管理 | 通知運用 | 通知一覧、公開状態、対象 | 作成、編集、公開、公開停止、論理削除 | adminNewsList, adminSaveNews, adminPublishNews, adminUnpublishNews, adminDeleteNews, publicNewsList | 管理者（admin） | 第2段階 | Apps Script再デプロイ後に本番確認 |
 | 職員管理 | 利用者運用 | 職員一覧、状態 | 登録、更新、有効/無効 | saveUser, getUserState | manage_users 想定 | 第2段階 | 一覧 API と検索条件 |
 | 部署管理 | 部署マスタ保守 | 部署一覧、人数 | 追加、名称変更、無効化 | departments（参照）, 更新 API 未確定 | 管理者 | 第2段階 | 更新 API |
 | チャレンジ管理 | 目標運用 | チャレンジ一覧、達成状況 | 作成、期間設定、停止 | 未確定 | 管理者 | 第3段階 | 画面/API 一式 |
@@ -207,6 +207,14 @@ manager_audit.md の S ランク 3 件（管理トップ方針、実装優先順
 - 管理 API として adminActivityRows / adminUpdateActivity を追加し、requireAdminAction で保護。
 - adminUpdateActivity は同一職員・同一日付の最新レコードを更新し、未存在時は新規作成する。
 - 監査ログは audit_logs に adminActivityCorrection として保存し、修正前後歩数・理由・対象ID・操作者情報を記録。
+
+## お知らせ・通信管理 実装メモ（v1.5.24）
+- 管理トップの第2段階メニュー「お知らせ・通信管理」を利用可能にし、admin-news専用画面へ遷移可能にした。
+- notices シートを正本として追加し、`setupProject()` でヘッダを自動作成するようにした。
+- 管理 API `adminNewsList` / `adminSaveNews` / `adminPublishNews` / `adminUnpublishNews` / `adminDeleteNews` を追加し、`requireAdminAction` で保護した。
+- 利用者向け API `publicNewsList` を追加し、未削除・公開中・期間内・対象一致の通知のみ返すようにした。
+- 削除は deleted フラグによる論理削除のみ実装し、物理削除は未実装とした。
+- 監査ログは一覧閲覧・作成・更新・公開・公開停止・論理削除を記録し、noticeId・状態遷移・対象を detailJson に保存する。
 
 ---
 

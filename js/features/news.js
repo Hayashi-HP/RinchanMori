@@ -1,5 +1,6 @@
 const RinchanNews = (() => {
-  const VERSION = 'v1.4.7';
+  const VERSION = 'v1.5.24';
+  let serverPublicNotices = null;
 
   function readJson(key, fallback) { if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback); try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
   function writeJson(key, value) { if (window.RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value); localStorage.setItem(key, JSON.stringify(value)); return value; }
@@ -22,10 +23,50 @@ const RinchanNews = (() => {
 
   function rinchanDailyNotice() { const now = new Date(); const key = dateKeyFromDate(now); const day = now.getDay(); let title = '今日のりんちゃん通信'; let body = '今日も無理せず、できる範囲で歩いてみましょう。小さな一歩でも、ちゃんと杜につながっています。'; if (day === 1) { title = '今週も小さな一歩から'; body = '月曜日です。今週も無理なく、まずは記録することから始めましょう。'; } else if (day === 5) { title = '今週の歩みをふりかえりましょう'; body = '金曜日です。たくさん歩けた人も、少しだけの人も、続けたことが大切です。'; } else if (day === 0 || day === 6) { title = '週末は体調優先で'; body = '週末は休むことも大切です。歩ける時に、できる範囲で大丈夫です。'; } const h = now.getHours(); if (h >= 18) body = '今日もおつかれさまでした。記録するだけでも、あなたの木は少しずつ育っています。'; return normalizeNotice({ id: 'rinchan-daily-' + key, title, body, createdAt: key + 'T08:00:00+09:00', type: 'rinchan', tag: '定期配信' }, 'rinchan'); }
   function defaultNotices() { return [rinchanDailyNotice(), normalizeNotice({ id: 'notice-welcome', title: 'りんちゃんの杜へようこそ', body: '歩数を記録して、みんなの杜を育てましょう。', createdAt: '2026-07-01T00:00:00+09:00', type: 'office', icon: '🏥' }), normalizeNotice({ id: 'notice-thanks', title: 'ありがとうを届けましょう', body: '杜ページから仲間にありがとうを送れます。', createdAt: '2026-07-01T00:00:00+09:00', type: 'office', icon: '🏥' })]; }
-  function notices() { const custom = readJson('rinchanNotices', null); const rows = Array.isArray(custom) && custom.length ? custom.map(item => normalizeNotice(item, item.type || 'office')) : defaultNotices(); const hasTodayRinchan = rows.some(item => String(item.id || '').indexOf('rinchan-daily-' + dateKeyFromDate(new Date())) === 0); const list = (hasTodayRinchan ? rows : [rinchanDailyNotice()].concat(rows)).map(item => normalizeNotice(item, item.type || 'office')); const map = {}; list.forEach(item => { map[String(item.id)] = item; }); return Object.values(map); }
+  function normalizeServerNotice(item) {
+    const type = String(item && item.type || 'notice').trim().toLowerCase() === 'group' ? 'group' : 'notice';
+    const id = String(item && (item.noticeId || item.id || item.newsId) || '').trim();
+    const createdAt = String(item && (item.publishedAt || item.startAt || item.updatedAt || item.createdAt) || '').trim();
+    const senderName = String(item && item.authorName || '').trim() || (type === 'group' ? 'グループ通信' : '事務局');
+    const icon = type === 'group' ? '🌳' : '🏥';
+    return normalizeNotice({
+      id,
+      type,
+      title: String(item && item.title || ''),
+      body: String(item && item.body || ''),
+      createdAt,
+      senderName,
+      icon,
+      tag: type === 'group' ? 'グループ' : 'お知らせ',
+      targetType: String(item && item.targetType || 'all'),
+      targetDept: String(item && item.targetDept || '')
+    }, type);
+  }
+  function noticesFromServer() {
+    const list = Array.isArray(serverPublicNotices) ? serverPublicNotices : [];
+    return list
+      .map(normalizeServerNotice)
+      .filter(item => !!String(item.id || '').trim());
+  }
+  function localNotices() { const custom = readJson('rinchanNotices', null); const rows = Array.isArray(custom) && custom.length ? custom.map(item => normalizeNotice(item, item.type || 'office')) : defaultNotices(); const hasTodayRinchan = rows.some(item => String(item.id || '').indexOf('rinchan-daily-' + dateKeyFromDate(new Date())) === 0); const list = (hasTodayRinchan ? rows : [rinchanDailyNotice()].concat(rows)).map(item => normalizeNotice(item, item.type || 'office')); const map = {}; list.forEach(item => { map[String(item.id)] = item; }); return Object.values(map); }
+  function notices() {
+    const fromServer = noticesFromServer();
+    if (fromServer.length) return fromServer;
+    return localNotices();
+  }
   function groupNewsAuto() { const server = forestSummary(); const acts = activities(); const today = dateKeyFromDate(new Date()); const todayRows = acts.filter(item => normalizeDateKey(item.date || item.createdAt || item.savedAt) === today); const todaySteps = server && Number(server.todaySteps || 0) > 0 ? Number(server.todaySteps || 0) : todayRows.reduce((sum, item) => sum + Number(item.steps || 0), 0); const todayCount = server && Number(server.todayActivities || 0) > 0 ? Number(server.todayActivities || 0) : todayRows.length; const thanksCount = thanksTimeline().length; let body = '今日もみんなの杜が少しずつ育っています。'; if (todaySteps > 0) body = '今日は全体で' + Number(todaySteps).toLocaleString() + '歩、' + Number(todayCount).toLocaleString() + '件の記録がありました。'; if (thanksCount > 0) body += ' ありがとうも' + Number(thanksCount).toLocaleString() + '件届いています。'; return { id: 'group-auto-' + today, title: '今日のグループニュース', body, createdAt: today + 'T12:00:00+09:00', icon: '🌳', tag: '自動集計', type: 'group' }; }
   function groupNews() { const custom = readJson('rinchanGroupNews', null); const base = Array.isArray(custom) && custom.length ? custom : [{ id: 'group-news-001', title: 'みんなで続ける健康習慣', body: '無理なく、できる範囲で歩数記録を続けましょう。', createdAt: '2026-07-01T00:00:00+09:00', icon: '🌳', tag: '健康', type: 'group' }]; const rows = [groupNewsAuto()].concat(base); const seen = {}; return rows.filter(item => { const id = String(item.id || ''); if (seen[id]) return false; seen[id] = true; return true; }); }
   async function refreshPublicThanks() { const result = await api('thanksTimeline', {}); if (result && result.ok && Array.isArray(result.thanks)) { writeJson('rinchanGoodTimeline', result.thanks); renderAll(); return true; } return false; }
+  async function refreshPublicNotices() {
+    const result = await api('publicNewsList', { employeeId: employeeId() });
+    if (result && result.ok && Array.isArray(result.notices)) {
+      serverPublicNotices = result.notices;
+      renderNotices();
+      updateBadges();
+      return true;
+    }
+    return false;
+  }
   function renderSummary() { const dateEl = document.getElementById('newsSummaryDate'); const statsEl = document.getElementById('forestSummaryStats'); if (dateEl) dateEl.textContent = formatMonthDay(new Date()); if (!statsEl) return; const server = forestSummary(); const today = dateKeyFromDate(new Date()); const acts = activities(); const todayRows = acts.filter(item => normalizeDateKey(item.date || item.createdAt || item.savedAt) === today); const todaySteps = server && Number(server.todaySteps || 0) > 0 ? Number(server.todaySteps || 0) : todayRows.reduce((sum, item) => sum + Number(item.steps || 0), 0); const todayCount = server && Number(server.todayActivities || 0) > 0 ? Number(server.todayActivities || 0) : todayRows.length; const totalSteps = server && Number(server.totalSteps || 0) > 0 ? Number(server.totalSteps || 0) : acts.reduce((sum, item) => sum + Number(item.steps || 0), 0); statsEl.innerHTML = [summaryStat('📝', todayCount.toLocaleString(), '今日の記録'), summaryStat('👟', todaySteps.toLocaleString(), '今日の歩数'), summaryStat('🌳', totalSteps.toLocaleString(), '累計歩数'), summaryStat('🌸', thanksTimeline().length.toLocaleString(), 'ありがとうの花')].join(''); }
   function summaryStat(icon, value, label) { return '<div class="forest-summary-stat"><span class="forest-summary-stat-icon">' + icon + '</span><div><strong>' + value + '</strong><small>' + label + '</small></div></div>'; }
   function normalizeThanksItem(item, index) { const fromDept = item.fromDept || item.senderDept || item.fromDepartment || '杜の仲間'; const toDept = item.toDept || item.targetDept || item.receiverDept || item.toDepartment || '杜の仲間'; const reason = item.reason || item.message || 'ありがとう'; const createdAt = item.createdAt || item.savedAt || item.date || ''; return { id: item.thanksId || item.id || [fromDept, toDept, createdAt, reason, index].join('|'), from: fromDept, to: toDept, reason, createdAt, date: normalizeDateKey(createdAt), body: item.publicBody || item.body || '' }; }
@@ -55,8 +96,8 @@ const RinchanNews = (() => {
   function formatDate(value) { const d = new Date(value || ''); if (isNaN(d)) return ''; return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
   function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[c])); }
   function escapeAttr(value) { return escapeHtml(value).replace(/`/g, '&#96;'); }
-  function install() { renderAll(); setTimeout(refreshPublicThanks, 200); if (location.hash === '#flowers') setTimeout(scrollToFlowers, 700); window.v100RenderSummary = renderSummary; window.v100RenderThanksFlowSummary = renderThanksFlowSummary; window.v100RenderThanksStories = renderThanksFlowSummary; window.v100RenderNotices = renderNotices; window.v100RenderGroupNews = renderGroupNews; window.updateNewsBadgesV051 = updateBadges; window.updateNewsRowsV051 = renderNotices; window.openNews = markRead; window.markNoticeReadV113 = markRead; }
+  function install() { renderAll(); setTimeout(refreshPublicThanks, 200); setTimeout(refreshPublicNotices, 250); if (location.hash === '#flowers') setTimeout(scrollToFlowers, 700); window.v100RenderSummary = renderSummary; window.v100RenderThanksFlowSummary = renderThanksFlowSummary; window.v100RenderThanksStories = renderThanksFlowSummary; window.v100RenderNotices = renderNotices; window.v100RenderGroupNews = renderGroupNews; window.updateNewsBadgesV051 = updateBadges; window.updateNewsRowsV051 = renderNotices; window.openNews = markRead; window.markNoticeReadV113 = markRead; }
   document.addEventListener('DOMContentLoaded', install);
-  return { VERSION, install, renderAll, renderSummary, renderReceivedThanks, renderThanksFlowSummary, refreshPublicThanks, renderNotices, renderGroupNews, updateBadges, markRead, openReceivedThanks, receiveFlower, scrollToFlowers, rinchanDailyNotice, groupNewsAuto, allReceivedThanks };
+  return { VERSION, install, renderAll, renderSummary, renderReceivedThanks, renderThanksFlowSummary, refreshPublicThanks, refreshPublicNotices, renderNotices, renderGroupNews, updateBadges, markRead, openReceivedThanks, receiveFlower, scrollToFlowers, rinchanDailyNotice, groupNewsAuto, allReceivedThanks };
 })();
 window.RinchanNews = RinchanNews;

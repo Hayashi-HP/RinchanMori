@@ -171,6 +171,81 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminNewsList') {
+    const denied = requireAdminAction('adminNewsList', ss, data);
+    if (denied) return denied;
+    try {
+      const list = listAdminNotices(ss, data || {});
+      auditAction(ss, 'adminNewsList', data, 'ok', 'view_admin_news_list', {
+        total: list.total,
+        status: data.status || '',
+        type: data.type || '',
+        targetDept: data.targetDept || ''
+      });
+      return jsonOutput({ ok: true, action, data: list, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminNewsList', data, 'ng', e.message || 'admin_news_list_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_news_list_failed', reason: e.message || 'admin_news_list_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminSaveNews') {
+    const denied = requireAdminAction('adminSaveNews', ss, data);
+    if (denied) return denied;
+    try {
+      const saved = saveAdminNotice(ss, data || {});
+      return jsonOutput({ ok: true, action, saved, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSaveNews', data, 'ng', e.message || 'admin_news_save_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_news_save_failed', reason: e.message || 'admin_news_save_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminPublishNews') {
+    const denied = requireAdminAction('adminPublishNews', ss, data);
+    if (denied) return denied;
+    try {
+      const notice = publishAdminNotice(ss, data || {});
+      return jsonOutput({ ok: true, action, notice, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminPublishNews', data, 'ng', e.message || 'admin_news_publish_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_news_publish_failed', reason: e.message || 'admin_news_publish_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminUnpublishNews') {
+    const denied = requireAdminAction('adminUnpublishNews', ss, data);
+    if (denied) return denied;
+    try {
+      const notice = unpublishAdminNotice(ss, data || {});
+      return jsonOutput({ ok: true, action, notice, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminUnpublishNews', data, 'ng', e.message || 'admin_news_unpublish_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_news_unpublish_failed', reason: e.message || 'admin_news_unpublish_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminDeleteNews') {
+    const denied = requireAdminAction('adminDeleteNews', ss, data);
+    if (denied) return denied;
+    try {
+      const notice = deleteAdminNotice(ss, data || {});
+      return jsonOutput({ ok: true, action, notice, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminDeleteNews', data, 'ng', e.message || 'admin_news_delete_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_news_delete_failed', reason: e.message || 'admin_news_delete_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'publicNewsList') {
+    try {
+      const list = listPublicNews(ss, data || {});
+      return jsonOutput({ ok: true, action, notices: list.notices, generatedAt: list.generatedAt, version: VERSION });
+    } catch (e) {
+      return jsonOutput({ ok: false, action, error: e.message || 'public_news_list_failed', reason: e.message || 'public_news_list_failed', version: VERSION });
+    }
+  }
+
   if (action === 'adminUpdateActivity') {
     const denied = requireAdminAction('adminUpdateActivity', ss, data);
     if (denied) return denied;

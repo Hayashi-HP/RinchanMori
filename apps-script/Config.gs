@@ -9,7 +9,8 @@ const SHEET_AUDIT_LOGS = 'audit_logs';
 const SHEET_BACKUP_LOGS = 'backup_logs';
 const SHEET_DEPARTMENTS = 'departments';
 const SHEET_USER_READS = 'user_reads';
-const VERSION = 'v1.4.25';
+const SHEET_NOTICES = 'notices';
+const VERSION = 'v1.4.26';
 
 const DEFAULT_DEPARTMENTS = [
   ['doctor', '医局', 10, true, 'doctor'],

@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.5.24
+- 管理者向け「お知らせ・通信管理」専用画面 `pages/admin-news.html` を追加
+- `js/features/admin-news.js` を追加し、一覧、絞り込み（状態/種別/部署/キーワード）、新規作成、編集、公開、公開停止、論理削除を実装
+- `css/v135-admin-news.css` を追加し、管理ニュース画面のフォーム・一覧・モバイル表示を実装
+- 管理トップの第2段階メニューで「お知らせ・通信管理」を利用可能に変更
+- Apps Script に `SHEET_NOTICES` を追加し、`setupProject()` で notices シートを作成するよう更新
+- Apps Script に `adminNewsList` / `adminSaveNews` / `adminPublishNews` / `adminUnpublishNews` / `adminDeleteNews` / `publicNewsList` を追加
+- 削除は論理削除（deleted/deletedAt/deletedBy）で実装し、物理削除は実装しない方針を反映
+- `apps-script/News.gs` で notices 入力検証（必須/文字数/日時/対象部署）と公開判定ロジックを実装
+- 通信画面を `publicNewsList` に接続し、既存の `markNewsRead` 既読同期を継続
+- 管理ニュース操作（一覧閲覧/作成/更新/公開/公開停止/論理削除）を監査ログへ記録
+- README を v1.5.24 に更新
+
 ## v1.5.20
 - 管理者向け「歩数修正」専用画面 `pages/admin-activity.html` を追加
 - 管理トップの第1段階メニューから歩数修正画面へ遷移可能に変更（準備中表示を解除）
