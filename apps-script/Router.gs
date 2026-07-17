@@ -258,21 +258,6 @@ function handlePost(action, data, ss) {
     }
   }
 
-  if (action === 'adminGroupSessionConnectionTest') {
-    const denied = requireAdminAction('adminGroupSessionConnectionTest', ss, data);
-    if (denied) return denied;
-    const result = testGroupSessionConnection(ss, data || {});
-    auditAction(ss, 'adminGroupSessionConnectionTest', data, result.ok ? 'ok' : 'ng', result.ok ? 'gs_connection_test_ok' : result.reason || result.errorCode || 'gs_connection_test_failed', {
-      httpStatus: result.httpStatus || 0,
-      apiPath: result.apiPath || GROUP_SESSION_WHOAMI_PATH,
-      connected: !!result.connected,
-      authenticated: !!result.authenticated,
-      requiredFieldsAvailable: !!result.requiredFieldsAvailable,
-      missingFields: Array.isArray(result.missingFields) ? result.missingFields : []
-    });
-    return jsonOutput(Object.assign({}, result, { version: VERSION }));
-  }
-
   if (action === 'saveUser') {
     const saved = saveUser(ss, data);
     invalidateUserCaches();

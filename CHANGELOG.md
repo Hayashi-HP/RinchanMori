@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.5.26
+- 不採用方針に基づき GroupSession 連携コードを撤去
+- `adminGroupSessionConnectionTest` と GroupSession 接続処理、Router の該当分岐、専用ファイルを削除
+- GroupSession 専用の定数・参照を除去
+- 職員管理の単独運用設計は維持し、GroupSession を将来案/不採用として整理
+
 # v1.5.25
 - GroupSession Web API 接続確認用の管理 API `adminGroupSessionConnectionTest` を追加
 - Apps Script から Script Properties の `GS_BASE_URL` / `GS_API_USER` / `GS_API_PASSWORD` を使い、`/api/user/whoami.do` を BASIC 認証で確認する接続テストを実装
