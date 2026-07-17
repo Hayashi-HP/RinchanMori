@@ -3,10 +3,17 @@
 みんなで育てる、健康と笑顔の杜。
 
 ## 現在バージョン
-**v1.5.24**
+**v1.5.25**
 
 ## 最終更新
 2026-07-16
+
+## v1.5.25 で修正された内容
+
+- GroupSession Web API の接続確認用 `adminGroupSessionConnectionTest` を追加
+- Apps Script から Script Properties の `GS_BASE_URL` / `GS_API_USER` / `GS_API_PASSWORD` を使って `whoami.do` を BASIC 認証で確認
+- GroupSession の XML 応答を解析し、必要項目の存在だけを確認する読み取り専用の接続テストを実装
+- 接続確認の実行を監査ログへ記録し、認証情報や個人情報は返却・記録しないように統一
 
 ## v1.5.24 で修正された内容
 

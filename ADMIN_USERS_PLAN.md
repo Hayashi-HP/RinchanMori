@@ -291,6 +291,13 @@ flowchart TD
 8. 利用停止・退職候補確認
 9. 初回登録時の生年月日照合
 
+### 7-5. 接続確認の実装メモ
+- `adminGroupSessionConnectionTest` を first step として追加する。
+- `GS_BASE_URL` / `GS_API_USER` / `GS_API_PASSWORD` は Apps Script の Script Properties から取得する。
+- 接続先は `https://gs.hayashi.fun/gsession/` をベースに、`/api/user/whoami.do` を確認する。
+- 認証方式は BASIC 認証とし、XML 応答を解析して必要項目の有無だけを確認する。
+- 接続確認では職員一覧取得、部署対応表、同期プレビュー、登録、更新は行わない。
+
 ## 8. 初回登録の分岐
 
 ### 8-1. 成功時
@@ -329,6 +336,6 @@ flowchart TD
 - [ADMIN_USERS_PLAN.md](ADMIN_USERS_PLAN.md)
 
 ## 11. 補足
-- この文書は設計文書であり、HTML、CSS、JavaScript、Apps Script は変更しない。
-- README.md と CHANGELOG.md も更新しない。
+- この文書は設計文書であり、HTML、CSS、JavaScript、Apps Script の実装は変更しない。
+- README.md と CHANGELOG.md は今回の版管理のために更新した。
 - 推測で既存仕様を変えず、現行コードと整合する範囲に限定する。

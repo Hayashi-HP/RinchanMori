@@ -1,5 +1,11 @@
 # CHANGELOG
 
+# v1.5.25
+- GroupSession Web API 接続確認用の管理 API `adminGroupSessionConnectionTest` を追加
+- Apps Script から Script Properties の `GS_BASE_URL` / `GS_API_USER` / `GS_API_PASSWORD` を使い、`/api/user/whoami.do` を BASIC 認証で確認する接続テストを実装
+- GroupSession の XML 応答を `XmlService` で解析し、ユーザーSID・ログインID・社員番号・氏名・所属・生年月日フィールド・生年月日公開フラグ・有効無効状態の存在だけを確認するように統一
+- 接続確認は管理者限定とし、監査ログに実行結果だけを残して認証情報や個人情報は保存しない方針を反映
+
 ## v1.5.24
 - 管理者向け「お知らせ・通信管理」専用画面 `pages/admin-news.html` を追加
 - `js/features/admin-news.js` を追加し、一覧、絞り込み（状態/種別/部署/キーワード）、新規作成、編集、公開、公開停止、論理削除を実装
