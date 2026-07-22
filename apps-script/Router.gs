@@ -263,6 +263,25 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminDeleteChallenge') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_CHALLENGES)) return adminDenied('adminDeleteChallenge', ss, data);
+    try {
+      const deleted = deleteAdminChallenge(ss, data || {});
+      auditAction(ss, 'adminDeleteChallenge', data, 'ok', 'admin_challenge_deleted', {
+        targetChallengeId: deleted.challenge.challengeId,
+        yearMonth: deleted.challenge.yearMonth,
+        scope: deleted.challenge.scope,
+        targetDept: deleted.challenge.targetDept
+      });
+      return jsonOutput({ ok: true, action, deleted, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminDeleteChallenge', data, 'ng', e.message || 'admin_challenge_delete_failed', {
+        targetChallengeId: data.challengeId || ''
+      });
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_challenge_delete_failed', reason: e.message || 'admin_challenge_delete_failed', version: VERSION });
+    }
+  }
+
   if (action === 'adminActivityRows') {
     const denied = requireAdminAction('adminActivityRows', ss, data);
     if (denied) return denied;

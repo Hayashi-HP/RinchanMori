@@ -200,3 +200,20 @@ function saveAdminChallenge(ss, data) {
     })
   };
 }
+
+function deleteAdminChallenge(ss, data) {
+  const actor = getUserPermissionContext(ss, data);
+  if (!actor || actor.permissions.indexOf(PERMISSION_MANAGE_CHALLENGES) < 0) throw new Error('manage_challenges_required');
+
+  const challengeId = String(data.challengeId || '').trim();
+  if (!challengeId) throw new Error('challenge_not_found');
+
+  const sheet = ss.getSheetByName(SHEET_CHALLENGES);
+  const rows = readTable(sheet);
+  const existingIndex = rows.findIndex(row => String(row.challengeId || '').trim() === challengeId);
+  if (existingIndex < 0) throw new Error('challenge_not_found');
+
+  const deleted = challengePublicRow(rows[existingIndex]);
+  sheet.deleteRow(existingIndex + 2);
+  return { type: 'deleted', challenge: deleted };
+}
