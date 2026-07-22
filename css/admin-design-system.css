@@ -97,6 +97,18 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-return-action small { display:none!important; }
 .rinchan-admin-system .footer-wrapper { position:static!important; height:auto!important; background:transparent!important; pointer-events:auto!important; }
 
+/* Keep the administration workspace wide even when legacy .app rules are cached. */
+@media(min-width:900px) {
+  html body.rinchan-admin-system main.app { width:100%!important; max-width:1440px!important; min-width:0!important; margin:0 auto!important; padding:0 48px 72px!important; }
+  html body.rinchan-admin-system main.app>.top,
+  html body.rinchan-admin-system main.app>.nav,
+  html body.rinchan-admin-system main.app>.admin-hero,
+  html body.rinchan-admin-system main.app>.admin-card,
+  html body.rinchan-admin-system main.app>.admin-grid,
+  html body.rinchan-admin-system main.app>.admin-layout-wide,
+  html body.rinchan-admin-system main.app>.admin-return-action { width:100%!important; max-width:var(--rm-content-max)!important; }
+}
+
 @media(max-width:899px) {
   .rinchan-admin-system .app { padding:0 18px 116px!important; }
   .rinchan-admin-system .top { position:sticky!important; top:0!important; z-index:80!important; width:100vw!important; max-width:none!important; height:68px!important; min-height:68px!important; margin:0 calc(50% - 50vw) 14px!important; padding:0 18px!important; grid-template-columns:44px minmax(0,1fr) 44px!important; background:rgba(251,253,255,.92)!important; border-bottom:1px solid rgba(226,235,242,.8)!important; backdrop-filter:blur(16px)!important; }
