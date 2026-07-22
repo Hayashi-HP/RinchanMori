@@ -273,6 +273,13 @@ body.rinchan-home-system {
 
 .rinchan-home-system #homeMoriLetter { grid-column: span 6; min-height: 330px; }
 .rinchan-home-system #homeMoriLetterText { margin: 24px 0 0; color: var(--rm-muted); font-size: 15px; font-weight: 540; line-height: 1.9; white-space: pre-line; }
+/* PC column rule: full=12, half=6, third=4 */
+@media (min-width: 900px) {
+  .rinchan-home-system .today-steps-card,
+  .rinchan-home-system .tree-stage,
+  .rinchan-home-system .steps-visual-card,
+  .rinchan-home-system #homeMoriLetter { grid-column: span 6; }
+}
 .rinchan-home-system .thanks-home-notice { width: min(100%, var(--rm-content-max)) !important; margin: 0 auto 22px !important; padding: 22px 28px !important; border: 1px solid #e5edf3 !important; border-radius: var(--rm-radius) !important; background: #fff !important; box-shadow: var(--rm-shadow) !important; }
 .rinchan-home-system .thanks-home-notice-row { display: grid !important; grid-template-columns: 48px minmax(0, 1fr) !important; gap: 15px !important; align-items: center !important; }
 .rinchan-home-system .thanks-home-notice-flower { width: 48px !important; height: 48px !important; border-radius: 50% !important; background: var(--rm-green-soft) !important; font-size: 25px !important; animation: none !important; }

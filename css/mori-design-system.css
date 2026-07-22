@@ -67,6 +67,16 @@ body.rinchan-mori-system { background:radial-gradient(circle at 9% 12%,rgba(76,1
 .rinchan-mori-system .dept-member-item { background:#f8fbfd!important; border:1px solid var(--rm-line)!important; }
 .rinchan-mori-system .dept-member-thanks { min-height:44px!important; background:var(--rm-gradient)!important; }
 
+/* PC column rule: paired cards=half, map/detail=full */
+@media (min-width:900px) {
+  .rinchan-mori-system #moriStatusCard { grid-column:span 6; grid-row:auto; order:1; }
+  .rinchan-mori-system #moriDailyLetterCard { grid-column:span 6; grid-row:auto; order:2; }
+  .rinchan-mori-system .mori-visual.dashboard-hero { grid-column:1/-1; grid-row:auto; order:3; }
+  .rinchan-mori-system #treeInfoCard { grid-column:1/-1; order:4; }
+  .rinchan-mori-system #moriThanksWorldCard { grid-column:span 6; order:5; }
+  .rinchan-mori-system .forest-card { grid-column:span 6; order:6; }
+}
+
 @media (max-width:899px) {
   .rinchan-mori-system .app { padding:0 18px 116px; }
   .rinchan-mori-system .top { position:sticky; top:0; z-index:80; height:66px; grid-template-columns:44px 1fr 44px; background:rgba(251,253,255,.92); backdrop-filter:blur(16px); }
