@@ -7,7 +7,7 @@
   <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
   <link rel="stylesheet" href="../css/style.css?v=178">
   <link rel="stylesheet" href="../css/ui-v042.css?v=178">
-  <link rel="stylesheet" href="../css/passport-design-system.css?v=233">
+  <link rel="stylesheet" href="../css/passport-design-system.css?v=234">
 </head>
 <body class="thanks-syncing rinchan-passport-system">
 <main class="app passport-page" id="mypageV070">
@@ -41,7 +41,7 @@
     <section class="card passport-profile-card v070-profile">
       <button type="button" class="edit-icon profile-edit-icon" onclick="showEdit('profileEdit')" aria-label="プロフィールを編集"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10Z"/><path d="m14 7 3 3"/></svg></button>
       <div class="section-heading"><div><p class="eyebrow">基本情報</p><h2>プロフィール</h2></div></div>
-      <div class="info-grid"><span>氏名</span><strong id="v070ProfileName">ゲスト</strong><span>所属</span><strong id="v070ProfileDept">未設定</strong><span>社員番号</span><strong id="v070EmployeeId">-</strong><span>ニックネーム</span><strong id="v070ProfileNick">-</strong></div>
+      <div class="info-grid"><span>氏名</span><strong id="v070ProfileName">ゲスト</strong><span>所属</span><strong id="v070ProfileDept">未設定</strong><span>社員番号</span><strong id="v070EmployeeId">-</strong><span>ニックネーム</span><strong id="v070ProfileNick">-</strong><span>入職年月</span><strong id="v151ProfileJoinYm">未設定</strong><span>勤続年数</span><strong id="v151ProfileTenure">未設定</strong></div>
     </section>
 
     <section class="card rinchan-passport-card" id="rinchanPassportSection"><p class="empty-note">パスポートを読み込み中...</p></section>
@@ -53,7 +53,7 @@
 
     <section class="card received-thanks-card hidden passport-inbox-card" id="thanksInboxSection"><div class="section-heading"><div><p class="eyebrow">あなたへのありがとう</p><h2>届いた花</h2></div></div><div id="thanksInboxList" class="received-thanks-list"></div></section>
 
-    <section class="card passport-badge-card"><div class="section-heading"><div><p class="eyebrow">マイバッジ</p><h2>獲得したバッジ</h2></div></div><div id="badgeList" class="badge-list"></div></section>
+    <section class="card passport-badge-card"><div class="section-heading"><div><p class="eyebrow">チャレンジの記録</p><h2>達成バッジ</h2></div></div><div id="badgeList" class="badge-list"></div></section>
 
     <section class="card received-thanks-card passport-thanks-card" id="thanks"><div class="section-heading"><div><p class="eyebrow">ありがとう履歴</p><h2>ありがとうの花アルバム</h2></div></div><div class="thanks-stats-grid"><div><strong id="v139SentThanksCount">0件</strong><small>送った</small></div><div><strong id="v139ReceivedThanksCount">0件</strong><small>もらった</small></div><div><strong id="v139TotalThanksCount">0件</strong><small>合計</small></div></div><div id="receivedThanksList" class="received-thanks-list"><p class="received-thanks-empty">読み込み中...</p></div></section>
 
@@ -78,7 +78,7 @@
   <section id="weeklyStepGoalEdit" class="form hidden edit-panel"><p class="eyebrow">週間目標編集</p><h2>1週間の歩数目標</h2><label>目標歩数<input id="editWeeklyStepGoal" type="number" inputmode="numeric" placeholder="例：30000"></label><p class="empty-note">入力すると、ホームに目標までの残り歩数を表示します。</p><button type="button" class="submit pill-button" onclick="saveWeeklyStepGoalV136()">保存する</button><button type="button" class="edit-cancel" onclick="hideEdit()">キャンセル</button></section>
 </main>
 <script src="../js/core/device-class.js?v=230"></script>
-<script src="../js/config.js?v=233"></script>
+<script src="../js/config.js?v=234"></script>
 <script src="../js/core/storage.js?v=178"></script>
 <script src="../js/core/error-log.js?v=178"></script>
 <script src="../js/core/api.js?v=180"></script>
@@ -97,7 +97,7 @@
 <script src="../js/features/monthly-challenge-engine.js?v=178"></script>
 <script src="../js/features/department-challenge-engine.js?v=178"></script>
 <script src="../js/features/hospital-challenge-engine.js?v=178"></script>
-<script src="../js/features/rinchan-passport-render.js?v=233"></script>
+<script src="../js/features/rinchan-passport-render.js?v=234"></script>
 <script src="../js/features/monthly-challenge-render.js?v=229"></script>
 <script src="../js/features/department-challenge-render.js?v=229"></script>
 <script src="../js/features/hospital-challenge-render.js?v=229"></script>
