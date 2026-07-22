@@ -1,4 +1,4 @@
-const RINCHAN_V158_STATE_BRIDGE = 'v0.9.58';
+const RINCHAN_V158_STATE_BRIDGE = 'v1.0.64';
 
 function v158ReadJson(key, fallback) {
   try {
@@ -44,7 +44,11 @@ function v158ApplyState(state) {
   } else {
     if (state.user) {
       const current = v158ReadJson('rinchanParticipant', {}) || {};
-      localStorage.setItem('rinchanParticipant', JSON.stringify(Object.assign({}, current, state.user)));
+      const safeCurrent = Object.assign({}, current);
+      const safeUser = Object.assign({}, state.user);
+      delete safeCurrent.pin4; delete safeCurrent.pin; delete safeCurrent.password;
+      delete safeUser.pin4; delete safeUser.pin; delete safeUser.password;
+      localStorage.setItem('rinchanParticipant', JSON.stringify(Object.assign({}, safeCurrent, safeUser)));
     }
     if (Array.isArray(state.activities)) v158SaveJson('rinchanActivities', v158NormalizeActivities(state.activities));
     if (Array.isArray(state.receivedThanks)) v158SaveJson('rinchanReceivedThanks', v158NormalizeThanks(state.receivedThanks));
