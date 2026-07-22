@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.64';
+  const VERSION = 'v1.0.65';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) { const labelNode = button.querySelector('span'); if (labelNode) labelNode.textContent = label; else button.textContent = label; } }
@@ -151,7 +151,7 @@ const RinchanAuth = (() => {
     const form = document.getElementById('registerForm'); if (!form || form.__rinchanAuthInstalled) return; form.__rinchanAuthInstalled = true;
     form.addEventListener('submit', async event => {
       event.preventDefault(); event.stopImmediatePropagation(); clearError();
-      const button = form.querySelector('button[type="submit"],button'); const employeeId = value('employeeId'); const pin4 = value('pin4');
+      const button = form.querySelector('button[type="submit"]'); const employeeId = value('employeeId'); const pin4 = value('pin4');
       if (!employeeId) { showAuthDialog({ rinchan: true, speech: '社員番号を\n教えてくれるとうれしいな♪', closeText: '入力する', onClose: focusEmployeeId }); return; }
       if (!/^\d+$/.test(employeeId)) { showAuthDialog({ rinchan: true, speech: '社員番号は\n数字で入力してね♪', closeText: '入力する', onClose: focusEmployeeId }); return; }
       if (!value('userName')) { showAuthDialog({ rinchan: true, speech: 'お名前を\n教えてね♪', closeText: '入力する', onClose: () => { const el = document.getElementById('userName'); if (el) el.focus(); } }); return; }
@@ -185,7 +185,7 @@ const RinchanAuth = (() => {
     const form = document.getElementById('loginForm'); if (!form || form.__rinchanAuthInstalled) return; form.__rinchanAuthInstalled = true;
     form.addEventListener('submit', async event => {
       event.preventDefault(); event.stopImmediatePropagation();
-      const button = form.querySelector('button[type="submit"],button'); const employeeId = value('loginEmployeeId'); const pin4 = value('loginPin4');
+      const button = form.querySelector('button[type="submit"]'); const employeeId = value('loginEmployeeId'); const pin4 = value('loginPin4');
       if (!employeeId) { showAuthDialog({ rinchan: true, speech: '社員番号を\n教えてね♪', closeText: '入力する', onClose: () => { const el = document.getElementById('loginEmployeeId'); if (el) el.focus(); } }); return; }
       if (!/^\d+$/.test(employeeId)) { showAuthDialog({ rinchan: true, speech: '社員番号は\n数字で入力してね♪', closeText: '入力する', onClose: () => { const el = document.getElementById('loginEmployeeId'); if (el) el.focus(); } }); return; }
       if (!/^\d{4}$/.test(pin4)) { showAuthDialog({ rinchan: true, speech: '誕生日4桁を\n入れてね♪', message: '例：4月8日なら 0408', closeText: '入力する', onClose: () => { const el = document.getElementById('loginPin4'); if (el) el.focus(); } }); return; }

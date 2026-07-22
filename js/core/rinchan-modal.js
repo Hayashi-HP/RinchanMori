@@ -1,5 +1,5 @@
 const RinchanModal = (() => {
-  const VERSION = 'v1.1.5';
+  const VERSION = 'v1.1.7';
   const STYLE_ID = 'rinchanCommonModalStyles';
   const OVERLAY_ID = 'rinchanCommonModalOverlay';
 
@@ -96,7 +96,7 @@ const RinchanModal = (() => {
       actions.appendChild(makeButton(opts.primaryText, 'rinchan-common-modal-primary', opts.onPrimary || close));
     }
     if (opts.hideClose !== true) {
-      actions.appendChild(makeButton(opts.closeText || '閉じる', 'rinchan-common-modal-secondary', close));
+      actions.appendChild(makeButton(opts.closeText || '閉じる', 'rinchan-common-modal-secondary', opts.onClose || close));
     }
 
     panel.appendChild(actions);
@@ -109,14 +109,18 @@ const RinchanModal = (() => {
 
   function duplicateEmployee(onBack) {
     return show({
-      speech: 'あれれ？\nこの社員番号は\nもう使われているみたい。\nもう一度確認してね♪',
-      note: '社員番号を確認してみてね。',
-      primaryText: '社員番号を確認する',
+      speech: 'この社員番号は\nすでに登録されています。',
+      note: '登録済みの方はログインしてください。入力間違いの場合は、社員番号を確認できます。',
+      primaryText: 'ログインする',
       onPrimary: () => {
         close();
-        if (typeof onBack === 'function') setTimeout(onBack, 30);
+        location.href = location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html';
       },
-      hideClose: true
+      closeText: '社員番号を確認する',
+      onClose: () => {
+        close();
+        if (typeof onBack === 'function') setTimeout(onBack, 30);
+      }
     });
   }
 
