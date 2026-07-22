@@ -214,10 +214,10 @@ body.rinchan-home-system {
 
 .rinchan-home-system #guestEntryPanel,
 .rinchan-home-system .home-dashboard { width: min(100%, var(--rm-content-max)); margin-inline: auto; }
-.rinchan-home-system #guestEntryPanel { padding: 34px !important; text-align: left; }
+.rinchan-home-system #guestEntryPanel { margin: 0 auto 22px !important; padding: 34px !important; text-align: center; }
 .rinchan-home-system #guestEntryPanel h2 { margin: 5px 0 10px; color: var(--rm-navy); font-size: 25px; letter-spacing: -.03em; }
-.rinchan-home-system #guestEntryPanel > p:not(.eyebrow) { color: var(--rm-muted); line-height: 1.75; }
-.rinchan-home-system #guestEntryPanel .submit { width: min(100%, 300px); min-height: 54px; margin-top: 24px; border-radius: 999px; background: var(--rm-gradient); font-size: 16px; font-weight: 700; box-shadow: 0 10px 22px rgba(45, 160, 180, .18); }
+.rinchan-home-system #guestEntryPanel > p:not(.eyebrow) { max-width:42em; margin-inline:auto; color: var(--rm-muted); line-height: 1.75; }
+.rinchan-home-system #guestEntryPanel .submit { width: min(100%, 300px); min-height: 54px; margin:24px auto 0!important; display:flex; align-items:center; justify-content:center; border-radius: 999px; background: var(--rm-gradient); color:#fff; font-size: 16px; font-weight: 700; text-align:center; text-decoration:none; box-shadow: 0 10px 22px rgba(45, 160, 180, .18); }
 .rinchan-home-system #guestEntryPanel .login-helper { margin: 17px 0 0; font-size: 14px; }
 .rinchan-home-system #guestEntryPanel .login-helper a { color: var(--rm-blue-deep); font-weight: 700; }
 
