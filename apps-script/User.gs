@@ -6,6 +6,7 @@ function saveUser(ss, data) {
   if (!employeeId) throw new Error('employee_id_required');
 
   const row = findRowByValue(sheet, 1, employeeId);
+  if (row > 0 && data.createOnly === true) throw new Error('duplicate_employee_id');
   const old = row > 0 ? rowToObject(sheet, row) : {};
   const now = new Date().toISOString();
 
