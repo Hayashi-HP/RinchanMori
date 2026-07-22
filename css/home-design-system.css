@@ -217,6 +217,7 @@ body.rinchan-home-system {
 .rinchan-home-system #guestEntryPanel { margin: 0 auto 22px !important; padding: 34px !important; text-align: center; }
 .rinchan-home-system #guestEntryPanel h2 { margin: 5px 0 10px; color: var(--rm-navy); font-size: 25px; letter-spacing: -.03em; }
 .rinchan-home-system #guestEntryPanel > p:not(.eyebrow) { max-width:42em; margin-inline:auto; color: var(--rm-muted); line-height: 1.75; }
+.rinchan-home-system #guestEntryPanel .guest-copy-break { display:none; }
 .rinchan-home-system #guestEntryPanel .submit { width: min(100%, 300px); min-height: 54px; margin:24px auto 0!important; display:flex; align-items:center; justify-content:center; border-radius: 999px; background: var(--rm-gradient); color:#fff; font-size: 16px; font-weight: 700; text-align:center; text-decoration:none; box-shadow: 0 10px 22px rgba(45, 160, 180, .18); }
 .rinchan-home-system #guestEntryPanel .login-helper { margin: 17px 0 0; font-size: 14px; }
 .rinchan-home-system #guestEntryPanel .login-helper a { color: var(--rm-blue-deep); font-weight: 700; }
@@ -298,6 +299,7 @@ body.rinchan-home-system {
   .rinchan-home-system .nav svg { width: 22px; height: 22px; }
   .rinchan-home-system .nav small { font-size: 10px; }
   .rinchan-home-system .home-hero { min-height: 190px; margin-bottom: 18px; padding: 24px 22px 18px; grid-template-columns: minmax(0, 1fr) 104px; column-gap: 10px; border-radius: 24px; }
+  .rinchan-home-system #guestEntryPanel .guest-copy-break { display:block; }
   .rinchan-home-system .home-hero h1 { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; font-size: clamp(22px, 6.2vw, 28px); line-height: 1.3; letter-spacing: -.035em; }
   .rinchan-home-system .home-hero h1 #name { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
   .rinchan-home-system .home-hero h1 .name-suffix { flex: 0 0 auto; white-space: nowrap; }
