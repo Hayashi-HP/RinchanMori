@@ -17,7 +17,7 @@
   --rm-content-max: 1280px;
 }
 
-html, body { width: 100%; min-height: 100%; margin: 0; background: var(--rm-canvas); color: var(--rm-navy); font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+html, body { width: 100%; min-height: 100%; margin: 0; overflow-x: hidden; background: var(--rm-canvas); color: var(--rm-navy); font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
 body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(circle at 8% 10%, rgba(76,180,224,.08), transparent 25%), radial-gradient(circle at 92% 18%, rgba(98,199,122,.08), transparent 24%), var(--rm-canvas); }
 .rinchan-activity-system *, .rinchan-activity-system *::before, .rinchan-activity-system *::after { box-sizing: border-box; }
 .rinchan-activity-system a:focus-visible, .rinchan-activity-system button:focus-visible, .rinchan-activity-system input:focus-visible, .rinchan-activity-system textarea:focus-visible { outline: 3px solid rgba(38,155,211,.3); outline-offset: 3px; }
@@ -37,7 +37,7 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 .rinchan-activity-system .nav svg { width: 22px; height: 22px; }
 .rinchan-activity-system .nav small { font-size: 13px; font-weight: 750; line-height: 1; white-space: nowrap; }
 
-.rinchan-activity-system .activity-content, .rinchan-activity-system .guest-panel, .rinchan-activity-system .complete { width: min(100%, var(--rm-content-max)); margin-inline: auto; }
+.rinchan-activity-system .activity-content, .rinchan-activity-system .guest-panel, .rinchan-activity-system .complete { width: min(100%, var(--rm-content-max)); min-width: 0; margin-inline: auto; }
 .rinchan-activity-system .activity-hero { position: relative; min-height: 184px; margin-bottom: 22px; padding: 32px 42px; display: grid; grid-template-columns: minmax(0,1fr) 190px; align-items: center; overflow: hidden; border: 1px solid #dcecf5; border-radius: 28px; background: linear-gradient(145deg, #f7fcff 0%, #eaf7fd 48%, #effbea 100%); box-shadow: 0 14px 40px rgba(38,87,124,.07); }
 .rinchan-activity-system .activity-hero::after { content: ""; position: absolute; right: -7%; bottom: -92px; width: 64%; height: 140px; border-radius: 50% 0 0 0; background: linear-gradient(105deg, rgba(46,158,218,.1), rgba(101,200,122,.14)); transform: rotate(-3deg); }
 .rinchan-activity-system .activity-hero > div, .rinchan-activity-system .activity-hero .rin-img { position: relative; z-index: 2; }
@@ -46,8 +46,8 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 .rinchan-activity-system .activity-hero p:last-child { margin: 12px 0 0; color: var(--rm-muted); font-size: 14px; font-weight: 560; }
 .rinchan-activity-system .activity-hero .rin-img { width: 146px; height: 126px; margin: auto; display: block; object-fit: contain; filter: drop-shadow(0 14px 20px rgba(45,100,73,.1)); }
 
-.rinchan-activity-system .activity-grid { display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 22px; align-items: stretch; }
-.rinchan-activity-system .card, .rinchan-activity-system .guest-panel, .rinchan-activity-system .complete { margin: 0; padding: 28px; border: 1px solid var(--rm-line); border-radius: var(--rm-radius); background: rgba(255,255,255,.97); box-shadow: var(--rm-shadow); }
+.rinchan-activity-system .activity-grid { width: 100%; min-width: 0; display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 22px; align-items: stretch; }
+.rinchan-activity-system .card, .rinchan-activity-system .guest-panel, .rinchan-activity-system .complete { min-width: 0; margin: 0 !important; padding: 28px !important; border: 1px solid var(--rm-line); border-radius: var(--rm-radius); background: rgba(255,255,255,.97); box-shadow: var(--rm-shadow); }
 .rinchan-activity-system .card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .rinchan-activity-system .card h2 { margin: 0; color: var(--rm-navy); font-size: 22px; font-weight: 720; line-height: 1.4; letter-spacing: -.035em; }
 .rinchan-activity-system .line-icon { width: 42px; height: 42px; flex: 0 0 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--rm-blue-soft); color: var(--rm-blue); }
@@ -75,9 +75,10 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 .rinchan-activity-system .activity-bar.is-selected span { background: linear-gradient(180deg, var(--rm-green), var(--rm-blue)); }
 .rinchan-activity-system .activity-bar small { color: var(--rm-muted); font-size: 11px; }
 
-.rinchan-activity-system .activity-form { grid-column: span 5; min-height: 476px; display: flex; flex-direction: column; gap: 15px; }
-.rinchan-activity-system .activity-form label { display: flex; flex-direction: column; gap: 7px; color: var(--rm-navy); font-size: 13px; font-weight: 720; }
-.rinchan-activity-system .activity-form input:not([type="checkbox"]), .rinchan-activity-system .activity-form textarea { width: 100%; min-height: 52px; margin: 0; padding: 12px 15px; border: 1px solid var(--rm-line); border-radius: 14px; background: #fbfdff; color: var(--rm-navy); font: inherit; font-size: 16px; box-shadow: none; }
+.rinchan-activity-system .activity-form { width: 100%; min-width: 0; grid-column: span 5; min-height: 476px; display: flex; flex-direction: column; gap: 15px; }
+.rinchan-activity-system .activity-form label { width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 7px; color: var(--rm-navy); font-size: 13px; font-weight: 720; }
+.rinchan-activity-system .activity-form input:not([type="checkbox"]), .rinchan-activity-system .activity-form textarea { display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 52px; margin: 0; padding: 12px 15px; border: 1px solid var(--rm-line); border-radius: 14px; background: #fbfdff; color: var(--rm-navy); font: inherit; font-size: 16px; box-shadow: none; }
+.rinchan-activity-system .activity-form input[type="date"] { min-inline-size: 0; -webkit-appearance: none; appearance: none; }
 .rinchan-activity-system .activity-form textarea { min-height: 68px; resize: vertical; line-height: 1.5; }
 .rinchan-activity-system .steps-input-wrap { position: relative; }
 .rinchan-activity-system .steps-input-wrap input { padding-right: 48px !important; font-size: 20px !important; font-weight: 750 !important; font-variant-numeric: tabular-nums; }
@@ -126,7 +127,7 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
   .rinchan-activity-system .activity-hero p:last-child { margin-top: 9px; font-size: 13px; line-height: 1.55; }
   .rinchan-activity-system .activity-hero .rin-img { width: 96px; height: 106px; }
   .rinchan-activity-system .activity-grid { display: flex; flex-direction: column; gap: 16px; }
-  .rinchan-activity-system .card { width: 100%; min-width: 0; padding: 22px; }
+  .rinchan-activity-system .card { width: 100%; min-width: 0; margin: 0 !important; padding: 22px !important; }
   .rinchan-activity-system .card h2 { font-size: 19px; }
   .rinchan-activity-system .activity-summary-card, .rinchan-activity-system .activity-form, .rinchan-activity-system .activity-tools-card { grid-column: auto; min-height: 0; }
   .rinchan-activity-system .activity-summary-main { height: auto; margin-top: 20px; display: flex; flex-direction: column; gap: 26px; }
