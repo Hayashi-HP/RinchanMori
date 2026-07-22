@@ -28,6 +28,50 @@
 .rinchan-mori-system .card-link:hover span,
 .rinchan-news-system .card-link:hover span { transform: translateX(3px); }
 
+/* Shared sync status stays inside the same content frame as the header. */
+.rinchan-home-system .rinchan-sync-status,
+.rinchan-activity-system .rinchan-sync-status,
+.rinchan-mori-system .rinchan-sync-status,
+.rinchan-news-system .rinchan-sync-status {
+  width: min(100%, var(--rm-content-max));
+  min-width: 0;
+  min-height: 24px;
+  margin: -8px auto 8px;
+  padding: 0 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px 10px;
+  color: var(--rm-muted);
+  font-size: 11px;
+  font-weight: 650;
+  text-align: right;
+}
+.rinchan-home-system .rinchan-sync-status small,
+.rinchan-activity-system .rinchan-sync-status small,
+.rinchan-mori-system .rinchan-sync-status small,
+.rinchan-news-system .rinchan-sync-status small { color: #a34b5d; }
+
+/* News badges use the same unread count in every main navigation. */
+.rinchan-home-system .nav a,
+.rinchan-activity-system .nav a,
+.rinchan-mori-system .nav a,
+.rinchan-news-system .nav a { position: relative; }
+.rinchan-home-system .nav .notify-badge,
+.rinchan-activity-system .nav .notify-badge,
+.rinchan-mori-system .nav .notify-badge,
+.rinchan-news-system .nav .notify-badge {
+  top: 5px;
+  right: 12px;
+  left: auto;
+  z-index: 2;
+}
+
+.rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation: rm-refresh-spin .8s linear infinite; }
+.rinchan-mori-system #refreshMoriButton:disabled { opacity: .72; cursor: wait; }
+@keyframes rm-refresh-spin { to { transform: rotate(360deg); } }
+
 @media (min-width: 900px) {
   .rinchan-home-system .top,
   .rinchan-activity-system .top,
@@ -99,4 +143,42 @@
     font-size: 13px;
     line-height: 1.2;
   }
+}
+
+@media (max-width: 899px) {
+  .rinchan-home-system .top,
+  .rinchan-activity-system .top,
+  .rinchan-mori-system .top,
+  .rinchan-news-system .top {
+    width: calc(100% + 16px);
+    max-width: none;
+    margin-inline: -8px;
+  }
+
+  .rinchan-activity-system .header-spacer,
+  .rinchan-news-system .header-spacer { width: 44px; height: 44px; }
+
+  .rinchan-home-system .rinchan-sync-status,
+  .rinchan-activity-system .rinchan-sync-status,
+  .rinchan-mori-system .rinchan-sync-status,
+  .rinchan-news-system .rinchan-sync-status {
+    width: 100%;
+    margin: 0 auto 6px;
+    padding-inline: 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .rinchan-home-system .nav .notify-badge,
+  .rinchan-activity-system .nav .notify-badge,
+  .rinchan-mori-system .nav .notify-badge,
+  .rinchan-news-system .nav .notify-badge {
+    top: 3px;
+    right: auto;
+    left: calc(50% + 7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 1.6s; }
 }
