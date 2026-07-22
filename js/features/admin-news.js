@@ -65,6 +65,14 @@ const RinchanAdminNews = (() => {
     el.classList.toggle('is-error', !!isError);
   }
 
+  function setRefreshBusy(busy) {
+    const button = byId('adminNewsRefresh');
+    if (!button) return;
+    button.disabled = !!busy;
+    button.classList.toggle('is-refreshing', !!busy);
+    button.setAttribute('aria-label', busy ? 'お知らせ一覧を更新中' : 'お知らせ一覧を更新');
+  }
+
   function setMessage(text, type) {
     const el = byId('adminNewsMessage');
     if (!el) return;
@@ -174,6 +182,7 @@ const RinchanAdminNews = (() => {
   async function loadList() {
     if (state.loading) return;
     state.loading = true;
+    setRefreshBusy(true);
     setStatus('一覧を読み込み中...', false);
     try {
       const auth = authState();
@@ -197,6 +206,7 @@ const RinchanAdminNews = (() => {
       renderList();
     } finally {
       state.loading = false;
+      setRefreshBusy(false);
     }
   }
 

@@ -80,6 +80,14 @@ const RinchanAdminActivity = (() => {
     box.classList.toggle('is-error', !!isError);
   }
 
+  function setRefreshBusy(busy) {
+    const button = byId('adminActivityRefresh');
+    if (!button) return;
+    button.disabled = !!busy;
+    button.classList.toggle('is-refreshing', !!busy);
+    button.setAttribute('aria-label', busy ? '歩数一覧を更新中' : '歩数一覧を更新');
+  }
+
   function setMessage(text, type) {
     const box = byId('adminActivityMessage');
     if (!box) return;
@@ -208,6 +216,7 @@ const RinchanAdminActivity = (() => {
     const opt = options || {};
     if (state.loading) return;
     state.loading = true;
+    setRefreshBusy(true);
     setStatus('一覧を読み込み中...', false);
     if (!opt.preserveMessage) setMessage('', 'info');
     try {
@@ -254,6 +263,7 @@ const RinchanAdminActivity = (() => {
       setMessage('JavaScriptエラー: ' + reason, 'error');
     } finally {
       state.loading = false;
+      setRefreshBusy(false);
     }
   }
 

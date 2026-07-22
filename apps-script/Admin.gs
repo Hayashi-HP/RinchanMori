@@ -242,9 +242,9 @@ function getAdminActivityRows(ss, data) {
   const rowByEmployee = {};
 
   activities.forEach(item => {
-    const participantId = normalizeEmployeeId(item.participantId || '');
+    const participantId = normalizeEmployeeId(item.participantId || item.employeeId || item.id || '');
     if (!participantId) return;
-    if (normalizeAdminActivityDate(item.date || '') !== dateKey) return;
+    if (normalizeAdminActivityDate(item.date || item.createdAt || item.savedAt || '') !== dateKey) return;
 
     const current = rowByEmployee[participantId];
     const currentKey = current ? String(current.savedAt || current.createdAt || '') : '';
@@ -262,8 +262,11 @@ function getAdminActivityRows(ss, data) {
       if (query && searchText.indexOf(query) < 0) return null;
       if (deptFilter && dept !== deptFilter) return null;
 
-      const act = rowByEmployee[employeeId] || null;
-      const currentSteps = act ? Number(act.steps || 0) : 0;
+      const userIds = [employeeId, normalizeEmployeeId(user.id || ''), normalizeEmployeeId(user.participantId || '')].filter(Boolean);
+      const matches = userIds.map(id => rowByEmployee[id]).filter(Boolean).sort((a, b) => String(b.savedAt || b.createdAt || '').localeCompare(String(a.savedAt || a.createdAt || '')));
+      const act = matches.length ? matches[0] : null;
+      const rawSteps = act && act.steps !== undefined && act.steps !== null ? act.steps : (act && act.stepCount !== undefined ? act.stepCount : 0);
+      const currentSteps = Number(rawSteps || 0);
       return {
         employeeId,
         name,
