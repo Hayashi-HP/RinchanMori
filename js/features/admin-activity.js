@@ -202,20 +202,24 @@ const RinchanAdminActivity = (() => {
       return;
     }
     box.innerHTML = state.rows.map(row => (
-      '<article class="admin-activity-row">' +
-        '<div class="admin-activity-main">' +
+      '<details class="admin-activity-row">' +
+        '<summary class="admin-activity-summary">' +
+          '<span class="admin-activity-main">' +
           '<strong>' + escapeHtml(row.name || row.employeeId || '-') + '</strong>' +
           '<small>社員番号 ' + escapeHtml(row.employeeId || '-') + ' / ' + escapeHtml(row.dept || '所属未設定') + '</small>' +
-        '</div>' +
-        '<div class="admin-activity-meta">' +
-          '<span>現在歩数 ' + (row.hasRecord ? '<b>' + Number(row.currentSteps || 0).toLocaleString('ja-JP') + '</b> 歩' : '<b class="is-empty">記録なし</b>') + '</span>' +
+          '</span>' +
+          '<span class="admin-activity-summary-steps">' + (row.hasRecord ? '<b>' + Number(row.currentSteps || 0).toLocaleString('ja-JP') + '</b><small>歩</small>' : '<b class="is-empty">記録なし</b>') + '</span>' +
+        '</summary>' +
+        '<div class="admin-activity-row-detail">' +
+          '<div class="admin-activity-meta">' +
           '<span>登録元 ' + escapeHtml(row.source || '-') + '</span>' +
           '<span>更新 ' + escapeHtml(formatAt(row.updatedAt || '')) + '</span>' +
+          '</div>' +
+          '<div class="admin-activity-action">' +
+            '<button type="button" class="soft-button admin-correct-button" data-employee-id="' + escapeHtml(row.employeeId || '') + '">修正</button>' +
+          '</div>' +
         '</div>' +
-        '<div class="admin-activity-action">' +
-          '<button type="button" class="soft-button admin-correct-button" data-employee-id="' + escapeHtml(row.employeeId || '') + '">修正</button>' +
-        '</div>' +
-      '</article>'
+      '</details>'
     )).join('');
   }
 
