@@ -35,18 +35,26 @@ const RinchanHomeDashboard = (() => {
 
   function render() {
     const value = document.getElementById('todayStepsNumber');
-    const bar = document.getElementById('todayStepsBar');
+    const ring = document.querySelector('.today-ring');
     const status = document.getElementById('todayStepsStatus');
-    const progress = document.querySelector('.today-progress');
-    if (!value || !bar || !status || !progress) return;
+    const goalText = document.getElementById('todayStepsGoal');
+    const dateText = document.getElementById('todayDate');
+    if (!value || !ring || !status) return;
     const steps = todaySteps();
     const user = participant();
     const goal = Math.max(1, Number(String(user.dailyStepGoal || user.stepGoal || 8000).replace(/,/g, '')) || 8000);
     const percentage = Math.min(100, Math.round((steps / goal) * 100));
     const remaining = Math.max(0, goal - steps);
     value.textContent = steps.toLocaleString('ja-JP');
-    bar.style.width = percentage + '%';
-    progress.setAttribute('aria-valuenow', String(percentage));
+    ring.style.setProperty('--today-progress', percentage * 3.6 + 'deg');
+    ring.style.setProperty('--today-blue-progress', percentage * 3.6 * 0.58 + 'deg');
+    ring.setAttribute('aria-valuenow', String(percentage));
+    if (goalText) goalText.textContent = '目標 ' + goal.toLocaleString('ja-JP') + '歩';
+    if (dateText) {
+      const now = new Date();
+      const weeks = ['日', '月', '火', '水', '木', '金', '土'];
+      dateText.textContent = (now.getMonth() + 1) + '月' + now.getDate() + '日（' + weeks[now.getDay()] + '）';
+    }
     status.textContent = remaining > 0 ? '目標 ' + goal.toLocaleString('ja-JP') + '歩まで、あと ' + remaining.toLocaleString('ja-JP') + '歩' : '今日の目標を達成しました。おつかれさまです。';
   }
 
