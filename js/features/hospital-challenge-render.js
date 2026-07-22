@@ -5,7 +5,7 @@ const RinchanHospitalChallengeRender = (() => {
 
   function applyCardLayout(host) {
     if (!host || !host.style) return;
-    host.style.setProperty('margin', '0 20px 14px', 'important');
+    host.style.setProperty('margin', '0', 'important');
     host.style.setProperty('padding', '20px', 'important');
     host.style.setProperty('box-sizing', 'border-box', 'important');
   }
