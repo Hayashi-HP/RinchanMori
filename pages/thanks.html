@@ -5,51 +5,48 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>やさしさを届けよう｜りんちゃんの杜</title>
   <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
-  <link rel="stylesheet" href="../css/style.css?v=1066">
-  <link rel="stylesheet" href="../css/ui-v042.css?v=1066">
-  <link rel="stylesheet" href="../css/v081-fixes.css?v=1066">
-  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1066">
-  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=1066">
-  <style>
-    .thanks-world-hero{background:linear-gradient(180deg,#fff7fb 0%,#f7fff4 100%);border:1px solid rgba(228,138,181,.18);box-shadow:0 16px 36px rgba(178,103,137,.12)}
-    .thanks-world-hero .rin-img{filter:drop-shadow(0 8px 14px rgba(92,128,76,.14))}
-    .thanks-target-card{display:flex;gap:14px;align-items:center;padding:16px;border-radius:22px;background:#fff;border:1px solid rgba(228,138,181,.22);box-shadow:0 12px 26px rgba(178,103,137,.09);margin:14px 0 4px}
-    .thanks-target-avatar{width:52px;height:52px;border-radius:18px;background:#fff0f6;display:flex;align-items:center;justify-content:center;font-size:28px;flex:0 0 auto}
-    .thanks-target-card strong{display:block;color:#244038;font-size:18px;line-height:1.4}.thanks-target-card small{display:block;color:#6d7d70;font-weight:800;margin-top:2px}
-    .thanks-flower-card{background:linear-gradient(180deg,#fff 0%,#fff8fb 100%);border:1px solid rgba(228,138,181,.20);box-shadow:0 16px 38px rgba(178,103,137,.10)}
-    .thanks-flower-card h2{color:#5b2e49}.thanks-flower-card .empty-note{line-height:1.7}
-    .thanks-select{margin-top:8px;width:100%;box-sizing:border-box;border-radius:18px;border:1px solid rgba(228,138,181,.28);padding:14px 16px;font-size:16px;background:#fff;font-weight:800;color:#244038}
-    .thanks-message{margin-top:8px;width:100%;box-sizing:border-box;border-radius:18px;border:1px solid rgba(228,138,181,.28);padding:14px 16px;font-size:16px;background:#fff;line-height:1.6;resize:vertical;min-height:92px}
-    .thanks-submit{background:linear-gradient(90deg,#e979ad,#7bcf77)!important;box-shadow:0 12px 24px rgba(216,112,162,.20)!important}
-    .thanks-petal{position:absolute;pointer-events:none;animation:thanksPetalFloat 1.2s ease-out forwards;font-size:20px;z-index:99999}@keyframes thanksPetalFloat{0%{opacity:0;transform:translateY(0) scale(.6) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translateY(-120px) scale(1.2) rotate(60deg)}}
-  </style>
+  <link rel="stylesheet" href="../css/style.css?v=178">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=178">
+  <link rel="stylesheet" href="../css/thanks-design-system.css?v=237">
 </head>
-<body>
-<main class="app">
-  <header class="top"><a href="mori.html" class="back">←</a><div class="page-title">やさしさを届けよう</div><span class="spacer"></span></header>
-  <section class="intro thanks-world-hero"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=1049" alt="りんちゃん"><h1>やさしさを<br>届けよう</h1><p>今日の「ありがとう」が<br>杜に花を咲かせるよ🌸</p><div id="thanksTargetCard" class="thanks-target-card"><div class="thanks-target-avatar">🌸</div><div><strong id="thanksTargetName">送信先を確認しています</strong><small id="thanksTargetText">杜ページから選んだ仲間へ届けます</small></div></div></section>
-  <section class="card thanks-flower-card">
-    <p class="label">🌸 ありがとうの花</p>
-    <h2 id="thanksTitle">仲間へやさしさを届ける</h2>
-    <p class="empty-note">どんな「ありがとう」を届ける？<br>ひとことでも大丈夫♪</p>
-    <label style="display:block;margin:16px 0 0;font-weight:900;color:#244038;">
-      ありがとうの種類
-      <select id="thanksReason" class="thanks-select">
-        <option value="ありがとう">ありがとう</option>
-        <option value="助けてもらった">助けてもらった</option>
-        <option value="声をかけてもらった">声をかけてもらった</option>
-        <option value="一緒にがんばった">一緒にがんばった</option>
-      </select>
-    </label>
-    <label style="display:block;margin:16px 0 0;font-weight:900;color:#244038;">
-      メッセージ（任意）
-      <textarea id="thanksComment" class="thanks-message" rows="3" placeholder="どんなことがうれしかった？&#10;ひとことでも大丈夫♪"></textarea>
-    </label>
-    <button id="sendThanksButton" class="submit pill-button thanks-submit" type="button" style="margin-top:18px;">🌸 やさしさを届ける</button>
+<body class="rinchan-thanks-system">
+<main class="app thanks-page">
+  <header class="top">
+    <a class="icon-button" href="mori.html" aria-label="杜へ戻る"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a>
+    <div class="page-title">ありがとうを送る</div>
+    <span class="header-spacer" aria-hidden="true"></span>
+  </header>
+
+  <nav class="nav" aria-label="メインメニュー">
+    <a href="../index.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a>
+    <a class="active" href="mori.html" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a>
+    <a class="plus" href="activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a>
+    <a href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small><span class="notify-badge hidden">0</span></a>
+    <a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a>
+  </nav>
+
+  <section class="thanks-intro">
+    <p class="eyebrow">やさしさを届ける</p>
+    <h1>ありがとうを送る</h1>
+    <p>仲間への感謝を言葉にして、杜につながりを育てます。</p>
   </section>
-  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a class="active" href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">👤<small>マイページ</small></a></nav>
+
+  <div class="thanks-layout">
+    <section class="card thanks-target-panel">
+      <div class="section-heading"><p class="eyebrow">届け先</p><h2>ありがとうを送る相手</h2></div>
+      <div id="thanksTargetCard" class="thanks-target-card"><div class="thanks-target-avatar"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.2-8.7C.8 8.7 2.8 5 6.5 5c2.1 0 3.7 1.2 4.5 2.5C11.8 6.2 13.4 5 15.5 5c3.7 0 5.7 3.7 3.7 7.3C17 16.4 12 21 12 21Z"/></svg></div><div><strong id="thanksTargetName">送信先を確認しています</strong><small id="thanksTargetText">杜ページから選んだ仲間へ届けます</small></div></div>
+      <p class="thanks-guidance">送信先を変更する場合は、杜ページに戻って仲間を選び直してください。</p>
+    </section>
+
+    <section class="card thanks-form-card">
+      <div class="section-heading"><p class="eyebrow">ありがとうの内容</p><h2 id="thanksTitle">仲間へやさしさを届ける</h2><p class="section-note">短いひとことでも大丈夫です。</p></div>
+      <label class="thanks-field">ありがとうの種類<select id="thanksReason" class="thanks-select"><option value="ありがとう">ありがとう</option><option value="助けてもらった">助けてもらった</option><option value="声をかけてもらった">声をかけてもらった</option><option value="一緒にがんばった">一緒にがんばった</option></select></label>
+      <label class="thanks-field">メッセージ（任意）<textarea id="thanksComment" class="thanks-message" rows="3" placeholder="どんなことがうれしかった？&#10;ひとことでも大丈夫です"></textarea></label>
+      <button id="sendThanksButton" class="thanks-submit" type="button">ありがとうを届ける</button>
+    </section>
+  </div>
 </main>
-<script src="../js/config.js?v=1066"></script><script src="../js/core/storage.js?v=1066"></script><script src="../js/core/error-log.js?v=1066"></script><script src="../js/core/api.js?v=1066"></script><script src="../js/core/sync.js?v=1066"></script><script src="../js/core/rinchan-modal.js?v=1066"></script>
+<script src="../js/config.js?v=237"></script><script src="../js/core/storage.js?v=1066"></script><script src="../js/core/error-log.js?v=1066"></script><script src="../js/core/api.js?v=1066"></script><script src="../js/core/sync.js?v=1066"></script><script src="../js/core/rinchan-modal.js?v=1066"></script>
 <script>
 (function(){
   function readTarget(){ try { return JSON.parse(sessionStorage.getItem('rinchanThanksTarget') || 'null'); } catch(e) { return null; } }
@@ -100,7 +97,7 @@
     var btn = document.getElementById('sendThanksButton');
     var reason = document.getElementById('thanksReason');
     var comment = document.getElementById('thanksComment');
-    if (btn) { btn.disabled = true; btn.textContent = 'お花を届けてるよ🌸'; }
+    if (btn) { btn.disabled = true; btn.textContent = 'ありがとうを届けています'; }
     var payload = {
       thanksId: 'K' + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
       fromParticipantId: me.employeeId || me.id,
@@ -133,7 +130,7 @@
       alert('ありがとうを届けました。');
       location.href = 'mori.html';
     }
-    if (btn) { btn.disabled = false; btn.textContent = '🌸 やさしさを届ける'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'ありがとうを届ける'; }
   }
   document.addEventListener('DOMContentLoaded', function(){ apply(); var btn = document.getElementById('sendThanksButton'); if (btn) btn.addEventListener('click', send); });
 })();
