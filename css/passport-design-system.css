@@ -57,18 +57,8 @@ body.rinchan-passport-system { background:radial-gradient(circle at 8% 10%,rgba(
 .rinchan-passport-system .rinchan-passport-head { display:block; }
 .rinchan-passport-system .rinchan-passport-title { margin:0!important; }
 .rinchan-passport-system .rinchan-passport-sub { margin:7px 0 0!important; color:var(--rm-muted)!important; font-size:13px!important; }
-.rinchan-passport-system .rinchan-passport-stats { margin:22px 0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-.rinchan-passport-system .rinchan-passport-stats>div { padding:18px; border:1px solid var(--rm-line); border-radius:17px; background:#fbfdff; }
-.rinchan-passport-system .rinchan-passport-stats strong { display:block; color:var(--rm-navy); font-size:24px; font-weight:760; }
-.rinchan-passport-system .rinchan-passport-stats small { display:block; margin-top:5px; color:var(--rm-muted); font-size:11px; font-weight:700; }
-.rinchan-passport-system .rinchan-passport-section-title { margin:26px 0 6px; color:var(--rm-navy); font-size:18px; }
+.rinchan-passport-system .rinchan-passport-section-title { margin:22px 0 6px; color:var(--rm-navy); font-size:18px; }
 .rinchan-passport-system .rinchan-passport-section-note { margin:0 0 14px; color:var(--rm-muted); font-size:12px; line-height:1.6; }
-.rinchan-passport-system .rinchan-passport-badges { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
-.rinchan-passport-system .rinchan-passport-badge { min-width:0; padding:15px 10px; border:1px solid var(--rm-line); border-radius:16px; background:#fbfdff; text-align:center; }
-.rinchan-passport-system .rinchan-passport-badge.is-locked { opacity:.56; filter:grayscale(.65); }
-.rinchan-passport-system .rinchan-passport-badge-icon { font-size:28px; }
-.rinchan-passport-system .rinchan-passport-badge-name { margin-top:7px; color:var(--rm-navy); font-size:13px; font-weight:720; }
-.rinchan-passport-system .rinchan-passport-badge-note { margin-top:4px; color:var(--rm-muted); font-size:10px; line-height:1.45; }
 .rinchan-passport-system .rinchan-passport-events { display:flex; flex-wrap:wrap; gap:8px; }
 .rinchan-passport-system .rinchan-passport-event { min-height:34px; padding:0 12px; display:inline-flex; align-items:center; border-radius:999px; background:var(--rm-green-soft); color:var(--rm-green-deep); font-size:12px; font-weight:700; }
 .rinchan-passport-system .rinchan-passport-event-empty { padding:18px; border-radius:16px; background:#fbfdff; }
@@ -179,10 +169,8 @@ body.rinchan-passport-system { background:radial-gradient(circle at 8% 10%,rgba(
   .rinchan-passport-system .info-grid { grid-template-columns:96px minmax(0,1fr); }
   .rinchan-passport-system .passport-challenge-stack { grid-template-columns:1fr!important; gap:12px; }
   .rinchan-passport-system #monthlyChallengeSection,.rinchan-passport-system #departmentChallengeSection,.rinchan-passport-system #hospitalChallengeSection { min-height:0; }
-  .rinchan-passport-system .rinchan-passport-badges { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .rinchan-passport-system .badge-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .rinchan-passport-system .rinchan-medal-wrap { width:84px; height:94px; }
-  .rinchan-passport-system .rinchan-passport-stats { grid-template-columns:1fr; }
   .rinchan-passport-system #logoutSection { align-items:flex-start; flex-direction:column; }
   .rinchan-passport-system .auth-logout { width:100%; }
 }
