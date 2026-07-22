@@ -1,0 +1,59 @@
+/* Rinchan Mori shared modern page shell v1.0.0 */
+@media (min-width: 900px) {
+  .rinchan-home-system .top,
+  .rinchan-activity-system .top {
+    height: 92px;
+    padding-block: 12px;
+  }
+
+  .rinchan-home-system .brand {
+    gap: 14px;
+    font-size: 21px;
+  }
+
+  .rinchan-home-system .rin-face-brand {
+    width: 46px;
+    height: 46px;
+  }
+
+  .rinchan-home-system .icon-button,
+  .rinchan-activity-system .icon-button {
+    width: 48px;
+    height: 48px;
+    min-height: 48px;
+  }
+
+  .rinchan-activity-system .page-title {
+    font-size: 22px;
+    line-height: 1.4;
+  }
+
+  .rinchan-home-system .nav,
+  .rinchan-activity-system .nav {
+    top: 16px;
+    height: 74px;
+    margin-bottom: 28px;
+    padding: 7px;
+    border-radius: 22px;
+  }
+
+  .rinchan-home-system .nav a,
+  .rinchan-activity-system .nav a {
+    min-height: 60px;
+    padding: 9px 14px;
+    gap: 10px;
+    border-radius: 16px;
+  }
+
+  .rinchan-home-system .nav svg,
+  .rinchan-activity-system .nav svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .rinchan-home-system .nav small,
+  .rinchan-activity-system .nav small {
+    font-size: 13px;
+    line-height: 1.2;
+  }
+}
