@@ -1,6 +1,6 @@
 const RINCHAN_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbxvL3R5rSqg2a56ao60w5hA4_CjY77unYKPptCjhEjyLXkmQB8-PjVKxkeKAoPizjVE/exec",
-  UI_VERSION: "v1.5.46"
+  UI_VERSION: "v1.5.47"
 };
 window.RINCHAN_CONFIG = RINCHAN_CONFIG;
 
@@ -12,6 +12,7 @@ window.RINCHAN_CONFIG = RINCHAN_CONFIG;
     var isActivity = /(?:^|\/)pages\/activity\.html$/.test(path);
     var isMori = /(?:^|\/)pages\/mori\.html$/.test(path);
     var isNews = /(?:^|\/)pages\/news\.html$/.test(path);
+    var isMypage = /(?:^|\/)pages\/mypage\.html$/.test(path);
     function addCss(id, href) {
       if (document.getElementById(id)) return;
       var link = document.createElement('link');
@@ -20,7 +21,7 @@ window.RINCHAN_CONFIG = RINCHAN_CONFIG;
       link.href = href;
       document.head.appendChild(link);
     }
-    if (!isHome && !isActivity && !isMori && !isNews) {
+    if (!isHome && !isActivity && !isMori && !isNews && !isMypage) {
       addCss('rinchanUnifiedPageSystemCss', prefix + 'css/v1041-page-system.css?v=1057');
       addCss('rinchanSoftInnerPanelsCss', prefix + 'css/v1042-soft-inner-panels.css?v=1057');
       addCss('rinchanMypageTuneCss', prefix + 'css/v1043-mypage-tune.css?v=1057');
