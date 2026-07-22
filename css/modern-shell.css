@@ -177,6 +177,8 @@
     right: auto;
     left: calc(50% + 7px);
   }
+
+  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 1.4s; }
 }
 
 @media (prefers-reduced-motion: reduce) {
