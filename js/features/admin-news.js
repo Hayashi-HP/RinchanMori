@@ -28,7 +28,7 @@ const RinchanAdminNews = (() => {
   function authState() {
     const user = participant();
     const employeeId = user && (user.employeeId || user.id || user.participantId) ? String(user.employeeId || user.id || user.participantId) : '';
-    const isAdmin = !!(user && (String(user.admin || '') === '1' || user.admin === true || String(user.role || '').toLowerCase() === 'admin'));
+    const isAdmin = !!(user && (String(user.admin || '') === '1' || user.admin === true || ['admin', 'system'].indexOf(String(user.role || '').toLowerCase()) >= 0));
     return { user, employeeId, loggedIn: !!employeeId, isAdmin };
   }
 

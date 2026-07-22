@@ -35,7 +35,7 @@ const RinchanApi = (() => {
     return !!(user && (
       String(user.admin || '') === '1' ||
       user.admin === true ||
-      String(user.role || '').toLowerCase() === 'admin'
+      ['admin', 'system'].indexOf(String(user.role || '').toLowerCase()) >= 0
     ));
   }
 

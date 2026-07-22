@@ -228,6 +228,7 @@ function publicUser(user) {
     updatedAt: user.updatedAt || '',
     version: user.version || VERSION,
     email: user.email || '',
-    admin: String(user.admin || '').trim() === '1' ? '1' : ''
+    admin: [ROLE_ADMIN, ROLE_SYSTEM].indexOf(normalizeRole(user.role, user.admin)) >= 0 ? '1' : '',
+    role: normalizeRole(user.role, user.admin)
   };
 }
