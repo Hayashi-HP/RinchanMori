@@ -22,7 +22,7 @@ const RinchanActivity = (() => {
   }
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function checked(id) { const el = document.getElementById(id); return !!(el && el.checked); }
-  function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) button.textContent = label; }
+  function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) { const text = button.querySelector('span'); if (text) text.textContent = label; else button.textContent = label; } }
   async function api(action, payload) {
     if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {});
     if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {});
@@ -119,6 +119,7 @@ const RinchanActivity = (() => {
     try { if (window.renderV070Mypage) window.renderV070Mypage(); } catch (e) {}
     try { if (window.RinchanMori && typeof RinchanMori.renderAll === 'function') RinchanMori.renderAll(); } catch (e) {}
     try { if (window.RinchanHomeWorld && typeof RinchanHomeWorld.renderHome === 'function') RinchanHomeWorld.renderHome(); } catch (e) {}
+    try { if (window.RinchanActivityDashboard && typeof RinchanActivityDashboard.render === 'function') RinchanActivityDashboard.render(); } catch (e) {}
     try { if (window.RinchanSync && typeof RinchanSync.renderStatus === 'function') RinchanSync.renderStatus(); } catch (e) {}
     try { if (window.RinchanOfflineQueue && typeof RinchanOfflineQueue.renderStatus === 'function') RinchanOfflineQueue.renderStatus(); } catch (e) {}
   }
@@ -157,7 +158,7 @@ const RinchanActivity = (() => {
     showComplete();
     refreshLocalViews();
     setBusy(button, true, '葉っぱが増えたよ♪');
-    setTimeout(() => setBusy(button, false, '🌱 杜に届ける'), 650);
+    setTimeout(() => setBusy(button, false, '杜に届ける'), 650);
     showRinchanActivityModal(savedLocal || payload);
     setTimeout(() => { syncActivityInBackground(savedLocal || payload); }, 30);
   }
@@ -200,7 +201,7 @@ const RinchanActivity = (() => {
     if (!rows.length) { box.innerHTML = '<p class="empty-note">まだ記録がありません。最初の一歩を杜に届けてみよう🌱</p>'; return; }
     box.innerHTML = rows.map(item => {
       const date = formatDateLabel(item.date);
-      return '<div class="activity-tool-row"><div><strong>' + date + '</strong><small>' + Number(item.steps || 0).toLocaleString('ja-JP') + '歩</small></div><div class="activity-tool-actions"><button type="button" onclick="RinchanActivity.editActivity(\'' + item.activityId + '\')">✏️</button><button type="button" onclick="RinchanActivity.deleteActivity(\'' + item.activityId + '\')">🗑️</button></div></div>';
+      return '<div class="activity-tool-row"><div><strong>' + date + '</strong><small>' + Number(item.steps || 0).toLocaleString('ja-JP') + '歩</small></div><div class="activity-tool-actions"><button type="button" aria-label="' + date + 'の記録を編集" onclick="RinchanActivity.editActivity(\'' + item.activityId + '\')"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><button type="button" aria-label="' + date + 'の記録を削除" onclick="RinchanActivity.deleteActivity(\'' + item.activityId + '\')"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 11v6M14 11v6"/></svg></button></div></div>';
     }).join('');
   }
   function install() {

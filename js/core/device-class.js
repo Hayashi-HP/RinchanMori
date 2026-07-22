@@ -3,11 +3,13 @@
   const root = document.documentElement;
   const pathName = (window.location && window.location.pathname) || '';
   const isHome = !pathName.includes('/pages/') && (/(?:^|\/)index\.html$/.test(pathName) || /\/$/.test(pathName));
+  const isActivity = /(?:^|\/)pages\/activity\.html$/.test(pathName);
+  const isModernPage = isHome || isActivity;
   if (/Android/i.test(ua)) root.classList.add('is-android');
   if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) root.classList.add('is-ios');
   if (/Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) || Math.min(screen.width || 9999, screen.height || 9999) <= 899) root.classList.add('is-mobile-device');
 
-  if (!isHome && !document.querySelector('link[data-rinchan-mobile-foundation]')) {
+  if (!isModernPage && !document.querySelector('link[data-rinchan-mobile-foundation]')) {
     const isPage = pathName.includes('/pages/');
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -17,7 +19,7 @@
   }
 
   function normalizeLayout(){
-    if (isHome) return;
+    if (isModernPage) return;
     const body = document.body;
     const app = document.querySelector('main.app');
     const nav = document.querySelector('.nav');
