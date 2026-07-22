@@ -7,34 +7,52 @@
   <link rel="icon" href="assets/rinchan-face.svg?v=1049" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css?v=178">
   <link rel="stylesheet" href="css/ui-v042.css?v=178">
-  <link rel="stylesheet" href="css/v081-fixes.css?v=178">
   <link rel="stylesheet" href="css/v094-guide.css?v=178">
-  <link rel="stylesheet" href="css/v102-rinchan-face.css?v=178">
-  <link rel="stylesheet" href="css/v097-home-fixes.css?v=178">
-  <link rel="stylesheet" href="css/v128-mobile-polish.css?v=178">
-  <link rel="stylesheet" href="css/v1013-hotfix.css?v=178">
-  <link rel="stylesheet" href="css/v1014-hotfix.css?v=178">
-  <link rel="stylesheet" href="css/v1034-nav-active.css?v=178">
-  <link rel="stylesheet" href="css/v1064-home-world.css?v=178">
-  <link rel="stylesheet" href="css/v1078-polish.css?v=178">
-  <link rel="stylesheet" href="css/v1079-season.css?v=178">
-  <link rel="stylesheet" href="css/v1120-text-balance.css?v=178">
-  <link rel="stylesheet" href="css/v1139-home-header-fix.css?v=178">
-  <link rel="stylesheet" href="css/v1140-desktop-layout-fix.css?v=178">
-  <link rel="stylesheet" href="css/v167-final-layout-override.css?v=191">
+  <link rel="stylesheet" href="css/home-design-system.css?v=200">
 </head>
-<body class="is-guest">
+<body class="is-guest rinchan-home-system">
 <main class="app home-v1100">
-  <header class="top"><div class="brand rinchan-brand"><img class="rin-img rin-face-brand" src="assets/rinchan-face.svg?v=178" alt="りんちゃん"><span>りんちゃんの杜</span></div><a class="icon-button bell-link" href="pages/news.html" aria-label="りんちゃん通信">&#128236;<span class="notify-badge hidden">0</span></a></header>
-  <nav class="nav"><a class="active" href="index.html">🏠<small>ホーム</small></a><a href="pages/mori.html">🌳<small>杜</small></a><a class="plus" href="pages/activity.html">👟<small>歩数記録</small></a><a href="pages/news.html">📬<small>通信</small></a><a href="pages/mypage.html">📘<small>パスポート</small></a></nav>
-  <section class="sky home-hero" id="homeHero"><div class="petal p1">&#127800;</div><div class="petal p2">&#127800;</div><div class="cloud c1"></div><div class="cloud c2"></div><img class="rin-img rin-face-hero" src="assets/rinchan-face.svg?v=178" alt="りんちゃん"><p class="hello" id="dailyGreeting">おかえり♪</p><h1><span id="name">ゲスト</span>さん</h1><p class="msg" id="dailyMessage">今日の杜を見ていこう。</p><div class="hero-challenge"><span>りんちゃんの今日の一歩</span><strong id="todayChallenge">今日だけの杜を見にいこう</strong></div></section>
-  <section class="card hidden" id="guestEntryPanel" style="text-align:center;"><h2 style="text-align:center;margin-bottom:20px;">りんちゃんの杜へようこそ</h2><a class="submit link-submit" href="pages/login.html">杜へ行く🌳</a><p class="login-helper" style="margin-top:18px;">はじめての方は <a href="pages/register.html">🌱 杜に参加する</a></p></section>
+  <header class="top">
+    <a class="brand rinchan-brand" href="index.html" aria-label="りんちゃんの杜 ホーム">
+      <img class="rin-img rin-face-brand" src="assets/rinchan-face.svg?v=178" alt="">
+      <span>りんちゃんの杜</span>
+    </a>
+    <a class="icon-button bell-link" href="pages/news.html" aria-label="通信とお知らせ">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>
+      <span class="notify-badge hidden">0</span>
+    </a>
+  </header>
+  <nav class="nav" aria-label="メインメニュー">
+    <a class="active" href="index.html" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a>
+    <a href="pages/mori.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a>
+    <a class="plus" href="pages/activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a>
+    <a href="pages/news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small></a>
+    <a href="pages/mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a>
+  </nav>
+  <section class="home-hero" id="homeHero">
+    <div class="hero-copy">
+      <p class="hello" id="dailyGreeting">おかえり♪</p>
+      <h1><span id="name">ゲスト</span>さん</h1>
+      <p class="msg" id="dailyMessage">今日の杜を見ていこう。</p>
+    </div>
+    <img class="rin-img rin-face-hero" src="assets/rinchan-face.svg?v=178" alt="りんちゃん">
+    <div class="hero-challenge"><span>今日のひとこと</span><strong id="todayChallenge">今日だけの杜を見にいこう</strong></div>
+  </section>
+  <section class="card hidden" id="guestEntryPanel"><p class="eyebrow">はじめての方へ</p><h2>りんちゃんの杜へようこそ</h2><p>健康の記録と、仲間へのありがとうを、ひとつの杜で育てます。</p><a class="submit link-submit" href="pages/login.html">ログインする</a><p class="login-helper">アカウントをお持ちでない方は <a href="pages/register.html">杜に参加する</a></p></section>
   <section class="card auth-card hidden" id="authCard"></section>
-  <section class="big-action focus-action primary-record-action hidden" id="homePrimaryAction"><a href="pages/activity.html"><span>&#128095;</span><strong>今日の歩みを記録する</strong><small>あなたの一歩が杜を育てます</small></a></section>
-  <section class="tree-stage hidden" id="homeTreeSection"><p class="label">🌳 あなたの木</p><div class="tree-world growth-world"><div class="tree" id="treeIcon">&#127793;</div><div class="bird">&#128038;</div><div class="sparkle">&#10024;</div></div><h2 id="treeTitle">小さな芽が出ました</h2><p id="treeText">活動を記録すると、あなたの木が少しずつ育ちます。</p><div class="growth-meter"><div id="growthBar"></div></div><p class="growth-note" id="growthNote">次の成長まで、あと少し。</p></section>
-  <section class="card steps-visual-card hidden" id="weeklyStepsChart"></section>
-  <section class="card hidden" id="homeMoriLetter"><p class="label">🌳 今日の杜だより</p><h2 id="homeMoriLetterTitle">今日の杜</h2><p id="homeMoriLetterText" style="line-height:1.7;font-weight:900;color:#667568;white-space:pre-line;">今日の杜を読み込んでいます。</p></section>
+  <div class="home-dashboard hidden" id="homeDashboard">
+    <section class="card today-steps-card" aria-labelledby="todayStepsHeading">
+      <div class="card-heading"><div><p class="eyebrow">今日のサマリー</p><h2 id="todayStepsHeading">今日の歩数</h2></div><span class="line-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg></span></div>
+      <div class="today-step-value"><strong id="todayStepsNumber">0</strong><span>歩</span></div>
+      <div class="today-progress" role="progressbar" aria-label="今日の歩数目標の進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="todayStepsBar"></div></div>
+      <p id="todayStepsStatus">目標までの歩数を確認しています。</p>
+    </section>
+    <section class="big-action focus-action primary-record-action" id="homePrimaryAction"><a href="pages/activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><strong>今日の歩みを記録する</strong><small>あなたの一歩が杜を育てます</small></a></section>
+    <section class="tree-stage" id="homeTreeSection"><div class="card-heading"><div><p class="eyebrow">今日の杜</p><h2 id="treeTitle">小さな芽が出ました</h2></div><a class="text-link" href="pages/mori.html">杜を見る<span aria-hidden="true">→</span></a></div><div class="tree-world growth-world"><div class="tree" id="treeIcon">&#127793;</div><div class="bird">&#128038;</div><div class="sparkle">&#10024;</div></div><p id="treeText">活動を記録すると、あなたの木が少しずつ育ちます。</p><div class="growth-meter"><div id="growthBar"></div></div><p class="growth-note" id="growthNote">次の成長まで、あと少し。</p></section>
+    <section class="card steps-visual-card" id="weeklyStepsChart"></section>
+    <section class="card" id="homeMoriLetter"><div class="card-heading"><div><p class="eyebrow">杜だより</p><h2 id="homeMoriLetterTitle">今日の杜</h2></div><span class="line-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg></span></div><p id="homeMoriLetterText">今日の杜を読み込んでいます。</p></section>
+  </div>
 </main>
-<script src="js/core/device-class.js?v=188"></script><script src="js/config.js?v=178"></script><script src="js/core/storage.js?v=178"></script><script src="js/core/error-log.js?v=178"></script><script src="js/core/api.js?v=178"></script><script src="js/core/sync.js?v=178"></script><script src="js/core/offline-queue.js?v=178"></script><script src="js/core/rinchan-modal.js?v=178"></script><script src="js/features/auth.js?v=178"></script><script src="js/features/activity.js?v=178"></script><script src="js/features/news.js?v=178"></script><script src="js/features/mypage.js?v=178"></script><script src="js/features/growth.js?v=178"></script><script src="js/features/chart.js?v=178"></script><script src="js/features/guide.js?v=178"></script><script src="js/features/voice.js?v=178"></script><script src="js/features/home-world.js?v=178"></script><script src="js/features/flower-album.js?v=178"></script><script src="js/features/season-engine.js?v=178"></script><script src="js/features/growth-animation.js?v=178"></script><script src="js/features/creature-engine.js?v=178"></script><script src="js/features/thanks-home-notice.js?v=178"></script><script src="js/v1138-home-boot.js?v=178"></script>
+<script src="js/core/device-class.js?v=188"></script><script src="js/config.js?v=200"></script><script src="js/core/storage.js?v=178"></script><script src="js/core/error-log.js?v=178"></script><script src="js/core/api.js?v=178"></script><script src="js/core/sync.js?v=178"></script><script src="js/core/offline-queue.js?v=178"></script><script src="js/core/rinchan-modal.js?v=178"></script><script src="js/features/auth.js?v=178"></script><script src="js/features/activity.js?v=178"></script><script src="js/features/news.js?v=178"></script><script src="js/features/mypage.js?v=178"></script><script src="js/features/growth.js?v=178"></script><script src="js/features/chart.js?v=178"></script><script src="js/features/guide.js?v=178"></script><script src="js/features/voice.js?v=178"></script><script src="js/features/home-world.js?v=178"></script><script src="js/features/home-dashboard.js?v=200"></script><script src="js/features/flower-album.js?v=178"></script><script src="js/features/season-engine.js?v=178"></script><script src="js/features/growth-animation.js?v=178"></script><script src="js/features/creature-engine.js?v=178"></script><script src="js/features/thanks-home-notice.js?v=178"></script><script src="js/v1138-home-boot.js?v=200"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* v1.1.38 home boot */
+/* v1.5.27 home boot */
 (function(){
   function getParticipant(){
     try{
@@ -20,6 +20,7 @@
     var chart=document.getElementById('weeklyStepsChart');
     var tree=document.getElementById('homeTreeSection');
     var mori=document.getElementById('homeMoriLetter');
+    var dashboard=document.getElementById('homeDashboard');
     var name=document.getElementById('name');
     var greeting=document.getElementById('dailyGreeting');
     document.body.classList.toggle('is-logged-in',loggedIn);
@@ -27,7 +28,7 @@
     if(name)name.textContent=displayName(user);
     if(greeting)greeting.textContent=loggedIn?'おかえり♪':'こんにちは';
     if(guest)guest.classList.toggle('hidden',loggedIn);
-    [action,chart,tree,mori].forEach(function(el){if(el)el.classList.toggle('hidden',!loggedIn);});
+    [action,chart,tree,mori,dashboard].forEach(function(el){if(el)el.classList.toggle('hidden',!loggedIn);});
   }
   async function boot(){
     try{
@@ -43,6 +44,7 @@
       if(window.RinchanNews&&RinchanNews.updateBadges)RinchanNews.updateBadges();
       if(window.RinchanVoice&&RinchanVoice.renderHome)RinchanVoice.renderHome();
       if(window.RinchanHomeWorld&&RinchanHomeWorld.renderHome)RinchanHomeWorld.renderHome();
+      if(window.RinchanHomeDashboard&&RinchanHomeDashboard.render)RinchanHomeDashboard.render();
       if(window.RinchanFlowerAlbum&&RinchanFlowerAlbum.renderAll)RinchanFlowerAlbum.renderAll();
       if(window.RinchanGrowthAnimation&&RinchanGrowthAnimation.install)RinchanGrowthAnimation.install();
       if(window.RinchanCreatureEngine&&RinchanCreatureEngine.install)RinchanCreatureEngine.install();
