@@ -305,6 +305,91 @@ html { min-height: 100%; background: var(--auth-canvas); }
 .auth-switch { margin: 24px 0 0; color: var(--auth-muted); font-size: 13px; font-weight: 650; text-align: center; }
 .auth-switch a { min-height: 44px; display: inline-flex; align-items: center; color: var(--auth-blue-deep); font-weight: 800; text-underline-offset: 4px; }
 
+/* Authentication alerts: shared modern dialog treatment. */
+.rinchan-auth-system #authDialogOverlay,
+.rinchan-auth-system #rinchanCommonModalOverlay {
+  padding: 22px !important;
+  background: rgba(18, 48, 67, .38) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+}
+.rinchan-auth-system #authDialogOverlay .rinchan-auth-panel-animated,
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-panel {
+  width: min(440px, 100%) !important;
+  padding: 30px 28px 26px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(42, 159, 210, .16) !important;
+  border-radius: 28px !important;
+  background: #fff !important;
+  color: var(--auth-text) !important;
+  box-shadow: 0 28px 72px rgba(23, 59, 88, .22) !important;
+}
+.rinchan-auth-system #authDialogOverlay .rinchan-auth-face-animated,
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-face {
+  width: 78px !important;
+  height: 78px !important;
+  padding: 7px !important;
+  border: 1px solid rgba(42, 159, 210, .10) !important;
+  border-radius: 24px !important;
+  background: linear-gradient(145deg, #effaff, #f3fbf2) !important;
+  object-fit: contain !important;
+  box-shadow: 0 12px 28px rgba(42, 159, 170, .10) !important;
+}
+.rinchan-auth-system #authDialogOverlay .rinchan-auth-speech-animated,
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-speech {
+  max-width: 330px !important;
+  padding: 14px 17px !important;
+  border: 1px solid rgba(42, 159, 210, .14) !important;
+  border-radius: 18px !important;
+  background: #f2fafe !important;
+  color: var(--auth-navy) !important;
+  font-size: 16px !important;
+  font-weight: 750 !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0 !important;
+}
+.rinchan-auth-system #authDialogOverlay .rinchan-auth-speech-animated::after,
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-speech::after { display: none !important; }
+.rinchan-auth-system #authDialogOverlay div[style*="font-size:14px"],
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-note {
+  margin: 0 0 22px !important;
+  color: var(--auth-muted) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  line-height: 1.7 !important;
+}
+.rinchan-auth-system #authDialogOverlay div[style*="display:flex"][style*="justify-content:center"],
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-actions {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+.rinchan-auth-system #authDialogOverlay .auth-dialog-close,
+.rinchan-auth-system #authDialogOverlay button,
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-button {
+  width: min(100%, 300px) !important;
+  min-height: 54px !important;
+  padding: 11px 22px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--auth-gradient) !important;
+  color: #fff !important;
+  font-family: inherit !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 12px 26px rgba(42, 159, 170, .20) !important;
+  cursor: pointer !important;
+}
+.rinchan-auth-system #authDialogOverlay .auth-dialog-close:focus-visible,
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-button:focus-visible {
+  outline: 3px solid rgba(42, 159, 210, .28) !important;
+  outline-offset: 3px !important;
+}
+
 .rinchan-welcome-system .auth-app { padding-bottom: 40px; display: flex; flex-direction: column; }
 .auth-header-welcome { flex: 0 0 auto; }
 .welcome-panel {
@@ -404,6 +489,15 @@ html { min-height: 100%; background: var(--auth-canvas); }
   .welcome-panel h1 { font-size: 32px; }
   .welcome-panel > p:not(.auth-eyebrow) { font-size: 14px; }
   .mobile-break { display: initial; }
+  .rinchan-auth-system #authDialogOverlay,
+  .rinchan-auth-system #rinchanCommonModalOverlay { padding: 18px !important; }
+  .rinchan-auth-system #authDialogOverlay .rinchan-auth-panel-animated,
+  .rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-panel {
+    padding: 25px 20px 21px !important;
+    border-radius: 24px !important;
+  }
+  .rinchan-auth-system #authDialogOverlay .rinchan-auth-speech-animated,
+  .rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-speech { font-size: 15px !important; }
 }
 
 @media (max-height: 760px) and (min-width: 900px) {
