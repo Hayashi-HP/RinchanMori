@@ -1,5 +1,5 @@
 const RinchanActivityDashboard = (() => {
-  const VERSION = 'v1.5.32';
+  const VERSION = 'v1.5.37';
 
   function readJson(key, fallback) {
     if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
@@ -19,12 +19,6 @@ const RinchanActivityDashboard = (() => {
     const parsed = new Date(raw);
     return isNaN(parsed) ? raw.slice(0, 10) : dateKey(parsed);
   }
-  function displayDate(key) {
-    const parts = String(key || '').split('-').map(Number);
-    if (parts.length !== 3 || !parts[1] || !parts[2]) return '今日';
-    const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    return parts[1] + '月' + parts[2] + '日（' + ['日','月','火','水','木','金','土'][date.getDay()] + '）';
-  }
   function totalsByDate() {
     const totals = {};
     readJson('rinchanActivities', []).forEach(item => {
@@ -39,29 +33,36 @@ const RinchanActivityDashboard = (() => {
     start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
     return Array.from({ length: 7 }, (_, index) => { const day = new Date(start); day.setDate(start.getDate() + index); return day; });
   }
+  function displayWeekRange(days) {
+    if (!days || days.length < 7) return '今週';
+    return (days[0].getMonth() + 1) + '/' + days[0].getDate() + '〜' + (days[6].getMonth() + 1) + '/' + days[6].getDate();
+  }
   function render() {
     const dateInput = document.getElementById('activityDate');
     if (!dateInput) return;
     const selectedKey = normalizeDateKey(dateInput.value) || dateKey(new Date());
     const totals = totalsByDate();
-    const steps = Number(totals[selectedKey] || 0);
     const user = participant();
-    const goal = Math.max(1, Number(String(user.dailyStepGoal || user.stepGoal || 8000).replace(/,/g, '')) || 8000);
-    const percent = Math.min(100, Math.round((steps / goal) * 100));
+    const customGoal = Number(String(user.weeklyStepGoal || '').replace(/,/g, '')) || 0;
+    const dailyGoal = Number(String(user.dailyStepGoal || user.stepGoal || 8000).replace(/,/g, '')) || 8000;
+    const goal = Math.max(1, customGoal || dailyGoal * 7);
+    const selectedDate = new Date(selectedKey + 'T00:00:00');
+    const days = weekDays(isNaN(selectedDate) ? new Date() : selectedDate);
+    const values = days.map(day => Number(totals[dateKey(day)] || 0));
+    const total = values.reduce((sum, value) => sum + value, 0);
+    const rawPercent = Math.round((total / goal) * 100);
+    const percent = Math.min(100, rawPercent);
+    const overflowPercent = Math.min(100, Math.max(0, rawPercent - 100));
     const ring = document.getElementById('activityProgressRing');
     const stepsEl = document.getElementById('activitySummarySteps');
     const goalEl = document.getElementById('activitySummaryGoal');
     const dateEl = document.getElementById('activitySummaryDate');
-    if (ring) { ring.style.setProperty('--activity-progress', (percent * 3.6) + 'deg'); ring.style.setProperty('--activity-blue-progress', (percent * 2.1) + 'deg'); ring.setAttribute('aria-valuenow', String(percent)); }
-    if (stepsEl) stepsEl.textContent = steps.toLocaleString('ja-JP');
-    if (goalEl) goalEl.textContent = '目標 ' + goal.toLocaleString('ja-JP') + '歩';
-    if (dateEl) dateEl.textContent = displayDate(selectedKey);
+    if (ring) { ring.style.setProperty('--activity-progress', (percent * 3.6) + 'deg'); ring.style.setProperty('--activity-blue-progress', (percent * 2.1) + 'deg'); ring.style.setProperty('--activity-overflow', (overflowPercent * 3.6) + 'deg'); ring.setAttribute('aria-valuenow', String(percent)); ring.setAttribute('aria-valuetext', total.toLocaleString('ja-JP') + '歩、週間目標の' + rawPercent + '%'); }
+    if (stepsEl) stepsEl.textContent = total.toLocaleString('ja-JP');
+    if (goalEl) goalEl.textContent = (customGoal ? '週間目標 ' : '標準目標 ') + goal.toLocaleString('ja-JP') + '歩' + (rawPercent >= 100 ? '・' + rawPercent + '%' : '');
+    if (dateEl) dateEl.textContent = displayWeekRange(days);
 
-    const selectedDate = new Date(selectedKey + 'T00:00:00');
-    const days = weekDays(isNaN(selectedDate) ? new Date() : selectedDate);
-    const values = days.map(day => Number(totals[dateKey(day)] || 0));
-    const maximum = Math.max(goal, ...values, 1);
-    const total = values.reduce((sum, value) => sum + value, 0);
+    const maximum = Math.max(dailyGoal, ...values, 1);
     const totalEl = document.getElementById('activityWeekTotal');
     const barsEl = document.getElementById('activityWeekBars');
     if (totalEl) totalEl.textContent = total.toLocaleString('ja-JP') + '歩';
