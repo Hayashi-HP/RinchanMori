@@ -300,9 +300,9 @@ body.rinchan-home-system {
   .rinchan-home-system .rin-face-hero { width: 100px; height: 108px; }
   .rinchan-home-system .hero-challenge { min-height: 54px; padding: 10px 14px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; border-radius: 16px; }
   .rinchan-home-system .hero-challenge strong { font-size: 13px; }
-  .rinchan-home-system .home-dashboard { grid-template-columns: 1fr; gap: 16px; }
+  .rinchan-home-system .home-dashboard { display: flex !important; flex-direction: column !important; gap: 16px; }
   .rinchan-home-system .card,
-  .rinchan-home-system .tree-stage { grid-column: auto; padding: 22px !important; }
+  .rinchan-home-system .tree-stage { grid-column: auto; width: 100% !important; min-width: 0 !important; max-width: 100% !important; padding: 22px !important; }
   .rinchan-home-system .today-steps-card { min-height: 480px; padding: 24px 22px !important; }
   .rinchan-home-system .today-ring { width: 218px; height: 218px; }
   .rinchan-home-system .tree-stage { min-height: 380px; }
@@ -313,7 +313,84 @@ body.rinchan-home-system {
   .rinchan-home-system .tree { font-size: 78px; }
   .rinchan-home-system .steps-visual-card,
   .rinchan-home-system #homeMoriLetter { min-height: 0; }
+  .rinchan-home-system .steps-visual-card { overflow: hidden !important; }
+  .rinchan-home-system .steps-bars { width: 100%; min-width: 0; gap: 7px; }
+  .rinchan-home-system .steps-bar-col,
+  .rinchan-home-system .steps-bar-track { min-width: 0; }
   .rinchan-home-system .thanks-home-notice { margin-bottom: 16px !important; padding: 20px 18px !important; }
+}
+
+/* 実端末では「デスクトップ用Webサイト」設定でも必ず1カラムにする。 */
+html.is-mobile-device .rinchan-home-system .app { width: 100% !important; max-width: 100% !important; padding: 0 18px 116px !important; }
+html.is-mobile-device .rinchan-home-system .home-dashboard { width: 100% !important; max-width: 100% !important; display: flex !important; flex-direction: column !important; gap: 16px !important; overflow: visible !important; }
+html.is-mobile-device .rinchan-home-system .home-dashboard > .card,
+html.is-mobile-device .rinchan-home-system .home-dashboard > .tree-stage { grid-column: auto !important; flex: 0 0 auto !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; margin: 0 !important; }
+html.is-mobile-device .rinchan-home-system .today-steps-card { display: flex !important; flex-direction: column !important; align-items: center !important; }
+html.is-mobile-device .rinchan-home-system .steps-visual-card { overflow: hidden !important; }
+html.is-mobile-device .rinchan-home-system .steps-summary,
+html.is-mobile-device .rinchan-home-system .steps-bars { width: 100% !important; min-width: 0 !important; max-width: 100% !important; }
+html.is-mobile-device .rinchan-home-system .steps-bars { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; gap: 7px !important; }
+html.is-mobile-device .rinchan-home-system .steps-bar-col,
+html.is-mobile-device .rinchan-home-system .steps-bar-track { min-width: 0 !important; max-width: 100% !important; }
+
+/* 1920 × 1080級のPCでは、主要情報をスクロールなしで一覧できる密度にする。 */
+@media (min-width: 1200px) and (min-height: 800px) {
+  .rinchan-home-system .app { padding-bottom: 12px; }
+  .rinchan-home-system .top { height: 54px; }
+  .rinchan-home-system .rin-face-brand { width: 38px; height: 38px; }
+  .rinchan-home-system .brand { font-size: 18px; }
+  .rinchan-home-system .icon-button { width: 42px; height: 42px; }
+  .rinchan-home-system .rinchan-sync-status { min-height: 22px; margin-bottom: 4px; font-size: 10px; }
+  .rinchan-home-system .nav { top: 8px; height: 50px; margin-bottom: 14px; padding: 4px; border-radius: 17px; }
+  .rinchan-home-system .nav a { min-height: 40px; padding-block: 4px; }
+  .rinchan-home-system .nav svg { width: 19px; height: 19px; }
+  .rinchan-home-system .nav small { font-size: 12px; }
+  .rinchan-home-system .home-hero { min-height: 156px; margin-bottom: 14px; padding: 16px 34px 14px; grid-template-columns: minmax(0, 1fr) 170px; column-gap: 24px; border-radius: 22px; }
+  .rinchan-home-system .home-hero .hello { margin-bottom: 5px; font-size: 12px; }
+  .rinchan-home-system .home-hero h1 { font-size: 30px; line-height: 1.22; letter-spacing: -.035em; }
+  .rinchan-home-system .home-hero .msg { margin-top: 6px; font-size: 14px; line-height: 1.5; }
+  .rinchan-home-system .rin-face-hero { width: 132px; height: 100px; }
+  .rinchan-home-system .hero-challenge { min-height: 42px; padding: 7px 14px; border-radius: 14px; }
+  .rinchan-home-system .hero-challenge strong { font-size: 13px; }
+  .rinchan-home-system .thanks-home-notice { min-height: 54px !important; margin-bottom: 14px !important; padding: 9px 18px !important; }
+  .rinchan-home-system .thanks-home-notice-row { grid-template-columns: 36px minmax(0, 1fr) !important; gap: 12px !important; }
+  .rinchan-home-system .thanks-home-notice-flower { width: 36px !important; height: 36px !important; font-size: 20px !important; }
+  .rinchan-home-system .thanks-home-notice h2 { font-size: 15px !important; }
+  .rinchan-home-system .home-dashboard { gap: 14px; }
+  .rinchan-home-system .card,
+  .rinchan-home-system .tree-stage { padding: 18px !important; }
+  .rinchan-home-system .today-steps-card { min-height: 304px; padding: 16px 22px !important; }
+  .rinchan-home-system .today-date { font-size: 13px !important; }
+  .rinchan-home-system .today-lead { margin: 4px 0 8px !important; font-size: 11px !important; }
+  .rinchan-home-system .today-ring { width: 150px; height: 150px; padding: 9px; }
+  .rinchan-home-system .today-ring-inner > p { margin-bottom: 4px !important; font-size: 10px !important; }
+  .rinchan-home-system .today-step-value strong { font-size: 34px; }
+  .rinchan-home-system .today-ring small { margin-top: 5px; font-size: 9px; }
+  .rinchan-home-system #todayStepsStatus { margin-top: 7px !important; font-size: 11px; }
+  .rinchan-home-system .primary-record-action { padding-top: 9px !important; }
+  .rinchan-home-system .primary-record-action a { min-height: 44px !important; padding: 8px 18px !important; }
+  .rinchan-home-system .primary-record-action a strong { font-size: 14px !important; }
+  .rinchan-home-system .tree-stage { min-height: 304px; padding: 18px 22px !important; }
+  .rinchan-home-system .card h2,
+  .rinchan-home-system .tree-stage h2 { font-size: 18px; }
+  .rinchan-home-system .eyebrow { font-size: 10px; }
+  .rinchan-home-system .text-link { min-height: 34px; font-size: 11px; }
+  .rinchan-home-system .growth-world { height: 125px; margin: 10px 0 8px; border-radius: 15px; }
+  .rinchan-home-system .tree { font-size: 76px; }
+  .rinchan-home-system .bird { top: 18px; font-size: 19px; }
+  .rinchan-home-system .sparkle { top: 18px; font-size: 16px; }
+  .rinchan-home-system .tree-stage > p:not(.eyebrow) { font-size: 12px; line-height: 1.45; }
+  .rinchan-home-system .growth-meter { margin-top: 8px; }
+  .rinchan-home-system .growth-note { margin-top: 6px !important; font-size: 10px !important; }
+  .rinchan-home-system .steps-visual-card,
+  .rinchan-home-system #homeMoriLetter { min-height: 214px; }
+  .rinchan-home-system .steps-summary .label { margin-bottom: 6px !important; font-size: 10px; }
+  .rinchan-home-system .steps-summary > strong { font-size: 30px; }
+  .rinchan-home-system .steps-summary > small,
+  .rinchan-home-system .steps-goal,
+  .rinchan-home-system .steps-trend { font-size: 10px; }
+  .rinchan-home-system .steps-bars { height: 90px; margin-top: 10px; }
+  .rinchan-home-system #homeMoriLetterText { margin-top: 14px; font-size: 13px; line-height: 1.65; }
 }
 
 @media (max-width: 380px) {
