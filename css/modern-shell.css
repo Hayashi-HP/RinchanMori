@@ -1,4 +1,29 @@
 /* Rinchan Mori shared modern page shell v1.0.0 */
+.rinchan-home-system .card-link,
+.rinchan-activity-system .card-link,
+.rinchan-mori-system .card-link {
+  min-height: 44px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--rm-blue-deep);
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .18s ease;
+}
+.rinchan-home-system .card-link span,
+.rinchan-activity-system .card-link span,
+.rinchan-mori-system .card-link span { color: var(--rm-blue); transition: transform .18s ease; }
+.rinchan-home-system .card-link:hover,
+.rinchan-activity-system .card-link:hover,
+.rinchan-mori-system .card-link:hover { color: var(--rm-green-deep); }
+.rinchan-home-system .card-link:hover span,
+.rinchan-activity-system .card-link:hover span,
+.rinchan-mori-system .card-link:hover span { transform: translateX(3px); }
+
 @media (min-width: 900px) {
   .rinchan-home-system .top,
   .rinchan-activity-system .top,

@@ -100,7 +100,6 @@ body.rinchan-home-system {
 .rinchan-home-system .icon-button:hover { transform: translateY(-1px); box-shadow: var(--rm-shadow); }
 .rinchan-home-system .icon-button svg,
 .rinchan-home-system .nav svg,
-.rinchan-home-system .line-icon svg,
 .rinchan-home-system .primary-record-action svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .rinchan-home-system .icon-button svg { width: 22px; height: 22px; }
 .rinchan-home-system .notify-badge {
@@ -229,9 +228,6 @@ body.rinchan-home-system {
 .rinchan-home-system .eyebrow { margin: 0 0 5px; color: var(--rm-green-deep); font-size: 12px; font-weight: 800; letter-spacing: .06em; }
 .rinchan-home-system .card h2,
 .rinchan-home-system .tree-stage h2 { margin: 0; color: var(--rm-navy); font-size: 22px; font-weight: 720; line-height: 1.4; letter-spacing: -.035em; }
-.rinchan-home-system .line-icon { width: 42px; height: 42px; flex: 0 0 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--rm-blue-soft); color: var(--rm-blue); }
-.rinchan-home-system .line-icon svg { width: 21px; height: 21px; }
-
 .rinchan-home-system .today-steps-card { grid-column: span 5; min-height: 500px; padding: 28px 34px !important; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .rinchan-home-system .today-date { margin: 0; color: var(--rm-navy) !important; font-size: 15px !important; font-weight: 800 !important; }
 .rinchan-home-system .today-lead { margin: 7px 0 22px !important; color: var(--rm-muted) !important; font-size: 13px !important; font-weight: 560 !important; }
@@ -252,7 +248,6 @@ body.rinchan-home-system {
 .rinchan-home-system .primary-record-action a small { display: none; }
 
 .rinchan-home-system .tree-stage { grid-column: span 7; min-height: 500px; padding: 32px !important; }
-.rinchan-home-system .text-link { min-height: 44px; padding: 0 7px; display: inline-flex; align-items: center; gap: 6px; color: var(--rm-blue); font-size: 13px; font-weight: 750; text-decoration: none; }
 .rinchan-home-system .growth-world { position: relative; height: 242px; margin: 24px 0 18px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 20px; background: linear-gradient(180deg, #eefaff 0%, #f4fcef 100%); }
 .rinchan-home-system .tree { position: relative; z-index: 2; font-size: 104px; line-height: 1; }
 .rinchan-home-system .bird { position: absolute; top: 35px; right: 29%; font-size: 24px; }
@@ -312,7 +307,7 @@ body.rinchan-home-system {
   .rinchan-home-system .tree-stage .card-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 10px; }
   .rinchan-home-system .tree-stage .card-heading > div { min-width: 0; }
   .rinchan-home-system .tree-stage .card-heading h2 { max-width: 100%; font-size: 18px; line-height: 1.45; text-wrap: balance; overflow-wrap: anywhere; }
-  .rinchan-home-system .tree-stage .text-link { min-width: 88px; padding-inline: 2px; justify-content: flex-end; white-space: nowrap; word-break: keep-all; }
+  .rinchan-home-system .tree-stage .card-link { min-width: 88px; padding-inline: 2px; justify-content: flex-end; white-space: nowrap; word-break: keep-all; }
   .rinchan-home-system .growth-world { height: 170px; }
   .rinchan-home-system .tree { font-size: 78px; }
   .rinchan-home-system .steps-visual-card,
@@ -378,7 +373,7 @@ html.is-mobile-device .rinchan-home-system .steps-bar-track { min-width: 0 !impo
   .rinchan-home-system .card h2,
   .rinchan-home-system .tree-stage h2 { font-size: 18px; }
   .rinchan-home-system .eyebrow { font-size: 10px; }
-  .rinchan-home-system .text-link { min-height: 34px; font-size: 11px; }
+  .rinchan-home-system .card-link { min-height: 34px; font-size: 11px; }
   .rinchan-home-system .growth-world { height: 150px; margin: 14px 0 10px; border-radius: 16px; }
   .rinchan-home-system .tree { font-size: 84px; }
   .rinchan-home-system .bird { top: 18px; font-size: 19px; }

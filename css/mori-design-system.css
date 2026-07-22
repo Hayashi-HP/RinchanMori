@@ -29,10 +29,6 @@ body.rinchan-mori-system { background:radial-gradient(circle at 9% 12%,rgba(76,1
 .rinchan-mori-system .card,.rinchan-mori-system .mori-visual { min-width:0; margin:0!important; padding:28px!important; border:1px solid var(--rm-line)!important; border-radius:var(--rm-radius)!important; background:rgba(255,255,255,.97)!important; box-shadow:var(--rm-shadow)!important; }
 .rinchan-mori-system .card h2,.rinchan-mori-system .mori-visual h2 { margin:0!important; color:var(--rm-navy)!important; font-size:21px!important; font-weight:720!important; line-height:1.4!important; letter-spacing:-.035em!important; }
 .rinchan-mori-system .card-heading,.rinchan-mori-system .section-head-row,.rinchan-mori-system .mori-map-heading { display:flex!important; align-items:flex-start!important; justify-content:space-between!important; gap:16px!important; }
-.rinchan-mori-system .line-icon { width:42px; height:42px; flex:0 0 42px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; background:var(--rm-blue-soft); color:var(--rm-blue); }
-.rinchan-mori-system .line-icon svg { width:21px; height:21px; }
-.rinchan-mori-system .flower-icon { background:#fff2f7; color:#d26a9b; font-size:21px; }
-
 .rinchan-mori-system #moriStatusCard { grid-column:span 4; grid-row:1; }
 .rinchan-mori-system #moriStatusCard .summary-pill { min-height:36px; padding:0 13px; display:inline-flex; align-items:center; border-radius:999px; background:var(--rm-green-soft); color:var(--rm-green-deep); font-size:12px; font-weight:750; white-space:nowrap; }
 .rinchan-mori-system #moriStatusCard .forest-hero-row { margin-top:24px; display:grid!important; grid-template-columns:84px minmax(0,1fr)!important; align-items:center!important; gap:18px!important; text-align:left!important; }

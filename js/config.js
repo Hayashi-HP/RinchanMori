@@ -1,6 +1,6 @@
 const RINCHAN_CONFIG = {
   API_URL: "https://script.google.com/macros/s/AKfycbxvL3R5rSqg2a56ao60w5hA4_CjY77unYKPptCjhEjyLXkmQB8-PjVKxkeKAoPizjVE/exec",
-  UI_VERSION: "v1.5.39"
+  UI_VERSION: "v1.5.40"
 };
 window.RINCHAN_CONFIG = RINCHAN_CONFIG;
 
