@@ -1,7 +1,8 @@
 /* Rinchan Mori shared modern page shell v1.0.0 */
 @media (min-width: 900px) {
   .rinchan-home-system .top,
-  .rinchan-activity-system .top {
+  .rinchan-activity-system .top,
+  .rinchan-mori-system .top {
     height: 92px;
     padding-block: 12px;
   }
@@ -17,19 +18,22 @@
   }
 
   .rinchan-home-system .icon-button,
-  .rinchan-activity-system .icon-button {
+  .rinchan-activity-system .icon-button,
+  .rinchan-mori-system .icon-button {
     width: 48px;
     height: 48px;
     min-height: 48px;
   }
 
-  .rinchan-activity-system .page-title {
+  .rinchan-activity-system .page-title,
+  .rinchan-mori-system .page-title {
     font-size: 22px;
     line-height: 1.4;
   }
 
   .rinchan-home-system .nav,
-  .rinchan-activity-system .nav {
+  .rinchan-activity-system .nav,
+  .rinchan-mori-system .nav {
     top: 16px;
     height: 74px;
     margin-bottom: 28px;
@@ -38,7 +42,8 @@
   }
 
   .rinchan-home-system .nav a,
-  .rinchan-activity-system .nav a {
+  .rinchan-activity-system .nav a,
+  .rinchan-mori-system .nav a {
     min-height: 60px;
     padding: 9px 14px;
     gap: 10px;
@@ -46,13 +51,15 @@
   }
 
   .rinchan-home-system .nav svg,
-  .rinchan-activity-system .nav svg {
+  .rinchan-activity-system .nav svg,
+  .rinchan-mori-system .nav svg {
     width: 23px;
     height: 23px;
   }
 
   .rinchan-home-system .nav small,
-  .rinchan-activity-system .nav small {
+  .rinchan-activity-system .nav small,
+  .rinchan-mori-system .nav small {
     font-size: 13px;
     line-height: 1.2;
   }

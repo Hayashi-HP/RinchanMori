@@ -60,10 +60,8 @@ const RinchanMoriWorld = (() => {
     card.id = 'moriDailyLetterCard';
     card.className = 'card mori-thanks-world-card mori-daily-letter-card';
     card.innerHTML = [
-      '<div class="rinchan-world-row" style="display:flex;align-items:center;gap:14px;">',
-      '<img src="../assets/rinchan-face.svg?v=1049" alt="りんちゃん" style="width:58px;height:auto;filter:drop-shadow(0 8px 12px rgba(63,113,70,.12));">',
-      '<div><p class="label">🐿️ りんちゃんの杜だより</p><h2 id="moriDailyLetterText" style="margin:4px 0 0;font-size:18px;line-height:1.6;color:#2f5139;white-space:pre-line;">今日の杜を見ていこう♪</h2></div>',
-      '</div>'
+      '<p class="label">杜だより</p>',
+      '<h2 id="moriDailyLetterText">今日の杜を見ていこう</h2>'
     ].join('');
     intro.insertAdjacentElement('afterend', card);
   }
