@@ -165,6 +165,36 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, data: getCachedAdminStats(ss), version: VERSION, cached: true });
   }
 
+  if (action === 'adminUserList') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_USERS)) return adminDenied('adminUserList', ss, data);
+    try {
+      const list = listAdminUsers(ss, data || {});
+      auditAction(ss, 'adminUserList', data, 'ok', 'view_admin_user_list', { total: list.total });
+      return jsonOutput({ ok: true, action, data: list, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminUserList', data, 'ng', e.message || 'admin_user_list_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_user_list_failed', reason: e.message || 'admin_user_list_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminUpdateUser') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_USERS)) return adminDenied('adminUpdateUser', ss, data);
+    try {
+      const user = updateAdminUser(ss, data || {});
+      auditAction(ss, 'adminUpdateUser', data, 'ok', 'admin_user_updated', {
+        targetEmployeeId: user.employeeId,
+        dept: user.dept,
+        role: user.role
+      });
+      return jsonOutput({ ok: true, action, user, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminUpdateUser', data, 'ng', e.message || 'admin_user_update_failed', {
+        targetEmployeeId: data.targetEmployeeId || ''
+      });
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_user_update_failed', reason: e.message || 'admin_user_update_failed', version: VERSION });
+    }
+  }
+
   if (action === 'adminActivityRows') {
     const denied = requireAdminAction('adminActivityRows', ss, data);
     if (denied) return denied;

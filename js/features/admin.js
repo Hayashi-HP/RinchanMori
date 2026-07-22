@@ -228,7 +228,7 @@ const RinchanAdmin = (() => {
 
   function isAdminUser(user) {
     if (window.RinchanApi && typeof RinchanApi.isAdminUser === 'function') return RinchanApi.isAdminUser(user);
-    return !!(user && (String(user.admin || '') === '1' || user.admin === true || String(user.role || '').toLowerCase() === 'admin'));
+    return !!(user && (String(user.admin || '') === '1' || user.admin === true || ['admin', 'system'].indexOf(String(user.role || '').toLowerCase()) >= 0));
   }
 
   function authState() {

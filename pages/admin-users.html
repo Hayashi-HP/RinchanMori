@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>職員管理｜りんちゃんの杜</title>
+  <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css?v=157">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=157">
+  <link rel="stylesheet" href="../css/sync-status-design.css?v=244">
+  <link rel="stylesheet" href="../css/admin-design-system.css?v=251">
+</head>
+<body class="admin-page rinchan-admin-system">
+<main class="app admin-app-v132 admin-users-app">
+  <header class="top"><a href="admin.html" class="back icon-button" aria-label="管理画面へ戻る"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a><div class="page-title">管理画面</div><button class="icon-button admin-refresh-button" id="adminUsersRefresh" type="button" aria-label="職員一覧を更新"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 2M17.9 15A7 7 0 0 1 6 18l-2-2"/></svg></button></header>
+  <nav class="nav" aria-label="メインメニュー"><a href="../index.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a><a href="mori.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a><a class="plus" href="activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a><a href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small></a><a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a></nav>
+
+  <section class="admin-hero">
+    <p class="label">管理者専用</p>
+    <h1>職員管理</h1>
+    <p><span class="admin-hero-line">職員情報、所属、権限、</span><span class="admin-hero-line">週間目標を確認・更新します。</span></p>
+    <div class="admin-updated" id="adminUsersStatus">読み込み中...</div>
+  </section>
+
+  <section class="admin-card">
+    <h2>職員を探す</h2>
+    <p class="admin-note">氏名、ニックネーム、社員番号、メールから検索できます。</p>
+    <div class="admin-user-filters">
+      <label class="wide">キーワード
+        <input id="adminUsersQuery" type="search" placeholder="氏名・社員番号・メール">
+      </label>
+      <label>所属
+        <select id="adminUsersDept"><option value="">全部署</option></select>
+      </label>
+      <label>権限
+        <select id="adminUsersRole"><option value="">すべて</option></select>
+      </label>
+    </div>
+    <div id="adminUsersList" class="admin-user-list"><p class="admin-empty">読み込み中...</p></div>
+  </section>
+
+  <section class="admin-card hidden" id="adminUserEditor">
+    <h2>職員情報を編集</h2>
+    <p class="admin-note">社員番号と暗証番号はこの画面では変更しません。</p>
+    <div class="admin-user-form-grid">
+      <label>社員番号
+        <input id="adminUserEmployeeId" type="text" readonly aria-readonly="true">
+      </label>
+      <label>氏名（必須）
+        <input id="adminUserName" type="text" maxlength="80" autocomplete="name">
+      </label>
+      <label>ニックネーム
+        <input id="adminUserNick" type="text" maxlength="40">
+      </label>
+      <label>メール
+        <input id="adminUserEmail" type="email" maxlength="160" autocomplete="email">
+      </label>
+      <label>所属
+        <select id="adminUserDept"></select>
+      </label>
+      <label>権限
+        <select id="adminUserRole"></select>
+      </label>
+      <label class="wide">週間歩数目標
+        <input id="adminUserWeeklyGoal" type="number" min="1000" max="1000000" step="1000" inputmode="numeric" placeholder="例: 70000">
+      </label>
+    </div>
+    <p class="admin-user-safety-note">管理者権限の変更は、次回ログイン後の表示にも反映されます。自分自身の管理権限は外せません。</p>
+    <div class="admin-user-form-actions">
+      <button type="button" class="admin-button" id="adminUserSave">変更を保存</button>
+      <button type="button" class="admin-button soft" id="adminUserCancel">キャンセル</button>
+    </div>
+    <div id="adminUserMessage" class="admin-user-message" aria-live="polite"></div>
+  </section>
+
+  <section class="big-action focus-action admin-return-action"><a href="admin.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg><strong>管理画面へ戻る</strong><small>運用チェックへ戻る</small></a></section>
+</main>
+
+<script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=240"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=181"></script><script src="../js/core/sync.js?v=240"></script><script src="../js/core/offline-queue.js?v=244"></script><script src="../js/features/admin-users.js?v=1"></script>
+</body>
+</html>

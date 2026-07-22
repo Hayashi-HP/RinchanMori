@@ -192,6 +192,144 @@ function rankMembers(members) {
   });
 }
 
+function adminUserRoleOptions() {
+  return [
+    { value: ROLE_GENERAL, label: '一般' },
+    { value: ROLE_LEADER, label: 'リーダー' },
+    { value: ROLE_HEAD, label: '責任者' },
+    { value: ROLE_MANAGER, label: '管理職' },
+    { value: ROLE_ADMIN, label: '管理者' },
+    { value: ROLE_SYSTEM, label: 'システム管理者' }
+  ];
+}
+
+function adminUserSummary(user, activityStat) {
+  const employeeId = normalizeEmployeeId(user.employeeId || user.id || '');
+  const role = normalizeRole(user.role, user.admin);
+  const stat = activityStat || {};
+  return {
+    employeeId,
+    name: String(user.name || ''),
+    nick: String(user.nick || ''),
+    dept: String(user.dept || ''),
+    email: String(user.email || ''),
+    role,
+    admin: role === ROLE_ADMIN || role === ROLE_SYSTEM ? '1' : '',
+    weeklyStepGoal: String(user.weeklyStepGoal || ''),
+    activityCount: Number(stat.activityCount || 0),
+    totalSteps: Number(stat.totalSteps || 0),
+    lastDate: String(stat.lastDate || ''),
+    updatedAt: String(user.updatedAt || user.lastSavedAt || '')
+  };
+}
+
+function listAdminUsers(ss, data) {
+  const query = String(data.query || '').trim().toLowerCase();
+  const deptFilter = String(data.dept || '').trim();
+  const roleFilter = String(data.role || '').trim().toLowerCase();
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
+  const stats = buildUserStats(users, activities, false);
+
+  const rows = users.map(user => {
+    const employeeId = normalizeEmployeeId(user.employeeId || user.id || '');
+    if (!employeeId) return null;
+    const row = adminUserSummary(user, stats[employeeId]);
+    const searchText = [row.employeeId, row.name, row.nick, row.dept, row.email].join(' ').toLowerCase();
+    if (query && searchText.indexOf(query) < 0) return null;
+    if (deptFilter && row.dept !== deptFilter) return null;
+    if (roleFilter && row.role !== roleFilter) return null;
+    return row;
+  }).filter(Boolean).sort((a, b) => {
+    return String(a.dept || '').localeCompare(String(b.dept || ''), 'ja')
+      || String(a.name || a.employeeId).localeCompare(String(b.name || b.employeeId), 'ja');
+  });
+
+  return {
+    users: rows,
+    total: rows.length,
+    departments: getDepartments(ss).map(item => item.deptName).filter(Boolean),
+    roles: adminUserRoleOptions(),
+    generatedAt: new Date().toISOString()
+  };
+}
+
+function adminUserColumnMap(sheet) {
+  const lastColumn = sheet.getLastColumn();
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  return headers.reduce((map, header, index) => {
+    map[String(header || '').trim()] = index + 1;
+    return map;
+  }, {});
+}
+
+function parseAdminWeeklyStepGoal(value) {
+  const raw = String(value === undefined || value === null ? '' : value).trim();
+  if (!raw) return '';
+  if (!/^\d+$/.test(raw)) throw new Error('weekly_step_goal_integer_required');
+  const goal = Number(raw);
+  if (!isFinite(goal) || goal < 1000 || goal > 1000000) throw new Error('weekly_step_goal_out_of_range');
+  return goal;
+}
+
+function updateAdminUser(ss, data) {
+  const actor = getUserPermissionContext(ss, data);
+  if (!actor || actor.permissions.indexOf(PERMISSION_MANAGE_USERS) < 0) throw new Error('manage_users_required');
+
+  const targetEmployeeId = normalizeEmployeeId(data.targetEmployeeId || data.userEmployeeId || '');
+  if (!targetEmployeeId) throw new Error('target_employee_id_required');
+
+  const sheet = ss.getSheetByName(SHEET_USERS);
+  const users = readTable(sheet);
+  const targetIndex = users.findIndex(user => normalizeEmployeeId(user.employeeId || user.id || '') === targetEmployeeId);
+  if (targetIndex < 0) throw new Error('user_not_found');
+
+  const target = users[targetIndex];
+  const name = String(data.name || '').trim();
+  const nick = String(data.nick || '').trim();
+  const dept = String(data.dept || '').trim();
+  const emailRaw = String(data.email || '').trim();
+  const email = emailRaw ? normalizeEmail(emailRaw) : '';
+  const roleRaw = String(data.role || '').trim().toLowerCase();
+  const role = normalizeRole(roleRaw, '');
+  const weeklyStepGoal = parseAdminWeeklyStepGoal(data.weeklyStepGoal);
+
+  if (!name) throw new Error('name_required');
+  if (name.length > 80) throw new Error('name_too_long');
+  if (nick.length > 40) throw new Error('nick_too_long');
+  if (dept.length > 80) throw new Error('dept_too_long');
+  if (emailRaw && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('email_invalid');
+  if (email.length > 160) throw new Error('email_too_long');
+  if (!ROLE_LEVELS[roleRaw]) throw new Error('role_invalid');
+  if (actor.employeeId === targetEmployeeId && role !== ROLE_ADMIN && role !== ROLE_SYSTEM) {
+    throw new Error('self_admin_role_required');
+  }
+
+  const rowNumber = targetIndex + 2;
+  const columns = adminUserColumnMap(sheet);
+  const now = new Date().toISOString();
+  const updates = {
+    name,
+    nick,
+    dept,
+    email,
+    role,
+    admin: role === ROLE_ADMIN || role === ROLE_SYSTEM ? '1' : '',
+    weeklyStepGoal,
+    updatedAt: now,
+    lastSavedAt: now,
+    version: VERSION
+  };
+
+  Object.keys(updates).forEach(key => {
+    if (columns[key]) sheet.getRange(rowNumber, columns[key]).setValue(updates[key]);
+  });
+
+  Object.keys(updates).forEach(key => { target[key] = updates[key]; });
+  invalidateUserCaches();
+  return adminUserSummary(target, null);
+}
+
 function normalizeAdminActivityDate(value) {
   const raw = String(value || '').trim();
   const m = raw.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
