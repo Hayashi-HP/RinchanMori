@@ -389,6 +389,12 @@ html { min-height: 100%; background: var(--auth-canvas); }
   outline: 3px solid rgba(42, 159, 210, .28) !important;
   outline-offset: 3px !important;
 }
+.rinchan-auth-system #rinchanCommonModalOverlay .rinchan-common-modal-secondary {
+  border: 1px solid rgba(42, 159, 210, .16) !important;
+  background: #f2f9fc !important;
+  color: var(--auth-blue-deep) !important;
+  box-shadow: none !important;
+}
 
 .rinchan-welcome-system .auth-app { padding-bottom: 40px; display: flex; flex-direction: column; }
 .auth-header-welcome { flex: 0 0 auto; }
