@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/style.css?v=178">
   <link rel="stylesheet" href="css/ui-v042.css?v=178">
   <link rel="stylesheet" href="css/v094-guide.css?v=178">
-  <link rel="stylesheet" href="css/home-design-system.css?v=200">
+  <link rel="stylesheet" href="css/home-design-system.css?v=210">
 </head>
 <body class="is-guest rinchan-home-system">
 <main class="app home-v1100">
@@ -42,17 +42,23 @@
   <section class="card auth-card hidden" id="authCard"></section>
   <div class="home-dashboard hidden" id="homeDashboard">
     <section class="card today-steps-card" aria-labelledby="todayStepsHeading">
-      <div class="card-heading"><div><p class="eyebrow">今日のサマリー</p><h2 id="todayStepsHeading">今日の歩数</h2></div><span class="line-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg></span></div>
-      <div class="today-step-value"><strong id="todayStepsNumber">0</strong><span>歩</span></div>
-      <div class="today-progress" role="progressbar" aria-label="今日の歩数目標の進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="todayStepsBar"></div></div>
+      <p class="today-date" id="todayDate">今日</p>
+      <p class="today-lead">今日もおつかれさまです！</p>
+      <div class="today-ring" role="progressbar" aria-label="今日の歩数目標の進捗" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="today-ring-inner">
+          <p id="todayStepsHeading">今日の歩数</p>
+          <div class="today-step-value"><strong id="todayStepsNumber">0</strong><span>歩</span></div>
+          <small id="todayStepsGoal">目標 8,000歩</small>
+        </div>
+      </div>
       <p id="todayStepsStatus">目標までの歩数を確認しています。</p>
+      <section class="big-action focus-action primary-record-action" id="homePrimaryAction"><a href="pages/activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><strong>歩数を記録する</strong><small>あなたの一歩が杜を育てます</small></a></section>
     </section>
-    <section class="big-action focus-action primary-record-action" id="homePrimaryAction"><a href="pages/activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><strong>今日の歩みを記録する</strong><small>あなたの一歩が杜を育てます</small></a></section>
     <section class="tree-stage" id="homeTreeSection"><div class="card-heading"><div><p class="eyebrow">今日の杜</p><h2 id="treeTitle">小さな芽が出ました</h2></div><a class="text-link" href="pages/mori.html">杜を見る<span aria-hidden="true">→</span></a></div><div class="tree-world growth-world"><div class="tree" id="treeIcon">&#127793;</div><div class="bird">&#128038;</div><div class="sparkle">&#10024;</div></div><p id="treeText">活動を記録すると、あなたの木が少しずつ育ちます。</p><div class="growth-meter"><div id="growthBar"></div></div><p class="growth-note" id="growthNote">次の成長まで、あと少し。</p></section>
     <section class="card steps-visual-card" id="weeklyStepsChart"></section>
     <section class="card" id="homeMoriLetter"><div class="card-heading"><div><p class="eyebrow">杜だより</p><h2 id="homeMoriLetterTitle">今日の杜</h2></div><span class="line-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg></span></div><p id="homeMoriLetterText">今日の杜を読み込んでいます。</p></section>
   </div>
 </main>
-<script src="js/core/device-class.js?v=188"></script><script src="js/config.js?v=200"></script><script src="js/core/storage.js?v=178"></script><script src="js/core/error-log.js?v=178"></script><script src="js/core/api.js?v=178"></script><script src="js/core/sync.js?v=178"></script><script src="js/core/offline-queue.js?v=178"></script><script src="js/core/rinchan-modal.js?v=178"></script><script src="js/features/auth.js?v=178"></script><script src="js/features/activity.js?v=178"></script><script src="js/features/news.js?v=178"></script><script src="js/features/mypage.js?v=178"></script><script src="js/features/growth.js?v=178"></script><script src="js/features/chart.js?v=178"></script><script src="js/features/guide.js?v=178"></script><script src="js/features/voice.js?v=178"></script><script src="js/features/home-world.js?v=178"></script><script src="js/features/home-dashboard.js?v=200"></script><script src="js/features/flower-album.js?v=178"></script><script src="js/features/season-engine.js?v=178"></script><script src="js/features/growth-animation.js?v=178"></script><script src="js/features/creature-engine.js?v=178"></script><script src="js/features/thanks-home-notice.js?v=178"></script><script src="js/v1138-home-boot.js?v=200"></script>
+<script src="js/core/device-class.js?v=210"></script><script src="js/config.js?v=210"></script><script src="js/core/storage.js?v=178"></script><script src="js/core/error-log.js?v=178"></script><script src="js/core/api.js?v=178"></script><script src="js/core/sync.js?v=178"></script><script src="js/core/offline-queue.js?v=178"></script><script src="js/core/rinchan-modal.js?v=178"></script><script src="js/features/auth.js?v=178"></script><script src="js/features/activity.js?v=178"></script><script src="js/features/news.js?v=178"></script><script src="js/features/mypage.js?v=178"></script><script src="js/features/growth.js?v=178"></script><script src="js/features/chart.js?v=178"></script><script src="js/features/guide.js?v=178"></script><script src="js/features/voice.js?v=178"></script><script src="js/features/home-world.js?v=178"></script><script src="js/features/home-dashboard.js?v=210"></script><script src="js/features/flower-album.js?v=178"></script><script src="js/features/season-engine.js?v=178"></script><script src="js/features/growth-animation.js?v=178"></script><script src="js/features/creature-engine.js?v=178"></script><script src="js/features/thanks-home-notice.js?v=178"></script><script src="js/v1138-home-boot.js?v=210"></script>
 </body>
 </html>
