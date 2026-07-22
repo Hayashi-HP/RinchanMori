@@ -118,6 +118,7 @@ function getUserState(ss, data) {
     moriMembers: globalState.members,
     members: globalState.members,
     departments: globalState.departments,
+    challenges: globalState.challenges,
     mori: globalState.mori,
     forest: globalState.mori,
     forestSummary: globalState.summary,
@@ -138,6 +139,7 @@ function getGlobalForestState(ss) {
   const users = readTable(ss.getSheetByName(SHEET_USERS));
   const activities = readTable(ss.getSheetByName(SHEET_ACTIVITIES));
   const departments = getDepartments(ss);
+  const challenges = getPublicChallengeConfigs(ss, currentChallengeYearMonth());
   const byUser = buildUserStats(users, activities, false);
   const members = Object.keys(byUser).map(id => byUser[id]).sort((a, b) => String(a.dept || '').localeCompare(String(b.dept || '')) || String(a.name || a.nick || a.id).localeCompare(String(b.name || b.nick || b.id)));
   const today = toDateKey(new Date());
@@ -163,6 +165,7 @@ function getGlobalForestState(ss) {
     allActivities,
     members,
     departments,
+    challenges,
     mori: {
       totalSteps,
       steps: totalSteps,
@@ -194,7 +197,8 @@ function createUserStateToken(user, activities, receivedThanks, sentThanks, than
     thanksStats ? [thanksStats.sentCount, thanksStats.receivedCount, thanksStats.totalCount].join('|') : '',
     globalState && globalState.mori ? [globalState.mori.totalSteps, globalState.mori.memberCount, globalState.mori.activityCount].join('|') : '',
     globalState ? listToken(globalState.allActivities, 'activityId', 'savedAt') : '',
-    globalState ? listToken(globalState.members, 'employeeId', 'lastDate') : ''
+    globalState ? listToken(globalState.members, 'employeeId', 'lastDate') : '',
+    globalState ? listToken(globalState.challenges, 'challengeId', 'updatedAt') : ''
   ];
   return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, parts.join('||'))).replace(/=+$/, '');
 }

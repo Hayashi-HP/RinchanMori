@@ -228,6 +228,41 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminChallengeList') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_CHALLENGES)) return adminDenied('adminChallengeList', ss, data);
+    try {
+      const list = listAdminChallenges(ss, data || {});
+      auditAction(ss, 'adminChallengeList', data, 'ok', 'view_admin_challenge_list', { total: list.total });
+      return jsonOutput({ ok: true, action, data: list, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminChallengeList', data, 'ng', e.message || 'admin_challenge_list_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_challenge_list_failed', reason: e.message || 'admin_challenge_list_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminSaveChallenge') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_CHALLENGES)) return adminDenied('adminSaveChallenge', ss, data);
+    try {
+      const saved = saveAdminChallenge(ss, data || {});
+      auditAction(ss, 'adminSaveChallenge', data, 'ok', 'admin_challenge_saved', {
+        targetChallengeId: saved.challenge.challengeId,
+        yearMonth: saved.challenge.yearMonth,
+        scope: saved.challenge.scope,
+        targetDept: saved.challenge.targetDept,
+        targetSteps: saved.challenge.targetSteps,
+        active: saved.challenge.active
+      });
+      return jsonOutput({ ok: true, action, saved, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSaveChallenge', data, 'ng', e.message || 'admin_challenge_save_failed', {
+        targetChallengeId: data.challengeId || '',
+        yearMonth: data.yearMonth || '',
+        scope: data.scope || ''
+      });
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_challenge_save_failed', reason: e.message || 'admin_challenge_save_failed', version: VERSION });
+    }
+  }
+
   if (action === 'adminActivityRows') {
     const denied = requireAdminAction('adminActivityRows', ss, data);
     if (denied) return denied;

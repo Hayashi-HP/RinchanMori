@@ -86,12 +86,17 @@ const RinchanHospitalChallengeEngine = (() => {
 
   function build(date) {
     const data = monthlyTotal(date);
-    const target = DEFAULT_TARGET;
+    const managed = window.RinchanChallengeConfig && typeof RinchanChallengeConfig.resolve === 'function'
+      ? RinchanChallengeConfig.resolve('hospital', date)
+      : null;
+    const target = managed && managed.targetSteps ? managed.targetSteps : DEFAULT_TARGET;
     const rate = target > 0 ? Math.min(100, Math.round((data.total / target) * 100)) : 0;
     return {
       version: VERSION,
+      enabled: managed ? managed.active : true,
       ym: ym(date),
-      title: '🏥 病院みんなのチャレンジ',
+      icon: managed && managed.icon ? managed.icon : '🏥',
+      title: managed && managed.title ? managed.title : '病院みんなのチャレンジ',
       target,
       current: data.total,
       count: data.count || 0,
@@ -99,7 +104,7 @@ const RinchanHospitalChallengeEngine = (() => {
       rate,
       available: data.available,
       achieved: data.total >= target,
-      message: data.available ? (data.total >= target ? '病院みんなで達成しました！' : '今月は病院全体で2,000万歩を目指します。') : '病院全体チャレンジは準備中です。サーバー同期後に表示されます。'
+      message: data.available ? (data.total >= target ? '病院みんなで達成しました！' : ((managed && managed.message) || '今月は病院全体で2,000万歩を目指します。')) : '病院全体チャレンジは準備中です。サーバー同期後に表示されます。'
     };
   }
 

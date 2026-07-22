@@ -2,6 +2,7 @@ const RinchanDepartmentChallengeRender = (() => {
   const VERSION = 'v1.4.33';
 
   function fmt(n) { return Number(n || 0).toLocaleString('ja-JP'); }
+  function esc(value) { return String(value || '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch])); }
 
   function applyCardLayout(host) {
     if (!host || !host.style) return;
@@ -15,14 +16,16 @@ const RinchanDepartmentChallengeRender = (() => {
     if (!host) return;
     if (!window.RinchanDepartmentChallengeEngine || typeof RinchanDepartmentChallengeEngine.build !== 'function') return;
     const c = RinchanDepartmentChallengeEngine.build();
+    if (c.enabled === false) { host.className = 'card department-challenge-card hidden'; host.innerHTML = ''; if (window.RinchanChallengeConfig) RinchanChallengeConfig.updateHeading(); return; }
     const dept = c.department || '所属部署';
     host.className = 'card department-challenge-card' + (c.available ? '' : ' is-waiting');
     applyCardLayout(host);
     host.innerHTML = '' +
-      '<div class="department-challenge-head"><div><h3 class="department-challenge-title">🌳 ' + c.title + '</h3><p class="department-challenge-scope">部署チャレンジ｜今月</p></div><span class="department-challenge-pill">' + c.rate + '%</span></div>' +
-      '<div class="department-challenge-main"><div><strong>' + fmt(c.current) + '歩</strong><small>' + dept + '全体の今月歩数</small></div><div><strong>' + fmt(c.target) + '歩</strong><small>部署目標</small></div></div>' +
+      '<div class="department-challenge-head"><div><h3 class="department-challenge-title">' + esc(c.icon || '🌳') + ' ' + esc(c.title) + '</h3><p class="department-challenge-scope">部署チャレンジ｜今月</p></div><span class="department-challenge-pill">' + c.rate + '%</span></div>' +
+      '<div class="department-challenge-main"><div><strong>' + fmt(c.current) + '歩</strong><small>' + esc(dept) + '全体の今月歩数</small></div><div><strong>' + fmt(c.target) + '歩</strong><small>部署目標</small></div></div>' +
       '<div class="department-challenge-bar"><span style="width:' + c.rate + '%"></span></div>' +
-      '<p class="department-challenge-note">' + c.message + '</p>';
+      '<p class="department-challenge-note">' + esc(c.message) + '</p>';
+    if (window.RinchanChallengeConfig) RinchanChallengeConfig.updateHeading();
   }
 
   function install() { render(); setTimeout(render, 300); setTimeout(render, 900); setTimeout(render, 1800); }
