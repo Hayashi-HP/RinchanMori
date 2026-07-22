@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../css/style.css?v=157">
   <link rel="stylesheet" href="../css/ui-v042.css?v=157">
   <link rel="stylesheet" href="../css/sync-status-design.css?v=244">
-  <link rel="stylesheet" href="../css/admin-design-system.css?v=253">
+  <link rel="stylesheet" href="../css/admin-design-system.css?v=254">
 </head>
 <body class="admin-page rinchan-admin-system">
 <main class="app admin-app-v132 admin-challenges-app">
@@ -18,14 +18,14 @@
   <section class="admin-hero">
     <p class="label">管理者専用</p>
     <h1>チャレンジ管理</h1>
-    <p><span class="admin-hero-line">月ごとの目標、対象、</span><span class="admin-hero-line">表示内容を管理します。</span></p>
+    <p><span class="admin-hero-line">毎月の標準チャレンジは自動で切り替わります。</span><span class="admin-hero-line">必要な月だけ内容を調整できます。</span></p>
     <div class="admin-updated" id="adminChallengesStatus">読み込み中...</div>
   </section>
 
   <section class="admin-card">
     <div class="admin-challenge-head-row">
-      <div><h2>設定一覧</h2><p class="admin-note">設定がない種類は、現在の標準目標をそのまま表示します。</p></div>
-      <button type="button" class="admin-button" id="adminChallengeCreate">設定を追加</button>
+      <div><h2>追加設定</h2><p class="admin-note">通常は操作不要です。設定がない種類は、季節に合わせた標準チャレンジを自動表示します。</p></div>
+      <button type="button" class="admin-button" id="adminChallengeCreate">今月だけ調整</button>
     </div>
     <div class="admin-challenge-filters">
       <label>対象月
@@ -45,7 +45,7 @@
 
   <section class="admin-card hidden" id="adminChallengeEditor">
     <h2 id="adminChallengeEditorTitle">設定を追加</h2>
-    <p class="admin-note">同じ月・種類・対象部署の設定は1件だけ登録できます。</p>
+    <p class="admin-note">ここで保存した内容は、その月の標準チャレンジを上書きします。「休止」にすると、その種類自体を表示しません。標準へ戻す場合は一覧の「標準に戻す」を押してください。</p>
     <div class="admin-challenge-form-grid">
       <label>対象月（必須）
         <input id="adminChallengeMonth" type="month">
@@ -72,8 +72,8 @@
       <label class="wide">達成前のメッセージ
         <textarea id="adminChallengeMessage" rows="3" maxlength="240" placeholder="例: 願いをこめて、今月も一歩ずつ。"></textarea>
       </label>
-      <label class="wide">公開状態
-        <select id="adminChallengeActive"><option value="true">公開</option><option value="false">非公開</option></select>
+      <label class="wide">表示状態
+        <select id="adminChallengeActive"><option value="true">表示する</option><option value="false">この種類を休止する</option></select>
       </label>
     </div>
     <div class="admin-challenge-form-actions">
@@ -86,6 +86,6 @@
   <section class="big-action focus-action admin-return-action"><a href="admin.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg><strong>管理画面へ戻る</strong><small>運用チェックへ戻る</small></a></section>
 </main>
 
-<script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=240"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=181"></script><script src="../js/core/sync.js?v=241"></script><script src="../js/core/offline-queue.js?v=244"></script><script src="../js/features/admin-challenges.js?v=1"></script>
+<script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=240"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=181"></script><script src="../js/core/sync.js?v=241"></script><script src="../js/core/offline-queue.js?v=244"></script><script src="../js/features/admin-challenges.js?v=2"></script>
 </body>
 </html>

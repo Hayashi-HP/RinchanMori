@@ -1,6 +1,6 @@
 const RinchanAdminChallenges = (() => {
   const VERSION = 'v1.0.0';
-  const state = { rows: [], departments: [], editing: null, loading: false, saving: false };
+  const state = { rows: [], departments: [], editing: null, loading: false, saving: false, deleting: false };
   const defaults = {
     individual: { icon: '👟', title: '月間チャレンジ', targetSteps: 200000, message: '今月も無理なく歩こう。' },
     department: { icon: '🌳', title: '部署チャレンジ', targetSteps: 1000000, message: '部署のみんなで一歩ずつ積み重ねよう。' },
@@ -103,10 +103,10 @@ const RinchanAdminChallenges = (() => {
 
     box.innerHTML = state.rows.map(row => {
       const statusClass = row.active ? 'is-active' : 'is-inactive';
-      const statusLabel = row.active ? '公開' : '非公開';
+      const statusLabel = row.active ? '表示中' : '休止中';
       return '<details class="admin-challenge-row">'
         + '<summary class="admin-challenge-summary"><span class="admin-challenge-icon">' + escapeHtml(row.icon || '👟') + '</span><span class="admin-challenge-summary-copy"><strong>' + escapeHtml(row.title || '-') + '</strong><small>' + escapeHtml(row.yearMonth || '-') + '・' + escapeHtml(targetLabel(row)) + '</small></span><span class="admin-challenge-status ' + statusClass + '">' + statusLabel + '</span></summary>'
-        + '<div class="admin-challenge-row-detail"><div class="admin-challenge-meta"><span><small>種類</small><b>' + escapeHtml(scopeLabel(row.scope)) + '</b></span><span><small>目標歩数</small><b>' + escapeHtml(formatNumber(row.targetSteps)) + '歩</b></span><span class="wide"><small>メッセージ</small><b>' + escapeHtml(row.message || '未設定') + '</b></span></div><div class="admin-challenge-row-actions"><button type="button" class="soft-button" data-action="edit-challenge" data-id="' + escapeHtml(row.challengeId || '') + '">編集</button></div></div>'
+        + '<div class="admin-challenge-row-detail"><div class="admin-challenge-meta"><span><small>種類</small><b>' + escapeHtml(scopeLabel(row.scope)) + '</b></span><span><small>目標歩数</small><b>' + escapeHtml(formatNumber(row.targetSteps)) + '歩</b></span><span class="wide"><small>メッセージ</small><b>' + escapeHtml(row.message || '未設定') + '</b></span></div><div class="admin-challenge-row-actions"><button type="button" class="soft-button" data-action="edit-challenge" data-id="' + escapeHtml(row.challengeId || '') + '">編集</button><button type="button" class="soft-button challenge-reset-button" data-action="delete-challenge" data-id="' + escapeHtml(row.challengeId || '') + '">標準に戻す</button></div></div>'
         + '</details>';
     }).join('');
   }
@@ -246,7 +246,7 @@ const RinchanAdminChallenges = (() => {
     const checked = validateForm();
     if (!checked.ok) { setMessage(checked.message, 'error'); return; }
     const actionLabel = state.editing ? '更新' : '追加';
-    const publishLabel = checked.payload.active ? '公開' : '非公開';
+    const publishLabel = checked.payload.active ? '表示' : '休止';
     if (!confirm(checked.payload.yearMonth + 'の' + targetLabel(checked.payload) + '設定を' + actionLabel + 'し、' + publishLabel + 'にします。よろしいですか？')) return;
 
     setSaving(true);
@@ -266,6 +266,26 @@ const RinchanAdminChallenges = (() => {
     }
   }
 
+  async function deleteChallenge(row) {
+    if (!row || state.deleting || state.saving) return;
+    if (!confirm((row.yearMonth || '') + 'の' + targetLabel(row) + 'の追加設定を削除し、自動の標準チャレンジへ戻します。よろしいですか？')) return;
+
+    state.deleting = true;
+    setMessage('標準チャレンジへ戻しています...', 'info');
+    try {
+      const auth = authState();
+      const result = await api('adminDeleteChallenge', { employeeId: auth.employeeId, challengeId: row.challengeId });
+      if (!result || !result.ok || !result.deleted) throw new Error(String((result && (result.reason || result.error)) || 'delete_failed'));
+      closeEditor();
+      await loadChallenges();
+      setMessage('追加設定を削除し、自動の標準チャレンジへ戻しました。利用者画面には次回同期時に反映されます。', 'success');
+    } catch (e) {
+      setMessage(errorMessage(e.message), 'error');
+    } finally {
+      state.deleting = false;
+    }
+  }
+
   function bind() {
     byId('adminChallengesRefresh').addEventListener('click', loadChallenges);
     byId('adminChallengeCreate').addEventListener('click', () => openEditor(null));
@@ -278,10 +298,12 @@ const RinchanAdminChallenges = (() => {
       if (!state.editing) applyDefaults(value('adminChallengeScope'));
     });
     byId('adminChallengesList').addEventListener('click', event => {
-      const button = event.target.closest('[data-action="edit-challenge"]');
+      const button = event.target.closest('[data-action]');
       if (!button) return;
       const row = findChallenge(button.dataset.id);
-      if (row) openEditor(row);
+      if (!row) return;
+      if (button.dataset.action === 'edit-challenge') openEditor(row);
+      if (button.dataset.action === 'delete-challenge') deleteChallenge(row);
     });
   }
 
