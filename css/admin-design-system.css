@@ -25,6 +25,8 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-hero .label { margin:0 0 6px!important; color:var(--rm-green-deep)!important; font-size:12px!important; font-weight:800!important; letter-spacing:.07em!important; }
 .rinchan-admin-system .admin-hero h1 { margin:0!important; color:var(--rm-navy)!important; font-size:clamp(30px,3vw,39px)!important; font-weight:760!important; line-height:1.3!important; letter-spacing:-.045em!important; }
 .rinchan-admin-system .admin-hero p:not(.label) { max-width:58em; margin:10px 0 0!important; color:var(--rm-muted)!important; font-size:14px!important; font-weight:560!important; line-height:1.7!important; }
+.rinchan-admin-system .admin-dashboard-hero { align-items:center!important; text-align:center!important; }
+.rinchan-admin-system .admin-dashboard-hero p:not(.label) { max-width:44em!important; text-align:center!important; text-wrap:balance; }
 .rinchan-admin-system .admin-updated { width:max-content; max-width:100%; min-height:32px; margin-top:15px!important; padding:0 12px; display:inline-flex; align-items:center; border-radius:999px; background:rgba(255,255,255,.75); color:var(--rm-blue-deep)!important; font-size:11px!important; font-weight:700!important; }
 .rinchan-admin-system .admin-card { margin-top:0!important; margin-bottom:22px!important; padding:28px!important; overflow:hidden!important; border:1px solid var(--rm-line)!important; border-radius:22px!important; background:rgba(255,255,255,.97)!important; box-shadow:var(--rm-shadow)!important; }
 .rinchan-admin-system .admin-card h2 { margin:0 0 9px!important; color:var(--rm-navy)!important; font-size:22px!important; font-weight:720!important; line-height:1.4!important; letter-spacing:-.035em!important; }
@@ -49,15 +51,18 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-hub-item.is-live .admin-hub-state { background:var(--rm-green-soft)!important; color:var(--rm-green-deep)!important; }
 .rinchan-admin-system .admin-hub-item.is-soon { opacity:.68!important; cursor:not-allowed!important; }
 .rinchan-admin-system .admin-list-row,.rinchan-admin-system .admin-member-row,.rinchan-admin-system .admin-alert-row,.rinchan-admin-system .admin-activity-row,.rinchan-admin-system .admin-news-row { min-width:0; padding:16px!important; border:1px solid var(--rm-line)!important; border-radius:16px!important; background:#fbfdff!important; box-shadow:none!important; }
-.rinchan-admin-system .admin-list-row,.rinchan-admin-system .admin-member-row { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:16px!important; }
+.rinchan-admin-system .admin-list-row { display:grid!important; grid-template-columns:minmax(0,1fr) 112px 54px!important; align-items:center!important; gap:16px!important; }
+.rinchan-admin-system .admin-list-row>span,.rinchan-admin-system .admin-list-row>small { text-align:right!important; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.rinchan-admin-system .admin-member-row { display:flex!important; align-items:center!important; justify-content:space-between!important; gap:16px!important; }
 .rinchan-admin-system .admin-member-row p { margin:4px 0 0!important; color:var(--rm-muted)!important; font-size:12px!important; }
 .rinchan-admin-system .admin-member-row small,.rinchan-admin-system .admin-list-row small { color:var(--rm-muted)!important; font-size:11px!important; white-space:nowrap; }
 .rinchan-admin-system #adminOperations,.rinchan-admin-system #adminDeptRanking,.rinchan-admin-system #adminInactiveMembers,.rinchan-admin-system #adminMembers { display:grid!important; gap:10px!important; }
-.rinchan-admin-system .admin-search,.rinchan-admin-system input,.rinchan-admin-system select,.rinchan-admin-system textarea { width:100%!important; min-width:0!important; max-width:100%!important; border:1px solid var(--rm-line)!important; border-radius:14px!important; background:#fbfdff!important; color:var(--rm-navy)!important; font:inherit!important; font-size:16px!important; box-shadow:none!important; }
+.rinchan-admin-system .admin-search,.rinchan-admin-system input,.rinchan-admin-system select,.rinchan-admin-system textarea { display:block!important; width:100%!important; inline-size:100%!important; min-width:0!important; max-width:100%!important; max-inline-size:100%!important; border:1px solid var(--rm-line)!important; border-radius:14px!important; background:#fbfdff!important; color:var(--rm-navy)!important; font:inherit!important; font-size:16px!important; box-shadow:none!important; }
 .rinchan-admin-system .admin-search { margin-bottom:14px!important; }
 .rinchan-admin-system input,.rinchan-admin-system select { min-height:52px!important; padding:0 15px!important; }
 .rinchan-admin-system textarea { min-height:104px!important; padding:13px 15px!important; line-height:1.6!important; resize:vertical; }
-.rinchan-admin-system label { min-width:0; display:grid; gap:7px; color:var(--rm-navy)!important; font-size:13px!important; font-weight:700!important; }
+.rinchan-admin-system label { width:100%; min-width:0; max-width:100%; display:grid; gap:7px; overflow:hidden; color:var(--rm-navy)!important; font-size:13px!important; font-weight:700!important; }
+.rinchan-admin-system input[type="date"],.rinchan-admin-system input[type="datetime-local"] { min-inline-size:0!important; -webkit-min-logical-width:0!important; }
 .rinchan-admin-system .admin-empty { margin:0!important; padding:18px!important; color:var(--rm-muted)!important; font-size:13px!important; font-weight:650!important; line-height:1.6!important; }
 .rinchan-admin-system .admin-empty.is-error,.rinchan-admin-system .admin-updated.is-error { color:#a44134!important; }
 .rinchan-admin-system .admin-activity-filters,.rinchan-admin-system .admin-news-filters,.rinchan-admin-system .admin-news-form-grid,.rinchan-admin-system .admin-activity-editor-grid { display:grid!important; }
@@ -86,6 +91,9 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-activity-message.is-success,.rinchan-admin-system .admin-news-message.is-success { color:var(--rm-green-deep); }
 .rinchan-admin-system .admin-activity-message.is-error,.rinchan-admin-system .admin-news-message.is-error { color:#a44134; }
 .rinchan-admin-system .admin-activity-message.is-info,.rinchan-admin-system .admin-news-message.is-info { color:var(--rm-muted); }
+.rinchan-admin-system .admin-refresh-button.is-refreshing svg { animation:rm-admin-refresh-spin 1.8s linear infinite; }
+.rinchan-admin-system .admin-refresh-button:disabled { opacity:.72; cursor:wait!important; }
+@keyframes rm-admin-refresh-spin { to { transform:rotate(360deg); } }
 .rinchan-admin-system .admin-button,.rinchan-admin-system .soft-button { width:auto!important; max-width:none!important; min-width:104px!important; min-height:46px!important; margin:0!important; padding:0 18px!important; display:inline-flex!important; align-items:center!important; justify-content:center!important; border:0!important; border-radius:999px!important; background:var(--rm-gradient)!important; color:#fff!important; font-family:inherit!important; font-size:13px!important; font-weight:750!important; box-shadow:0 8px 18px rgba(45,160,180,.17)!important; cursor:pointer!important; }
 .rinchan-admin-system .admin-button.soft,.rinchan-admin-system .soft-button { border:1px solid rgba(38,155,211,.13)!important; background:var(--rm-blue-soft)!important; color:var(--rm-blue-deep)!important; box-shadow:none!important; }
 .rinchan-admin-system .admin-news-row-actions [data-action="delete"] { border-color:#f0dce2!important; background:#fff3f5!important; color:#ad4961!important; }
@@ -96,6 +104,20 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-return-action strong { transform:none!important; }
 .rinchan-admin-system .admin-return-action small { display:none!important; }
 .rinchan-admin-system .footer-wrapper { position:static!important; height:auto!important; background:transparent!important; pointer-events:auto!important; }
+.rinchan-admin-system .section-head-row { display:flex!important; align-items:flex-start!important; justify-content:space-between!important; gap:18px!important; }
+.rinchan-admin-system .section-head-row>div { min-width:0; }
+.rinchan-admin-system .action-row { margin:0 0 16px!important; display:flex!important; flex-wrap:wrap!important; gap:10px!important; }
+.rinchan-admin-system .diagnostics-app #diagnosticsList,.rinchan-admin-system .diagnostics-app #diagnosticsServer,.rinchan-admin-system .diagnostics-app #diagnosticsQueue,.rinchan-admin-system .diagnostics-app #diagnosticsErrors,.rinchan-admin-system .diagnostics-app #diagnosticsDevice { display:grid!important; gap:10px!important; }
+.rinchan-admin-system .diagnostics-app .diag-row { display:block!important; }
+.rinchan-admin-system .diagnostics-app .diag-row strong { display:block; color:var(--rm-navy)!important; font-size:14px!important; line-height:1.5!important; overflow-wrap:anywhere; }
+.rinchan-admin-system .diagnostics-app .diag-row small { display:block; margin-top:5px; color:var(--rm-muted)!important; font-size:11px!important; line-height:1.55!important; overflow-wrap:anywhere; }
+.rinchan-admin-system .diagnostics-app .diag-ok { border-color:#dcefe2!important; background:var(--rm-green-soft)!important; }
+.rinchan-admin-system .diagnostics-app .diag-warn { border-color:#f0dfbf!important; background:#fffdf8!important; }
+.rinchan-admin-system .diagnostics-app .diag-error { border-color:#f1dfe4!important; background:#fffafb!important; }
+.rinchan-admin-system .diagnostics-app .info-grid { margin-top:12px!important; display:grid!important; grid-template-columns:minmax(130px,.35fr) minmax(0,1fr)!important; gap:0!important; border:1px solid var(--rm-line)!important; border-radius:16px!important; overflow:hidden!important; }
+.rinchan-admin-system .diagnostics-app .info-grid span,.rinchan-admin-system .diagnostics-app .info-grid strong { min-width:0; padding:12px 14px!important; border-bottom:1px solid var(--rm-line)!important; overflow-wrap:anywhere; }
+.rinchan-admin-system .diagnostics-app .info-grid span { background:#f5f9fc!important; color:var(--rm-muted)!important; font-size:12px!important; }
+.rinchan-admin-system .diagnostics-app .info-grid strong { background:#fff!important; color:var(--rm-navy)!important; font-size:13px!important; }
 
 /* Keep the administration workspace wide even when legacy .app rules are cached. */
 @media(min-width:900px) {
@@ -120,6 +142,7 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
   .rinchan-admin-system .nav small { font-size:10px!important; }
   .rinchan-admin-system .admin-hero { min-height:150px!important; margin-bottom:16px!important; padding:25px 22px!important; border-radius:24px!important; }
   .rinchan-admin-system .admin-hero h1 { font-size:29px!important; }
+  .rinchan-admin-system .admin-hero p:not(.label) { width:100%!important; max-width:25em!important; margin-left:auto!important; margin-right:auto!important; text-align:center!important; text-wrap:balance; overflow-wrap:anywhere; }
   .rinchan-admin-system .admin-card { margin-bottom:16px!important; padding:22px!important; border-radius:20px!important; }
   .rinchan-admin-system .admin-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important; margin-bottom:16px!important; }
   .rinchan-admin-system .admin-stat { min-height:96px; padding:16px!important; }
@@ -128,11 +151,15 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
   .rinchan-admin-system .admin-hub-item { min-height:88px!important; }
   .rinchan-admin-system .admin-activity-row { grid-template-columns:1fr!important; gap:12px!important; }
   .rinchan-admin-system .admin-activity-action { justify-content:flex-start!important; }
-  .rinchan-admin-system .admin-list-row,.rinchan-admin-system .admin-member-row { align-items:flex-start!important; flex-wrap:wrap!important; }
+  .rinchan-admin-system .admin-list-row { grid-template-columns:minmax(0,1fr) 92px 42px!important; gap:8px!important; }
+  .rinchan-admin-system .admin-member-row { align-items:flex-start!important; flex-wrap:wrap!important; }
   .rinchan-admin-system .admin-news-row-meta { grid-template-columns:1fr!important; }
   .rinchan-admin-system .admin-news-head-row { align-items:flex-start!important; }
   .rinchan-admin-system .admin-news-head-row .admin-button { min-width:98px!important; }
   .rinchan-admin-system .admin-return-action { margin-bottom:16px!important; }
+  .rinchan-admin-system .section-head-row { flex-direction:column!important; gap:12px!important; }
+  .rinchan-admin-system .diagnostics-app .info-grid { grid-template-columns:minmax(92px,.42fr) minmax(0,1fr)!important; }
+  .rinchan-admin-system .admin-refresh-button.is-refreshing svg { animation-duration:2s; }
 }
 
 @media(max-width:390px) {

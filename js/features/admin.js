@@ -1,5 +1,6 @@
 const RinchanAdmin = (() => {
   const VERSION = 'v1.0.35';
+  let loading = false;
 
   function readJson(key, fallback) {
     try {
@@ -84,6 +85,14 @@ const RinchanAdmin = (() => {
   function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
+  }
+
+  function setRefreshBusy(busy) {
+    const button = document.getElementById('adminRefresh');
+    if (!button) return;
+    button.disabled = !!busy;
+    button.classList.toggle('is-refreshing', !!busy);
+    button.setAttribute('aria-label', busy ? '管理情報を更新中' : '管理情報を更新');
   }
 
   function localStats() {
@@ -254,6 +263,9 @@ const RinchanAdmin = (() => {
   }
 
   async function loadServerStats() {
+    if (loading) return;
+    loading = true;
+    setRefreshBusy(true);
     try {
       const user = participant();
       if (!isAdminUser(user)) {
@@ -270,6 +282,9 @@ const RinchanAdmin = (() => {
     } catch (e) {
       if (window.RinchanErrorLog && typeof RinchanErrorLog.add === 'function') RinchanErrorLog.add({ type: 'admin', message: e.message || 'admin load failed', stack: e.stack || '' });
       renderAll();
+    } finally {
+      loading = false;
+      setRefreshBusy(false);
     }
   }
 

@@ -195,6 +195,22 @@ const RinchanDiagnostics = (() => {
     }
   }
 
+  async function refreshDiagnostics() {
+    const button = byId('diagnosticsRefresh');
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    button.classList.add('is-refreshing');
+    button.setAttribute('aria-label', '診断結果を更新中');
+    try {
+      render();
+      await new Promise(resolve => setTimeout(resolve, 520));
+    } finally {
+      button.classList.remove('is-refreshing');
+      button.disabled = false;
+      button.setAttribute('aria-label', '診断結果を更新');
+    }
+  }
+
   async function retryQueue() {
     if (window.RinchanOfflineQueue && typeof RinchanOfflineQueue.clearStaleLock === 'function') RinchanOfflineQueue.clearStaleLock();
     if (window.RinchanOfflineQueue && typeof RinchanOfflineQueue.flush === 'function') await RinchanOfflineQueue.flush();
@@ -221,7 +237,7 @@ const RinchanDiagnostics = (() => {
     try {
       if (!guardPageAccess()) return;
       render();
-      const refresh = byId('diagnosticsRefresh'); if (refresh && !refresh.__rinchanDiagInstalled) { refresh.__rinchanDiagInstalled = true; refresh.addEventListener('click', render); }
+      const refresh = byId('diagnosticsRefresh'); if (refresh && !refresh.__rinchanDiagInstalled) { refresh.__rinchanDiagInstalled = true; refresh.addEventListener('click', refreshDiagnostics); }
       const server = byId('checkServer'); if (server && !server.__rinchanDiagInstalled) { server.__rinchanDiagInstalled = true; server.addEventListener('click', checkServer); }
       const retry = byId('retryQueue'); if (retry && !retry.__rinchanDiagInstalled) { retry.__rinchanDiagInstalled = true; retry.addEventListener('click', retryQueue); }
       const clearQueueButton = byId('clearQueue'); if (clearQueueButton && !clearQueueButton.__rinchanDiagInstalled) { clearQueueButton.__rinchanDiagInstalled = true; clearQueueButton.addEventListener('click', clearQueue); }

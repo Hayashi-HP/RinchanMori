@@ -68,7 +68,7 @@
   z-index: 2;
 }
 
-.rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation: rm-refresh-spin .8s linear infinite; }
+.rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation: rm-refresh-spin 2s linear infinite; }
 .rinchan-mori-system #refreshMoriButton:disabled { opacity: .72; cursor: wait; }
 @keyframes rm-refresh-spin { to { transform: rotate(360deg); } }
 
@@ -179,9 +179,9 @@
     left: calc(50% + 7px);
   }
 
-  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 1.4s; }
+  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 2s; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 1.6s; }
+  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 2.4s; }
 }
