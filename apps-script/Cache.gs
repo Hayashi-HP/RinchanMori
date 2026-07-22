@@ -71,6 +71,12 @@ function invalidateUserCaches() {
   removeCached('adminStats');
 }
 
+function invalidateDepartmentCaches() {
+  removeCached('departments');
+  removeCached('dashboard');
+  removeCached('adminStats');
+}
+
 function invalidateThanksCaches() {
   removeCached('dashboard');
   removeCached('adminStats');
