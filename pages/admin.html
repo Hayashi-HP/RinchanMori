@@ -7,18 +7,13 @@
   <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
   <link rel="stylesheet" href="../css/style.css?v=157">
   <link rel="stylesheet" href="../css/ui-v042.css?v=157">
-  <link rel="stylesheet" href="../css/v102-rinchan-face.css?v=157">
-  <link rel="stylesheet" href="../css/v129-admin.css?v=158">
-  <link rel="stylesheet" href="../css/v128-mobile-polish.css?v=157">
-  <link rel="stylesheet" href="../css/v1014-hotfix.css?v=157">
-  <link rel="stylesheet" href="../css/v1026-admin-mypage.css?v=157">
-  <link rel="stylesheet" href="../css/v1030-capsule-buttons.css?v=157">
-  <link rel="stylesheet" href="../css/v133-admin-hub.css?v=158">
   <link rel="stylesheet" href="../css/sync-status-design.css?v=244">
+  <link rel="stylesheet" href="../css/admin-design-system.css?v=245">
 </head>
-<body class="admin-page">
+<body class="admin-page rinchan-admin-system">
 <main class="app admin-app-v132">
-  <header class="top"><a href="mypage.html" class="back">←</a><div class="page-title">管理画面</div><button class="icon-button" id="adminRefresh" type="button">↻</button></header>
+  <header class="top"><a href="mypage.html" class="back icon-button" aria-label="パスポートへ戻る"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a><div class="page-title">管理画面</div><button class="icon-button admin-refresh-button" id="adminRefresh" type="button" aria-label="管理情報を更新"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 2M17.9 15A7 7 0 0 1 6 18l-2-2"/></svg></button></header>
+  <nav class="nav" aria-label="メインメニュー"><a href="../index.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a><a href="mori.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a><a class="plus" href="activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a><a href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small></a><a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a></nav>
   <section class="admin-hero"><p class="label">v1.4.17</p><h1>運用チェック</h1><p>今日の記録状況、声かけ候補、部署別の動き、利用者状態を確認します。</p><div class="admin-updated" id="adminStatus">読み込み中...</div></section>
   <section class="admin-card admin-hub-card">
     <h2>管理メニュー</h2>
@@ -67,16 +62,15 @@
       </section>
     </div>
   </section>
-  <section class="big-action focus-action admin-return-action"><a href="diagnostics.html"><span>🩺</span><strong>動作診断を開く</strong><small>端末・通信・同期状態を確認</small></a></section>
+  <section class="big-action focus-action admin-return-action"><a href="diagnostics.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4M9 12l2 2 4-5M15 4h6v6"/></svg><strong>動作診断を開く</strong><small>端末・通信・同期状態を確認</small></a></section>
   <section class="admin-grid"><div class="admin-stat"><strong id="adminTotalUsers">-</strong><small>登録者</small></div><div class="admin-stat"><strong id="adminTodayUsers">-</strong><small>今日の記録者</small></div><div class="admin-stat"><strong id="adminTodayActivities">-</strong><small>今日の記録</small></div><div class="admin-stat"><strong id="adminTodaySteps">-</strong><small>今日の歩数</small></div></section>
   <section class="admin-card admin-warning"><h2>対応が必要な項目</h2><p class="admin-note">所属未設定や記録が止まっている人を確認します。</p><div id="adminOperations"><p class="admin-empty">読み込み中...</p></div></section>
   <div class="admin-layout-wide">
     <section class="admin-card"><h2>部署別の動き</h2><p class="admin-note">直近7日を優先して表示します。</p><div id="adminDeptRanking"><p class="admin-empty">読み込み中...</p></div></section>
     <section class="admin-card admin-danger"><h2>7日以上記録なし</h2><div id="adminInactiveMembers"><p class="admin-empty">読み込み中...</p></div></section>
   </div>
-  <section class="admin-card"><h2>利用者一覧</h2><input class="admin-search" id="adminSearch" placeholder="氏名・所属で検索"><div id="adminMembers"><p class="admin-empty">読み込み中...</p></div></section>
-  <section class="big-action focus-action admin-return-action"><a href="mypage.html"><span>📘</span><strong>パスポートへ戻る</strong><small>プロフィール・目標を確認</small></a></section>
-  <nav class="nav"><a href="../index.html">🏠<small>ホーム</small></a><a href="mori.html">🌳<small>杜</small></a><a class="plus" href="activity.html">👟<small>歩数記録</small></a><a href="news.html">📬<small>通信</small></a><a href="mypage.html">📘<small>パスポート</small></a></nav>
+  <section class="admin-card"><h2>利用者一覧</h2><input class="admin-search" id="adminSearch" type="search" aria-label="利用者を氏名または所属で検索" placeholder="氏名・所属で検索"><div id="adminMembers"><p class="admin-empty">読み込み中...</p></div></section>
+  <section class="big-action focus-action admin-return-action"><a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h6"/></svg><strong>パスポートへ戻る</strong><small>プロフィール・目標を確認</small></a></section>
 </main>
 <script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=240"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=180"></script><script src="../js/core/sync.js?v=240"></script><script src="../js/core/offline-queue.js?v=244"></script><script src="../js/features/activity.js?v=157"></script><script src="../js/features/admin.js?v=159"></script>
 </body>
