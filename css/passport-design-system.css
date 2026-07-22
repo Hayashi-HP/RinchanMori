@@ -48,8 +48,8 @@ body.rinchan-passport-system { background:radial-gradient(circle at 8% 10%,rgba(
 .rinchan-passport-system .passport-profile-card { position:relative; }
 .rinchan-passport-system .edit-icon { position:absolute; top:22px; right:22px; width:44px; height:44px; min-height:44px; padding:0; display:grid; place-items:center; border:0; border-radius:50%; background:var(--rm-blue-soft); color:var(--rm-blue-deep); cursor:pointer; }
 .rinchan-passport-system .edit-icon svg { width:19px; height:19px; }
-.rinchan-passport-system .info-grid { margin-top:22px; display:grid; grid-template-columns:118px minmax(0,1fr); gap:0; border-top:1px solid var(--rm-line); }
-.rinchan-passport-system .info-grid span,.rinchan-passport-system .info-grid strong { min-width:0; padding:15px 4px; border-bottom:1px solid var(--rm-line); font-size:13px; line-height:1.5; }
+.rinchan-passport-system .info-grid { margin-top:22px; display:grid; grid-template-columns:118px minmax(0,1fr); align-items:stretch!important; gap:0; border-top:1px solid var(--rm-line); }
+.rinchan-passport-system .info-grid span,.rinchan-passport-system .info-grid strong { min-width:0; min-height:54px; padding:12px 4px; display:flex; align-items:center; border-bottom:1px solid var(--rm-line); font-size:13px; line-height:1.5; }
 .rinchan-passport-system .info-grid span { color:var(--rm-muted); font-weight:650; }
 .rinchan-passport-system .info-grid strong { color:var(--rm-navy); font-size:16px; font-weight:720; line-height:1.45; letter-spacing:-.01em; overflow-wrap:anywhere; }
 
