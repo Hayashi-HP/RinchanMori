@@ -4,7 +4,8 @@
   const pathName = (window.location && window.location.pathname) || '';
   const isHome = !pathName.includes('/pages/') && (/(?:^|\/)index\.html$/.test(pathName) || /\/$/.test(pathName));
   if (/Android/i.test(ua)) root.classList.add('is-android');
-  if (/iPhone|iPad|iPod/i.test(ua)) root.classList.add('is-ios');
+  if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) root.classList.add('is-ios');
+  if (/Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) || Math.min(screen.width || 9999, screen.height || 9999) <= 899) root.classList.add('is-mobile-device');
 
   if (!isHome && !document.querySelector('link[data-rinchan-mobile-foundation]')) {
     const isPage = pathName.includes('/pages/');
