@@ -38,6 +38,10 @@ function setupProject(ss) {
     'status', 'startAt', 'endAt', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy',
     'publishedAt', 'unpublishedAt', 'deleted', 'deletedAt', 'deletedBy', 'version'
   ]);
+  ensureSheet(ss, SHEET_CHALLENGES, [
+    'challengeId', 'yearMonth', 'scope', 'targetDept', 'title', 'icon', 'message',
+    'targetSteps', 'active', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'version'
+  ]);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);

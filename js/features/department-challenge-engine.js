@@ -133,22 +133,28 @@ const RinchanDepartmentChallengeEngine = (() => {
 
   function build(date) {
     const dept = departmentName();
+    const managed = window.RinchanChallengeConfig && typeof RinchanChallengeConfig.resolve === 'function'
+      ? RinchanChallengeConfig.resolve('department', date, dept)
+      : null;
+    const target = managed && managed.targetSteps ? managed.targetSteps : TARGET;
     const result = monthlyDepartmentSteps(date);
     const current = result.current;
-    const rate = TARGET > 0 ? Math.min(100, Math.round((current / TARGET) * 100)) : 0;
-    const remain = Math.max(0, TARGET - current);
+    const rate = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
+    const remain = Math.max(0, target - current);
     return {
       version: VERSION,
+      enabled: managed ? managed.active : true,
       department: dept,
-      title: '部署チャレンジ',
-      target: TARGET,
+      icon: managed && managed.icon ? managed.icon : '🌳',
+      title: managed && managed.title ? managed.title : '部署チャレンジ',
+      target,
       current,
       count: result.count || 0,
       remain,
       rate,
-      achieved: current >= TARGET,
+      achieved: current >= target,
       available: result.available,
-      message: result.available ? (current >= TARGET ? '部署チャレンジ達成！みんなの歩みが集まりました。' : dept + 'であと' + remain.toLocaleString('ja-JP') + '歩。') : '部署全体の歩数は、サーバー同期後に表示されます。'
+      message: result.available ? (current >= target ? '部署チャレンジ達成！みんなの歩みが集まりました。' : ((managed && managed.message) || dept + 'であと' + remain.toLocaleString('ja-JP') + '歩。')) : '部署全体の歩数は、サーバー同期後に表示されます。'
     };
   }
 

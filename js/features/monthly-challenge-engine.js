@@ -119,13 +119,23 @@ const RinchanMonthlyChallengeEngine = (() => {
   }
 
   function build(date) {
-    const c = challenge(date);
+    const fallback = challenge(date);
+    const managed = window.RinchanChallengeConfig && typeof RinchanChallengeConfig.resolve === 'function'
+      ? RinchanChallengeConfig.resolve('individual', date)
+      : null;
+    const c = managed ? {
+      icon: managed.icon || fallback.icon,
+      name: managed.title || fallback.name,
+      target: managed.targetSteps || fallback.target,
+      copy: managed.message || fallback.copy
+    } : fallback;
     const current = monthlySteps(date);
     const target = c.target;
     const rate = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
     const remain = Math.max(0, target - current);
     return {
       version: VERSION,
+      enabled: managed ? managed.active : true,
       ym: ym(date),
       icon: c.icon,
       title: c.icon + ' ' + c.name,
