@@ -148,7 +148,7 @@ body.rinchan-passport-system { background:radial-gradient(circle at 8% 10%,rgba(
 
 @media (max-width:899px) {
   .rinchan-passport-system .app { padding:0 18px 116px; }
-  .rinchan-passport-system .top { position:sticky; top:0; z-index:80; width:100vw; max-width:none; height:66px; margin-inline:calc(50% - 50vw); padding:0 10px!important; grid-template-columns:44px 1fr 44px; background:rgba(251,253,255,.92); backdrop-filter:blur(16px); }
+  .rinchan-passport-system .top { position:sticky; top:0; z-index:80; width:100vw; max-width:none; height:66px; margin-inline:calc(50% - 50vw); padding:0 18px!important; grid-template-columns:44px 1fr 44px; background:rgba(251,253,255,.92); backdrop-filter:blur(16px); }
   .rinchan-passport-system .page-title { font-size:18px; }
   .rinchan-passport-system .icon-button,.rinchan-passport-system .back { width:44px; height:44px; min-height:44px; }
   .rinchan-passport-system .nav { position:fixed; top:auto; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); width:min(560px,calc(100% - 20px)); height:76px; margin:0; padding:6px; transform:translateX(-50%); border-radius:22px; }
