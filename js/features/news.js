@@ -1,5 +1,5 @@
 const RinchanNews = (() => {
-  const VERSION = 'v1.5.24';
+  const VERSION = 'v1.5.41';
   let serverPublicNotices = null;
 
   function readJson(key, fallback) { if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback); try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
