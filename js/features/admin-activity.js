@@ -15,6 +15,58 @@ const RinchanAdminActivity = (() => {
   function value(id) { const el = byId(id); return el ? String(el.value || '').trim() : ''; }
   function setText(id, text) { const el = byId(id); if (el) el.textContent = text; }
   function escapeHtml(v) { return String(v == null ? '' : v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch])); }
+  function readJson(key, fallback) {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function normalizeDateKey(raw) {
+    const text = String(raw || '').trim();
+    const match = text.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+    if (match) return match[1] + '-' + String(match[2]).padStart(2, '0') + '-' + String(match[3]).padStart(2, '0');
+    const parsed = new Date(text);
+    if (isNaN(parsed.getTime())) return '';
+    return parsed.getFullYear() + '-' + String(parsed.getMonth() + 1).padStart(2, '0') + '-' + String(parsed.getDate()).padStart(2, '0');
+  }
+
+  function cachedActivities() {
+    const all = readJson('rinchanAllActivities', []);
+    const own = readJson('rinchanActivities', []);
+    return Array.isArray(all) && all.length ? all : (Array.isArray(own) ? own : []);
+  }
+
+  function mergeCachedSteps(rows, dateKey) {
+    const byEmployee = {};
+    cachedActivities().forEach(item => {
+      if (normalizeDateKey(item.date || item.createdAt || item.savedAt) !== dateKey) return;
+      const id = String(item.participantId || item.employeeId || item.id || '').trim();
+      if (!id) return;
+      const current = byEmployee[id];
+      const currentAt = current ? String(current.savedAt || current.createdAt || '') : '';
+      const nextAt = String(item.savedAt || item.createdAt || '');
+      if (!current || nextAt >= currentAt) byEmployee[id] = item;
+    });
+    return (Array.isArray(rows) ? rows : []).map(row => {
+      const serverSteps = row.currentSteps !== undefined && row.currentSteps !== null ? row.currentSteps : row.steps;
+      const normalized = Object.assign({}, row, {
+        currentSteps: Number(serverSteps || 0),
+        hasRecord: !!(row.hasRecord || row.activityId || Number(serverSteps || 0) > 0)
+      });
+      if (normalized.hasRecord) return normalized;
+      const cached = byEmployee[String(normalized.employeeId || '').trim()];
+      if (!cached) return normalized;
+      return Object.assign({}, normalized, {
+        currentSteps: Number(cached.steps || 0),
+        source: '同期済みデータ',
+        updatedAt: String(cached.savedAt || cached.createdAt || ''),
+        activityId: String(cached.activityId || ''),
+        hasRecord: true
+      });
+    });
+  }
 
   function authState() {
     if (window.RinchanApi && typeof RinchanApi.authState === 'function') return RinchanApi.authState();
@@ -156,7 +208,7 @@ const RinchanAdminActivity = (() => {
           '<small>社員番号 ' + escapeHtml(row.employeeId || '-') + ' / ' + escapeHtml(row.dept || '所属未設定') + '</small>' +
         '</div>' +
         '<div class="admin-activity-meta">' +
-          '<span>現在歩数 <b>' + Number(row.currentSteps || 0).toLocaleString('ja-JP') + '</b> 歩</span>' +
+          '<span>現在歩数 ' + (row.hasRecord ? '<b>' + Number(row.currentSteps || 0).toLocaleString('ja-JP') + '</b> 歩' : '<b class="is-empty">記録なし</b>') + '</span>' +
           '<span>登録元 ' + escapeHtml(row.source || '-') + '</span>' +
           '<span>更新 ' + escapeHtml(formatAt(row.updatedAt || '')) + '</span>' +
         '</div>' +
@@ -237,7 +289,8 @@ const RinchanAdminActivity = (() => {
         return;
       }
 
-      state.rows = Array.isArray(result.data.rows) ? result.data.rows : [];
+      const dateText = result.data.date || value('adminActivityDate');
+      state.rows = mergeCachedSteps(Array.isArray(result.data.rows) ? result.data.rows : [], dateText);
       updateDeptOptions(result.data.departments || []);
       try {
         renderRows();
@@ -250,7 +303,6 @@ const RinchanAdminActivity = (() => {
         return;
       }
 
-      const dateText = result.data.date || value('adminActivityDate');
       setStatus('対象日 ' + dateText + ' / ' + state.rows.length + '件', false);
       if (!state.rows.length) {
         setMessage('対象データがありません。', 'info');
@@ -406,12 +458,14 @@ const RinchanAdminActivity = (() => {
     if (!input) return;
     const today = todayKey();
     input.max = today;
-    if (!input.value || input.value > today) input.value = today;
+    const latest = cachedActivities().map(item => normalizeDateKey(item.date || item.createdAt || item.savedAt)).filter(date => date && date <= today).sort().pop();
+    if (!input.value || input.value > today) input.value = latest || today;
   }
 
-  function install() {
+  async function install() {
     if (!document.querySelector('.admin-activity-app')) return;
     if (!guardPageAccess()) return;
+    if (window.RinchanSync && typeof RinchanSync.sync === 'function') await RinchanSync.sync({ silent: true });
     initDate();
     installEvents();
     loadRows();

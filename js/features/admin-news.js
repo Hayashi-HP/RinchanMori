@@ -147,12 +147,11 @@ const RinchanAdminNews = (() => {
       const published = String(row.status || '') === 'published';
       const publishLabel = published ? '公開停止' : '公開';
       const statusClass = published ? 'status-published' : 'status-draft';
-      return '<article class="admin-news-row">'
-        + '<h3>' + escapeHtml(row.title || '-') + '</h3>'
-        + '<div class="admin-news-row-meta">'
+      return '<details class="admin-news-row">'
+        + '<summary class="admin-news-summary"><span class="admin-news-summary-copy"><strong>' + escapeHtml(row.title || '-') + '</strong><small>' + escapeHtml(formatDateTime(row.startAt)) + '</small></span><span class="admin-news-status-pill ' + statusClass + '">' + escapeHtml(statusLabel(row.status)) + '</span></summary>'
+        + '<div class="admin-news-row-detail"><div class="admin-news-row-meta">'
         + '<span>種別: ' + escapeHtml(row.type === 'group' ? 'グループニュース' : 'お知らせ') + '</span>'
         + '<span>対象: ' + escapeHtml(targetLabel(row)) + '</span>'
-        + '<span>状態: <span class="admin-news-status-pill ' + statusClass + '">' + escapeHtml(statusLabel(row.status)) + '</span></span>'
         + '<span>公開開始: ' + escapeHtml(formatDateTime(row.startAt)) + '</span>'
         + '<span>公開終了: ' + escapeHtml(formatDateTime(row.endAt)) + '</span>'
         + '<span>更新日時: ' + escapeHtml(formatDateTime(row.updatedAt || row.createdAt)) + '</span>'
@@ -161,8 +160,8 @@ const RinchanAdminNews = (() => {
         + '<button type="button" class="soft-button" data-action="edit" data-id="' + escapeHtml(row.noticeId || '') + '">編集</button>'
         + '<button type="button" class="soft-button" data-action="toggle" data-id="' + escapeHtml(row.noticeId || '') + '">' + publishLabel + '</button>'
         + '<button type="button" class="soft-button" data-action="delete" data-id="' + escapeHtml(row.noticeId || '') + '">削除</button>'
-        + '</div>'
-        + '</article>';
+        + '</div></div>'
+        + '</details>';
     }).join('');
   }
 
