@@ -5,7 +5,8 @@
   const isHome = !pathName.includes('/pages/') && (/(?:^|\/)index\.html$/.test(pathName) || /\/$/.test(pathName));
   const isActivity = /(?:^|\/)pages\/activity\.html$/.test(pathName);
   const isMori = /(?:^|\/)pages\/mori\.html$/.test(pathName);
-  const isModernPage = isHome || isActivity || isMori;
+  const isNews = /(?:^|\/)pages\/news\.html$/.test(pathName);
+  const isModernPage = isHome || isActivity || isMori || isNews;
   if (/Android/i.test(ua)) root.classList.add('is-android');
   if (/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) root.classList.add('is-ios');
   if (/Android|iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1) || Math.min(screen.width || 9999, screen.height || 9999) <= 899) root.classList.add('is-mobile-device');
