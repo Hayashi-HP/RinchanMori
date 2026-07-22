@@ -105,6 +105,13 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, state: getUserState(ss, data), version: VERSION });
   }
 
+  if (action === 'checkEmployeeId') {
+    const employeeId = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+    if (!employeeId) return jsonOutput({ ok: false, action, error: 'employee_id_required', reason: 'employee_id_required', version: VERSION });
+    const exists = !!getPublicUserById(ss, employeeId);
+    return jsonOutput({ ok: true, action, exists, available: !exists, version: VERSION });
+  }
+
   if (action === 'markRead') {
     const state = markUserRead(ss, data);
     auditAction(ss, 'markRead', data, 'ok', 'user_read', { employeeId: data.employeeId || data.id || '', type: data.type || '', targetId: data.targetId || data.newsId || data.thanksId || '' });

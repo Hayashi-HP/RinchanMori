@@ -1,5 +1,5 @@
 const RinchanAuth = (() => {
-  const VERSION = 'v1.0.65';
+  const VERSION = 'v1.0.66';
 
   function value(id) { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
   function setBusy(button, busy, label) { if (!button) return; button.disabled = !!busy; if (label) { const labelNode = button.querySelector('span'); if (labelNode) labelNode.textContent = label; else button.textContent = label; } }
@@ -117,7 +117,7 @@ const RinchanAuth = (() => {
     } catch (e) {}
   }
   function goHome() { location.href = '../index.html'; }
-  function isDuplicateResult(result) { const reason = String((result && (result.reason || result.error)) || '').toLowerCase(); return !!(result && (result.exists === true || result.duplicate === true || result.alreadyExists === true || reason === 'duplicate_employee_id' || reason === 'employee_id_exists' || reason === 'already_registered' || reason === 'duplicate'));
+  function isDuplicateResult(result) { const reason = String((result && (result.reason || result.error)) || '').toLowerCase(); return !!(result && (result.exists === true || result.duplicate === true || result.alreadyExists === true || reason.includes('duplicate_employee_id') || reason.includes('employee_id_exists') || reason.includes('already_registered') || reason === 'duplicate'));
   }
   function hasCachedEmployee(employeeId) { const id = String(employeeId || ''); const current = participant(); if (current && String(current.employeeId || current.id || '') === id) return true; const known = readJson('rinchanKnownUsers', []); if (Array.isArray(known) && known.some(user => String(user.employeeId || user.id || '') === id)) return true; const members = readJson('rinchanMoriMembers', []); if (Array.isArray(members) && members.some(user => String(user.employeeId || user.id || user.participantId || '') === id)) return true; return false; }
   async function checkEmployeeAvailable(employeeId) {
@@ -127,7 +127,12 @@ const RinchanAuth = (() => {
       return { ok: true, available: !(result.exists === true || result.duplicate === true || result.alreadyExists === true), raw: result };
     }
     if (isDuplicateResult(result)) return { ok: true, available: false, raw: result };
-    return { ok: false, reason: (result && (result.reason || result.error)) || 'check_failed', raw: result };
+    const stateResult = await api('getUserState', { employeeId });
+    if (stateResult && stateResult.ok && stateResult.state) {
+      return { ok: true, available: !stateResult.state.user, source: 'user_state', raw: stateResult };
+    }
+    if (isDuplicateResult(stateResult)) return { ok: true, available: false, raw: stateResult };
+    return { ok: false, reason: (stateResult && (stateResult.reason || stateResult.error)) || (result && (result.reason || result.error)) || 'check_failed', raw: stateResult || result };
   }
   async function verifyLoginInBackground(employeeId, pin4) { try { setSyncStatus('syncing', 'ログイン確認中です。'); const result = await api('loginUser', { employeeId, pin4 }); if (result && result.ok && result.user) { const merged = Object.assign({}, participant() || {}, result.user); saveParticipant(merged); applyState(result); setSyncStatus('synced', ''); return true; } setSyncStatus('error', 'ログイン確認が必要です。'); return false; } catch (e) { setSyncStatus('error', '通信できないため確認できませんでした。'); return false; } }
 
