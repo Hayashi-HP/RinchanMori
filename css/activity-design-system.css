@@ -49,9 +49,6 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 .rinchan-activity-system .card, .rinchan-activity-system .guest-panel, .rinchan-activity-system .complete { min-width: 0; margin: 0 !important; padding: 28px !important; border: 1px solid var(--rm-line); border-radius: var(--rm-radius); background: rgba(255,255,255,.97); box-shadow: var(--rm-shadow); }
 .rinchan-activity-system .card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .rinchan-activity-system .card h2 { margin: 0; color: var(--rm-navy); font-size: 22px; font-weight: 720; line-height: 1.4; letter-spacing: -.035em; }
-.rinchan-activity-system .line-icon { width: 42px; height: 42px; flex: 0 0 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--rm-blue-soft); color: var(--rm-blue); }
-.rinchan-activity-system .line-icon svg { width: 21px; height: 21px; }
-
 .rinchan-activity-system .activity-summary-card { grid-column: span 7; min-height: 476px; }
 .rinchan-activity-system .summary-date { min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 999px; background: var(--rm-green-soft); color: var(--rm-green-deep); font-size: 12px; font-weight: 750; white-space: nowrap; }
 .rinchan-activity-system .activity-summary-main { height: calc(100% - 55px); margin-top: 22px; display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 34px; align-items: center; }
