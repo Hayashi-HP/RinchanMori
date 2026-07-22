@@ -1,9 +1,75 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>ログイン｜りんちゃんの杜</title>
   <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
-  <link rel="stylesheet" href="../css/style.css?v=1117"><link rel="stylesheet" href="../css/ui-v042.css?v=1117"><link rel="stylesheet" href="../css/v102-rinchan-face.css?v=1117"><link rel="stylesheet" href="../css/v128-mobile-polish.css?v=1117"><link rel="stylesheet" href="../css/v1014-hotfix.css?v=1117"><link rel="stylesheet" href="../css/v1116-auth-modal.css?v=1117">
+  <link rel="stylesheet" href="../css/style.css?v=178">
+  <link rel="stylesheet" href="../css/auth-design-system.css?v=240">
 </head>
-<body><main class="app"><header class="top"><a href="../index.html" class="back">←</a><div class="page-title">ログイン</div><span class="spacer"></span></header><section class="intro"><img class="rin-img rin-face-small" src="../assets/rinchan-face.svg?v=1117" alt="りんちゃん"><h1>おかえりなさい</h1><p>社員番号と誕生日4桁でログインします。</p></section><form class="form login-form" id="loginForm"><label>社員番号<input id="loginEmployeeId" required inputmode="numeric" placeholder="例：2110401"></label><label>誕生日4桁<input id="loginPin4" required inputmode="numeric" maxlength="4" placeholder="例：4月8日 → 0408"></label><button class="submit pill-button" type="submit">ログインする</button><p class="login-helper">はじめて利用する方は <a href="register.html">新規登録</a></p></form></main><script src="../js/config.js?v=1117"></script><script src="../js/core/storage.js?v=1117"></script><script src="../js/core/error-log.js?v=1117"></script><script src="../js/core/api.js?v=1117"></script><script src="../js/core/sync.js?v=1117"></script><script src="../js/core/offline-queue.js?v=1117"></script><script src="../js/core/rinchan-modal.js?v=1117"></script><script src="../js/features/auth.js?v=1117"></script></body></html>
+<body class="rinchan-auth-system">
+<main class="auth-app">
+  <header class="auth-header">
+    <a class="auth-back" href="../index.html" aria-label="ホームへ戻る">
+      <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <a class="auth-brand" href="../index.html" aria-label="りんちゃんの杜 ホーム">りんちゃんの杜</a>
+    <span class="auth-header-spacer" aria-hidden="true"></span>
+  </header>
+
+  <div class="auth-layout auth-layout-login">
+    <section class="auth-story" aria-labelledby="loginWelcomeTitle">
+      <div class="auth-character-wrap">
+        <img class="auth-character" src="../assets/rinchan-face.svg?v=178" alt="りんちゃん">
+      </div>
+      <p class="auth-eyebrow">WELCOME BACK</p>
+      <h1 id="loginWelcomeTitle">おかえりなさい</h1>
+      <p>今日の歩みと、育った杜を見にいきましょう。</p>
+      <div class="auth-story-note">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg>
+        <span>毎日の小さな一歩が、杜の成長につながります。</span>
+      </div>
+    </section>
+
+    <section class="auth-panel" aria-labelledby="loginTitle">
+      <div class="auth-panel-heading">
+        <p class="auth-eyebrow">LOGIN</p>
+        <h2 id="loginTitle">ログイン</h2>
+        <p>社員番号と誕生日4桁を入力してください。</p>
+      </div>
+      <form class="auth-form" id="loginForm" novalidate>
+        <div class="auth-field">
+          <label for="loginEmployeeId">社員番号</label>
+          <input id="loginEmployeeId" name="employeeId" type="text" required inputmode="numeric" autocomplete="username" enterkeyhint="next" pattern="[0-9]*" placeholder="例：2110401">
+        </div>
+        <div class="auth-field">
+          <div class="auth-label-row"><label for="loginPin4">誕生日4桁</label><small>4月8日なら 0408</small></div>
+          <div class="auth-pin-wrap">
+            <input id="loginPin4" name="pin4" type="password" required inputmode="numeric" autocomplete="current-password" enterkeyhint="go" pattern="[0-9]{4}" maxlength="4" placeholder="4桁で入力" aria-describedby="loginPinHelp">
+            <button class="auth-pin-toggle" type="button" data-pin-toggle="loginPin4" aria-label="誕生日4桁を表示" aria-pressed="false">
+              <svg class="pin-eye-show" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="pin-eye-hide" aria-hidden="true" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a18 18 0 0 1-2.1 3.2M6.6 6.6C3.6 8.5 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"/></svg>
+            </button>
+          </div>
+          <small class="auth-field-help" id="loginPinHelp">入力内容はアプリ内に保存しません。</small>
+        </div>
+        <button class="auth-submit" type="submit">
+          <span>ログインする</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </form>
+      <p class="auth-switch">はじめて利用する方は <a href="register.html">新規登録へ</a></p>
+    </section>
+  </div>
+</main>
+<script src="../js/config.js?v=219"></script>
+<script src="../js/core/storage.js?v=240"></script>
+<script src="../js/core/error-log.js?v=178"></script>
+<script src="../js/core/api.js?v=178"></script>
+<script src="../js/core/sync.js?v=240"></script>
+<script src="../js/core/offline-queue.js?v=178"></script>
+<script src="../js/core/rinchan-modal.js?v=178"></script>
+<script src="../js/features/auth.js?v=240"></script>
+</body>
+</html>

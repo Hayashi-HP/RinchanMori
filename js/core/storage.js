@@ -1,5 +1,5 @@
 const RinchanStorage = (() => {
-  const VERSION = 'v1.0.30';
+  const VERSION = 'v1.0.64';
 
   function readJson(key, fallback) {
     try {
@@ -57,7 +57,9 @@ const RinchanStorage = (() => {
       'rinchanThanksStats',
       'rinchanSyncStatus',
       'rinchanLastSyncedAt',
-      'rinchanSyncToken'
+      'rinchanSyncToken',
+      'rinchanKnownUsers',
+      'rinchanPendingLoginCheck'
     ]);
   }
 
