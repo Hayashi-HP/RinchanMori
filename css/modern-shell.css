@@ -63,8 +63,8 @@
 .rinchan-mori-system .nav .notify-badge,
 .rinchan-news-system .nav .notify-badge {
   top: 5px;
-  right: 12px;
-  left: auto;
+  right: auto;
+  left: calc(50% - 14px);
   z-index: 2;
 }
 
