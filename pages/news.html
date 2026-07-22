@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../css/style.css?v=178">
   <link rel="stylesheet" href="../css/ui-v042.css?v=178">
   <link rel="stylesheet" href="../css/news-design-system.css?v=225">
-  <link rel="stylesheet" href="../css/modern-shell.css?v=223">
+  <link rel="stylesheet" href="../css/modern-shell.css?v=226">
 </head>
 <body class="rinchan-news-system">
 <main class="app news-page" id="rinchanNewsPage">
@@ -22,7 +22,7 @@
     <a href="../index.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a>
     <a href="mori.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a>
     <a class="plus" href="activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a>
-    <a class="active" href="news.html" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small></a>
+    <a class="active" href="news.html" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small><span class="notify-badge hidden">0</span></a>
     <a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a>
   </nav>
 
@@ -40,7 +40,7 @@
     <section class="card news-section-card group-news-card"><div class="section-head-row"><div><p class="eyebrow">グループニュース</p><h2>みんなの活動</h2></div></div><div id="groupNewsList" class="group-news-list"><p class="empty-note news-empty">読み込み中...</p></div></section>
   </div>
 </main>
-<script src="../js/core/device-class.js?v=223"></script><script src="../js/config.js?v=223"></script><script src="../js/core/storage.js?v=178"></script><script src="../js/core/error-log.js?v=178"></script><script src="../js/core/api.js?v=178"></script><script src="../js/core/sync.js?v=178"></script><script src="../js/core/offline-queue.js?v=178"></script><script src="../js/core/rinchan-modal.js?v=178"></script><script src="../js/features/news.js?v=223"></script><script src="../js/features/activity.js?v=178"></script><script src="../js/features/forest-summary-fix.js?v=178"></script>
+<script src="../js/core/device-class.js?v=223"></script><script src="../js/config.js?v=223"></script><script src="../js/core/storage.js?v=178"></script><script src="../js/core/error-log.js?v=178"></script><script src="../js/core/api.js?v=178"></script><script src="../js/core/sync.js?v=178"></script><script src="../js/core/offline-queue.js?v=178"></script><script src="../js/core/rinchan-modal.js?v=178"></script><script src="../js/features/news.js?v=226"></script><script src="../js/features/activity.js?v=178"></script><script src="../js/features/forest-summary-fix.js?v=178"></script>
 <script>(function(){async function refreshNews(){try{if(window.RinchanSync&&typeof RinchanSync.sync==='function')await RinchanSync.sync({silent:true});if(window.RinchanNews&&typeof RinchanNews.refreshPublicThanks==='function')await RinchanNews.refreshPublicThanks();if(window.RinchanNews&&typeof RinchanNews.refreshPublicNotices==='function')await RinchanNews.refreshPublicNotices();if(window.RinchanNews&&typeof RinchanNews.renderAll==='function')RinchanNews.renderAll();if(window.RinchanForestSummaryFix&&typeof RinchanForestSummaryFix.renderAll==='function')RinchanForestSummaryFix.renderAll();}catch(e){}}document.addEventListener('DOMContentLoaded',function(){setTimeout(refreshNews,100);setTimeout(refreshNews,900);setTimeout(refreshNews,2200);});window.addEventListener('pageshow',function(){setTimeout(refreshNews,100);});})();</script>
 </body>
 </html>

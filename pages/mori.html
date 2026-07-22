@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../css/v122-creatures.css?v=178">
   <link rel="stylesheet" href="../css/v124-event-calendar.css?v=178">
   <link rel="stylesheet" href="../css/mori-design-system.css?v=225">
-  <link rel="stylesheet" href="../css/modern-shell.css?v=224">
+  <link rel="stylesheet" href="../css/modern-shell.css?v=226">
 </head>
 <body class="rinchan-mori-system">
 <main class="app mori-page">
@@ -29,7 +29,7 @@
     <a href="../index.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a>
     <a class="active" href="mori.html" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a>
     <a class="plus" href="activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a>
-    <a href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small></a>
+    <a href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small><span class="notify-badge hidden">0</span></a>
     <a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a>
   </nav>
 
@@ -66,7 +66,8 @@
     <section id="treeInfoCard" class="card tree-info-card hidden"></section>
   </div>
 </main>
-<script src="../js/core/device-class.js?v=224"></script><script src="../js/config.js?v=224"></script><script src="../js/core/storage.js?v=178"></script><script src="../js/core/error-log.js?v=178"></script><script src="../js/core/api.js?v=178"></script><script src="../js/core/sync.js?v=178"></script><script src="../js/core/offline-queue.js?v=178"></script><script src="../js/core/rinchan-modal.js?v=178"></script><script src="../js/features/activity.js?v=178"></script><script src="../js/features/mori.js?v=224"></script><script src="../js/features/mori-thanks-confirm.js?v=178"></script><script src="../js/features/mori-world.js?v=220"></script><script src="../js/features/mori-world-engine.js?v=178"></script><script src="../js/features/creature-engine-v122.js?v=178"></script><script src="../js/features/annual-event-catalog.js?v=195"></script><script src="../js/features/event-calendar-engine.js?v=190"></script><script src="../js/features/event-loader.js?v=195"></script><script src="../js/features/event-highlight-lock.js?v=190"></script><script src="../js/features/season-engine.js?v=178"></script><script src="../js/features/forest-summary-fix.js?v=178"></script>
+<script src="../js/core/device-class.js?v=224"></script><script src="../js/config.js?v=224"></script><script src="../js/core/storage.js?v=178"></script><script src="../js/core/error-log.js?v=178"></script><script src="../js/core/api.js?v=178"></script><script src="../js/core/sync.js?v=178"></script><script src="../js/core/offline-queue.js?v=178"></script><script src="../js/core/rinchan-modal.js?v=178"></script><script src="../js/features/activity.js?v=178"></script><script src="../js/features/mori.js?v=226"></script><script src="../js/features/mori-thanks-confirm.js?v=178"></script><script src="../js/features/mori-world.js?v=220"></script><script src="../js/features/mori-world-engine.js?v=178"></script><script src="../js/features/creature-engine-v122.js?v=178"></script><script src="../js/features/annual-event-catalog.js?v=195"></script><script src="../js/features/event-calendar-engine.js?v=190"></script><script src="../js/features/event-loader.js?v=195"></script><script src="../js/features/event-highlight-lock.js?v=190"></script><script src="../js/features/season-engine.js?v=178"></script><script src="../js/features/forest-summary-fix.js?v=178"></script>
 <script>(function(){function refreshWorld(){try{if(window.RinchanMoriThanksConfirm&&typeof RinchanMoriThanksConfirm.install==='function')RinchanMoriThanksConfirm.install();if(window.RinchanMoriWorld&&typeof RinchanMoriWorld.renderAll==='function')RinchanMoriWorld.renderAll();if(window.RinchanMoriWorldEngine&&typeof RinchanMoriWorldEngine.install==='function')RinchanMoriWorldEngine.install();if(window.RinchanCreatureEngineV122&&typeof RinchanCreatureEngineV122.install==='function')RinchanCreatureEngineV122.install();if(window.RinchanEventCalendarEngine&&typeof RinchanEventCalendarEngine.install==='function')RinchanEventCalendarEngine.install();if(window.RinchanEventLoader&&typeof RinchanEventLoader.install==='function')RinchanEventLoader.install();if(window.RinchanEventHighlightLock&&typeof RinchanEventHighlightLock.install==='function')RinchanEventHighlightLock.install();if(window.RinchanSeasonEngine&&typeof RinchanSeasonEngine.install==='function')RinchanSeasonEngine.install();if(window.RinchanForestSummaryFix&&typeof RinchanForestSummaryFix.renderAll==='function')RinchanForestSummaryFix.renderAll();}catch(e){}}document.addEventListener('DOMContentLoaded',function(){setTimeout(refreshWorld,300);setTimeout(refreshWorld,1200);setTimeout(refreshWorld,2500);});window.addEventListener('pageshow',function(){setTimeout(refreshWorld,200);});})();</script>
+<script src="../js/features/news.js?v=226"></script>
 </body>
 </html>
