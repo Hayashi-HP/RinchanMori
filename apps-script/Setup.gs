@@ -90,6 +90,147 @@ function getDepartments(ss) {
     }));
 }
 
+function parseDepartmentActive(value) {
+  if (value === true || value === 1) return true;
+  const raw = String(value === undefined || value === null ? '' : value).trim().toLowerCase();
+  return raw === 'true' || raw === '1' || raw === 'active';
+}
+
+function parseDepartmentDisplayOrder(value) {
+  const raw = String(value === undefined || value === null ? '' : value).trim();
+  if (!/^\d+$/.test(raw)) throw new Error('department_order_integer_required');
+  const order = Number(raw);
+  if (!isFinite(order) || order < 1 || order > 9999) throw new Error('department_order_out_of_range');
+  return order;
+}
+
+function getAdminDepartments(ss) {
+  const rows = readTable(ss.getSheetByName(SHEET_DEPARTMENTS));
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const countByName = users.reduce((counts, user) => {
+    const name = String(user.dept || '').trim();
+    if (name) counts[name] = (counts[name] || 0) + 1;
+    return counts;
+  }, {});
+
+  const departments = rows.map(row => {
+    const deptId = String(row.deptId || '').trim();
+    const deptName = String(row.deptName || '').trim();
+    if (!deptId && !deptName) return null;
+    return {
+      deptId,
+      deptName,
+      displayOrder: Number(row.displayOrder || 999),
+      active: parseDepartmentActive(row.active),
+      mapKey: String(row.mapKey || 'other'),
+      memberCount: Number(countByName[deptName] || 0)
+    };
+  }).filter(Boolean).sort((a, b) => {
+    return a.displayOrder - b.displayOrder || a.deptName.localeCompare(b.deptName, 'ja');
+  });
+
+  return {
+    departments,
+    total: departments.length,
+    activeCount: departments.filter(item => item.active).length,
+    generatedAt: new Date().toISOString()
+  };
+}
+
+function replaceDepartmentNameInSheet(sheet, headerName, oldName, newName) {
+  if (!sheet || !oldName || oldName === newName || sheet.getLastRow() < 2) return 0;
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String);
+  const column = headers.indexOf(headerName) + 1;
+  if (column < 1) return 0;
+  const range = sheet.getRange(2, column, sheet.getLastRow() - 1, 1);
+  const values = range.getValues();
+  let changed = 0;
+  const next = values.map(row => {
+    if (String(row[0] || '').trim() !== oldName) return row;
+    changed += 1;
+    return [newName];
+  });
+  if (changed) range.setValues(next);
+  return changed;
+}
+
+function createDepartmentId() {
+  return 'dept-' + Utilities.getUuid().replace(/-/g, '').slice(0, 12);
+}
+
+function saveAdminDepartment(ss, data) {
+  const actor = getUserPermissionContext(ss, data);
+  if (!actor || actor.permissions.indexOf(PERMISSION_MANAGE_USERS) < 0) throw new Error('manage_users_required');
+
+  const sheet = ss.getSheetByName(SHEET_DEPARTMENTS);
+  const requestedId = String(data.deptId || '').trim();
+  const deptName = String(data.deptName || '').trim();
+  const displayOrder = parseDepartmentDisplayOrder(data.displayOrder);
+  const active = parseDepartmentActive(data.active);
+  const rows = readTable(sheet);
+  const existingIndex = requestedId
+    ? rows.findIndex(row => String(row.deptId || '').trim() === requestedId)
+    : -1;
+  const existing = existingIndex >= 0 ? rows[existingIndex] : null;
+
+  if (!deptName) throw new Error('department_name_required');
+  if (deptName.length > 80) throw new Error('department_name_too_long');
+  if (requestedId && !existing) throw new Error('department_not_found');
+
+  const duplicate = rows.find(row => {
+    const rowId = String(row.deptId || '').trim();
+    return rowId !== requestedId && String(row.deptName || '').trim() === deptName;
+  });
+  if (duplicate) throw new Error('department_name_duplicate');
+
+  const deptId = existing ? requestedId : createDepartmentId();
+  const oldName = existing ? String(existing.deptName || '').trim() : '';
+  const users = readTable(ss.getSheetByName(SHEET_USERS));
+  const memberCount = oldName
+    ? users.filter(user => String(user.dept || '').trim() === oldName).length
+    : 0;
+  if (existing && parseDepartmentActive(existing.active) && !active && memberCount > 0) {
+    throw new Error('department_in_use');
+  }
+
+  const rowValues = [
+    deptId,
+    deptName,
+    displayOrder,
+    active,
+    existing ? String(existing.mapKey || 'other') : 'other'
+  ];
+
+  if (existing) {
+    sheet.getRange(existingIndex + 2, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    sheet.appendRow(rowValues);
+  }
+
+  let updatedUsers = 0;
+  let updatedNotices = 0;
+  if (existing && oldName && oldName !== deptName) {
+    updatedUsers = replaceDepartmentNameInSheet(ss.getSheetByName(SHEET_USERS), 'dept', oldName, deptName);
+    updatedNotices = replaceDepartmentNameInSheet(ss.getSheetByName(SHEET_NOTICES), 'targetDept', oldName, deptName);
+  }
+
+  invalidateDepartmentCaches();
+  return {
+    type: existing ? 'updated' : 'inserted',
+    department: {
+      deptId,
+      deptName,
+      displayOrder,
+      active,
+      mapKey: rowValues[4],
+      memberCount
+    },
+    renamed: oldName && oldName !== deptName,
+    updatedUsers,
+    updatedNotices
+  };
+}
+
 function normalizeExistingPin4(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;

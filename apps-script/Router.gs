@@ -195,6 +195,39 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminDepartmentList') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_USERS)) return adminDenied('adminDepartmentList', ss, data);
+    try {
+      const list = getAdminDepartments(ss);
+      auditAction(ss, 'adminDepartmentList', data, 'ok', 'view_admin_department_list', { total: list.total });
+      return jsonOutput({ ok: true, action, data: list, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminDepartmentList', data, 'ng', e.message || 'admin_department_list_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_department_list_failed', reason: e.message || 'admin_department_list_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminSaveDepartment') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_USERS)) return adminDenied('adminSaveDepartment', ss, data);
+    try {
+      const saved = saveAdminDepartment(ss, data || {});
+      auditAction(ss, 'adminSaveDepartment', data, 'ok', 'admin_department_saved', {
+        targetDepartmentId: saved.department.deptId,
+        departmentName: saved.department.deptName,
+        active: saved.department.active,
+        updatedUsers: saved.updatedUsers,
+        updatedNotices: saved.updatedNotices
+      });
+      return jsonOutput({ ok: true, action, saved, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSaveDepartment', data, 'ng', e.message || 'admin_department_save_failed', {
+        targetDepartmentId: data.deptId || '',
+        departmentName: data.deptName || ''
+      });
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_department_save_failed', reason: e.message || 'admin_department_save_failed', version: VERSION });
+    }
+  }
+
   if (action === 'adminActivityRows') {
     const denied = requireAdminAction('adminActivityRows', ss, data);
     if (denied) return denied;
