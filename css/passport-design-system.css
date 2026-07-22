@@ -51,7 +51,7 @@ body.rinchan-passport-system { background:radial-gradient(circle at 8% 10%,rgba(
 .rinchan-passport-system .info-grid { margin-top:22px; display:grid; grid-template-columns:118px minmax(0,1fr); gap:0; border-top:1px solid var(--rm-line); }
 .rinchan-passport-system .info-grid span,.rinchan-passport-system .info-grid strong { min-width:0; padding:15px 4px; border-bottom:1px solid var(--rm-line); font-size:13px; line-height:1.5; }
 .rinchan-passport-system .info-grid span { color:var(--rm-muted); font-weight:650; }
-.rinchan-passport-system .info-grid strong { color:var(--rm-navy); font-weight:720; overflow-wrap:anywhere; }
+.rinchan-passport-system .info-grid strong { color:var(--rm-navy); font-size:16px; font-weight:720; line-height:1.45; letter-spacing:-.01em; overflow-wrap:anywhere; }
 
 .rinchan-passport-system #rinchanPassportSection>.label { margin:0 0 18px!important; color:var(--rm-green-deep); font-size:12px; font-weight:800; }
 .rinchan-passport-system .rinchan-passport-title { margin:0!important; }
