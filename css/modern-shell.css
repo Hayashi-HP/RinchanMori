@@ -150,9 +150,10 @@
   .rinchan-activity-system .top,
   .rinchan-mori-system .top,
   .rinchan-news-system .top {
-    width: calc(100% + 16px);
+    width: 100vw;
     max-width: none;
-    margin-inline: -8px;
+    margin-inline: calc(50% - 50vw);
+    padding-inline: 10px!important;
   }
 
   .rinchan-activity-system .header-spacer,
