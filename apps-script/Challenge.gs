@@ -5,12 +5,39 @@ const CHALLENGE_SCOPE_DEPARTMENT = 'department';
 const CHALLENGE_SCOPE_HOSPITAL = 'hospital';
 
 function normalizeChallengeYearMonth(value) {
-  const raw = String(value || '').trim();
-  const match = raw.match(/^(\d{4})-(\d{1,2})$/);
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM');
+  }
+
+  const raw = String(value === undefined || value === null ? '' : value).trim();
+  const match = raw.match(/^(\d{4})[-/](\d{1,2})(?:[-/]\d{1,2})?(?:\s.*)?$/);
   if (!match) return '';
   const month = Number(match[2]);
   if (month < 1 || month > 12) return '';
   return match[1] + '-' + String(month).padStart(2, '0');
+}
+
+function normalizeExistingChallengeYearMonths(sheet) {
+  if (!sheet) return 0;
+
+  const formatRowCount = Math.max(sheet.getMaxRows(), 1);
+  sheet.getRange(1, 2, formatRowCount, 1).setNumberFormat('@');
+  if (sheet.getLastRow() < 2) return 0;
+
+  const range = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1);
+  const values = range.getValues();
+  let changed = 0;
+  const normalizedValues = values.map(row => {
+    const normalized = normalizeChallengeYearMonth(row[0]);
+    if (!normalized) return row;
+    if (Object.prototype.toString.call(row[0]) === '[object Date]' || String(row[0]).trim() !== normalized) {
+      changed += 1;
+    }
+    return [normalized];
+  });
+
+  if (changed) range.setValues(normalizedValues);
+  return changed;
 }
 
 function currentChallengeYearMonth() {
@@ -147,8 +174,15 @@ function saveAdminChallenge(ss, data) {
     VERSION
   ];
 
-  if (existing) sheet.getRange(existingIndex + 2, 1, 1, rowValues.length).setValues([rowValues]);
-  else sheet.appendRow(rowValues);
+  let savedRow;
+  if (existing) {
+    savedRow = existingIndex + 2;
+    sheet.getRange(savedRow, 1, 1, rowValues.length).setValues([rowValues]);
+  } else {
+    sheet.appendRow(rowValues);
+    savedRow = sheet.getLastRow();
+  }
+  sheet.getRange(savedRow, 2).setNumberFormat('@').setValue(yearMonth);
 
   return {
     type: existing ? 'updated' : 'inserted',
