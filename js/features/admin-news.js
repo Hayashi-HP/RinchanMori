@@ -109,8 +109,14 @@ const RinchanAdminNews = (() => {
     return d.toLocaleString('ja-JP');
   }
 
-  function statusLabel(status) {
-    return String(status || '') === 'published' ? '公開中' : '下書き';
+  function publicationState(row) {
+    if (String((row && row.status) || '') !== 'published') return { key: 'draft', label: '下書き' };
+    const now = Date.now();
+    const start = Date.parse(String((row && row.startAt) || ''));
+    const end = Date.parse(String((row && row.endAt) || ''));
+    if (!isNaN(start) && start > now) return { key: 'scheduled', label: '公開予定' };
+    if (!isNaN(end) && end <= now) return { key: 'ended', label: '公開終了' };
+    return { key: 'published', label: '公開中' };
   }
 
   function targetLabel(row) {
@@ -146,9 +152,10 @@ const RinchanAdminNews = (() => {
     box.innerHTML = state.rows.map(row => {
       const published = String(row.status || '') === 'published';
       const publishLabel = published ? '公開停止' : '公開';
-      const statusClass = published ? 'status-published' : 'status-draft';
+      const publication = publicationState(row);
+      const statusClass = 'status-' + publication.key;
       return '<details class="admin-news-row">'
-        + '<summary class="admin-news-summary"><span class="admin-news-summary-copy"><strong>' + escapeHtml(row.title || '-') + '</strong><small>' + escapeHtml(formatDateTime(row.startAt)) + '</small></span><span class="admin-news-status-pill ' + statusClass + '">' + escapeHtml(statusLabel(row.status)) + '</span></summary>'
+        + '<summary class="admin-news-summary"><span class="admin-news-summary-copy"><strong>' + escapeHtml(row.title || '-') + '</strong><small>' + escapeHtml(formatDateTime(row.startAt)) + '</small></span><span class="admin-news-status-pill ' + statusClass + '">' + escapeHtml(publication.label) + '</span></summary>'
         + '<div class="admin-news-row-detail"><div class="admin-news-row-meta">'
         + '<span>種別: ' + escapeHtml(row.type === 'group' ? 'グループニュース' : 'お知らせ') + '</span>'
         + '<span>対象: ' + escapeHtml(targetLabel(row)) + '</span>'

@@ -110,6 +110,8 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-news-status-pill { min-height:26px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; font-size:11px; font-weight:750; }
 .rinchan-admin-system .admin-news-status-pill.status-draft { background:#f2f4f6; color:#667482; }
 .rinchan-admin-system .admin-news-status-pill.status-published { background:var(--rm-green-soft); color:var(--rm-green-deep); }
+.rinchan-admin-system .admin-news-status-pill.status-scheduled { background:var(--rm-blue-soft); color:var(--rm-blue-deep); }
+.rinchan-admin-system .admin-news-status-pill.status-ended { background:#f5f1f2; color:#796b70; }
 .rinchan-admin-system .admin-activity-message,.rinchan-admin-system .admin-news-message { min-height:22px; margin-top:12px; font-size:13px; font-weight:700; line-height:1.55; }
 .rinchan-admin-system .admin-activity-message.is-success,.rinchan-admin-system .admin-news-message.is-success { color:var(--rm-green-deep); }
 .rinchan-admin-system .admin-activity-message.is-error,.rinchan-admin-system .admin-news-message.is-error { color:#a44134; }
