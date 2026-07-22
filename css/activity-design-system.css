@@ -122,10 +122,11 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
   .rinchan-activity-system .nav a { min-height: 62px; padding: 7px 2px 5px; flex-direction: column; gap: 4px; border-radius: 17px; }
   .rinchan-activity-system .nav svg { width: 22px; height: 22px; }
   .rinchan-activity-system .nav small { font-size: 10px; }
-  .rinchan-activity-system .activity-hero { min-height: 164px; margin-bottom: 16px; padding: 23px 20px; grid-template-columns: minmax(0,1fr) 104px; border-radius: 24px; }
-  .rinchan-activity-system .activity-hero h1 { max-width: 12em; font-size: clamp(21px,6vw,27px); line-height: 1.35; text-wrap: balance; }
+  .rinchan-activity-system .activity-hero { min-height: 164px; margin-bottom: 16px; padding: 23px 20px; grid-template-columns: minmax(0,1fr) 88px; column-gap: 8px; border-radius: 24px; }
+  .rinchan-activity-system .activity-hero h1 { max-width: none; font-size: clamp(20px,5.2vw,25px); line-height: 1.35; }
+  .rinchan-activity-system .activity-hero h1 span { display: block; white-space: nowrap; }
   .rinchan-activity-system .activity-hero p:last-child { margin-top: 9px; font-size: 13px; line-height: 1.55; }
-  .rinchan-activity-system .activity-hero .rin-img { width: 96px; height: 106px; }
+  .rinchan-activity-system .activity-hero .rin-img { width: 86px; height: 100px; }
   .rinchan-activity-system .activity-grid { display: flex; flex-direction: column; gap: 16px; }
   .rinchan-activity-system .card { width: 100%; min-width: 0; margin: 0 !important; padding: 22px !important; }
   .rinchan-activity-system .card h2 { font-size: 19px; }
@@ -148,8 +149,8 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 
 @media (max-width: 380px) {
   .rinchan-activity-system .app { padding-inline: 14px; }
-  .rinchan-activity-system .activity-hero { grid-template-columns: minmax(0,1fr) 82px; padding-inline: 17px; }
-  .rinchan-activity-system .activity-hero .rin-img { width: 80px; }
+  .rinchan-activity-system .activity-hero { grid-template-columns: minmax(0,1fr) 72px; padding-inline: 17px; column-gap: 5px; }
+  .rinchan-activity-system .activity-hero .rin-img { width: 70px; height: 90px; }
   .rinchan-activity-system .summary-date { padding-inline: 10px; font-size: 11px; }
   .rinchan-activity-system .activity-week-bars { gap: 5px; }
 }
