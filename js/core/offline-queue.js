@@ -1,5 +1,5 @@
 const RinchanOfflineQueue = (() => {
-  const VERSION = 'v1.4.6';
+  const VERSION = 'v1.4.7';
   const QUEUE_KEY = 'rinchanPendingQueue';
   const FLUSHING_KEY = 'rinchanQueueFlushing';
   const RETRY_ACTIONS = ['saveActivity', 'deleteActivity', 'saveThanks', 'saveUser', 'markNewsRead'];
@@ -198,6 +198,7 @@ const RinchanOfflineQueue = (() => {
     }
 
     setLock();
+    renderStatus();
     if (!silent) setSyncStatus('syncing', '未送信データを送信中...');
 
     const remaining = [];
@@ -279,7 +280,12 @@ const RinchanOfflineQueue = (() => {
       else if (nav) page.insertBefore(box, nav);
       else page.appendChild(box);
     }
-    box.innerHTML = '<span>未送信 ' + count + '件</span><button type="button" onclick="RinchanOfflineQueue.flush()">再送</button>';
+    box.setAttribute('role', 'status');
+    box.setAttribute('aria-live', 'polite');
+    const sending = isLocked();
+    box.innerHTML = '<span><strong>未送信のデータ</strong><small>' + count + '件あります</small></span><button type="button"' + (sending ? ' disabled' : '') + '><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 2M17.9 15A7 7 0 0 1 6 18l-2-2"/></svg><span>' + (sending ? '送信中…' : '再送する') + '</span></button>';
+    const retryButton = box.querySelector('button');
+    if (retryButton && !sending) retryButton.addEventListener('click', () => flush());
   }
 
   function install() {
