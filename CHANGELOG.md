@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.5.27
+- ホーム画面を長期運用しやすいレスポンシブUIへ刷新
+- ブランドカラー、余白、角丸、影、文字、タップ領域を `css/home-design-system.css` のデザイントークンへ集約
+- 絵文字だった主要ナビゲーションと操作アイコンを統一線画SVGへ変更
+- 今日の歩数サマリーと目標進捗を `js/features/home-dashboard.js` として追加
+- ホームに限り旧来の多重CSS注入とモバイル最終上書きを停止し、ホーム専用デザインシステムを優先
+- 既存のGAS連携、同期、認証、歩数、杜、通信、ありがとうの各機能とDOM IDを維持
+- `assets/rinchan-face.svg` は無変更
+- 375×812と1440×900でログイン前後の表示、横はみ出し、主要データ描画、44px以上の操作領域を確認
+
 ## v1.5.26
 - 不採用方針に基づき GroupSession 連携コードを撤去
 - `adminGroupSessionConnectionTest` と GroupSession 接続処理、Router の該当分岐、専用ファイルを削除

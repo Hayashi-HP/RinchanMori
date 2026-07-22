@@ -1,11 +1,12 @@
 (function(){
   const ua = navigator.userAgent || '';
   const root = document.documentElement;
+  const pathName = (window.location && window.location.pathname) || '';
+  const isHome = !pathName.includes('/pages/') && (/(?:^|\/)index\.html$/.test(pathName) || /\/$/.test(pathName));
   if (/Android/i.test(ua)) root.classList.add('is-android');
   if (/iPhone|iPad|iPod/i.test(ua)) root.classList.add('is-ios');
 
-  if (!document.querySelector('link[data-rinchan-mobile-foundation]')) {
-    const pathName = (window.location && window.location.pathname) || '';
+  if (!isHome && !document.querySelector('link[data-rinchan-mobile-foundation]')) {
     const isPage = pathName.includes('/pages/');
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -15,6 +16,7 @@
   }
 
   function normalizeLayout(){
+    if (isHome) return;
     const body = document.body;
     const app = document.querySelector('main.app');
     const nav = document.querySelector('.nav');
