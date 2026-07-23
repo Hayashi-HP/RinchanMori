@@ -31,29 +31,47 @@ function saveErrorLog(ss, data) {
   return { saved: true, receivedAt: now };
 }
 
-function getRecentErrorLogs(ss, limit) {
+function getRecentErrorLogs(ss, options) {
   const sheet = ss.getSheetByName(SHEET_ERROR_LOGS);
   if (!sheet || sheet.getLastRow() < 2) return [];
 
-  const max = Math.max(1, Math.min(Number(limit || 50), 200));
+  const data = typeof options === 'object' && options ? options : { limit:options };
+  const requestedLimit = Number(data.limit || 100);
+  const max = Math.max(1, Math.min(isFinite(requestedLimit) ? requestedLimit : 100, 300));
+  const type = String(data.type || '').trim().toLowerCase();
+  const page = String(data.page || '').trim().toLowerCase();
+  const query = String(data.query || '').trim().toLowerCase();
   const lastRow = sheet.getLastRow();
-  const startRow = Math.max(2, lastRow - max + 1);
+  const startRow = Math.max(2, lastRow - 999);
   const values = sheet.getRange(startRow, 1, lastRow - startRow + 1, 14).getValues();
 
   return values.reverse().map(row => ({
-    loggedAt: row[0],
-    receivedAt: row[1],
-    employeeId: row[2],
-    deviceId: row[3],
-    page: row[4],
-    type: row[5],
-    message: row[6],
-    source: row[7],
-    line: row[8],
-    column: row[9],
-    stack: row[10],
-    url: row[11],
-    userAgent: row[12],
-    clientVersion: row[13]
-  }));
+      loggedAt: row[0],
+      receivedAt: row[1],
+      employeeId: row[2],
+      deviceId: row[3],
+      page: row[4],
+      type: row[5],
+      message: row[6],
+      source: row[7],
+      line: row[8],
+      column: row[9],
+      stack: row[10],
+      url: row[11],
+      userAgent: row[12],
+      clientVersion: row[13]
+    })).filter(item => {
+      const itemType = String(item.type || '').toLowerCase();
+      const itemPage = String(item.page || '').toLowerCase();
+      const message = String(item.message || '').trim();
+      const hasLocation = !!String(item.source || item.line || item.column || item.stack || '').trim();
+      if (message === 'Script error.' && !hasLocation) return false;
+      if (type && itemType !== type) return false;
+      if (page && itemPage.indexOf(page) < 0) return false;
+      if (query) {
+        const haystack = [item.employeeId, item.deviceId, item.page, item.type, item.message, item.source, item.stack, item.clientVersion].join(' ').toLowerCase();
+        if (haystack.indexOf(query) < 0) return false;
+      }
+      return true;
+    }).slice(0, max);
 }
