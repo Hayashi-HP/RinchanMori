@@ -1,0 +1,155 @@
+const RinchanAdminSettings = (() => {
+  const VERSION = 'v1.0.0';
+  const state = { loading:false, saving:false };
+
+  function byId(id) { return document.getElementById(id); }
+  function participant() {
+    try {
+      if (window.RinchanApi && typeof RinchanApi.authState === 'function') return RinchanApi.authState().user || null;
+      if (window.RinchanStorage && typeof RinchanStorage.getParticipant === 'function') return RinchanStorage.getParticipant();
+      return JSON.parse(localStorage.getItem('rinchanParticipant') || 'null');
+    } catch (e) { return null; }
+  }
+
+  function authState() {
+    const user = participant();
+    const employeeId = user && (user.employeeId || user.id || user.participantId) ? String(user.employeeId || user.id || user.participantId) : '';
+    const role = String((user && user.role) || '').toLowerCase();
+    const isAdmin = !!(user && (String(user.admin || '') === '1' || user.admin === true || role === 'admin' || role === 'system'));
+    return { employeeId, loggedIn:!!employeeId, isAdmin };
+  }
+
+  function guardPageAccess() {
+    const auth = authState();
+    if (!auth.loggedIn) { alert('ログイン後に管理画面をご利用ください。'); location.href = 'login.html'; return false; }
+    if (!auth.isAdmin) { location.href = 'mypage.html'; return false; }
+    return true;
+  }
+
+  async function api(action, payload) {
+    if (window.RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {});
+    return { ok:false, error:'api_not_ready' };
+  }
+
+  function formatDate(value) {
+    const date = new Date(value || '');
+    if (isNaN(date)) return '初期設定';
+    return date.getFullYear() + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + String(date.getDate()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+  }
+
+  function setStatus(text, error) {
+    const el = byId('adminSettingsStatus');
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.toggle('is-error', !!error);
+  }
+
+  function setMessage(text, type) {
+    const el = byId('adminSettingsMessage');
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.remove('is-success','is-error','is-info');
+    if (text) el.classList.add(type === 'error' ? 'is-error' : (type === 'success' ? 'is-success' : 'is-info'));
+  }
+
+  function setRefreshBusy(busy) {
+    const button = byId('adminSettingsRefresh');
+    if (!button) return;
+    button.disabled = !!busy || state.saving;
+    button.classList.toggle('is-refreshing', !!busy);
+    button.setAttribute('aria-label', busy ? '設定を更新中' : '設定を更新');
+    if (byId('adminSettingsSave')) byId('adminSettingsSave').disabled = !!busy || state.saving;
+  }
+
+  function applySettings(settings) {
+    const goal = Number(settings.defaultWeeklyStepGoal || 56000);
+    const days = Number(settings.inactivityAlertDays || 7);
+    byId('adminSettingWeeklyGoal').value = goal;
+    byId('adminSettingInactiveDays').value = days;
+    byId('adminSettingGoalSummary').textContent = goal.toLocaleString('ja-JP') + '歩';
+    byId('adminSettingInactiveSummary').textContent = days + '日';
+    byId('adminSettingVersion').textContent = String(settings.version || '-');
+    try { localStorage.setItem('rinchanAppSettings', JSON.stringify(settings)); } catch (e) {}
+  }
+
+  async function loadSettings() {
+    if (state.loading || state.saving) return;
+    state.loading = true;
+    setRefreshBusy(true);
+    setStatus('設定を読み込み中...', false);
+    try {
+      const auth = authState();
+      const result = await api('adminSettings', { employeeId:auth.employeeId });
+      if (!result || !result.ok || !result.settings) throw new Error(String((result && (result.reason || result.error)) || 'settings_failed'));
+      applySettings(result.settings);
+      setStatus('最終更新 ' + formatDate(result.settings.updatedAt), false);
+      setMessage('', 'info');
+    } catch (e) {
+      setStatus('設定を取得できませんでした。', true);
+      setMessage('通信に失敗しました。時間をおいてもう一度お試しください。', 'error');
+    } finally {
+      state.loading = false;
+      setRefreshBusy(false);
+    }
+  }
+
+  function inputNumber(id) { return Number(String(byId(id).value || '').trim()); }
+  function validate() {
+    const goal = inputNumber('adminSettingWeeklyGoal');
+    const days = inputNumber('adminSettingInactiveDays');
+    if (!Number.isInteger(goal) || goal < 7000 || goal > 1000000) return '標準週間目標は7,000〜1,000,000歩の整数で入力してください。';
+    if (!Number.isInteger(days) || days < 1 || days > 90) return '記録なし判定は1〜90日の整数で入力してください。';
+    return '';
+  }
+
+  function errorMessage(code) {
+    const messages = {
+      default_weekly_step_goal_integer_required:'標準週間目標は数字で入力してください。',
+      default_weekly_step_goal_out_of_range:'標準週間目標は7,000〜1,000,000歩で入力してください。',
+      inactivity_alert_days_integer_required:'記録なし判定は数字で入力してください。',
+      inactivity_alert_days_out_of_range:'記録なし判定は1〜90日で入力してください。'
+    };
+    return messages[String(code || '')] || '設定を保存できませんでした。時間をおいてもう一度お試しください。';
+  }
+
+  async function saveSettings(event) {
+    if (event) event.preventDefault();
+    if (state.saving) return;
+    const validation = validate();
+    if (validation) { setMessage(validation, 'error'); return; }
+    state.saving = true;
+    const saveButton = byId('adminSettingsSave');
+    if (saveButton) { saveButton.disabled = true; saveButton.textContent = '保存中...'; }
+    if (byId('adminSettingsRefresh')) byId('adminSettingsRefresh').disabled = true;
+    setMessage('設定を保存しています...', 'info');
+    try {
+      const auth = authState();
+      const result = await api('adminSaveSettings', {
+        employeeId:auth.employeeId,
+        defaultWeeklyStepGoal:inputNumber('adminSettingWeeklyGoal'),
+        inactivityAlertDays:inputNumber('adminSettingInactiveDays')
+      });
+      if (!result || !result.ok || !result.settings) throw new Error(String((result && (result.reason || result.error)) || 'save_failed'));
+      applySettings(result.settings);
+      setStatus('最終更新 ' + formatDate(result.settings.updatedAt), false);
+      setMessage('設定を保存しました。ほかの端末には次回同期時に反映されます。', 'success');
+    } catch (e) {
+      setMessage(errorMessage(e.message), 'error');
+    } finally {
+      state.saving = false;
+      if (saveButton) { saveButton.disabled = false; saveButton.textContent = '設定を保存'; }
+      if (byId('adminSettingsRefresh')) byId('adminSettingsRefresh').disabled = false;
+    }
+  }
+
+  function init() {
+    if (!guardPageAccess()) return;
+    byId('adminSettingsRefresh').addEventListener('click', loadSettings);
+    byId('adminSettingsForm').addEventListener('submit', saveSettings);
+    loadSettings();
+  }
+
+  return { VERSION, init, loadSettings };
+})();
+
+document.addEventListener('DOMContentLoaded', RinchanAdminSettings.init);

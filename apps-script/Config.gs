@@ -13,7 +13,13 @@ const SHEET_NOTICES = 'notices';
 const SHEET_CHALLENGES = 'challenges';
 const SHEET_BADGES = 'badges';
 const SHEET_EVENTS = 'events';
-const VERSION = 'v1.4.34';
+const SHEET_APP_SETTINGS = 'app_settings';
+const VERSION = 'v1.4.35';
+
+const DEFAULT_APP_SETTINGS = {
+  defaultWeeklyStepGoal: 56000,
+  inactivityAlertDays: 7
+};
 
 const DEFAULT_DEPARTMENTS = [
   ['doctor', '医局', 10, true, 'doctor'],

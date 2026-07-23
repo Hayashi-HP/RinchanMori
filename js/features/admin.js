@@ -171,10 +171,16 @@ const RinchanAdmin = (() => {
     return map;
   }
 
+  function inactivityAlertDays() {
+    const settings = readJson('rinchanAppSettings', {}) || {};
+    const days = Number(settings.inactivityAlertDays || 7);
+    return Math.max(1, Math.min(isFinite(days) ? days : 7, 90));
+  }
+
   function inactiveMembers() {
     const last = lastActivityMap();
     const threshold = new Date();
-    threshold.setDate(threshold.getDate() - 7);
+    threshold.setDate(threshold.getDate() - inactivityAlertDays());
     const thresholdKey = formatDateKey(threshold);
     return members().filter(member => {
       const id = String(member.employeeId || member.id || '');
@@ -186,8 +192,10 @@ const RinchanAdmin = (() => {
     const box = document.getElementById('adminInactiveMembers');
     if (!box) return;
     const rows = inactiveMembers().slice(0, 20);
+    const days = inactivityAlertDays();
+    setText('adminInactiveTitle', days + '日以上記録なし');
     if (!rows.length) {
-      box.innerHTML = '<p class="admin-empty">7日以上記録がない人はいません。</p>';
+      box.innerHTML = '<p class="admin-empty">' + days + '日以上記録がない人はいません。</p>';
       return;
     }
     box.innerHTML = rows.map(member => '<div class="admin-list-row"><strong>' + escapeHtml(member.name || member.nick || member.employeeId || member.id || '未設定') + '</strong><span>' + escapeHtml(member.dept || member.department || '所属未設定') + '</span></div>').join('');
@@ -201,7 +209,7 @@ const RinchanAdmin = (() => {
     const inactive = inactiveMembers();
     const items = [];
     if (noDept.length) items.push('所属未設定：' + noDept.length + '人');
-    if (inactive.length) items.push('7日以上記録なし：' + inactive.length + '人');
+    if (inactive.length) items.push(inactivityAlertDays() + '日以上記録なし：' + inactive.length + '人');
     if (!items.length) {
       box.innerHTML = '<p class="admin-empty">対応が必要な項目はありません。</p>';
       return;
@@ -275,6 +283,7 @@ const RinchanAdmin = (() => {
       const result = await api('adminStats', { employeeId: employeeId() });
       if (result && result.ok && result.data) {
         writeJson('rinchanAdminStats', result.data);
+        if (result.data.settings) writeJson('rinchanAppSettings', result.data.settings);
         renderAll(result.data);
       } else {
         renderAll();

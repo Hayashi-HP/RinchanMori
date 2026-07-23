@@ -55,6 +55,7 @@ const RinchanStorage = (() => {
       'rinchanSentThanks',
       'rinchanReadNewsIds',
       'rinchanThanksStats',
+      'rinchanAppSettings',
       'rinchanSyncStatus',
       'rinchanLastSyncedAt',
       'rinchanSyncToken',

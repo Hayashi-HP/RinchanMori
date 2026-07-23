@@ -43,9 +43,11 @@ const RinchanActivityDashboard = (() => {
     const selectedKey = normalizeDateKey(dateInput.value) || dateKey(new Date());
     const totals = totalsByDate();
     const user = participant();
+    const settings = readJson('rinchanAppSettings', {}) || {};
     const customGoal = Number(String(user.weeklyStepGoal || '').replace(/,/g, '')) || 0;
-    const dailyGoal = Number(String(user.dailyStepGoal || user.stepGoal || 8000).replace(/,/g, '')) || 8000;
-    const goal = Math.max(1, customGoal || dailyGoal * 7);
+    const standardGoal = Number(settings.defaultWeeklyStepGoal || 56000) || 56000;
+    const dailyGoal = Number(String(user.dailyStepGoal || user.stepGoal || Math.round(standardGoal / 7)).replace(/,/g, '')) || Math.round(standardGoal / 7);
+    const goal = Math.max(1, customGoal || standardGoal);
     const selectedDate = new Date(selectedKey + 'T00:00:00');
     const days = weekDays(isNaN(selectedDate) ? new Date() : selectedDate);
     const values = days.map(day => Number(totals[dateKey(day)] || 0));

@@ -29,6 +29,8 @@ function getAdminStats(ss) {
   const csvRows = [];
   const today = toDateKey(new Date());
   const last7 = Date.now() - 6 * 86400000;
+  const settings = getPublicAppSettings(ss);
+  const inactiveBefore = Date.now() - Number(settings.inactivityAlertDays || 7) * 86400000;
 
   activities.forEach(item => {
     const user = byUser[item.participantId] || {};
@@ -103,7 +105,7 @@ function getAdminStats(ss) {
     .sort((a, b) => String(b.month).localeCompare(String(a.month)));
 
   const inactiveMembers = members
-    .filter(member => !member.lastDate || new Date(member.lastDate).getTime() < last7)
+    .filter(member => !member.lastDate || new Date(member.lastDate).getTime() < inactiveBefore)
     .sort((a, b) => String(a.lastDate || '').localeCompare(String(b.lastDate || '')));
 
   const unsetMembers = members.filter(member => !String(member.dept || '').trim() || String(member.dept) === '所属未設定');
@@ -128,7 +130,8 @@ function getAdminStats(ss) {
     users: members,
     inactiveMembers,
     unsetMembers,
-    departments: getDepartments(ss)
+    departments: getDepartments(ss),
+    settings
   };
 }
 
