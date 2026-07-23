@@ -15,7 +15,7 @@ const DEFAULT_POINT_RULES = [
 ];
 
 const DEFAULT_POINT_REWARDS = [
-  { key:'limited_badge', name:'限定バッジ', enabled:true, cost:100, monthlyLimit:0 },
+  { key:'limited_badge', name:'限定バッジ（りん杜サポーター）', enabled:true, cost:100, monthlyLimit:0, lifetimeLimit:1, badgeId:'point_limited_100' },
   { key:'rin_cafe', name:'りんカフェ', enabled:true, cost:500, monthlyLimit:1 },
   { key:'rinchan_goods', name:'限定りんちゃんグッズ', enabled:true, cost:1000, monthlyLimit:0 },
   { key:'special_lottery', name:'特別抽選応募', enabled:true, cost:2000, monthlyLimit:0 }
@@ -118,7 +118,9 @@ function getPointProgramSettings(ss) {
       cost: Object.prototype.hasOwnProperty.call(values, costKey)
         ? Math.max(0, Math.min(pointInteger(values[costKey], 0), POINT_MAX_REWARD_COST))
         : 0,
-      monthlyLimit: Number(defaultReward.monthlyLimit || 0)
+      monthlyLimit: Number(defaultReward.monthlyLimit || 0),
+      lifetimeLimit: Number(defaultReward.lifetimeLimit || 0),
+      badgeId: String(defaultReward.badgeId || '')
     };
   });
   return {
@@ -267,22 +269,30 @@ function getPointAccountState(ss, employeeId) {
   const totalEarned = rows.reduce((sum, row) => sum + Math.max(0, Number(row.amount || 0)), 0);
   const currentMonth = pointMonthKey(new Date());
   const rewards = (program.rewards || []).filter(reward => reward.enabled && reward.cost > 0).map(reward => {
-    const redeemedThisMonth = rows.filter(row => (
-      row.type === 'reward:' + reward.key &&
+    const rewardRows = rows.filter(row => row.type === 'reward:' + reward.key);
+    const redeemedThisMonth = rewardRows.filter(row => (
       pointMonthKey(row.createdAt) === currentMonth
     )).length;
     const monthlyLimitReached = reward.monthlyLimit > 0 && redeemedThisMonth >= reward.monthlyLimit;
+    const redeemedTotal = rewardRows.length;
+    const lifetimeLimitReached = reward.lifetimeLimit > 0 && redeemedTotal >= reward.lifetimeLimit;
     return Object.assign({}, reward, {
       redeemedThisMonth,
+      redeemedTotal,
       monthlyLimitReached,
-      canRedeem: program.enabled && balance >= reward.cost && !monthlyLimitReached
+      lifetimeLimitReached,
+      canRedeem: program.enabled && balance >= reward.cost && !monthlyLimitReached && !lifetimeLimitReached
     });
   });
+  const ownedBadgeIds = (program.rewards || [])
+    .filter(reward => reward.badgeId && rows.some(row => row.type === 'reward:' + reward.key))
+    .map(reward => reward.badgeId);
   return {
     enabled: program.enabled,
     balance,
     totalEarned,
     recentTransactions: rows.slice(0, 5),
+    ownedBadgeIds,
     rewards,
     updatedAt: rows.length ? rows[0].createdAt : program.updatedAt,
     version: VERSION
@@ -441,10 +451,11 @@ function redeemPointReward(ss, data, nowValue) {
       return { redeemed:false, duplicate:true, account:getPointAccountState(ss, id) };
     }
     const employeeRows = rows.filter(row => normalizeEmployeeId(row.employeeId || '') === id);
-    const balance = getPointBalanceFromRows(employeeRows);
-    if (balance < reward.cost) throw new Error('point_insufficient_balance');
-
     const now = nowValue instanceof Date ? nowValue : new Date();
+    if (reward.lifetimeLimit > 0) {
+      const redeemedTotal = employeeRows.filter(row => String(row.type || '') === type).length;
+      if (redeemedTotal >= reward.lifetimeLimit) throw new Error('point_reward_lifetime_limit');
+    }
     if (reward.monthlyLimit > 0) {
       const month = pointMonthKey(now);
       const redeemedThisMonth = employeeRows.filter(row => (
@@ -453,6 +464,8 @@ function redeemPointReward(ss, data, nowValue) {
       )).length;
       if (redeemedThisMonth >= reward.monthlyLimit) throw new Error('point_reward_monthly_limit');
     }
+    const balance = getPointBalanceFromRows(employeeRows);
+    if (balance < reward.cost) throw new Error('point_insufficient_balance');
 
     const transaction = appendPointTransaction(sheet, {
       transactionId:'PT' + Utilities.getUuid().replace(/-/g, ''),

@@ -50,6 +50,7 @@ const RinchanPoints = (() => {
   }
 
   function rewardNote(reward, balance) {
+    if (reward.lifetimeLimitReached) return '交換済み・バッジ獲得済み';
     if (reward.monthlyLimitReached) return '今月は交換済みです';
     if (balance < reward.cost) return 'あと' + Number(reward.cost - balance).toLocaleString('ja-JP') + 'りん';
     return '交換できます';
@@ -98,7 +99,8 @@ const RinchanPoints = (() => {
       point_program_disabled:'ポイント制度は現在休止中です。',
       point_reward_disabled:'このご褒美は現在利用できません。',
       point_insufficient_balance:'所持りんが足りません。',
-      point_reward_monthly_limit:'りんカフェは月1回までです。'
+      point_reward_monthly_limit:'りんカフェは月1回までです。',
+      point_reward_lifetime_limit:'この限定バッジは獲得済みです。'
     };
     return messages[String(code || '')] || '交換できませんでした。時間をおいてもう一度お試しください。';
   }

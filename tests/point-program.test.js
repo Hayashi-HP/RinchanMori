@@ -214,4 +214,27 @@ function addEarn(context, sheet, employeeId, amount, sourceId, date) {
   assert.equal(nextMonth.redeemed, true);
 }
 
+{
+  const { context, ss, transactions, setSetting } = createRuntime();
+  addEarn(context, transactions, 'A', 250, 'limited-badge');
+  const redeemed = context.redeemPointReward(
+    ss,
+    { employeeId:'A', rewardKey:'limited_badge', requestId:'badge-first' },
+    new Date('2026-07-23T03:00:00.000Z')
+  );
+  assert.equal(redeemed.redeemed, true);
+  assert.deepEqual(Array.from(redeemed.account.ownedBadgeIds), ['point_limited_100']);
+  assert.equal(redeemed.account.rewards.find(item => item.key === 'limited_badge').lifetimeLimitReached, true);
+  assert.throws(
+    () => context.redeemPointReward(
+      ss,
+      { employeeId:'A', rewardKey:'limited_badge', requestId:'badge-second' },
+      new Date('2026-07-24T03:00:00.000Z')
+    ),
+    /point_reward_lifetime_limit/
+  );
+  setSetting('point.reward.limited_badge.enabled', false);
+  assert.deepEqual(Array.from(context.getPointAccountState(ss, 'A').ownedBadgeIds), ['point_limited_100']);
+}
+
 console.log('point program: ok');
