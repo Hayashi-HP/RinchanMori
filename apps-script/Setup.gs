@@ -58,6 +58,11 @@ function setupProject(ss) {
   normalizeExistingEventDates(eventsSheet);
 
   ensureAppSettingsSheet(ss);
+  ensurePointProgramSettings(ss);
+  ensureSheet(ss, SHEET_POINT_TRANSACTIONS, [
+    'transactionId', 'employeeId', 'amount', 'type', 'sourceId', 'description',
+    'createdAt', 'createdBy', 'rewardId', 'metadataJson', 'version'
+  ]);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);
