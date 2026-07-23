@@ -1,4 +1,5 @@
 /* Point program UI */
+.rinchan-passport-system .point-program-card{grid-column:1/-1}
 .point-program-card .point-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 20px}
 .point-program-card .point-summary-grid>div{padding:16px;border:1px solid #dfeaf0;border-radius:18px;background:linear-gradient(145deg,#f8fdff,#f2fbf4)}
 .point-program-card .point-summary-grid strong{display:block;color:#163d62;font-size:24px;line-height:1.25}
