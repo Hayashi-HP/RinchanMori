@@ -229,6 +229,7 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
 .rinchan-admin-system .admin-badge-message.is-success { color:var(--rm-green-deep); }
 .rinchan-admin-system .admin-badge-message.is-error { color:#a44134; }
 .rinchan-admin-system .admin-badge-message.is-info { color:var(--rm-muted); }
+.rinchan-admin-system .admin-backups-app .admin-grid { grid-template-columns:repeat(3,minmax(0,1fr))!important; }
 .rinchan-admin-system .admin-return-action { margin-top:0!important; margin-bottom:22px!important; }
 .rinchan-admin-system .admin-return-action a { width:100%!important; min-height:58px!important; padding:12px 22px!important; display:flex!important; flex-direction:row!important; align-items:center!important; justify-content:center!important; gap:10px!important; border:1px solid var(--rm-line)!important; border-radius:999px!important; background:#fff!important; color:var(--rm-blue-deep)!important; box-shadow:none!important; text-decoration:none!important; }
 .rinchan-admin-system .admin-return-action svg { width:20px!important; height:20px!important; }
@@ -278,6 +279,7 @@ body.rinchan-admin-system { background:radial-gradient(circle at 8% 10%,rgba(76,
   .rinchan-admin-system .admin-hero-line { display:block; }
   .rinchan-admin-system .admin-card { margin-bottom:16px!important; padding:22px!important; border-radius:20px!important; }
   .rinchan-admin-system .admin-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important; margin-bottom:16px!important; }
+  .rinchan-admin-system .admin-backups-app .admin-grid { grid-template-columns:1fr!important; }
   .rinchan-admin-system .admin-stat { min-height:96px; padding:16px!important; }
   .rinchan-admin-system .admin-stat strong { font-size:24px!important; }
   .rinchan-admin-system .admin-layout-wide,.rinchan-admin-system .admin-hub-groups,.rinchan-admin-system .admin-activity-filters,.rinchan-admin-system .admin-activity-editor-grid,.rinchan-admin-system .admin-news-filters,.rinchan-admin-system .admin-news-form-grid,.rinchan-admin-system .admin-user-filters,.rinchan-admin-system .admin-user-form-grid,.rinchan-admin-system .admin-department-form-grid,.rinchan-admin-system .admin-challenge-filters,.rinchan-admin-system .admin-challenge-form-grid,.rinchan-admin-system .admin-badge-filters,.rinchan-admin-system .admin-badge-form-grid { grid-template-columns:1fr!important; gap:14px!important; }

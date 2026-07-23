@@ -13,7 +13,7 @@ const SHEET_NOTICES = 'notices';
 const SHEET_CHALLENGES = 'challenges';
 const SHEET_BADGES = 'badges';
 const SHEET_EVENTS = 'events';
-const VERSION = 'v1.4.30';
+const VERSION = 'v1.4.31';
 
 const DEFAULT_DEPARTMENTS = [
   ['doctor', '医局', 10, true, 'doctor'],
