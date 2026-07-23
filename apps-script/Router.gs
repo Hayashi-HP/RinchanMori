@@ -282,6 +282,35 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminBadgeList') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_BADGES)) return adminDenied('adminBadgeList', ss, data);
+    try {
+      const list = listAdminBadges(ss, data || {});
+      auditAction(ss, 'adminBadgeList', data, 'ok', 'view_admin_badge_list', { total: list.total });
+      return jsonOutput({ ok: true, action, data: list, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminBadgeList', data, 'ng', e.message || 'admin_badge_list_failed');
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_badge_list_failed', reason: e.message || 'admin_badge_list_failed', version: VERSION });
+    }
+  }
+
+  if (action === 'adminSaveBadge') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_BADGES)) return adminDenied('adminSaveBadge', ss, data);
+    try {
+      const saved = saveAdminBadge(ss, data || {});
+      auditAction(ss, 'adminSaveBadge', data, 'ok', 'admin_badge_saved', {
+        targetBadgeId: saved.badge.badgeId,
+        active: saved.badge.active
+      });
+      return jsonOutput({ ok: true, action, saved, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSaveBadge', data, 'ng', e.message || 'admin_badge_save_failed', {
+        targetBadgeId: data.badgeId || ''
+      });
+      return jsonOutput({ ok: false, action, error: e.message || 'admin_badge_save_failed', reason: e.message || 'admin_badge_save_failed', version: VERSION });
+    }
+  }
+
   if (action === 'adminActivityRows') {
     const denied = requireAdminAction('adminActivityRows', ss, data);
     if (denied) return denied;

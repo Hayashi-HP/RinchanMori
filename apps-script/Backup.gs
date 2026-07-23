@@ -10,6 +10,7 @@ function getBackupSourceSheets() {
     SHEET_AUDIT_LOGS,
     SHEET_DEPARTMENTS,
     SHEET_CHALLENGES,
+    SHEET_BADGES,
     SHEET_USER_READS
   ];
 }

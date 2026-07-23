@@ -11,7 +11,8 @@ const SHEET_DEPARTMENTS = 'departments';
 const SHEET_USER_READS = 'user_reads';
 const SHEET_NOTICES = 'notices';
 const SHEET_CHALLENGES = 'challenges';
-const VERSION = 'v1.4.28';
+const SHEET_BADGES = 'badges';
+const VERSION = 'v1.4.29';
 
 const DEFAULT_DEPARTMENTS = [
   ['doctor', '医局', 10, true, 'doctor'],
