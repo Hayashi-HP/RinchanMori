@@ -1,120 +1,100 @@
-# Apps Script 反映チェックリスト
+# Apps Script v1.6.0 反映チェックリスト
 
-## 対象バージョン
+この変更はまだ本番へ反映していない。コミット・Push・Apps Scriptデプロイは、差分確認後に実施する。
 
-- Apps Script: v1.4.10
-- 診断画面: v1.4.9
+## 反映対象
 
-## 目的
-
-`user_reads` シートへ、お知らせ既読IDとありがとうの花受け取り済みIDを確実に保存できるようにする。
-
-## GitHubで追加・更新されたApps Scriptファイル
+Apps Scriptエディタへ `apps-script/` 内の全 `.gs` と `appsscript.json` を反映する。特に次のファイルはポイント制度で追加・更新されている。
 
 | ファイル | 内容 |
 |---|---|
-| `apps-script/UserReads.gs` | 既読・花受け取り状態の保存関数を追加 |
-| `apps-script/Config.gs` | `VERSION` を `v1.4.10` に更新 |
-| `apps-script/Code.gs` | `testUserReadsManual()` を追加 |
+| `Point.gs` | 設定、台帳、付与、交換、二重処理防止 |
+| `Config.gs` | `point_transactions` と v1.6.0 |
+| `Setup.gs` | 設定初期値と台帳シート作成 |
+| `Settings.gs` | ポイント設定の取得 |
+| `Router.gs` | 付与・交換・管理API |
+| `User.gs` | 利用者状態へポイントを追加 |
+| `Cache.gs` | ポイント変更時のキャッシュ無効化 |
+| `Backup.gs` | 台帳をバックアップ対象へ追加 |
 
-## 反映前の確認
+## スプレッドシート準備
 
-Googleスプレッドシートに以下のシートがあることを確認する。
+1. 現在のスプレッドシートをバックアップする。
+2. Apps Scriptへ全ファイルを反映して保存する。
+3. Apps Scriptエディタから `setupProjectManual()` を1回実行する。
+4. 次を確認する。
 
-- `user_reads`
-
-ヘッダーは以下。
-
-```text
-employeeId, readNewsIds, readThanksFlowerIds, updatedAt, version
-```
-
-なければ、Apps Scriptの `setupProjectManual()` を実行する。
-
-## 反映手順
-
-1. Google Apps Scriptを開く
-2. GitHubの `apps-script/UserReads.gs` を新規ファイルとして追加
-3. GitHubの `apps-script/Config.gs` の内容をApps Script側へ反映
-4. GitHubの `apps-script/Code.gs` の内容をApps Script側へ反映
-5. 保存
-6. `setupProjectManual()` を一度実行
-7. `testUserReadsManual()` を一度実行
-8. 実行ログに `ok: true` が出ることを確認
-9. スプレッドシートの `user_reads` に社員番号 `2110401` の行が追加・更新されていることを確認
-10. Webアプリを新しいバージョンでデプロイ
-11. 公開URLは既存のまま変えない
-
-## Apps Scriptエディタでの単体テスト
-
-`testUserReadsManual()` を実行すると、以下をテスト保存します。
-
-- `manual-test-news-日時`
-- `manual-test-thanks-日時`
-
-正常なら、ログに以下のような結果が出る。
-
-```json
-{
-  "ok": true,
-  "version": "v1.4.10",
-  "employeeId": "2110401",
-  "userReads": {
-    "employeeId": "2110401",
-    "readNewsIds": ["manual-test-news-..."],
-    "readThanksFlowerIds": ["manual-test-thanks-..."]
-  }
-}
-```
-
-## デプロイ後の確認
-
-りんちゃんの杜の診断画面を開く。
+### `point_transactions`
 
 ```text
-管理画面 → 動作診断 → サーバー確認
+transactionId, employeeId, amount, type, sourceId, description,
+createdAt, createdBy, rewardId, metadataJson, version
 ```
 
-以下を確認する。
+### `app_settings`
 
-| 確認項目 | 正常値 |
-|---|---|
-| Apps Script version | `v1.4.10` 以降 |
-| getUserState | 成功 |
-| userReads | あり |
-| readNewsIds | 件数表示あり |
-| readThanksFlowerIds | 件数表示あり |
+次の設定群が作成されていることを確認する。
 
-## 実機確認
+```text
+point.enabled
+point.rule.*.name
+point.rule.*.enabled
+point.rule.*.amount
+point.reward.*.name
+point.reward.*.enabled
+point.reward.*.cost
+```
 
-1. 通信画面で未読のお知らせを確認する
-2. ホームへ戻る
-3. 通信画面を再度開く
-4. 既読に戻らないことを確認
-5. マイページでありがとうの花を受け取る
-6. ホームへ戻る
-7. 花通知が消えることを確認
-8. Safariを閉じて再度開く
-9. 既読と花受け取り状態が戻らないことを確認
+既存の `users`、`activities`、`thanks` は削除・初期化しない。
 
-## 失敗時の見方
+## 初期値確認
 
-### 診断画面で `v1.4.10` が出ない
+- 全体：ON
+- 初回登録：50
+- 日次利用：1
+- 歩数同期：2
+- 日次目標：5
+- 週次目標：20
+- ありがとう受信：50
+- イベント参加：50
+- 限定バッジ：100
+- りんカフェ：500
+- 限定りんちゃんグッズ：1,000
+- 特別抽選応募：2,000
 
-Apps Script側の再デプロイが未完了、または古いデプロイURLを見ている可能性がある。
+## Webアプリ反映
 
-### `testUserReadsManual()` が失敗する
+1. Apps Scriptを「新しいバージョン」としてデプロイする。
+2. 実行ユーザーとアクセス範囲が既存設定から変わっていないことを確認する。
+3. WebアプリURLは既存URLを継続利用する。
+4. GitHub Pages側の更新を反映する。
+5. ブラウザキャッシュを更新して、管理画面とパスポートを開く。
 
-`UserReads.gs` が未反映、または `getUserState()` / `rowToObject()` / `findRowByValue()` など既存共通関数との接続に問題がある。
+## 本番確認
 
-### `userReads` が `なし`
+テスト用職員で次を確認する。
 
-`UserReads.gs` がApps Script側に反映されていない、または `getUserState()` から `userReads` が返っていない。
+1. 管理画面の「ポイント・その他設定」を開く。
+2. 全体ON、各初期値、ご褒美が表示される。
+3. 1日初回の同期で1りんだけ増える。
+4. 同じ日に再読み込みしても増えない。
+5. 当日の歩数を保存し、歩数同期2りんが1回だけ増える。
+6. 日次・週次目標達成時に設定値が1回だけ増える。
+7. ありがとう受信は同日に複数件あっても50りんが1回だけ増える。
+8. パスポートで残高、累計、直近5件、ご褒美が表示される。
+9. 500りん未満ではりんカフェを交換できない。
+10. 500りん以上で交換すると、残高が500減り累計は変わらない。
+11. 同じ月にりんカフェを再交換できない。
+12. 全体OFF中は新規付与・交換が止まり、休止中表示になる。
+13. ONへ戻した後、OFF期間分が遡及されず、新しい行動から再開する。
 
-### 確認しても未読に戻る
+## 障害時
 
-`markNewsRead` が失敗している可能性がある。診断画面の端末エラーログと `user_reads` シートの該当社員番号行を確認する。
+ポイント付与の失敗は、既存の登録・歩数・ありがとうを失敗させない。
 
-### 花を受け取っても通知が戻る
+- `error_logs`: `type=server_point`
+- `logs`: `action=pointAwardError`
 
-`markThanksRead` が失敗している可能性がある。`user_reads.readThanksFlowerIds` に対象の `thanksId` が入っているか確認する。
+を確認する。原因を修正後、管理者API `adminRetryPointAward` に、ログで確認した `ruleKey`、対象職員、同じ `sourceId` を渡して再処理する。すでに付与済みの場合は二重付与されない。
+
+全体OFF・個別OFFによるスキップは正常動作であり、再処理しない。

@@ -1,5 +1,5 @@
 const RinchanAdminSettings = (() => {
-  const VERSION = 'v1.0.0';
+  const VERSION = 'v1.1.0';
   const state = { loading:false, saving:false };
 
   function byId(id) { return document.getElementById(id); }
@@ -52,6 +52,14 @@ const RinchanAdminSettings = (() => {
     if (text) el.classList.add(type === 'error' ? 'is-error' : (type === 'success' ? 'is-success' : 'is-info'));
   }
 
+  function setPointMessage(text, type) {
+    const el = byId('adminPointSettingsMessage');
+    if (!el) return;
+    el.textContent = text || '';
+    el.classList.remove('is-success','is-error','is-info');
+    if (text) el.classList.add(type === 'error' ? 'is-error' : (type === 'success' ? 'is-success' : 'is-info'));
+  }
+
   function setRefreshBusy(busy) {
     const button = byId('adminSettingsRefresh');
     if (!button) return;
@@ -69,7 +77,58 @@ const RinchanAdminSettings = (() => {
     byId('adminSettingGoalSummary').textContent = goal.toLocaleString('ja-JP') + '歩';
     byId('adminSettingInactiveSummary').textContent = days + '日';
     byId('adminSettingVersion').textContent = String(settings.version || '-');
+    applyPointProgram(settings.pointProgram || { enabled:false, rules:[], rewards:[] });
     try { localStorage.setItem('rinchanAppSettings', JSON.stringify(settings)); } catch (e) {}
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+  }
+
+  function pointRow(item, kind) {
+    const value = kind === 'rule' ? Number(item.amount || 0) : Number(item.cost || 0);
+    const suffix = kind === 'rule' ? '付与りん' : '必要りん';
+    return '<article class="admin-point-config-row" data-point-kind="' + kind + '" data-point-key="' + escapeHtml(item.key) + '">' +
+      '<label class="admin-point-name"><span>名称</span><input class="point-config-name" type="text" maxlength="80" value="' + escapeHtml(item.name) + '" required></label>' +
+      '<label class="admin-point-row-toggle"><input class="point-config-enabled" type="checkbox"' + (item.enabled ? ' checked' : '') + '><span aria-hidden="true"></span><strong>ON</strong></label>' +
+      '<label class="admin-point-value"><span>' + suffix + '</span><input class="point-config-value" type="number" inputmode="numeric" min="' + (kind === 'rule' ? '0' : '1') + '" max="' + (kind === 'rule' ? '100000' : '10000000') + '" step="1" value="' + value + '" required></label>' +
+      (item.monthlyLimit ? '<small class="admin-point-limit">月' + Number(item.monthlyLimit) + '回まで</small>' : '') +
+      '</article>';
+  }
+
+  function applyPointProgram(program) {
+    const enabled = program && program.enabled === true;
+    byId('adminPointEnabled').checked = enabled;
+    byId('adminPointEnabledLabel').textContent = enabled ? '運用中' : '休止中';
+    byId('adminPointStatusSummary').textContent = enabled ? 'ON' : 'OFF';
+    byId('adminPointStatusSummary').classList.toggle('is-paused', !enabled);
+    byId('adminPointRules').innerHTML = (program.rules || []).map(item => pointRow(item, 'rule')).join('');
+    byId('adminPointRewards').innerHTML = (program.rewards || []).map(item => pointRow(item, 'reward')).join('');
+  }
+
+  function collectPointRows(kind) {
+    return Array.from(document.querySelectorAll('[data-point-kind="' + kind + '"]')).map(row => ({
+      key:String(row.getAttribute('data-point-key') || ''),
+      name:String(row.querySelector('.point-config-name').value || '').trim(),
+      enabled:!!row.querySelector('.point-config-enabled').checked,
+      [kind === 'rule' ? 'amount' : 'cost']:Number(String(row.querySelector('.point-config-value').value || '').trim())
+    }));
+  }
+
+  function pointPayload() {
+    return {
+      enabled:!!byId('adminPointEnabled').checked,
+      rules:collectPointRows('rule'),
+      rewards:collectPointRows('reward')
+    };
+  }
+
+  function validatePointProgram(program) {
+    const all = [].concat(program.rules || [], program.rewards || []);
+    if (all.some(item => !String(item.name || '').trim())) return '名称を入力してください。';
+    if ((program.rules || []).some(item => !Number.isInteger(item.amount) || item.amount < 0 || item.amount > 100000)) return '付与りんは0〜100,000の整数で入力してください。';
+    if ((program.rewards || []).some(item => !Number.isInteger(item.cost) || item.cost < 1 || item.cost > 10000000)) return '必要りんは1〜10,000,000の整数で入力してください。';
+    return '';
   }
 
   async function loadSettings() {
@@ -142,10 +201,41 @@ const RinchanAdminSettings = (() => {
     }
   }
 
+  async function savePointSettings(event) {
+    if (event) event.preventDefault();
+    if (state.saving) return;
+    const pointProgram = pointPayload();
+    const validation = validatePointProgram(pointProgram);
+    if (validation) { setPointMessage(validation, 'error'); return; }
+    state.saving = true;
+    const button = byId('adminPointSettingsSave');
+    if (button) { button.disabled = true; button.textContent = '保存中...'; }
+    if (byId('adminSettingsRefresh')) byId('adminSettingsRefresh').disabled = true;
+    setPointMessage('ポイント設定を保存しています...', 'info');
+    try {
+      const auth = authState();
+      const result = await api('adminSavePointSettings', { employeeId:auth.employeeId, pointProgram });
+      if (!result || !result.ok || !result.pointProgram) throw new Error(String((result && (result.reason || result.error)) || 'save_failed'));
+      applyPointProgram(result.pointProgram);
+      setPointMessage('ポイント設定を保存しました。変更後の付与から反映されます。', 'success');
+      setStatus('最終更新 ' + formatDate(result.pointProgram.updatedAt), false);
+    } catch (e) {
+      setPointMessage(errorMessage(e.message), 'error');
+    } finally {
+      state.saving = false;
+      if (button) { button.disabled = false; button.textContent = 'ポイント設定を保存'; }
+      if (byId('adminSettingsRefresh')) byId('adminSettingsRefresh').disabled = false;
+    }
+  }
+
   function init() {
     if (!guardPageAccess()) return;
     byId('adminSettingsRefresh').addEventListener('click', loadSettings);
     byId('adminSettingsForm').addEventListener('submit', saveSettings);
+    byId('adminPointSettingsForm').addEventListener('submit', savePointSettings);
+    byId('adminPointEnabled').addEventListener('change', () => {
+      byId('adminPointEnabledLabel').textContent = byId('adminPointEnabled').checked ? '運用中' : '休止中';
+    });
     loadSettings();
   }
 

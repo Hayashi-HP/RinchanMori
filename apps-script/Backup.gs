@@ -13,6 +13,7 @@ function getBackupSourceSheets() {
     SHEET_BADGES,
     SHEET_EVENTS,
     SHEET_APP_SETTINGS,
+    SHEET_POINT_TRANSACTIONS,
     SHEET_USER_READS
   ];
 }

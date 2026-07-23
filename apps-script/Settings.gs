@@ -46,9 +46,15 @@ function getAdminAppSettings(ss) {
       updatedBy = String(row.updatedBy || '');
     }
   });
+  const pointProgram = getPointProgramSettings(ss);
+  if (String(pointProgram.updatedAt || '') >= updatedAt) {
+    updatedAt = String(pointProgram.updatedAt || '');
+    updatedBy = String(pointProgram.updatedBy || '');
+  }
   return {
     defaultWeeklyStepGoal: Number(values.defaultWeeklyStepGoal || DEFAULT_APP_SETTINGS.defaultWeeklyStepGoal),
     inactivityAlertDays: Number(values.inactivityAlertDays || DEFAULT_APP_SETTINGS.inactivityAlertDays),
+    pointProgram,
     updatedAt,
     updatedBy,
     version: VERSION
@@ -60,6 +66,7 @@ function getPublicAppSettings(ss) {
   return {
     defaultWeeklyStepGoal: settings.defaultWeeklyStepGoal,
     inactivityAlertDays: settings.inactivityAlertDays,
+    pointProgram: settings.pointProgram,
     updatedAt: settings.updatedAt,
     version: settings.version
   };

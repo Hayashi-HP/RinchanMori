@@ -43,6 +43,12 @@ function clearAppCache() {
   return { cleared: true, at: new Date().toISOString() };
 }
 
+function invalidatePointCaches(employeeId) {
+  removeCached('point:' + String(employeeId || ''));
+  removeCached('dashboard');
+  removeCached('adminStats');
+}
+
 function getAppCacheStatus() {
   const definitions = [
     { name: 'departments', label: '部署一覧', ttlSeconds: CACHE_TTL_LONG },

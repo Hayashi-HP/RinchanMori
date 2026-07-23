@@ -98,8 +98,9 @@ function getUserState(ss, data) {
   const readNewsIds = userReads.readNewsIds || [];
   const readThanksFlowerIds = userReads.readThanksFlowerIds || [];
   const thanksStats = getMyThanksStats(ss, { employeeId: id });
+  const points = getPointAccountState(ss, id);
   const globalState = getGlobalForestState(ss);
-  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState);
+  const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState, points);
 
   if (clientToken && clientToken === syncToken) {
     return {
@@ -132,6 +133,7 @@ function getUserState(ss, data) {
     readThanksFlowerIds,
     userReads,
     thanksStats,
+    points,
     syncToken,
     unchanged: false,
     serverAt: new Date().toISOString()
@@ -194,7 +196,7 @@ function getGlobalForestState(ss) {
   };
 }
 
-function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState) {
+function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState, points) {
   const parts = [
     user ? [user.id, user.updatedAt, user.weeklyGoal, user.weeklyStepGoal, user.dept, user.declaration].join('|') : '',
     listToken(activities, 'activityId', 'savedAt'),
@@ -210,7 +212,8 @@ function createUserStateToken(user, activities, receivedThanks, sentThanks, than
     globalState ? listToken(globalState.challenges, 'challengeId', 'updatedAt') : '',
     globalState ? listToken(globalState.badges, 'badgeId', 'updatedAt') : '',
     globalState ? listToken(globalState.events, 'eventId', 'updatedAt') : '',
-    globalState && globalState.settings ? [globalState.settings.defaultWeeklyStepGoal, globalState.settings.inactivityAlertDays, globalState.settings.updatedAt].join('|') : ''
+    globalState && globalState.settings ? [globalState.settings.defaultWeeklyStepGoal, globalState.settings.inactivityAlertDays, globalState.settings.updatedAt].join('|') : '',
+    pointStateToken(points)
   ];
   return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, parts.join('||'))).replace(/=+$/, '');
 }

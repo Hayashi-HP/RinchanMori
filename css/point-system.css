@@ -1,0 +1,54 @@
+/* Point program UI */
+.point-program-card .point-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 20px}
+.point-program-card .point-summary-grid>div{padding:16px;border:1px solid #dfeaf0;border-radius:18px;background:linear-gradient(145deg,#f8fdff,#f2fbf4)}
+.point-program-card .point-summary-grid strong{display:block;color:#163d62;font-size:24px;line-height:1.25}
+.point-program-card .point-summary-grid small{display:block;margin-top:5px;color:#6d7f8e;font-size:12px;font-weight:700}
+.point-program-card .point-subheading{margin:20px 0 10px;color:#234b68;font-size:15px}
+.point-history-list,.point-reward-list{display:grid;gap:9px}
+.point-history-row,.point-reward-row{min-width:0;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3edf2;border-radius:15px;background:#fff}
+.point-history-row>div,.point-reward-row>div:first-child{min-width:0;display:grid;gap:3px}
+.point-history-row strong,.point-reward-row strong{color:#24455b;font-size:13px;line-height:1.45}
+.point-history-row small,.point-reward-row small{color:#74838d;font-size:11px}
+.point-history-row>span{font-size:13px;font-weight:850;white-space:nowrap}
+.point-history-row>span.is-plus{color:#26935d}.point-history-row>span.is-minus{color:#b45d70}
+.point-reward-action{display:flex;align-items:center;gap:9px}
+.point-reward-action>span{color:#2a875a;font-size:12px;font-weight:850;white-space:nowrap}
+.point-reward-action button{min-height:38px;padding:0 14px;border:0;border-radius:999px;background:linear-gradient(100deg,#34a5dc,#64c878);color:#fff;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.point-reward-action button:disabled{background:#e7ecef;color:#89959d;cursor:not-allowed}
+.point-empty,.point-paused-note{margin:0;padding:17px;border-radius:16px;background:#f5f8fa;color:#657580;font-size:13px;line-height:1.7}
+.point-program-card.is-paused{border-style:dashed!important}
+.hidden{display:none!important}
+
+.rinchan-admin-system .admin-settings-app .admin-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+.admin-point-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.admin-point-heading>div{min-width:0}
+.admin-point-settings-card h3{margin:24px 0 7px;color:#183d62;font-size:17px}
+.point-master-toggle,.admin-point-row-toggle{display:inline-flex;align-items:center;gap:9px;cursor:pointer}
+.point-master-toggle input,.admin-point-row-toggle input{position:absolute!important;width:1px!important;height:1px!important;min-width:1px!important;min-height:1px!important;margin:0!important;overflow:hidden!important;opacity:0;pointer-events:none}
+.point-master-toggle>span,.admin-point-row-toggle>span{position:relative;width:52px;height:30px;border-radius:999px;background:#dce3e7;transition:.2s}
+.point-master-toggle>span::after,.admin-point-row-toggle>span::after{content:"";position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(30,60,80,.2);transition:.2s}
+.point-master-toggle input:checked+span,.admin-point-row-toggle input:checked+span{background:linear-gradient(100deg,#34a5dc,#64c878)}
+.point-master-toggle input:checked+span::after,.admin-point-row-toggle input:checked+span::after{transform:translateX(22px)}
+.point-master-toggle strong,.admin-point-row-toggle strong{color:#456273;font-size:12px;white-space:nowrap}
+.admin-point-config-list{display:grid;gap:10px}
+.admin-point-config-row{padding:14px;display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(130px,.35fr) auto;align-items:end;gap:12px;border:1px solid #e2ebf2;border-radius:16px;background:#fbfdff}
+.admin-point-config-row label{margin:0!important}
+.admin-point-config-row label>span:not([aria-hidden]){display:block;margin-bottom:6px;color:#61778a;font-size:11px;font-weight:700}
+.admin-point-config-row input[type="text"],.admin-point-config-row input[type="number"]{width:100%;height:48px!important;min-height:48px!important;padding:0 13px!important;border:1px solid #d9e6ee!important;border-radius:12px!important;background:#fff!important}
+.admin-point-limit{align-self:center;color:#2a875a;font-size:11px;font-weight:750;white-space:nowrap}
+#adminPointStatusSummary.is-paused{color:#8a969d!important}
+
+@media(max-width:900px){
+  .rinchan-admin-system .admin-settings-app .admin-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .admin-point-config-row{grid-template-columns:minmax(0,1fr) auto}
+  .admin-point-value{grid-column:1}
+  .admin-point-limit{grid-column:2}
+}
+@media(max-width:560px){
+  .point-history-row,.point-reward-row{align-items:flex-start}
+  .point-reward-row{flex-direction:column}
+  .point-reward-action{width:100%;justify-content:space-between}
+  .admin-point-heading{display:grid}
+  .admin-point-config-row{grid-template-columns:minmax(0,1fr)}
+  .admin-point-row-toggle,.admin-point-value,.admin-point-limit{grid-column:1}
+}

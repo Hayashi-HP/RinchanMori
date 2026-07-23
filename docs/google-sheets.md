@@ -9,7 +9,7 @@
 
 1. スプレッドシートを開く
 2. 拡張機能 → Apps Script
-3. `apps-script/Code.gs` の内容を貼り付け
+3. `apps-script/` 内の全 `.gs` ファイルを同名で作成して内容を反映
 4. `apps-script/appsscript.json` の内容をマニフェストへ反映
 5. デプロイ → 新しいデプロイ
 6. 種類：ウェブアプリ
@@ -20,6 +20,8 @@
 ## 自動作成されるシート
 
 初回アクセス時に以下のシートが自動作成されます。
+
+ポイント制度を追加した更新では、Apps Script側を保存後に `setupProjectManual()` を一度実行してください。`app_settings` に `point.*` の初期設定が追加され、`point_transactions` が作成されます。
 
 ### users
 
@@ -62,3 +64,31 @@
 | participantId | 参加者ID |
 | status | ok/ng |
 | message | メッセージ |
+
+### point_transactions
+
+| 列 | 内容 |
+|---|---|
+| transactionId | 一意な取引ID |
+| employeeId | 対象職員 |
+| amount | 付与は正、交換は負 |
+| type | 付与・交換の種類 |
+| sourceId | 二重処理防止用の元イベントID |
+| description | 履歴表示文 |
+| createdAt | 発生日時 |
+| createdBy | system・管理者・本人 |
+| rewardId | ご褒美キー |
+| metadataJson | 補足情報 |
+| version | 保存時バージョン |
+
+### app_settings のポイント設定
+
+- `point.enabled`
+- `point.rule.{ruleKey}.name`
+- `point.rule.{ruleKey}.enabled`
+- `point.rule.{ruleKey}.amount`
+- `point.reward.{rewardKey}.name`
+- `point.reward.{rewardKey}.enabled`
+- `point.reward.{rewardKey}.cost`
+
+初回セットアップで初期値を作成する。運用開始後に一部の設定行が欠損した場合は、安全のため該当項目を無効・0りんとして扱う。

@@ -88,6 +88,24 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminSavePointSettings') {
+    const denied = requireAdminAction('adminSavePointSettings', ss, data);
+    if (denied) return denied;
+    try {
+      const pointProgram = savePointProgramSettings(ss, data);
+      clearAppCache();
+      auditAction(ss, 'adminSavePointSettings', data, 'ok', 'point_settings_saved', {
+        enabled:pointProgram.enabled,
+        activeRules:pointProgram.rules.filter(item => item.enabled).length,
+        activeRewards:pointProgram.rewards.filter(item => item.enabled).length
+      });
+      return jsonOutput({ ok:true, action, pointProgram, version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSavePointSettings', data, 'ng', e.message || 'point_settings_save_failed');
+      return jsonOutput({ ok:false, action, error:e.message || 'point_settings_save_failed', reason:e.message || 'point_settings_save_failed', version:VERSION });
+    }
+  }
+
   if (action === 'createBackup') {
     const denied = requireAdminAction('createBackup', ss, data);
     if (denied) return denied;
@@ -135,6 +153,7 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'getUserState') {
+    awardDailyOpenPoint(ss, data);
     return jsonOutput({ ok: true, action, state: getUserState(ss, data), version: VERSION });
   }
 
@@ -196,6 +215,52 @@ function handlePost(action, data, ss) {
     if (denied) return denied;
     auditAction(ss, 'adminStats', data, 'ok', 'view_admin_stats');
     return jsonOutput({ ok: true, action, data: getCachedAdminStats(ss), version: VERSION, cached: true });
+  }
+
+  if (action === 'adminAwardEventPoints') {
+    const denied = requireAdminAction('adminAwardEventPoints', ss, data);
+    if (denied) return denied;
+    try {
+      const awarded = awardEventParticipationPoint(ss, data);
+      auditAction(ss, 'adminAwardEventPoints', data, 'ok', awarded.granted ? 'event_points_awarded' : 'event_points_not_awarded', {
+        targetEmployeeId:data.targetEmployeeId || '',
+        eventId:data.eventId || '',
+        granted:!!awarded.granted
+      });
+      return jsonOutput({ ok:true, action, awarded, version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminAwardEventPoints', data, 'ng', e.message || 'event_points_failed');
+      return jsonOutput({ ok:false, action, error:e.message || 'event_points_failed', reason:e.message || 'event_points_failed', version:VERSION });
+    }
+  }
+
+  if (action === 'adminRetryPointAward') {
+    const denied = requireAdminAction('adminRetryPointAward', ss, data);
+    if (denied) return denied;
+    try {
+      const targetEmployeeId = normalizeEmployeeId(data.targetEmployeeId || '');
+      const ruleKey = String(data.ruleKey || '').trim();
+      const sourceId = String(data.sourceId || '').trim();
+      const retried = grantPointForRule(
+        ss,
+        ruleKey,
+        targetEmployeeId,
+        sourceId,
+        String(data.description || 'ポイント付与の再処理'),
+        normalizeEmployeeId(data.employeeId || '') || 'admin'
+      );
+      auditAction(ss, 'adminRetryPointAward', data, 'ok', retried.granted ? 'point_award_retried' : 'point_award_not_retried', {
+        targetEmployeeId,
+        ruleKey,
+        sourceId,
+        granted:!!retried.granted,
+        reason:retried.reason || ''
+      });
+      return jsonOutput({ ok:true, action, retried, version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminRetryPointAward', data, 'ng', e.message || 'point_retry_failed');
+      return jsonOutput({ ok:false, action, error:e.message || 'point_retry_failed', reason:e.message || 'point_retry_failed', version:VERSION });
+    }
   }
 
   if (action === 'adminUserList') {
@@ -494,6 +559,9 @@ function handlePost(action, data, ss) {
   if (action === 'saveUser') {
     const saved = saveUser(ss, data);
     invalidateUserCaches();
+    if (saved.type === 'inserted') {
+      safelyGrantPointForRule(ss, 'initial_registration', saved.user.employeeId, 'registration:' + saved.user.employeeId, '初回登録', 'system');
+    }
     writeLog(ss, action, data.deviceId, saved.user.id, 'ok', '');
     auditAction(ss, action, Object.assign({}, data, { employeeId: saved.user.employeeId }), 'ok', 'user_saved', { targetEmployeeId: saved.user.employeeId, dept: saved.user.dept || '' });
     return jsonOutput({ ok: true, action, saved, user: saved.user, state: getUserState(ss, { employeeId: saved.user.employeeId }), version: VERSION });
@@ -515,6 +583,11 @@ function handlePost(action, data, ss) {
     const employeeId = data.participantId || data.employeeId || data.id;
     writeLog(ss, originalAction, data.deviceId, employeeId, 'ok', originalAction === 'saveHealthSteps' ? 'shortcut_alias_saveActivity' : '');
     auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId, originalAction }), 'ok', 'activity_saved', { date: data.date || '', steps: data.steps || '', activityId: saved.activityId || '' });
+    try {
+      awardActivityPoints(ss, data);
+    } catch (pointError) {
+      recordPointSideEffectError(ss, 'activity', employeeId, saved.activityId || data.activityId || '', pointError);
+    }
     return jsonOutput({ ok: true, action: originalAction, normalizedAction: 'saveActivity', saved, state: getUserState(ss, { employeeId }), version: VERSION });
   }
 
@@ -532,6 +605,11 @@ function handlePost(action, data, ss) {
     try {
       const saved = saveThanks(ss, data);
       try { if (typeof invalidateThanksCaches === 'function') invalidateThanksCaches(); } catch (ignoreCache) {}
+      try {
+        awardThanksReceivedPoint(ss, saved, data);
+      } catch (pointError) {
+        recordPointSideEffectError(ss, 'thanks_received', data.toParticipantId || '', saved.thanksId || '', pointError);
+      }
       try { writeLog(ss, action, data.deviceId || data.fromParticipantId || '', data.toParticipantId || '', 'ok', ''); } catch (ignoreLog) {}
       try {
         if (typeof auditAction === 'function') {
@@ -560,6 +638,21 @@ function handlePost(action, data, ss) {
         dailyRemaining: Number(details.dailyRemaining || 0),
         version: VERSION
       });
+    }
+  }
+
+  if (action === 'redeemPointReward') {
+    const employeeId = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
+    try {
+      const redeemed = redeemPointReward(ss, data);
+      auditAction(ss, 'redeemPointReward', data, 'ok', redeemed.redeemed ? 'point_reward_redeemed' : 'point_reward_duplicate', {
+        rewardKey:data.rewardKey || '',
+        transactionId:redeemed.transaction ? redeemed.transaction.transactionId : ''
+      });
+      return jsonOutput({ ok:true, action, redeemed, state:getUserState(ss, { employeeId }), version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'redeemPointReward', data, 'ng', e.message || 'point_reward_failed', { rewardKey:data.rewardKey || '' });
+      return jsonOutput({ ok:false, action, error:e.message || 'point_reward_failed', reason:e.message || 'point_reward_failed', version:VERSION });
     }
   }
 
