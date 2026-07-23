@@ -52,8 +52,12 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 .rinchan-activity-system .activity-summary-card { grid-column: span 7; min-height: 476px; }
 .rinchan-activity-system .summary-date { min-height: 36px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 999px; background: var(--rm-green-soft); color: var(--rm-green-deep); font-size: 12px; font-weight: 750; white-space: nowrap; }
 .rinchan-activity-system .activity-summary-main { height: calc(100% - 55px); margin-top: 22px; display: grid; grid-template-columns: 238px minmax(0,1fr); gap: 34px; align-items: center; }
-.rinchan-activity-system .activity-ring { --activity-progress: 0deg; --activity-blue-progress: 0deg; --activity-overflow: 0deg; position: relative; width: 232px; height: 232px; padding: 13px; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(from 210deg, #48a7de 0deg, #48a7de var(--activity-blue-progress), #58bf8a var(--activity-progress), #e8f0f3 var(--activity-progress) 360deg); box-shadow: 0 8px 28px rgba(39,147,188,.12); }
+.rinchan-activity-system .activity-ring { --activity-progress: 0deg; --activity-blue-progress: 0deg; --activity-overflow: 0deg; --ring-size: 232px; --ring-stroke: 12px; --ring-end-color: #48a7de; position: relative; width: var(--ring-size); height: var(--ring-size); padding: var(--ring-stroke); display: grid; place-items: center; border-radius: 50%; background: conic-gradient(from 210deg, #48a7de 0deg, #48a7de var(--activity-blue-progress), #58bf8a var(--activity-progress), #e8f0f3 var(--activity-progress) 360deg); box-shadow: 0 8px 28px rgba(39,147,188,.12); }
 .rinchan-activity-system .activity-ring::before { content: ""; position: absolute; inset: -9px; border-radius: 50%; background: conic-gradient(from 210deg, var(--rm-green-deep) 0deg var(--activity-overflow), transparent var(--activity-overflow) 360deg); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px)); mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px)); pointer-events: none; }
+.rinchan-activity-system .activity-ring .ring-cap { position: absolute; z-index: 2; top: 0; left: calc(50% - (var(--ring-stroke) / 2)); width: var(--ring-stroke); height: var(--ring-stroke); border-radius: 50%; transform-origin: 50% calc(var(--ring-size) / 2); pointer-events: none; }
+.rinchan-activity-system .activity-ring .ring-cap-start { background: #48a7de; transform: rotate(210deg); }
+.rinchan-activity-system .activity-ring .ring-cap-end { background: var(--ring-end-color); transform: rotate(calc(210deg + var(--activity-progress))); }
+.rinchan-activity-system .activity-ring.is-empty .ring-cap { display: none; }
 .rinchan-activity-system .activity-ring-inner { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1px rgba(226,235,242,.7); }
 .rinchan-activity-system .activity-ring-inner p { margin: 0 0 8px; color: var(--rm-navy); font-size: 12px; font-weight: 700; }
 .rinchan-activity-system .activity-ring-inner div { display: flex; align-items: baseline; gap: 5px; }
@@ -66,7 +70,7 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
 .rinchan-activity-system .week-heading span { color: var(--rm-blue-deep); font-size: 18px; font-weight: 760; font-variant-numeric: tabular-nums; }
 .rinchan-activity-system .activity-week-bars { height: 176px; margin-top: 24px; display: grid; grid-template-columns: repeat(7, minmax(18px,1fr)); gap: 9px; align-items: end; }
 .rinchan-activity-system .activity-bar { height: 100%; display: grid; grid-template-rows: 1fr auto; gap: 8px; text-align: center; }
-.rinchan-activity-system .activity-bar > div { position: relative; width: min(100%,26px); height: 100%; margin: 0 auto; overflow: hidden; border-radius: 999px; background: #eef3f6; }
+.rinchan-activity-system .activity-bar > div { position: relative; width: min(100%,24px); height: 100%; margin: 0 auto; overflow: hidden; border-radius: 999px; background: #eef3f6; }
 .rinchan-activity-system .activity-bar span { position: absolute; inset: auto 0 0; min-height: 3px; border-radius: inherit; background: linear-gradient(180deg, var(--rm-blue), #55b8d6); }
 .rinchan-activity-system .activity-bar.is-selected > div { box-shadow: 0 0 0 3px rgba(98,199,122,.16); }
 .rinchan-activity-system .activity-bar.is-selected span { background: linear-gradient(180deg, var(--rm-green), var(--rm-blue)); }
@@ -135,14 +139,14 @@ body.rinchan-activity-system { overflow-x: hidden; background: radial-gradient(c
   .rinchan-activity-system .card h2 { font-size: 19px; }
   .rinchan-activity-system .activity-summary-card, .rinchan-activity-system .activity-form, .rinchan-activity-system .activity-tools-card { grid-column: auto; min-height: 0; }
   .rinchan-activity-system .activity-summary-main { height: auto; margin-top: 20px; display: flex; flex-direction: column; gap: 26px; }
-  .rinchan-activity-system .activity-ring { width: min(218px,68vw); height: min(218px,68vw); }
+  .rinchan-activity-system .activity-ring { --ring-size: min(218px,68vw); }
   .rinchan-activity-system .week-overview { width: 100%; }
   .rinchan-activity-system .activity-week-bars { height: 142px; gap: 7px; }
   .rinchan-activity-system .activity-form { gap: 15px; }
   .rinchan-activity-system .activity-tools-list { grid-template-columns: 1fr; }
   .rinchan-activity-system .activity-tool-row { padding: 13px 0; flex-direction: row; align-items: center; border-width: 0 0 1px; border-radius: 0; background: transparent; }
   .rinchan-activity-system .activity-tool-row:last-child { border-bottom: 0; }
-  .rinchan-activity-system .activity-tool-row > div:first-child { flex: 1; }
+  .rinchan-activity-system .activity-tool-row > div:first-child { flex: 1; flex-direction: row; align-items: baseline; justify-content: space-between; gap: 12px; }
   .rinchan-activity-system .guest-panel { padding: 28px 22px; grid-template-columns: 1fr; text-align: center; }
   .rinchan-activity-system .guest-panel .rin-img { width: 130px; height: 130px; margin: auto; }
   .rinchan-activity-system .guest-panel h1 { font-size: 23px; }

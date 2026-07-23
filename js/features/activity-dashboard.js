@@ -59,7 +59,7 @@ const RinchanActivityDashboard = (() => {
     const stepsEl = document.getElementById('activitySummarySteps');
     const goalEl = document.getElementById('activitySummaryGoal');
     const dateEl = document.getElementById('activitySummaryDate');
-    if (ring) { ring.style.setProperty('--activity-progress', (percent * 3.6) + 'deg'); ring.style.setProperty('--activity-blue-progress', (percent * 2.1) + 'deg'); ring.style.setProperty('--activity-overflow', (overflowPercent * 3.6) + 'deg'); ring.setAttribute('aria-valuenow', String(percent)); ring.setAttribute('aria-valuetext', total.toLocaleString('ja-JP') + '歩、週間目標の' + rawPercent + '%'); }
+    if (ring) { ring.style.setProperty('--activity-progress', (percent * 3.6) + 'deg'); ring.style.setProperty('--activity-blue-progress', (percent * 2.1) + 'deg'); ring.style.setProperty('--activity-overflow', (overflowPercent * 3.6) + 'deg'); ring.style.setProperty('--ring-end-color', percent <= 58 ? '#48a7de' : '#58bf8a'); ring.classList.toggle('is-empty', total <= 0); ring.setAttribute('aria-valuenow', String(percent)); ring.setAttribute('aria-valuetext', total.toLocaleString('ja-JP') + '歩、週間目標の' + rawPercent + '%'); }
     if (stepsEl) stepsEl.textContent = total.toLocaleString('ja-JP');
     if (goalEl) goalEl.textContent = (customGoal ? '週間目標 ' : '標準目標 ') + goal.toLocaleString('ja-JP') + '歩' + (rawPercent >= 100 ? '・' + rawPercent + '%' : '');
     if (dateEl) dateEl.textContent = displayWeekRange(days);

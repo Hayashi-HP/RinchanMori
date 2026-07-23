@@ -106,7 +106,7 @@ const RinchanChart = (() => {
       ? '<p class="steps-trend">📊 ' + (diff >= 0 ? '先週より +' + num(diff) + '歩' : '先週より ' + num(diff) + '歩') + '</p>'
       : '';
 
-    box.innerHTML = '<div class="steps-summary"><p class="label">今週の歩数</p><strong>' + num(weekTotal) + '</strong><span>歩</span><small>' + range + '</small>' + goalHtml + '</div><div class="steps-bars">' + values.map((value, index) => '<div class="steps-bar-col"><div class="steps-bar-track"><div class="steps-bar-fill" style="height:' + barHeight(value, max) + '%"></div></div><small>' + ['日','月','火','水','木','金','土'][days[index].getDay()] + '</small></div>').join('') + '</div>' + diffHtml;
+    box.innerHTML = '<div class="steps-summary"><p class="label">今週の歩数</p><div class="steps-summary-value"><strong>' + num(weekTotal) + '</strong><span>歩</span></div><small>' + range + '</small>' + goalHtml + '</div><div class="steps-bars">' + values.map((value, index) => '<div class="steps-bar-col"><div class="steps-bar-track"><div class="steps-bar-fill" style="height:' + barHeight(value, max) + '%"></div></div><small>' + ['日','月','火','水','木','金','土'][days[index].getDay()] + '</small></div>').join('') + '</div>' + diffHtml;
   }
 
   function install() {
