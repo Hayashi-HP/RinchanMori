@@ -546,7 +546,20 @@ function handlePost(action, data, ss) {
       return jsonOutput({ ok: true, action, saved, stats, state, version: VERSION });
     } catch (err) {
       try { writeLog(ss, action, data.deviceId || data.fromParticipantId || '', data.toParticipantId || '', 'ng', err.message); } catch (ignoreErrorLog) {}
-      return jsonOutput({ ok: false, action, error: err.message, version: VERSION });
+      const details = err && err.details ? err.details : {};
+      return jsonOutput({
+        ok: false,
+        action,
+        error: err.message,
+        reason: err.message,
+        sentToday: !!details.sentToday,
+        retryAfterDays: Number(details.retryAfterDays || 0),
+        nextAvailableDate: details.nextAvailableDate || '',
+        todayCount: Number(details.todayCount || 0),
+        dailyLimit: Number(details.dailyLimit || THANKS_DAILY_SEND_LIMIT),
+        dailyRemaining: Number(details.dailyRemaining || 0),
+        version: VERSION
+      });
     }
   }
 
