@@ -271,7 +271,7 @@ body.rinchan-home-system {
 .rinchan-home-system .steps-summary > small { margin-top: 8px; display: block; color: var(--rm-muted); font-size: 12px; }
 .rinchan-home-system .steps-goal,
 .rinchan-home-system .steps-trend { margin: 8px 0 0; color: var(--rm-muted); font-size: 12px; font-weight: 600; }
-.rinchan-home-system .steps-bars { height: 132px; margin-top: 22px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; }
+.rinchan-home-system .steps-bars { height: 132px; margin: 22px 0 0; padding: 0 0 14px; display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; border-bottom: 1px solid rgba(27,78,115,.12); }
 .rinchan-home-system .steps-bar-col { height: 100%; display: grid; grid-template-rows: 1fr auto; gap: 7px; text-align: center; }
 .rinchan-home-system .steps-bar-track { position: relative; width: 100%; max-width: 24px; height: 100%; margin: 0 auto; overflow: hidden; border-radius: 999px; background: #eef3f6; }
 .rinchan-home-system .steps-bar-fill { position: absolute; inset: auto 0 0; min-height: 3px; border-radius: inherit; background: linear-gradient(180deg, var(--rm-blue), #54b7d6); }
@@ -343,8 +343,8 @@ html.is-mobile-device .rinchan-home-system .steps-visual-card { overflow: hidden
 html.is-mobile-device .rinchan-home-system .steps-summary,
 html.is-mobile-device .rinchan-home-system .steps-bars { width: 100% !important; min-width: 0 !important; max-width: 100% !important; }
 html.is-mobile-device .rinchan-home-system .steps-bars { grid-template-columns: repeat(7, minmax(0, 1fr)) !important; gap: 7px !important; }
-html.is-mobile-device .rinchan-home-system .steps-bar-col,
-html.is-mobile-device .rinchan-home-system .steps-bar-track { min-width: 0 !important; max-width: 100% !important; }
+html.is-mobile-device .rinchan-home-system .steps-bar-col { min-width: 0 !important; max-width: 100% !important; }
+html.is-mobile-device .rinchan-home-system .steps-bar-track { width: 24px !important; min-width: 24px !important; max-width: 24px !important; }
 
 /* 1920 × 1080級のPCでは、主要情報をスクロールなしで一覧できる密度にする。 */
 @media (min-width: 1200px) and (min-height: 800px) {
@@ -402,7 +402,7 @@ html.is-mobile-device .rinchan-home-system .steps-bar-track { min-width: 0 !impo
   .rinchan-home-system .steps-summary > small,
   .rinchan-home-system .steps-goal,
   .rinchan-home-system .steps-trend { font-size: 10px; }
-  .rinchan-home-system .steps-bars { height: 108px; margin-top: 12px; }
+  .rinchan-home-system .steps-bars { height: 108px; margin-top: 12px; padding-bottom: 12px; }
   .rinchan-home-system #homeMoriLetterText { margin-top: 14px; font-size: 13px; line-height: 1.65; }
 }
 
