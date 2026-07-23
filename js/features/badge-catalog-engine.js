@@ -16,7 +16,8 @@ const RinchanBadgeCatalogEngine = (() => {
     { id:'event_tanabata', group:'イベント', icon:'🎋', name:'七夕の願い', hint:'七夕に願いを書く' },
     { id:'event_birthday', group:'イベント', icon:'🎂', name:'誕生日の杜', hint:'誕生日を迎える' },
     { id:'secret_midnight', group:'シークレット', icon:'🌙', name:'夜の杜の訪問者', hint:'???' },
-    { id:'secret_flower', group:'シークレット', icon:'💐', name:'花を受け取る人', hint:'???' }
+    { id:'secret_flower', group:'シークレット', icon:'💐', name:'花を受け取る人', hint:'???' },
+    { id:'point_limited_100', group:'りん', icon:'🏵️', name:'りん杜サポーター', hint:'100りんで交換' }
   ];
 
   function readJson(key, fallback) {
@@ -78,6 +79,8 @@ const RinchanBadgeCatalogEngine = (() => {
     if (received >= 500) ids.add('thanks_500');
     try { if (localStorage.getItem('rinchanTanabataWishes')) ids.add('event_tanabata'); } catch(e) {}
     try { if (localStorage.getItem('rinchanBirthdayEventShownDate')) ids.add('event_birthday'); } catch(e) {}
+    const pointState = readJson('rinchanPointState', {});
+    (Array.isArray(pointState.ownedBadgeIds) ? pointState.ownedBadgeIds : []).forEach(id => ids.add(String(id || '')));
     const h = new Date().getHours();
     if (h === 0) ids.add('secret_midnight');
     return ids;

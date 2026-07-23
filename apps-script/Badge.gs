@@ -15,7 +15,8 @@ const DEFAULT_BADGES = [
   ['event_tanabata', 'イベント', '🎋', '七夕の願い', '七夕に願いを書く', true, 120],
   ['event_birthday', 'イベント', '🎂', '誕生日の杜', '誕生日を迎える', true, 130],
   ['secret_midnight', 'シークレット', '🌙', '夜の杜の訪問者', '???', true, 140],
-  ['secret_flower', 'シークレット', '💐', '花を受け取る人', '???', true, 150]
+  ['secret_flower', 'シークレット', '💐', '花を受け取る人', '???', true, 150],
+  ['point_limited_100', 'りん', '🏵️', 'りん杜サポーター', '100りんで交換', true, 160]
 ];
 
 function parseBadgeActive(value) {
