@@ -14,7 +14,7 @@ const SHEET_CHALLENGES = 'challenges';
 const SHEET_BADGES = 'badges';
 const SHEET_EVENTS = 'events';
 const SHEET_APP_SETTINGS = 'app_settings';
-const VERSION = 'v1.4.35';
+const VERSION = 'v1.5.59';
 
 const DEFAULT_APP_SETTINGS = {
   defaultWeeklyStepGoal: 56000,

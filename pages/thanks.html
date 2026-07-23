@@ -53,6 +53,25 @@
   function user(){ try { return window.RinchanStorage ? RinchanStorage.getParticipant() : JSON.parse(localStorage.getItem('rinchanParticipant') || 'null'); } catch(e) { return null; } }
   function deviceId(){ try { return window.RinchanStorage ? RinchanStorage.deviceId() : localStorage.getItem('rinchanDeviceId'); } catch(e) { return ''; } }
   function escapeHtml(value){ return String(value || '').replace(/[&<>'"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]; }); }
+  function dateKey(value){ var d=value instanceof Date?value:new Date(value||''); if(isNaN(d.getTime())) return ''; return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); }
+  function dayNumber(key){ var p=String(key||'').split('-').map(Number); return p.length===3?Math.floor(Date.UTC(p[0],p[1]-1,p[2])/86400000):NaN; }
+  function sendStatus(toId){
+    var rows=[]; try{ rows=JSON.parse(localStorage.getItem('rinchanSentThanks')||'[]'); }catch(e){}
+    if(!Array.isArray(rows)) rows=[];
+    var today=dateKey(new Date());
+    var same=rows.filter(function(item){ return String(item.toParticipantId||item.toEmployeeId||item.toId||'')===String(toId||''); }).map(function(item){ return dateKey(item.savedAt||item.createdAt); }).filter(Boolean).sort().reverse();
+    if(same.length){ var elapsed=dayNumber(today)-dayNumber(same[0]); if(isFinite(elapsed)&&elapsed<7) return {allowed:false,label:elapsed===0?'送信しました':'あと'+Math.max(1,7-elapsed)+'日'}; }
+    var todayCount=rows.filter(function(item){ return dateKey(item.savedAt||item.createdAt)===today; }).length;
+    if(todayCount>=2) return {allowed:false,label:'本日は2人に送信済み'};
+    return {allowed:true,label:'ありがとうを届ける'};
+  }
+  function failureMessage(result){
+    var reason=String(result&&(result.reason||result.error)||'');
+    if(reason==='thanks_daily_limit') return '本日は2人に送信済みです。明日また送れます。';
+    if(reason==='thanks_recipient_cooldown') return result&&result.sentToday?'この方には今日すでに送信しました。':'この方へは、あと'+Number(result&&result.retryAfterDays||7)+'日で再び送れます。';
+    if(reason==='thanks_self_not_allowed') return '自分自身には送信できません。';
+    return '送信できませんでした。時間をおいて、もう一度お試しください。';
+  }
   function localThanks(payload){
     try{
       var list = JSON.parse(localStorage.getItem('rinchanThanks') || '[]');
@@ -89,6 +108,9 @@
     if (name) name.textContent = toName + ' さん';
     if (text) text.textContent = 'この仲間へ、ありがとうの花を届けます🌸';
     if (title) title.textContent = toName + 'さんへ';
+    var status=sendStatus(target.toEmployeeId);
+    var sendButton=document.getElementById('sendThanksButton');
+    if(sendButton&&!status.allowed){ sendButton.disabled=true; sendButton.textContent=status.label; }
   }
   async function send(){
     var target = readTarget();
@@ -109,13 +131,17 @@
       comment: comment ? String(comment.value || '').trim() : '',
       createdAt: new Date().toISOString(),
       deviceId: deviceId(),
-      version: 'v1.0.66'
+      version: 'v1.5.59'
     };
-    localThanks(payload);
     var result = window.RinchanApi ? await RinchanApi.request('saveThanks', payload) : { ok:false };
-    if (result && result.ok) {
-      if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') RinchanSync.applyApiResult(result);
+    if (!result || !result.ok) {
+      alert(failureMessage(result));
+      if (btn) { var status=sendStatus(target.toEmployeeId); btn.disabled=!status.allowed; btn.textContent=status.label; }
+      return;
     }
+    if(result.saved&&result.saved.createdAt) payload.createdAt=result.saved.createdAt;
+    localThanks(payload);
+    if (window.RinchanSync && typeof RinchanSync.applyApiResult === 'function') RinchanSync.applyApiResult(result);
     sessionStorage.removeItem('rinchanThanksTarget');
     flowerBurst();
     if (window.RinchanModal) {
