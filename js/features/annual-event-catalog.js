@@ -16,13 +16,75 @@ const RinchanAnnualEventCatalog = (() => {
     { month:12,key:'christmas',icon:'🎄',title:'クリスマスウォーク',startDay:1,endDay:31,individualTarget:110000,theme:'歩いてツリーを飾る',collectible:'オーナメント',participationBadge:'クリスマス参加',achievementBadge:'聖夜ウォーカー',text:'一歩ごとに飾りが増え、杜のクリスマスツリーが完成していきます。' }
   ];
 
-  function eventForDate(date) {
-    const d = date || new Date();
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    return EVENTS.find(event => event.month === month && day >= event.startDay && day <= event.endDay) || { key:'normal', icon:'🌳', title:'今日の杜', text:'季節と時間に合わせて、杜の景色が変わります。' };
+  function readConfigs() {
+    try {
+      const rows = window.RinchanStorage && typeof RinchanStorage.readJson === 'function'
+        ? RinchanStorage.readJson('rinchanEventConfigs', [])
+        : JSON.parse(localStorage.getItem('rinchanEventConfigs') || '[]');
+      return Array.isArray(rows) ? rows : [];
+    } catch (e) { return []; }
   }
 
-  return { VERSION, EVENTS, eventForDate };
+  function active(value) {
+    return value === true || value === 1 || String(value || '').toLowerCase() === 'true' || String(value || '') === '1';
+  }
+
+  function dateKey(date) {
+    const d = date || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function standardDates(event, year) {
+    return {
+      startDate:year + '-' + String(event.month).padStart(2, '0') + '-' + String(event.startDay).padStart(2, '0'),
+      endDate:year + '-' + String(event.month).padStart(2, '0') + '-' + String(event.endDay).padStart(2, '0')
+    };
+  }
+
+  function resolvedEvents(year) {
+    const targetYear = Number(year || new Date().getFullYear());
+    const configs = readConfigs().filter(row => Number(row.year || 0) === targetYear);
+    const overrides = configs.filter(row => String(row.eventType || '') === 'override');
+    const standards = EVENTS.map(event => {
+      const dates = standardDates(event, targetYear);
+      const override = overrides.find(row => String(row.baseKey || '') === event.key);
+      if (!override) return { ...event, ...dates, active:true, source:'standard' };
+      return {
+        ...event,
+        ...dates,
+        eventId:String(override.eventId || ''),
+        icon:String(override.icon || event.icon),
+        title:String(override.title || event.title),
+        startDate:String(override.startDate || dates.startDate),
+        endDate:String(override.endDate || dates.endDate),
+        text:String(override.text || event.text),
+        active:active(override.active),
+        source:'override'
+      };
+    });
+    const custom = configs.filter(row => String(row.eventType || '') === 'custom').map(row => ({
+      eventId:String(row.eventId || ''),
+      key:String(row.key || 'custom'),
+      icon:String(row.icon || '🎪'),
+      title:String(row.title || '期間限定イベント'),
+      startDate:String(row.startDate || ''),
+      endDate:String(row.endDate || ''),
+      text:String(row.text || ''),
+      active:active(row.active),
+      source:'custom'
+    }));
+    return standards.concat(custom).filter(event => event.active !== false);
+  }
+
+  function eventForDate(date) {
+    const d = date || new Date();
+    const today = dateKey(d);
+    const events = resolvedEvents(d.getFullYear());
+    return events.find(event => event.source === 'custom' && today >= event.startDate && today <= event.endDate)
+      || events.find(event => event.source !== 'custom' && today >= event.startDate && today <= event.endDate)
+      || { key:'normal', icon:'🌳', title:'今日の杜', text:'季節と時間に合わせて、杜の景色が変わります。' };
+  }
+
+  return { VERSION, EVENTS, eventForDate, resolvedEvents };
 })();
 window.RinchanAnnualEventCatalog = RinchanAnnualEventCatalog;

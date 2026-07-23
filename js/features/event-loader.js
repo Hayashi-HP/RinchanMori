@@ -110,10 +110,17 @@ const RinchanEventLoader = (() => {
     if (mod && typeof mod.install === 'function') mod.install();
   }
 
+  function cleanupInactiveEvents() {
+    Object.keys(FALLBACK_EVENTS).forEach(key => installEvent(FALLBACK_EVENTS[key]));
+  }
+
   async function apply() {
     const event = currentEvent();
     const config = moduleConfig(event);
-    if (!config) return event.key || 'normal';
+    if (!config) {
+      cleanupInactiveEvents();
+      return event.key || 'normal';
+    }
     await loadCss(config.css);
     await loadJs(config.js);
     installEvent(config);
@@ -131,6 +138,6 @@ const RinchanEventLoader = (() => {
   document.addEventListener('DOMContentLoaded', install);
   window.addEventListener('pageshow', () => setTimeout(install, 120));
 
-  return { VERSION, FALLBACK_EVENTS, install, apply, eventKey, currentEvent, isBirthdayToday };
+  return { VERSION, FALLBACK_EVENTS, install, apply, eventKey, currentEvent, isBirthdayToday, cleanupInactiveEvents };
 })();
 window.RinchanEventLoader = RinchanEventLoader;

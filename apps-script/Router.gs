@@ -311,6 +311,53 @@ function handlePost(action, data, ss) {
     }
   }
 
+  if (action === 'adminEventList') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_EVENTS)) return adminDenied('adminEventList', ss, data);
+    try {
+      const list = listAdminEvents(ss, data || {});
+      auditAction(ss, 'adminEventList', data, 'ok', 'view_admin_event_list', { year:list.year, total:list.total });
+      return jsonOutput({ ok:true, action, data:list, version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminEventList', data, 'ng', e.message || 'admin_event_list_failed');
+      return jsonOutput({ ok:false, action, error:e.message || 'admin_event_list_failed', reason:e.message || 'admin_event_list_failed', version:VERSION });
+    }
+  }
+
+  if (action === 'adminSaveEvent') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_EVENTS)) return adminDenied('adminSaveEvent', ss, data);
+    try {
+      const saved = saveAdminEvent(ss, data || {});
+      auditAction(ss, 'adminSaveEvent', data, 'ok', 'admin_event_saved', {
+        targetEventId:saved.event.eventId,
+        year:saved.event.year,
+        eventType:saved.event.eventType,
+        baseKey:saved.event.baseKey,
+        active:saved.event.active
+      });
+      return jsonOutput({ ok:true, action, saved, version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSaveEvent', data, 'ng', e.message || 'admin_event_save_failed', { targetEventId:data.eventId || '' });
+      return jsonOutput({ ok:false, action, error:e.message || 'admin_event_save_failed', reason:e.message || 'admin_event_save_failed', version:VERSION });
+    }
+  }
+
+  if (action === 'adminDeleteEvent') {
+    if (!hasPermission(ss, data, PERMISSION_MANAGE_EVENTS)) return adminDenied('adminDeleteEvent', ss, data);
+    try {
+      const deleted = deleteAdminEvent(ss, data || {});
+      auditAction(ss, 'adminDeleteEvent', data, 'ok', 'admin_event_deleted', {
+        targetEventId:deleted.event.eventId,
+        year:deleted.event.year,
+        eventType:deleted.event.eventType,
+        baseKey:deleted.event.baseKey
+      });
+      return jsonOutput({ ok:true, action, deleted, version:VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminDeleteEvent', data, 'ng', e.message || 'admin_event_delete_failed', { targetEventId:data.eventId || '' });
+      return jsonOutput({ ok:false, action, error:e.message || 'admin_event_delete_failed', reason:e.message || 'admin_event_delete_failed', version:VERSION });
+    }
+  }
+
   if (action === 'adminActivityRows') {
     const denied = requireAdminAction('adminActivityRows', ss, data);
     if (denied) return denied;
