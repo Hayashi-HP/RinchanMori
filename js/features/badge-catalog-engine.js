@@ -19,6 +19,39 @@ const RinchanBadgeCatalogEngine = (() => {
     { id:'secret_flower', group:'シークレット', icon:'💐', name:'花を受け取る人', hint:'???' }
   ];
 
+  function readJson(key, fallback) {
+    try {
+      if (window.RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback);
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+  }
+
+  function active(value) {
+    return value === true || value === 1 || String(value || '').toLowerCase() === 'true' || String(value || '') === '1';
+  }
+
+  function configuredCatalog() {
+    const configs = readJson('rinchanBadgeConfigs', []);
+    const byId = (Array.isArray(configs) ? configs : []).reduce((map, row) => {
+      const id = String((row && row.badgeId) || '');
+      if (id) map[id] = row;
+      return map;
+    }, {});
+    return CATALOG.map(item => {
+      const config = byId[item.id];
+      if (!config) return { ...item, active:true };
+      return {
+        ...item,
+        group: String(config.group || item.group),
+        icon: String(config.icon || item.icon),
+        name: String(config.name || item.name),
+        hint: String(config.hint || item.hint),
+        active: active(config.active)
+      };
+    });
+  }
+
   function passport() {
     try {
       if (window.RinchanPassportEngine && typeof RinchanPassportEngine.build === 'function') return RinchanPassportEngine.build();
@@ -52,9 +85,9 @@ const RinchanBadgeCatalogEngine = (() => {
 
   function build() {
     const ids = unlockedIds();
-    return CATALOG.map(item => ({ ...item, unlocked: ids.has(item.id) }));
+    return configuredCatalog().filter(item => item.active !== false).map(item => ({ ...item, unlocked: ids.has(item.id) }));
   }
 
-  return { VERSION, CATALOG, build, unlockedIds };
+  return { VERSION, CATALOG, build, unlockedIds, configuredCatalog };
 })();
 window.RinchanBadgeCatalogEngine = RinchanBadgeCatalogEngine;

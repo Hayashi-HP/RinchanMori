@@ -44,6 +44,12 @@ function setupProject(ss) {
   ]);
   normalizeExistingChallengeYearMonths(challengesSheet);
 
+  const badgesSheet = ensureSheet(ss, SHEET_BADGES, [
+    'badgeId', 'group', 'icon', 'name', 'hint', 'active', 'displayOrder',
+    'updatedAt', 'updatedBy', 'version'
+  ]);
+  ensureDefaultBadgeRows(badgesSheet);
+
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);
 
