@@ -179,7 +179,7 @@
     left: calc(50% + 7px);
   }
 
-  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 2.2s; }
+  .rinchan-mori-system #refreshMoriButton.is-refreshing svg { animation-duration: 3.6s; }
 }
 
 @media (prefers-reduced-motion: reduce) {

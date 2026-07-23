@@ -78,6 +78,8 @@ const RinchanHomeDashboard = (() => {
     ring.style.setProperty('--today-progress', percentage * 3.6 + 'deg');
     ring.style.setProperty('--today-blue-progress', percentage * 3.6 * 0.58 + 'deg');
     ring.style.setProperty('--today-overflow', overflowPercentage * 3.6 + 'deg');
+    ring.style.setProperty('--ring-end-color', percentage <= 58 ? '#48a7de' : '#58bf8a');
+    ring.classList.toggle('is-empty', steps <= 0);
     ring.setAttribute('aria-valuenow', String(percentage));
     ring.setAttribute('aria-valuetext', steps.toLocaleString('ja-JP') + '歩、週間目標の' + rawPercentage + '%');
     if (goalText) goalText.textContent = (customGoal ? '週間目標 ' : '標準目標 ') + goal.toLocaleString('ja-JP') + '歩';

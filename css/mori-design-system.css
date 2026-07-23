@@ -37,7 +37,8 @@ body.rinchan-mori-system { background:radial-gradient(circle at 9% 12%,rgba(76,1
 .rinchan-mori-system #moriStatusCard .forest-hero-copy h3 { margin:0 0 7px!important; color:var(--rm-navy)!important; font-size:20px!important; text-align:left!important; }
 .rinchan-mori-system #moriStatusCard .forest-hero-copy p { margin:0!important; color:var(--rm-muted)!important; font-size:13px!important; line-height:1.65!important; text-align:left!important; }
 .rinchan-mori-system #moriStatusCard .forest-progress-wrap { margin-top:24px!important; }
-.rinchan-mori-system #moriStatusCard .forest-progress { height:9px!important; background:#e7eef2!important; }
+.rinchan-mori-system #moriStatusCard .forest-progress { height:8px!important; border-radius:999px!important; background:#e7eef2!important; }
+.rinchan-mori-system #moriStatusCard .forest-progress>div { border-radius:inherit!important; }
 .rinchan-mori-system #moriStatusCard .forest-progress-note { margin-top:10px!important; color:var(--rm-muted)!important; font-size:12px!important; }
 
 .rinchan-mori-system .mori-visual.dashboard-hero { grid-column:5/-1; grid-row:1/span 2; padding:28px!important; overflow:hidden!important; }
@@ -89,7 +90,7 @@ body.rinchan-mori-system { background:radial-gradient(circle at 9% 12%,rgba(76,1
   .rinchan-mori-system .nav small { font-size:10px; }
   .rinchan-mori-system .mori-page-intro { min-height:142px; margin-bottom:16px!important; padding:24px 22px!important; border-radius:24px; }
   .rinchan-mori-system .mori-page-intro h1 { font-size:28px!important; }
-  .rinchan-mori-system #moriSeasonMessage { margin-top:8px!important; font-size:13px!important; }
+  .rinchan-mori-system #moriSeasonMessage { max-width:28em!important; margin-top:8px!important; font-size:13px!important; text-wrap:balance; }
   .rinchan-mori-system .mori-dashboard { display:flex; flex-direction:column; gap:16px; }
   .rinchan-mori-system .card,.rinchan-mori-system .mori-visual { width:100%!important; min-width:0!important; margin:0!important; padding:22px!important; grid-column:auto; grid-row:auto; }
   .rinchan-mori-system #moriStatusCard { order:1; }
