@@ -55,6 +55,14 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, cleared, version: VERSION });
   }
 
+  if (action === 'cacheStatus') {
+    const denied = requireAdminAction('cacheStatus', ss, data);
+    if (denied) return denied;
+    const cache = getAppCacheStatus();
+    auditAction(ss, 'cacheStatus', data, 'ok', 'view_cache_status', { activeCount:cache.activeCount });
+    return jsonOutput({ ok: true, action, cache, version: VERSION });
+  }
+
   if (action === 'createBackup') {
     const denied = requireAdminAction('createBackup', ss, data);
     if (denied) return denied;

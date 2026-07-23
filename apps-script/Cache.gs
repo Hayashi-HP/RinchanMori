@@ -43,6 +43,32 @@ function clearAppCache() {
   return { cleared: true, at: new Date().toISOString() };
 }
 
+function getAppCacheStatus() {
+  const definitions = [
+    { name: 'departments', label: '部署一覧', ttlSeconds: CACHE_TTL_LONG },
+    { name: 'dashboard', label: 'ホーム・杜の集計', ttlSeconds: CACHE_TTL_SHORT },
+    { name: 'adminStats', label: '管理画面集計', ttlSeconds: CACHE_TTL_SHORT }
+  ];
+  const cache = getScriptCache();
+  const entries = definitions.map(item => {
+    let raw = '';
+    try { raw = cache.get(cacheKey(item.name)) || ''; } catch (e) { raw = ''; }
+    return {
+      name: item.name,
+      label: item.label,
+      active: !!raw,
+      ttlSeconds: item.ttlSeconds,
+      approximateBytes: raw ? raw.length : 0
+    };
+  });
+  return {
+    checkedAt: new Date().toISOString(),
+    version: VERSION,
+    activeCount: entries.filter(item => item.active).length,
+    entries
+  };
+}
+
 function getCachedDepartments(ss) {
   const cached = getCachedJson('departments');
   if (cached) return cached;
