@@ -50,6 +50,13 @@ function setupProject(ss) {
   ]);
   ensureDefaultBadgeRows(badgesSheet);
 
+  const eventsSheet = ensureSheet(ss, SHEET_EVENTS, [
+    'eventId', 'year', 'eventType', 'baseKey', 'key', 'icon', 'title',
+    'startDate', 'endDate', 'text', 'active', 'createdAt', 'createdBy',
+    'updatedAt', 'updatedBy', 'version'
+  ]);
+  normalizeExistingEventDates(eventsSheet);
+
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);
 

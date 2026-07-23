@@ -11,6 +11,7 @@ function getBackupSourceSheets() {
     SHEET_DEPARTMENTS,
     SHEET_CHALLENGES,
     SHEET_BADGES,
+    SHEET_EVENTS,
     SHEET_USER_READS
   ];
 }

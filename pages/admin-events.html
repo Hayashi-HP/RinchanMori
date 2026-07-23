@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>イベント管理｜りんちゃんの杜</title>
+  <link rel="icon" href="../assets/rinchan-face.svg?v=1049" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css?v=157">
+  <link rel="stylesheet" href="../css/ui-v042.css?v=157">
+  <link rel="stylesheet" href="../css/sync-status-design.css?v=244">
+  <link rel="stylesheet" href="../css/admin-design-system.css?v=257">
+</head>
+<body class="admin-page rinchan-admin-system">
+<main class="app admin-app-v132 admin-events-app">
+  <header class="top"><a href="admin.html" class="back icon-button" aria-label="管理画面へ戻る"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></a><div class="page-title">管理画面</div><button class="icon-button admin-refresh-button" id="adminEventsRefresh" type="button" aria-label="イベント一覧を更新"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 9A7 7 0 0 1 18 6l2 2M17.9 15A7 7 0 0 1 6 18l-2-2"/></svg></button></header>
+  <nav class="nav" aria-label="メインメニュー"><a href="../index.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg><small>ホーム</small></a><a href="mori.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22v-7M8 22h8M5 15h14L16 9h2L12 2 6 9h2Z"/></svg><small>杜</small></a><a class="plus" href="activity.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 18c-2.5 0-5 1-5 3h10c0-2-2.5-3-5-3Zm6-15c-2 0-3 3.2-3 6s1 5 3 5 3-2.2 3-5-1-6-3-6Z"/></svg><small>歩数記録</small></a><a href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 7l8 6 8-6"/></svg><small>通信</small></a><a href="mypage.html"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><small>パスポート</small></a></nav>
+
+  <section class="admin-hero">
+    <p class="label">管理者専用</p>
+    <h1>イベント管理</h1>
+    <p><span class="admin-hero-line">標準イベントは毎年自動開催。</span><span class="admin-hero-line">必要な年だけ調整・追加できます。</span></p>
+    <div class="admin-updated" id="adminEventsStatus">読み込み中...</div>
+  </section>
+
+  <section class="admin-card">
+    <div class="admin-challenge-head-row">
+      <div><h2>年間イベント</h2><p class="admin-note">通常は操作不要です。追加イベントは期間中だけ標準イベントより優先されます。</p></div>
+      <button type="button" class="admin-button" id="adminEventCreate">期間限定を追加</button>
+    </div>
+    <div class="admin-badge-filters">
+      <label>対象年
+        <input id="adminEventFilterYear" type="number" min="2000" max="2100" step="1" inputmode="numeric">
+      </label>
+    </div>
+    <div id="adminEventsList" class="admin-badge-list"><p class="admin-empty">読み込み中...</p></div>
+  </section>
+
+  <section class="admin-card hidden" id="adminEventEditor">
+    <h2 id="adminEventEditorTitle">イベントを編集</h2>
+    <p class="admin-note" id="adminEventEditorNote"></p>
+    <div class="admin-badge-form-grid">
+      <label>アイコン
+        <input id="adminEventIcon" type="text" maxlength="20" placeholder="例: 🎪">
+      </label>
+      <label>イベント名（必須）
+        <input id="adminEventTitle" type="text" maxlength="80">
+      </label>
+      <label>開始日（必須）
+        <input id="adminEventStart" type="date">
+      </label>
+      <label>終了日（必須）
+        <input id="adminEventEnd" type="date">
+      </label>
+      <label class="wide">杜に表示するメッセージ
+        <textarea id="adminEventText" rows="3" maxlength="240"></textarea>
+      </label>
+      <label class="wide">表示状態
+        <select id="adminEventActive"><option value="true">開催する</option><option value="false">この年は休止する</option></select>
+      </label>
+    </div>
+    <div class="admin-badge-form-actions">
+      <button type="button" class="admin-button" id="adminEventSave">変更を保存</button>
+      <button type="button" class="admin-button soft" id="adminEventCancel">キャンセル</button>
+    </div>
+    <div id="adminEventMessage" class="admin-badge-message" aria-live="polite"></div>
+  </section>
+
+  <section class="big-action focus-action admin-return-action"><a href="admin.html"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg><strong>管理画面へ戻る</strong><small>運用チェックへ戻る</small></a></section>
+</main>
+<script src="../js/config.js?v=157"></script><script src="../js/core/storage.js?v=240"></script><script src="../js/core/error-log.js?v=157"></script><script src="../js/core/api.js?v=181"></script><script src="../js/core/sync.js?v=256"></script><script src="../js/core/offline-queue.js?v=244"></script><script src="../js/features/admin-events.js?v=1"></script>
+</body>
+</html>
