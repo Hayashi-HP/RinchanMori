@@ -1,5 +1,5 @@
 const RinchanPoints = (() => {
-  const VERSION = 'v1.0.0';
+  const VERSION = 'v1.1.0';
   let redeeming = false;
 
   function readJson(key, fallback) {
@@ -34,6 +34,31 @@ const RinchanPoints = (() => {
 
   function pointState() {
     return readJson('rinchanPointState', { enabled:false, balance:0, totalEarned:0, recentTransactions:[], rewards:[] }) || {};
+  }
+
+  function dateKey(date) {
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  function renderHome(state) {
+    const card = document.getElementById('homePointCard');
+    if (!card) return;
+    const id = employeeId();
+    const active = !!id && state.enabled === true;
+    card.classList.toggle('hidden', !active);
+    if (!active) return;
+    const balance = Number(state.balance || 0);
+    const balanceElement = document.getElementById('homePointBalance');
+    const earnedElement = document.getElementById('homePointEarned');
+    if (balanceElement) balanceElement.textContent = balance.toLocaleString('ja-JP') + 'りん';
+    const todaySource = 'open:' + dateKey(new Date());
+    const dailyOpen = (Array.isArray(state.recentTransactions) ? state.recentTransactions : [])
+      .find(row => String(row.type || '') === 'earn:daily_open' && String(row.sourceId || '') === todaySource);
+    if (earnedElement) {
+      earnedElement.textContent = dailyOpen
+        ? '今日の利用 ＋' + Number(dailyOpen.amount || 0).toLocaleString('ja-JP') + 'りん'
+        : '今日もりんを育てよう';
+    }
   }
 
   function renderHistory(rows) {
@@ -72,9 +97,10 @@ const RinchanPoints = (() => {
   }
 
   function render() {
+    const state = pointState();
+    renderHome(state);
     const root = document.getElementById('pointProgramCard');
     if (!root) return;
-    const state = pointState();
     const active = state.enabled === true;
     root.classList.toggle('is-paused', !active);
     const paused = document.getElementById('pointProgramPaused');
