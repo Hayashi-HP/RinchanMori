@@ -91,7 +91,7 @@ function handlePost(action, data, ss) {
     const denied = requireAdminAction('recentErrorLogs', ss, data);
     if (denied) return denied;
     auditAction(ss, 'recentErrorLogs', data, 'ok', 'view_error_logs');
-    return jsonOutput({ ok: true, action, logs: getRecentErrorLogs(ss, data.limit || 50), version: VERSION });
+    return jsonOutput({ ok: true, action, logs: getRecentErrorLogs(ss, data || {}), version: VERSION });
   }
 
   if (action === 'recentAuditLogs') {
