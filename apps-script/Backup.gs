@@ -21,7 +21,7 @@ function sanitizeBackupLabel(label) {
 }
 
 function makeBackupName(sourceName, label) {
-  const date = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
+  const date = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss_SSS');
   return 'bk_' + date + '_' + sanitizeBackupLabel(label) + '_' + sourceName;
 }
 
@@ -46,11 +46,17 @@ function createBackup(ss, data) {
   const label = sanitizeBackupLabel(data && data.label);
   const startedAt = new Date().toISOString();
   const sourceSheets = getBackupSourceSheets();
-  const results = sourceSheets.map(name => backupSheet(ss, name, label));
+  const results = sourceSheets.map(name => {
+    try {
+      return backupSheet(ss, name, label);
+    } catch (e) {
+      return { sourceName:name, copied:false, reason:String((e && e.message) || 'copy_failed') };
+    }
+  });
   const copiedCount = results.filter(item => item.copied).length;
 
   const record = {
-    ok: copiedCount > 0,
+    ok: copiedCount === sourceSheets.length,
     label,
     startedAt,
     finishedAt: new Date().toISOString(),
