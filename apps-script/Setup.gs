@@ -57,6 +57,8 @@ function setupProject(ss) {
   ]);
   normalizeExistingEventDates(eventsSheet);
 
+  ensureAppSettingsSheet(ss);
+
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);
   seedDepartmentsIfEmpty(deptSheet);
 

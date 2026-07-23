@@ -63,6 +63,31 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, cache, version: VERSION });
   }
 
+  if (action === 'adminSettings') {
+    const denied = requireAdminAction('adminSettings', ss, data);
+    if (denied) return denied;
+    const settings = getAdminAppSettings(ss);
+    auditAction(ss, 'adminSettings', data, 'ok', 'view_app_settings');
+    return jsonOutput({ ok: true, action, settings, version: VERSION });
+  }
+
+  if (action === 'adminSaveSettings') {
+    const denied = requireAdminAction('adminSaveSettings', ss, data);
+    if (denied) return denied;
+    try {
+      const settings = saveAdminAppSettings(ss, data);
+      clearAppCache();
+      auditAction(ss, 'adminSaveSettings', data, 'ok', 'app_settings_saved', {
+        defaultWeeklyStepGoal:settings.defaultWeeklyStepGoal,
+        inactivityAlertDays:settings.inactivityAlertDays
+      });
+      return jsonOutput({ ok: true, action, settings, version: VERSION });
+    } catch (e) {
+      auditAction(ss, 'adminSaveSettings', data, 'ng', e.message || 'app_settings_save_failed');
+      return jsonOutput({ ok: false, action, error:e.message || 'app_settings_save_failed', reason:e.message || 'app_settings_save_failed', version: VERSION });
+    }
+  }
+
   if (action === 'createBackup') {
     const denied = requireAdminAction('createBackup', ss, data);
     if (denied) return denied;

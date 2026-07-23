@@ -61,6 +61,7 @@ const RinchanChart = (() => {
 
     const activities = readJson('rinchanActivities', []);
     const user = participant();
+    const settings = readJson('rinchanAppSettings', {}) || {};
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const start = weekStartMonday(today);
@@ -94,7 +95,7 @@ const RinchanChart = (() => {
     const best = Math.max(...values);
     const max = best > 0 ? best * 1.1 : 1000;
     const range = dateWithWeek(days[0]) + '〜' + dateWithWeek(days[6]);
-    const goal = Number(String(user.weeklyStepGoal || '').replace(/,/g, ''));
+    const goal = Number(String(user.weeklyStepGoal || settings.defaultWeeklyStepGoal || 56000).replace(/,/g, ''));
     const hasGoal = goal > 0;
     const remain = hasGoal ? Math.max(0, goal - weekTotal) : 0;
 

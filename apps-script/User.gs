@@ -121,6 +121,7 @@ function getUserState(ss, data) {
     challenges: globalState.challenges,
     badges: globalState.badges,
     events: globalState.events,
+    settings: globalState.settings,
     mori: globalState.mori,
     forest: globalState.mori,
     forestSummary: globalState.summary,
@@ -144,6 +145,7 @@ function getGlobalForestState(ss) {
   const challenges = getPublicChallengeConfigs(ss, currentChallengeYearMonth());
   const badges = getBadgeConfigs(ss);
   const events = getPublicEventConfigs(ss, currentEventYear());
+  const settings = getPublicAppSettings(ss);
   const byUser = buildUserStats(users, activities, false);
   const members = Object.keys(byUser).map(id => byUser[id]).sort((a, b) => String(a.dept || '').localeCompare(String(b.dept || '')) || String(a.name || a.nick || a.id).localeCompare(String(b.name || b.nick || b.id)));
   const today = toDateKey(new Date());
@@ -172,6 +174,7 @@ function getGlobalForestState(ss) {
     challenges,
     badges,
     events,
+    settings,
     mori: {
       totalSteps,
       steps: totalSteps,
@@ -206,7 +209,8 @@ function createUserStateToken(user, activities, receivedThanks, sentThanks, than
     globalState ? listToken(globalState.members, 'employeeId', 'lastDate') : '',
     globalState ? listToken(globalState.challenges, 'challengeId', 'updatedAt') : '',
     globalState ? listToken(globalState.badges, 'badgeId', 'updatedAt') : '',
-    globalState ? listToken(globalState.events, 'eventId', 'updatedAt') : ''
+    globalState ? listToken(globalState.events, 'eventId', 'updatedAt') : '',
+    globalState && globalState.settings ? [globalState.settings.defaultWeeklyStepGoal, globalState.settings.inactivityAlertDays, globalState.settings.updatedAt].join('|') : ''
   ];
   return Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, parts.join('||'))).replace(/=+$/, '');
 }

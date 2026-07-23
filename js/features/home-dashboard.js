@@ -65,9 +65,10 @@ const RinchanHomeDashboard = (() => {
     if (!value || !ring || !status) return;
     const steps = currentWeekSteps();
     const user = participant();
+    const settings = readJson('rinchanAppSettings', {}) || {};
     const customGoal = Number(String(user.weeklyStepGoal || '').replace(/,/g, '')) || 0;
-    const dailyGoal = Number(String(user.dailyStepGoal || user.stepGoal || 8000).replace(/,/g, '')) || 8000;
-    const goal = Math.max(1, customGoal || dailyGoal * 7);
+    const standardGoal = Number(settings.defaultWeeklyStepGoal || 56000) || 56000;
+    const goal = Math.max(1, customGoal || standardGoal);
     const rawPercentage = Math.round((steps / goal) * 100);
     const percentage = Math.min(100, rawPercentage);
     const overflowPercentage = Math.min(100, Math.max(0, rawPercentage - 100));

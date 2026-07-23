@@ -12,6 +12,7 @@ function getBackupSourceSheets() {
     SHEET_CHALLENGES,
     SHEET_BADGES,
     SHEET_EVENTS,
+    SHEET_APP_SETTINGS,
     SHEET_USER_READS
   ];
 }
@@ -43,6 +44,7 @@ function backupSheet(ss, sourceName, label) {
 }
 
 function createBackup(ss, data) {
+  ensureAppSettingsSheet(ss);
   const label = sanitizeBackupLabel(data && data.label);
   const startedAt = new Date().toISOString();
   const sourceSheets = getBackupSourceSheets();

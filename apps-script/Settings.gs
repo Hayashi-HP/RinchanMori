@@ -1,0 +1,84 @@
+/* Application-wide operating settings */
+
+function ensureAppSettingsSheet(ss) {
+  const current = ss.getSheetByName(SHEET_APP_SETTINGS);
+  if (current && current.getLastRow() >= Object.keys(DEFAULT_APP_SETTINGS).length + 1) return current;
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const sheet = ensureSheet(ss, SHEET_APP_SETTINGS, [
+      'settingKey', 'value', 'updatedAt', 'updatedBy', 'version'
+    ]);
+    const existing = readTable(sheet).reduce((map, row) => {
+      map[String(row.settingKey || '')] = true;
+      return map;
+    }, {});
+    const now = new Date().toISOString();
+    Object.keys(DEFAULT_APP_SETTINGS).forEach(key => {
+      if (!existing[key]) sheet.appendRow([key, DEFAULT_APP_SETTINGS[key], now, 'system', VERSION]);
+    });
+    return sheet;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function parseIntegerSetting(value, fallback, min, max, errorCode) {
+  const raw = String(value == null ? '' : value).trim();
+  if (!/^\d+$/.test(raw)) throw new Error(errorCode + '_integer_required');
+  const number = Number(raw);
+  if (!isFinite(number) || number < min || number > max) throw new Error(errorCode + '_out_of_range');
+  return number;
+}
+
+function getAdminAppSettings(ss) {
+  const sheet = ensureAppSettingsSheet(ss);
+  const rows = readTable(sheet);
+  const values = Object.assign({}, DEFAULT_APP_SETTINGS);
+  let updatedAt = '';
+  let updatedBy = '';
+  rows.forEach(row => {
+    const key = String(row.settingKey || '');
+    if (Object.prototype.hasOwnProperty.call(values, key)) values[key] = Number(row.value || values[key]);
+    if (String(row.updatedAt || '') >= updatedAt) {
+      updatedAt = String(row.updatedAt || '');
+      updatedBy = String(row.updatedBy || '');
+    }
+  });
+  return {
+    defaultWeeklyStepGoal: Number(values.defaultWeeklyStepGoal || DEFAULT_APP_SETTINGS.defaultWeeklyStepGoal),
+    inactivityAlertDays: Number(values.inactivityAlertDays || DEFAULT_APP_SETTINGS.inactivityAlertDays),
+    updatedAt,
+    updatedBy,
+    version: VERSION
+  };
+}
+
+function getPublicAppSettings(ss) {
+  const settings = getAdminAppSettings(ss);
+  return {
+    defaultWeeklyStepGoal: settings.defaultWeeklyStepGoal,
+    inactivityAlertDays: settings.inactivityAlertDays,
+    updatedAt: settings.updatedAt,
+    version: settings.version
+  };
+}
+
+function saveSettingRow(sheet, key, value, actor, now) {
+  const row = findRowByValue(sheet, 1, key);
+  const values = [key, value, now, actor, VERSION];
+  if (row > 0) sheet.getRange(row, 1, 1, values.length).setValues([values]);
+  else sheet.appendRow(values);
+}
+
+function saveAdminAppSettings(ss, data) {
+  const weeklyGoal = parseIntegerSetting(data.defaultWeeklyStepGoal, DEFAULT_APP_SETTINGS.defaultWeeklyStepGoal, 7000, 1000000, 'default_weekly_step_goal');
+  const inactiveDays = parseIntegerSetting(data.inactivityAlertDays, DEFAULT_APP_SETTINGS.inactivityAlertDays, 1, 90, 'inactivity_alert_days');
+  const sheet = ensureAppSettingsSheet(ss);
+  const actor = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '') || 'system';
+  const now = new Date().toISOString();
+  saveSettingRow(sheet, 'defaultWeeklyStepGoal', weeklyGoal, actor, now);
+  saveSettingRow(sheet, 'inactivityAlertDays', inactiveDays, actor, now);
+  return getAdminAppSettings(ss);
+}
