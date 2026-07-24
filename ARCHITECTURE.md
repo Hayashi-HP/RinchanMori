@@ -57,7 +57,7 @@ Google Sheets
 | `js/features/mypage.js` | マイページ描画 |
 | `js/features/thanks.js` | ありがとう送信、受信、履歴、既読同期 |
 | `js/features/thanks-home-notice.js` | ホームの花通知 |
-| `js/features/points.js` | 所持りん・履歴・ご褒美・交換 |
+| `js/features/points.js` | 所持H・履歴・ご褒美・交換 |
 | `js/features/flower-receive-effect.js` | 花受け取り演出 |
 | `js/features/mori.js` | 杜マップ・部署カード |
 | `js/features/mori-thanks-confirm.js` | ありがとう送信時の相手確認UI |
@@ -118,7 +118,7 @@ Google Sheets
 | user_reads | お知らせ・花の既読同期 |
 | departments | 部署一覧 |
 | settings | 運用設定 |
-| point_transactions | ポイント付与・交換の追記専用台帳 |
+| point_transactions | H付与・交換の追記専用台帳 |
 | error_logs | エラー記録 |
 
 ## 同期フロー

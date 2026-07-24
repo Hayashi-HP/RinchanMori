@@ -50,14 +50,14 @@ const RinchanPoints = (() => {
     const balance = Number(state.balance || 0);
     const balanceElement = document.getElementById('homePointBalance');
     const earnedElement = document.getElementById('homePointEarned');
-    if (balanceElement) balanceElement.textContent = balance.toLocaleString('ja-JP') + 'りん';
+    if (balanceElement) balanceElement.textContent = balance.toLocaleString('ja-JP') + 'H';
     const todaySource = 'open:' + dateKey(new Date());
     const dailyOpen = (Array.isArray(state.recentTransactions) ? state.recentTransactions : [])
       .find(row => String(row.type || '') === 'earn:daily_open' && String(row.sourceId || '') === todaySource);
     if (earnedElement) {
       earnedElement.textContent = dailyOpen
-        ? '今日の利用 ＋' + Number(dailyOpen.amount || 0).toLocaleString('ja-JP') + 'りん'
-        : '今日もりんを育てよう';
+        ? '今日の利用 ＋' + Number(dailyOpen.amount || 0).toLocaleString('ja-JP') + 'H'
+        : '今日もHを育てよう';
     }
   }
 
@@ -65,19 +65,19 @@ const RinchanPoints = (() => {
     const box = document.getElementById('pointHistoryList');
     if (!box) return;
     if (!rows.length) {
-      box.innerHTML = '<p class="point-empty">まだ「りん」の履歴はありません。</p>';
+      box.innerHTML = '<p class="point-empty">まだHの履歴はありません。</p>';
       return;
     }
     box.innerHTML = rows.slice(0, 5).map(row => {
       const amount = Number(row.amount || 0);
-      return '<div class="point-history-row"><div><strong>' + escapeHtml(row.description || 'りんの記録') + '</strong><small>' + escapeHtml(formatDate(row.createdAt)) + '</small></div><span class="' + (amount >= 0 ? 'is-plus' : 'is-minus') + '">' + (amount >= 0 ? '+' : '') + amount.toLocaleString('ja-JP') + 'りん</span></div>';
+      return '<div class="point-history-row"><div><strong>' + escapeHtml(row.description || 'Hの記録') + '</strong><small>' + escapeHtml(formatDate(row.createdAt)) + '</small></div><span class="' + (amount >= 0 ? 'is-plus' : 'is-minus') + '">' + (amount >= 0 ? '+' : '') + amount.toLocaleString('ja-JP') + 'H</span></div>';
     }).join('');
   }
 
   function rewardNote(reward, balance) {
     if (reward.lifetimeLimitReached) return '交換済み・バッジ獲得済み';
     if (reward.monthlyLimitReached) return '今月は交換済みです';
-    if (balance < reward.cost) return 'あと' + Number(reward.cost - balance).toLocaleString('ja-JP') + 'りん';
+    if (balance < reward.cost) return 'あと' + Number(reward.cost - balance).toLocaleString('ja-JP') + 'H';
     return '交換できます';
   }
 
@@ -89,7 +89,7 @@ const RinchanPoints = (() => {
       return;
     }
     box.innerHTML = rewards.map(reward => (
-      '<article class="point-reward-row"><div><strong>' + escapeHtml(reward.name) + '</strong><small>' + escapeHtml(rewardNote(reward, balance)) + '</small></div><div class="point-reward-action"><span>' + Number(reward.cost || 0).toLocaleString('ja-JP') + 'りん</span><button type="button" data-point-reward="' + escapeHtml(reward.key) + '"' + (reward.canRedeem ? '' : ' disabled') + '>交換</button></div></article>'
+      '<article class="point-reward-row"><div><strong>' + escapeHtml(reward.name) + '</strong><small>' + escapeHtml(rewardNote(reward, balance)) + '</small></div><div class="point-reward-action"><span>' + Number(reward.cost || 0).toLocaleString('ja-JP') + 'H</span><button type="button" data-point-reward="' + escapeHtml(reward.key) + '"' + (reward.canRedeem ? '' : ' disabled') + '>交換</button></div></article>'
     )).join('');
     box.querySelectorAll('[data-point-reward]').forEach(button => {
       button.addEventListener('click', () => redeem(button.getAttribute('data-point-reward')));
@@ -109,8 +109,8 @@ const RinchanPoints = (() => {
     if (content) content.classList.toggle('hidden', !active);
     if (!active) return;
     const balance = Number(state.balance || 0);
-    document.getElementById('pointBalance').textContent = balance.toLocaleString('ja-JP') + 'りん';
-    document.getElementById('pointTotalEarned').textContent = Number(state.totalEarned || 0).toLocaleString('ja-JP') + 'りん';
+    document.getElementById('pointBalance').textContent = balance.toLocaleString('ja-JP') + 'H';
+    document.getElementById('pointTotalEarned').textContent = Number(state.totalEarned || 0).toLocaleString('ja-JP') + 'H';
     renderHistory(Array.isArray(state.recentTransactions) ? state.recentTransactions : []);
     renderRewards(Array.isArray(state.rewards) ? state.rewards : [], balance);
   }
@@ -122,10 +122,10 @@ const RinchanPoints = (() => {
 
   function errorMessage(code) {
     const messages = {
-      point_program_disabled:'ポイント制度は現在休止中です。',
+      point_program_disabled:'H制度は現在休止中です。',
       point_reward_disabled:'このご褒美は現在利用できません。',
-      point_insufficient_balance:'所持りんが足りません。',
-      point_reward_monthly_limit:'りんカフェは月1回までです。',
+      point_insufficient_balance:'所持Hが足りません。',
+      point_reward_monthly_limit:'Hカフェは月1回までです。',
       point_reward_lifetime_limit:'この限定バッジは獲得済みです。'
     };
     return messages[String(code || '')] || '交換できませんでした。時間をおいてもう一度お試しください。';
@@ -136,7 +136,7 @@ const RinchanPoints = (() => {
     const state = pointState();
     const reward = (state.rewards || []).find(item => String(item.key) === String(rewardKey));
     if (!reward || !reward.canRedeem) return;
-    if (!confirm(reward.name + 'に' + Number(reward.cost || 0).toLocaleString('ja-JP') + 'りんを使いますか？')) return;
+    if (!confirm(reward.name + 'に' + Number(reward.cost || 0).toLocaleString('ja-JP') + 'Hを使いますか？')) return;
     redeeming = true;
     try {
       const result = await window.RinchanApi.request('redeemPointReward', {

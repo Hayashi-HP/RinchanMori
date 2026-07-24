@@ -246,7 +246,7 @@ function handlePost(action, data, ss) {
         ruleKey,
         targetEmployeeId,
         sourceId,
-        String(data.description || 'ポイント付与の再処理'),
+        String(data.description || 'H付与の再処理'),
         normalizeEmployeeId(data.employeeId || '') || 'admin'
       );
       auditAction(ss, 'adminRetryPointAward', data, 'ok', retried.granted ? 'point_award_retried' : 'point_award_not_retried', {
