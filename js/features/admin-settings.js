@@ -87,7 +87,7 @@ const RinchanAdminSettings = (() => {
 
   function pointRow(item, kind) {
     const value = kind === 'rule' ? Number(item.amount || 0) : Number(item.cost || 0);
-    const suffix = kind === 'rule' ? '付与りん' : '必要りん';
+    const suffix = kind === 'rule' ? '付与H' : '必要H';
     return '<article class="admin-point-config-row" data-point-kind="' + kind + '" data-point-key="' + escapeHtml(item.key) + '">' +
       '<label class="admin-point-name"><span>名称</span><input class="point-config-name" type="text" maxlength="80" value="' + escapeHtml(item.name) + '" required></label>' +
       '<label class="admin-point-row-toggle"><input class="point-config-enabled" type="checkbox"' + (item.enabled ? ' checked' : '') + '><span aria-hidden="true"></span><strong>ON</strong></label>' +
@@ -126,8 +126,8 @@ const RinchanAdminSettings = (() => {
   function validatePointProgram(program) {
     const all = [].concat(program.rules || [], program.rewards || []);
     if (all.some(item => !String(item.name || '').trim())) return '名称を入力してください。';
-    if ((program.rules || []).some(item => !Number.isInteger(item.amount) || item.amount < 0 || item.amount > 100000)) return '付与りんは0〜100,000の整数で入力してください。';
-    if ((program.rewards || []).some(item => !Number.isInteger(item.cost) || item.cost < 1 || item.cost > 10000000)) return '必要りんは1〜10,000,000の整数で入力してください。';
+    if ((program.rules || []).some(item => !Number.isInteger(item.amount) || item.amount < 0 || item.amount > 100000)) return '付与Hは0〜100,000の整数で入力してください。';
+    if ((program.rewards || []).some(item => !Number.isInteger(item.cost) || item.cost < 1 || item.cost > 10000000)) return '必要Hは1〜10,000,000の整数で入力してください。';
     return '';
   }
 
@@ -211,19 +211,19 @@ const RinchanAdminSettings = (() => {
     const button = byId('adminPointSettingsSave');
     if (button) { button.disabled = true; button.textContent = '保存中...'; }
     if (byId('adminSettingsRefresh')) byId('adminSettingsRefresh').disabled = true;
-    setPointMessage('ポイント設定を保存しています...', 'info');
+    setPointMessage('H設定を保存しています...', 'info');
     try {
       const auth = authState();
       const result = await api('adminSavePointSettings', { employeeId:auth.employeeId, pointProgram });
       if (!result || !result.ok || !result.pointProgram) throw new Error(String((result && (result.reason || result.error)) || 'save_failed'));
       applyPointProgram(result.pointProgram);
-      setPointMessage('ポイント設定を保存しました。変更後の付与から反映されます。', 'success');
+      setPointMessage('H設定を保存しました。変更後の付与から反映されます。', 'success');
       setStatus('最終更新 ' + formatDate(result.pointProgram.updatedAt), false);
     } catch (e) {
       setPointMessage(errorMessage(e.message), 'error');
     } finally {
       state.saving = false;
-      if (button) { button.disabled = false; button.textContent = 'ポイント設定を保存'; }
+      if (button) { button.disabled = false; button.textContent = 'H設定を保存'; }
       if (byId('adminSettingsRefresh')) byId('adminSettingsRefresh').disabled = false;
     }
   }

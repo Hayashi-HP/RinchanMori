@@ -2,6 +2,8 @@
 .rinchan-passport-system .point-program-card{grid-column:1/-1}
 .point-program-card .point-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 20px}
 .point-program-card .point-summary-grid>div{padding:16px;border:1px solid #dfeaf0;border-radius:18px;background:linear-gradient(145deg,#f8fdff,#f2fbf4)}
+.point-program-card .h-symbol-note{margin:12px 0 4px;padding:11px 13px;border-radius:14px;background:#f3faf5;color:#536d60;font-size:12px;line-height:1.65}
+.point-program-card .h-symbol-note strong{color:#247d50}
 .point-program-card .point-summary-grid strong{display:block;color:#163d62;font-size:24px;line-height:1.25}
 .point-program-card .point-summary-grid small{display:block;margin-top:5px;color:#6d7f8e;font-size:12px;font-weight:700}
 .point-program-card .point-subheading{margin:20px 0 10px;color:#234b68;font-size:15px}

@@ -15,14 +15,23 @@ const DEFAULT_POINT_RULES = [
 ];
 
 const DEFAULT_POINT_REWARDS = [
-  { key:'limited_badge', name:'限定バッジ（りん杜サポーター）', enabled:true, cost:100, monthlyLimit:0, lifetimeLimit:1, badgeId:'point_limited_100' },
-  { key:'rin_cafe', name:'りんカフェ', enabled:true, cost:500, monthlyLimit:1 },
+  { key:'limited_badge', name:'限定バッジ（Hサポーター）', enabled:true, cost:100, monthlyLimit:0, lifetimeLimit:1, badgeId:'point_limited_100' },
+  { key:'rin_cafe', name:'Hカフェ', enabled:true, cost:500, monthlyLimit:1 },
   { key:'rinchan_goods', name:'限定りんちゃんグッズ', enabled:true, cost:1000, monthlyLimit:0 },
   { key:'special_lottery', name:'特別抽選応募', enabled:true, cost:2000, monthlyLimit:0 }
 ];
 
 function pointSettingKey(kind, key, field) {
   return POINT_SETTING_PREFIX + kind + '.' + key + '.' + field;
+}
+
+function pointConfiguredName(value, defaultItem) {
+  const name = String(value || defaultItem.name).trim();
+  const legacyNames = {
+    limited_badge:['限定バッジ', '限定バッジ（りん杜サポーター）'],
+    rin_cafe:['りんカフェ']
+  };
+  return (legacyNames[defaultItem.key] || []).indexOf(name) >= 0 ? defaultItem.name : name;
 }
 
 function pointBoolean(value) {
@@ -100,7 +109,7 @@ function getPointProgramSettings(ss) {
     const amountKey = pointSettingKey('rule', defaultRule.key, 'amount');
     return {
       key: defaultRule.key,
-      name: String(values[nameKey] || defaultRule.name).trim().slice(0, 80),
+      name: pointConfiguredName(values[nameKey], defaultRule).slice(0, 80),
       enabled: Object.prototype.hasOwnProperty.call(values, enabledKey) && pointBoolean(values[enabledKey]),
       amount: Object.prototype.hasOwnProperty.call(values, amountKey)
         ? Math.max(0, Math.min(pointInteger(values[amountKey], 0), POINT_MAX_RULE_AMOUNT))
@@ -113,7 +122,7 @@ function getPointProgramSettings(ss) {
     const costKey = pointSettingKey('reward', defaultReward.key, 'cost');
     return {
       key: defaultReward.key,
-      name: String(values[nameKey] || defaultReward.name).trim().slice(0, 80),
+      name: pointConfiguredName(values[nameKey], defaultReward).slice(0, 80),
       enabled: Object.prototype.hasOwnProperty.call(values, enabledKey) && pointBoolean(values[enabledKey]),
       cost: Object.prototype.hasOwnProperty.call(values, costKey)
         ? Math.max(0, Math.min(pointInteger(values[costKey], 0), POINT_MAX_REWARD_COST))

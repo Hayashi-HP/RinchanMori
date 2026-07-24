@@ -17,7 +17,7 @@ const RinchanBadgeCatalogEngine = (() => {
     { id:'event_birthday', group:'イベント', icon:'🎂', name:'誕生日の杜', hint:'誕生日を迎える' },
     { id:'secret_midnight', group:'シークレット', icon:'🌙', name:'夜の杜の訪問者', hint:'???' },
     { id:'secret_flower', group:'シークレット', icon:'💐', name:'花を受け取る人', hint:'???' },
-    { id:'point_limited_100', group:'りん', icon:'🏵️', name:'りん杜サポーター', hint:'100りんで交換' }
+    { id:'point_limited_100', group:'H', icon:'🏵️', name:'Hサポーター', hint:'100Hで交換' }
   ];
 
   function readJson(key, fallback) {
@@ -44,10 +44,10 @@ const RinchanBadgeCatalogEngine = (() => {
       if (!config) return { ...item, active:true };
       return {
         ...item,
-        group: String(config.group || item.group),
+        group: String(config.group === 'りん' ? 'H' : (config.group || item.group)),
         icon: String(config.icon || item.icon),
-        name: String(config.name || item.name),
-        hint: String(config.hint || item.hint),
+        name: String(config.name === 'りん杜サポーター' ? 'Hサポーター' : (config.name || item.name)),
+        hint: String(config.hint === '100りんで交換' ? '100Hで交換' : (config.hint || item.hint)),
         active: active(config.active)
       };
     });

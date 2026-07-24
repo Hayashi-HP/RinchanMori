@@ -21,7 +21,7 @@
 
 初回アクセス時に以下のシートが自動作成されます。
 
-ポイント制度を追加した更新では、Apps Script側を保存後に `setupProjectManual()` を一度実行してください。`app_settings` に `point.*` の初期設定が追加され、`point_transactions` が作成されます。
+H制度を追加した更新では、Apps Script側を保存後に `setupProjectManual()` を一度実行してください。`app_settings` に内部キー `point.*` の初期設定が追加され、`point_transactions` が作成されます。
 
 ### users
 
@@ -81,7 +81,7 @@
 | metadataJson | 補足情報 |
 | version | 保存時バージョン |
 
-### app_settings のポイント設定
+### app_settings のH設定
 
 - `point.enabled`
 - `point.rule.{ruleKey}.name`
@@ -91,4 +91,4 @@
 - `point.reward.{rewardKey}.enabled`
 - `point.reward.{rewardKey}.cost`
 
-初回セットアップで初期値を作成する。運用開始後に一部の設定行が欠損した場合は、安全のため該当項目を無効・0りんとして扱う。
+初回セットアップで初期値を作成する。運用開始後に一部の設定行が欠損した場合は、安全のため該当項目を無効・0Hとして扱う。

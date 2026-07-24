@@ -176,6 +176,18 @@ function addEarn(context, sheet, employeeId, amount, sourceId, date) {
 }
 
 {
+  const { context, ss, setSetting } = createRuntime();
+  setSetting('point.reward.limited_badge.name', '限定バッジ（りん杜サポーター）');
+  setSetting('point.reward.rin_cafe.name', 'りんカフェ');
+  let program = context.getPointProgramSettings(ss);
+  assert.equal(program.rewards.find(item => item.key === 'limited_badge').name, '限定バッジ（Hサポーター）');
+  assert.equal(program.rewards.find(item => item.key === 'rin_cafe').name, 'Hカフェ');
+  setSetting('point.reward.rin_cafe.name', '職員交流カフェ');
+  program = context.getPointProgramSettings(ss);
+  assert.equal(program.rewards.find(item => item.key === 'rin_cafe').name, '職員交流カフェ');
+}
+
+{
   const { context, ss, transactions } = createRuntime();
   addEarn(context, transactions, 'A', 499, 'below');
   assert.throws(

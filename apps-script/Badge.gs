@@ -16,7 +16,7 @@ const DEFAULT_BADGES = [
   ['event_birthday', 'イベント', '🎂', '誕生日の杜', '誕生日を迎える', true, 130],
   ['secret_midnight', 'シークレット', '🌙', '夜の杜の訪問者', '???', true, 140],
   ['secret_flower', 'シークレット', '💐', '花を受け取る人', '???', true, 150],
-  ['point_limited_100', 'りん', '🏵️', 'りん杜サポーター', '100りんで交換', true, 160]
+  ['point_limited_100', 'H', '🏵️', 'Hサポーター', '100Hで交換', true, 160]
 ];
 
 function parseBadgeActive(value) {
@@ -39,7 +39,7 @@ function defaultBadgeObject(row) {
 }
 
 function badgePublicRow(row) {
-  return {
+  const badge = {
     badgeId: String(row.badgeId || ''),
     group: String(row.group || ''),
     icon: String(row.icon || ''),
@@ -49,6 +49,12 @@ function badgePublicRow(row) {
     displayOrder: Number(row.displayOrder || 999),
     updatedAt: String(row.updatedAt || '')
   };
+  if (badge.badgeId === 'point_limited_100') {
+    if (badge.group === 'りん') badge.group = 'H';
+    if (badge.name === 'りん杜サポーター') badge.name = 'Hサポーター';
+    if (badge.hint === '100りんで交換') badge.hint = '100Hで交換';
+  }
+  return badge;
 }
 
 function ensureDefaultBadgeRows(sheet) {
