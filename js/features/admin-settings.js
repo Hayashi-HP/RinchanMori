@@ -1,5 +1,5 @@
 const RinchanAdminSettings = (() => {
-  const VERSION = 'v1.1.0';
+  const VERSION = 'v1.2.0';
   const state = { loading:false, saving:false };
 
   function byId(id) { return document.getElementById(id); }
@@ -82,6 +82,7 @@ const RinchanAdminSettings = (() => {
     byId('adminSettingInactiveSummary').textContent = days + '日';
     byId('adminSettingVersion').textContent = String(settings.version || '-');
     applyPointProgram(settings.pointProgram || { enabled:false, rules:[], rewards:[] });
+    renderPointBalanceRanking(settings.pointBalanceRanking || []);
     try { localStorage.setItem('rinchanAppSettings', JSON.stringify(settings)); } catch (e) {}
   }
 
@@ -98,6 +99,28 @@ const RinchanAdminSettings = (() => {
       '<label class="admin-point-value"><span>' + suffix + '</span><input class="point-config-value" type="number" inputmode="numeric" min="' + (kind === 'rule' ? '0' : '1') + '" max="' + (kind === 'rule' ? '100000' : '10000000') + '" step="1" value="' + value + '" required></label>' +
       (item.monthlyLimit ? '<small class="admin-point-limit">月' + Number(item.monthlyLimit) + '回まで</small>' : '') +
       '</article>';
+  }
+
+  function renderPointBalanceRanking(items) {
+    const list = byId('adminPointBalanceList');
+    const count = byId('adminPointBalanceCount');
+    if (!list || !count) return;
+    const rows = Array.isArray(items) ? items : [];
+    count.textContent = rows.length.toLocaleString('ja-JP') + '人';
+    if (!rows.length) {
+      list.innerHTML = '<p class="point-empty">表示できる職員がいません。</p>';
+      return;
+    }
+    list.innerHTML = rows.map((item, index) => {
+      const rank = Number(item.rank || index + 1);
+      const balance = Number(item.balance || 0);
+      return '<article class="admin-point-balance-row">' +
+        '<strong class="admin-point-rank">' + rank.toLocaleString('ja-JP') + '</strong>' +
+        '<span class="admin-point-person"><strong>' + escapeHtml(item.name || '氏名未設定') + '</strong><small>' + escapeHtml(item.employeeId || '') + '</small></span>' +
+        '<span class="admin-point-dept">' + escapeHtml(item.dept || '所属未設定') + '</span>' +
+        '<strong class="admin-point-balance">' + balance.toLocaleString('ja-JP') + 'H</strong>' +
+        '</article>';
+    }).join('');
   }
 
   function applyPointProgram(program) {

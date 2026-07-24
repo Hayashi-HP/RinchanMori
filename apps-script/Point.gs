@@ -275,6 +275,44 @@ function getPointBalanceFromRows(rows) {
   return (rows || []).reduce((sum, row) => sum + Number(row.amount || 0), 0);
 }
 
+function getAdminPointBalanceRanking(ss) {
+  const balanceByEmployee = {};
+  readTable(ss.getSheetByName(SHEET_POINT_TRANSACTIONS)).forEach(row => {
+    const employeeId = normalizeEmployeeId(row.employeeId || '');
+    if (!employeeId) return;
+    if (!balanceByEmployee[employeeId]) {
+      balanceByEmployee[employeeId] = { balance:0, totalEarned:0, lastTransactionAt:'' };
+    }
+    const amount = Number(row.amount || 0);
+    balanceByEmployee[employeeId].balance += isFinite(amount) ? amount : 0;
+    balanceByEmployee[employeeId].totalEarned += isFinite(amount) ? Math.max(0, amount) : 0;
+    if (String(row.createdAt || '') > balanceByEmployee[employeeId].lastTransactionAt) {
+      balanceByEmployee[employeeId].lastTransactionAt = String(row.createdAt || '');
+    }
+  });
+
+  return readTable(ss.getSheetByName(SHEET_USERS))
+    .map(user => {
+      const employeeId = normalizeEmployeeId(user.employeeId || user.id || '');
+      const account = balanceByEmployee[employeeId] || { balance:0, totalEarned:0, lastTransactionAt:'' };
+      return {
+        employeeId,
+        name: String(user.name || user.nick || '氏名未設定'),
+        dept: String(user.dept || '所属未設定'),
+        balance: Number(account.balance || 0),
+        totalEarned: Number(account.totalEarned || 0),
+        lastTransactionAt: account.lastTransactionAt
+      };
+    })
+    .filter(item => item.employeeId)
+    .sort((a, b) => (
+      b.balance - a.balance ||
+      b.totalEarned - a.totalEarned ||
+      String(a.name).localeCompare(String(b.name), 'ja')
+    ))
+    .map((item, index) => Object.assign({ rank:index + 1 }, item));
+}
+
 function getPointAccountState(ss, employeeId) {
   const id = normalizeEmployeeId(employeeId);
   const program = getPointProgramSettings(ss);
