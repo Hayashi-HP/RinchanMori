@@ -28,7 +28,7 @@ Apps Scriptエディタへ `apps-script/` 内の全 `.gs` と `appsscript.json` 
 
 ```text
 transactionId, employeeId, amount, type, sourceId, description,
-createdAt, createdBy, rewardId, metadataJson, version
+createdAt, createdBy, rewardId, metadataJson, version, inputSource, relatedRecordId
 ```
 
 ### `app_settings`
@@ -43,15 +43,19 @@ point.rule.*.amount
 point.reward.*.name
 point.reward.*.enabled
 point.reward.*.cost
+commonDailyStepGoalEnabled
+commonDailyStepGoal
+preferPersonalDailyStepGoal
+commonDailyStepGoalOnlyWhenUnset
 ```
 
-既存の `users`、`activities`、`thanks` は削除・初期化しない。
+`users` に `dailyStepGoal` が追加されていることも確認する。既存の `users`、`activities`、`thanks` は削除・初期化しない。
 
 ## 初期値確認
 
 - 全体：ON
 - 初回登録：50
-- 日次利用：1
+- デイリーチェックイン：1
 - 歩数同期：2
 - 日次目標：5
 - 週次目標：20
@@ -61,6 +65,7 @@ point.reward.*.cost
 - Hカフェ：500
 - 限定りんちゃんグッズ：1,000
 - 特別抽選応募：2,000
+- 共通日次目標：OFF（8,000歩）
 
 ## Webアプリ反映
 
@@ -76,17 +81,18 @@ point.reward.*.cost
 
 1. 管理画面の「H・その他設定」を開く。
 2. 全体ON、各初期値、ご褒美が表示される。
-3. 1日初回の同期で1Hだけ増える。
+3. 当日最初の有効通信でデイリーチェックイン1Hだけ増える。
 4. 同じ日に再読み込みしても増えない。
 5. 当日の歩数を保存し、歩数同期2Hが1回だけ増える。
-6. 日次・週次目標達成時に設定値が1回だけ増える。
-7. ありがとう受信は同日に複数件あっても50Hが1回だけ増える。
-8. パスポートで残高、累計、直近5件、ご褒美が表示される。
-9. 500H未満ではHカフェを交換できない。
-10. 500H以上で交換すると、残高が500減り累計は変わらない。
-11. 同じ月にHカフェを再交換できない。
-12. 全体OFF中は新規付与・交換が止まり、休止中表示になる。
-13. ONへ戻した後、OFF期間分が遡及されず、新しい行動から再開する。
+6. 明示設定した日次目標・週次目標の達成時に設定値が1回だけ増える。
+7. 日次目標未設定では、歩数が多くても日次目標Hが増えない。
+8. ありがとう受信は同日に複数件あっても50Hが1回だけ増える。
+9. パスポートで残高、累計、直近5件、ご褒美が表示される。
+10. 500H未満ではHカフェを交換できない。
+11. 500H以上で交換すると、残高が500減り累計は変わらない。
+12. 同じ月にHカフェを再交換できない。
+13. 全体OFF中は新規付与・交換が止まり、休止中表示になる。
+14. ONへ戻した後、OFF期間分が遡及されず、新しい行動から再開する。
 
 ## 障害時
 

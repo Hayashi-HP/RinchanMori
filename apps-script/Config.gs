@@ -19,7 +19,11 @@ const VERSION = 'v1.6.0';
 
 const DEFAULT_APP_SETTINGS = {
   defaultWeeklyStepGoal: 56000,
-  inactivityAlertDays: 7
+  inactivityAlertDays: 7,
+  commonDailyStepGoalEnabled: false,
+  commonDailyStepGoal: 8000,
+  preferPersonalDailyStepGoal: true,
+  commonDailyStepGoalOnlyWhenUnset: true
 };
 
 const DEFAULT_DEPARTMENTS = [

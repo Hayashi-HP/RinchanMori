@@ -33,6 +33,14 @@
         <label><span>標準の週間歩数目標</span><input id="adminSettingWeeklyGoal" type="number" inputmode="numeric" min="7000" max="1000000" step="1000" required><small>7,000〜1,000,000歩</small></label>
         <label><span>「記録なし」として表示する日数</span><input id="adminSettingInactiveDays" type="number" inputmode="numeric" min="1" max="90" step="1" required><small>1〜90日</small></label>
       </div>
+      <h3>日次の共通歩数目標</h3>
+      <p class="admin-note">初期値は「使用しない」です。ONにした場合も、個人の日次目標を優先できます。</p>
+      <div class="admin-setting-form-grid">
+        <label class="point-master-toggle"><input id="adminCommonDailyGoalEnabled" type="checkbox"><span aria-hidden="true"></span><strong>共通目標を使用する</strong></label>
+        <label><span>共通目標歩数</span><input id="adminCommonDailyGoal" type="number" inputmode="numeric" min="1000" max="100000" step="1000" required><small>1,000〜100,000歩</small></label>
+        <label class="point-master-toggle"><input id="adminPreferPersonalDailyGoal" type="checkbox"><span aria-hidden="true"></span><strong>個人目標を優先する</strong></label>
+        <label class="point-master-toggle"><input id="adminCommonGoalOnlyWhenUnset" type="checkbox"><span aria-hidden="true"></span><strong>個人目標が未設定のときだけ使う</strong></label>
+      </div>
       <div class="admin-setting-actions"><button type="submit" class="admin-button" id="adminSettingsSave">設定を保存</button></div>
       <div id="adminSettingsMessage" class="admin-badge-message" aria-live="polite"></div>
     </form>

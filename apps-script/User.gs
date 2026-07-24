@@ -9,6 +9,10 @@ function saveUser(ss, data) {
   if (row > 0 && data.createOnly === true) throw new Error('duplicate_employee_id');
   const old = row > 0 ? rowToObject(sheet, row) : {};
   const now = new Date().toISOString();
+  const dailyGoalRaw = data.dailyStepGoal !== undefined ? data.dailyStepGoal : old.dailyStepGoal;
+  const dailyGoalText = String(dailyGoalRaw === undefined || dailyGoalRaw === null ? '' : dailyGoalRaw).trim();
+  const dailyStepGoal = dailyGoalText ? validDailyStepGoal(dailyGoalText) : '';
+  if (dailyGoalText && !dailyStepGoal) throw new Error('daily_step_goal_out_of_range');
 
   const user = {
     id: employeeId,
@@ -26,7 +30,9 @@ function saveUser(ss, data) {
     email: normalizeEmail(data.email || '') || old.email || '',
     pin4: normalizePin(data.pin4 || '') || normalizePin(old.pin4 || '') || '',
     admin: data.admin !== undefined ? data.admin : old.admin || '',
-    weeklyStepGoal: data.weeklyStepGoal !== undefined ? data.weeklyStepGoal : old.weeklyStepGoal || ''
+    weeklyStepGoal: data.weeklyStepGoal !== undefined ? data.weeklyStepGoal : old.weeklyStepGoal || '',
+    role: data.role !== undefined ? data.role : old.role || '',
+    dailyStepGoal
   };
 
   const values = [
@@ -45,7 +51,9 @@ function saveUser(ss, data) {
     user.pin4,
     user.employeeId,
     user.admin,
-    user.weeklyStepGoal
+    user.weeklyStepGoal,
+    user.role,
+    user.dailyStepGoal
   ];
 
   if (row > 0) {
@@ -89,6 +97,11 @@ function loginUser(ss, data) {
 function getUserState(ss, data) {
   const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
   const clientToken = String(data.syncToken || data.clientSyncToken || '').trim();
+  const dailyCheckin = data.dailyCheckinResult || awardDailyCheckinPoint(ss, {
+    employeeId:id,
+    inputSource:data.inputSource || 'app',
+    relatedRecordId:data.relatedRecordId || ''
+  }, data.nowValue);
   const user = getPublicUserById(ss, id);
   const activities = getMyActivities(ss, { employeeId: id });
   const receivedThanks = getMyThanks(ss, { employeeId: id });
@@ -99,6 +112,7 @@ function getUserState(ss, data) {
   const readThanksFlowerIds = userReads.readThanksFlowerIds || [];
   const thanksStats = getMyThanksStats(ss, { employeeId: id });
   const points = getPointAccountState(ss, id);
+  const today = getTodayPointStatus(ss, id, data.nowValue);
   const globalState = getGlobalForestState(ss);
   const syncToken = createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState, points);
 
@@ -107,6 +121,9 @@ function getUserState(ss, data) {
       employeeId: id,
       unchanged: true,
       syncToken,
+      dailyCheckin,
+      today,
+      points,
       serverAt: new Date().toISOString()
     };
   }
@@ -134,6 +151,8 @@ function getUserState(ss, data) {
     userReads,
     thanksStats,
     points,
+    dailyCheckin,
+    today,
     syncToken,
     unchanged: false,
     serverAt: new Date().toISOString()
@@ -198,7 +217,7 @@ function getGlobalForestState(ss) {
 
 function createUserStateToken(user, activities, receivedThanks, sentThanks, thanksTimeline, readNewsIds, readThanksFlowerIds, thanksStats, globalState, points) {
   const parts = [
-    user ? [user.id, user.updatedAt, user.weeklyGoal, user.weeklyStepGoal, user.dept, user.declaration].join('|') : '',
+    user ? [user.id, user.updatedAt, user.weeklyGoal, user.weeklyStepGoal, user.dailyStepGoal, user.dept, user.declaration].join('|') : '',
     listToken(activities, 'activityId', 'savedAt'),
     listToken(receivedThanks, 'thanksId', 'savedAt'),
     listToken(sentThanks, 'thanksId', 'savedAt'),
@@ -243,6 +262,7 @@ function publicUser(user) {
     declaration: user.declaration || '',
     weeklyGoal: user.weeklyGoal || '',
     weeklyStepGoal: user.weeklyStepGoal || '',
+    dailyStepGoal: user.dailyStepGoal || '',
     createdAt: user.createdAt || '',
     updatedAt: user.updatedAt || '',
     version: user.version || VERSION,

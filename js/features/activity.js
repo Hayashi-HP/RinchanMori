@@ -84,7 +84,9 @@ const RinchanActivity = (() => {
       comment: String(item.comment || ''),
       createdAt: String(item.createdAt || new Date().toISOString()),
       version: String(item.version || VERSION),
-      savedAt: String(item.savedAt || '')
+      savedAt: String(item.savedAt || ''),
+      correctionMode: item.correctionMode === true,
+      inputSource: String(item.inputSource || 'manual')
     };
   }
   function upsertLocalActivity(activity) {
@@ -111,7 +113,7 @@ const RinchanActivity = (() => {
     if (!steps || steps < 0) return null;
     const date = value('activityDate') || todayKey();
     const id = existingId || findExistingIdByDate(date) || 'A' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    return normalizeActivity({ activityId: id, participantId: employeeId, employeeId: employeeId, id: employeeId, deviceId: deviceId(), date, steps, challenge: checked('challenge'), comment: value('comment'), createdAt: new Date().toISOString(), version: VERSION });
+    return normalizeActivity({ activityId: id, participantId: employeeId, employeeId: employeeId, id: employeeId, deviceId: deviceId(), date, steps, challenge: checked('challenge'), comment: value('comment'), createdAt: new Date().toISOString(), version: VERSION, correctionMode:!!existingId, inputSource:'manual' });
   }
   function refreshLocalViews() {
     try { renderRecentActivities(); } catch (e) {}

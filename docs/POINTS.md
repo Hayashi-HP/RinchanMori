@@ -13,14 +13,16 @@ H＝5H Values・Hayashi・Hayashinableを表すシンボル。
 | キー | 名称 | 初期値 | 上限 |
 |---|---|---:|---|
 | `initial_registration` | 初回登録 | 50H | 初回のみ |
-| `daily_open` | 1日1回アプリを開く | 1H | 1日1回 |
+| `daily_open` | デイリーチェックイン | 1H | 当日の最初の有効通信で1回 |
 | `activity_sync` | 歩数同期 | 2H | 1日1回 |
 | `daily_step_goal` | 今日の歩数目標達成 | 5H | 1日1回 |
 | `weekly_step_goal` | 週間歩数目標達成 | 20H | 週1回 |
 | `thanks_received` | ありがとう受信 | 50H | 1日最大1回分 |
 | `event_participation` | イベント参加 | 50H | イベントごとに1回 |
 
-日次歩数目標は、本人の週間歩数目標を7で割った値を使用する。本人が未設定の場合は管理画面の標準週間目標を使用する。
+日次歩数目標は、本人が明示的に設定した `dailyStepGoal` を使用する。空欄、0、負数、小数、数値以外、1,000未満、100,000超は無効で、日次目標Hを付与しない。週間目標や標準週間目標を日次へ自動換算しない。
+
+共通の日次目標は管理画面から明示的にONにした場合だけ使用する。初期値はOFF。
 
 歩数の付与は当日の記録だけを対象とする。過去日付の入力・修正を後から行っても遡及付与しない。
 
@@ -63,6 +65,8 @@ Hカフェは「理事長とおごり自販機で飲み物1本＋5〜10分の雑
 | `rewardId` | ご褒美キー |
 | `metadataJson` | 補足情報 |
 | `version` | 保存時バージョン |
+| `inputSource` | shortcut、manual、app、admin、system |
+| `relatedRecordId` | 関連する活動・ありがとう・交換要求のID |
 
 計算式：
 
@@ -80,11 +84,11 @@ Hカフェは「理事長とおごり自販機で飲み物1本＋5〜10分の雑
 主な `sourceId`：
 
 - 初回登録：`registration:{employeeId}`
-- 日次利用：`open:{yyyy-mm-dd}`
-- 歩数同期：`activity_sync:{yyyy-mm-dd}`
-- 日次目標：`daily_step_goal:{yyyy-mm-dd}`
+- デイリーチェックイン：`daily_checkin:{employeeId}:{yyyy-mm-dd}`
+- 歩数同期：`step_sync:{employeeId}:{yyyy-mm-dd}`
+- 日次目標：`daily_goal:{employeeId}:{yyyy-mm-dd}`
 - 週次目標：`weekly_step_goal:{週の月曜日}`
-- ありがとう受信：`thanks_received:{yyyy-mm-dd}`
+- ありがとう受信：`thanks_received:{employeeId}:{yyyy-mm-dd}`
 - イベント参加：`event:{eventId}`
 - ご褒美交換：`reward:{rewardKey}:{requestId}`
 
@@ -105,7 +109,7 @@ OFFによるスキップはエラーではなく、再処理対象にしない�
 
 | action | 用途 |
 |---|---|
-| `getUserState` | 日次利用付与、H状態取得 |
+| `getUserState` | デイリーチェックイン判定、今日の歩数・目標・付与状況・H状態取得 |
 | `redeemPointReward` | 本人のご褒美交換 |
 | `adminSettings` | 管理設定取得 |
 | `adminSavePointSettings` | H設定保存 |
@@ -121,6 +125,7 @@ OFFによるスキップはエラーではなく、再処理対象にしない�
 - 制度全体のON/OFF
 - 各付与条件の名称、ON/OFF、付与H
 - 各ご褒美の名称、ON/OFF、必要H
+- 共通日次目標の使用、歩数、個人目標優先、未設定時のみ使用
 
 付与Hは0〜100,000、ご褒美は1〜10,000,000の整数に制限する。負数や範囲外は保存しない。
 

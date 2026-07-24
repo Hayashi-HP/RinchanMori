@@ -150,6 +150,7 @@ function buildUserStats(users, activities, masked) {
       declaration: user.declaration || '',
       weeklyGoal: user.weeklyGoal || '',
       weeklyStepGoal: user.weeklyStepGoal || '',
+      dailyStepGoal: user.dailyStepGoal || '',
       role: user.role || '',
       admin: user.admin || '',
       activityCount: 0,
@@ -171,6 +172,7 @@ function buildUserStats(users, activities, masked) {
         declaration: '',
         weeklyGoal: '',
         weeklyStepGoal: '',
+        dailyStepGoal: '',
         role: '',
         admin: '',
         activityCount: 0,
@@ -219,6 +221,7 @@ function adminUserSummary(user, activityStat) {
     role,
     admin: role === ROLE_ADMIN || role === ROLE_SYSTEM ? '1' : '',
     weeklyStepGoal: String(user.weeklyStepGoal || ''),
+    dailyStepGoal: String(user.dailyStepGoal || ''),
     activityCount: Number(stat.activityCount || 0),
     totalSteps: Number(stat.totalSteps || 0),
     lastDate: String(stat.lastDate || ''),
@@ -275,6 +278,14 @@ function parseAdminWeeklyStepGoal(value) {
   return goal;
 }
 
+function parseAdminDailyStepGoal(value) {
+  const raw = String(value === undefined || value === null ? '' : value).trim();
+  if (!raw) return '';
+  const goal = validDailyStepGoal(raw);
+  if (!goal) throw new Error('daily_step_goal_out_of_range');
+  return goal;
+}
+
 function updateAdminUser(ss, data) {
   const actor = getUserPermissionContext(ss, data);
   if (!actor || actor.permissions.indexOf(PERMISSION_MANAGE_USERS) < 0) throw new Error('manage_users_required');
@@ -296,6 +307,7 @@ function updateAdminUser(ss, data) {
   const roleRaw = String(data.role || '').trim().toLowerCase();
   const role = normalizeRole(roleRaw, '');
   const weeklyStepGoal = parseAdminWeeklyStepGoal(data.weeklyStepGoal);
+  const dailyStepGoal = parseAdminDailyStepGoal(data.dailyStepGoal);
 
   if (!name) throw new Error('name_required');
   if (name.length > 80) throw new Error('name_too_long');
@@ -319,6 +331,7 @@ function updateAdminUser(ss, data) {
     role,
     admin: role === ROLE_ADMIN || role === ROLE_SYSTEM ? '1' : '',
     weeklyStepGoal,
+    dailyStepGoal,
     updatedAt: now,
     lastSavedAt: now,
     version: VERSION
@@ -466,7 +479,9 @@ function saveAdminActivityCorrection(ss, data) {
     challenge: latest ? (latest.challenge === true || String(latest.challenge).toUpperCase() === 'TRUE') : false,
     comment: latest ? String(latest.comment || '') : '',
     createdAt: latest ? String(latest.createdAt || new Date().toISOString()) : new Date().toISOString(),
-    version: VERSION
+    version: VERSION,
+    correctionMode: true,
+    inputSource: 'admin'
   });
 
   invalidateActivityCaches();

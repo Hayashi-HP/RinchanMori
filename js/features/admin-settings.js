@@ -74,6 +74,10 @@ const RinchanAdminSettings = (() => {
     const days = Number(settings.inactivityAlertDays || 7);
     byId('adminSettingWeeklyGoal').value = goal;
     byId('adminSettingInactiveDays').value = days;
+    byId('adminCommonDailyGoalEnabled').checked = settings.commonDailyStepGoalEnabled === true;
+    byId('adminCommonDailyGoal').value = Number(settings.commonDailyStepGoal || 8000);
+    byId('adminPreferPersonalDailyGoal').checked = settings.preferPersonalDailyStepGoal !== false;
+    byId('adminCommonGoalOnlyWhenUnset').checked = settings.commonDailyStepGoalOnlyWhenUnset !== false;
     byId('adminSettingGoalSummary').textContent = goal.toLocaleString('ja-JP') + '歩';
     byId('adminSettingInactiveSummary').textContent = days + '日';
     byId('adminSettingVersion').textContent = String(settings.version || '-');
@@ -156,8 +160,10 @@ const RinchanAdminSettings = (() => {
   function validate() {
     const goal = inputNumber('adminSettingWeeklyGoal');
     const days = inputNumber('adminSettingInactiveDays');
+    const commonGoal = inputNumber('adminCommonDailyGoal');
     if (!Number.isInteger(goal) || goal < 7000 || goal > 1000000) return '標準週間目標は7,000〜1,000,000歩の整数で入力してください。';
     if (!Number.isInteger(days) || days < 1 || days > 90) return '記録なし判定は1〜90日の整数で入力してください。';
+    if (!Number.isInteger(commonGoal) || commonGoal < 1000 || commonGoal > 100000) return '共通の日次目標は1,000〜100,000歩の整数で入力してください。';
     return '';
   }
 
@@ -186,7 +192,11 @@ const RinchanAdminSettings = (() => {
       const result = await api('adminSaveSettings', {
         employeeId:auth.employeeId,
         defaultWeeklyStepGoal:inputNumber('adminSettingWeeklyGoal'),
-        inactivityAlertDays:inputNumber('adminSettingInactiveDays')
+        inactivityAlertDays:inputNumber('adminSettingInactiveDays'),
+        commonDailyStepGoalEnabled:byId('adminCommonDailyGoalEnabled').checked,
+        commonDailyStepGoal:inputNumber('adminCommonDailyGoal'),
+        preferPersonalDailyStepGoal:byId('adminPreferPersonalDailyGoal').checked,
+        commonDailyStepGoalOnlyWhenUnset:byId('adminCommonGoalOnlyWhenUnset').checked
       });
       if (!result || !result.ok || !result.settings) throw new Error(String((result && (result.reason || result.error)) || 'save_failed'));
       applySettings(result.settings);

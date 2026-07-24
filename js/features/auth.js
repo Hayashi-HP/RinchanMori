@@ -177,7 +177,7 @@ const RinchanAuth = (() => {
       }
 
       setBusy(button, true, '杜に植えてるよ...'); switchUserLocalData(employeeId); const now = new Date().toISOString();
-      const user = { id: employeeId, employeeId, participantId: employeeId, deviceId: deviceId(), name: value('userName'), dept: value('dept'), nick: value('nick'), email: value('email'), pin4, declaration: '', weeklyGoal: '', weeklyStepGoal: '', createdAt: now, updatedAt: now, version: VERSION, createOnly: true };
+      const user = { id: employeeId, employeeId, participantId: employeeId, deviceId: deviceId(), name: value('userName'), dept: value('dept'), nick: value('nick'), email: value('email'), pin4, declaration: '', weeklyGoal: '', weeklyStepGoal: '', dailyStepGoal: '', createdAt: now, updatedAt: now, version: VERSION, createOnly: true };
       const result = await api('saveUser', user);
       if (result && result.ok) { const savedUser = Object.assign({}, withoutPin(user), withoutPin(result.user || {}), { weeklyGoal: (result.user && result.user.weeklyGoal) || user.weeklyGoal || '' }); saveParticipant(savedUser); applyState(result); location.href = 'welcome.html'; return; }
       setBusy(button, false, '杜に参加する');
