@@ -1,8 +1,12 @@
 const RinchanSync = (() => {
-  const VERSION = 'v1.4.8';
+  const VERSION = 'v1.5.0';
   const SYNC_TIME_KEY = 'rinchanLastSyncedAt';
   const SYNC_STATUS_KEY = 'rinchanSyncStatus';
   const SYNC_TOKEN_KEY = 'rinchanSyncToken';
+  let syncInFlight = null;
+  let activityRefreshInFlight = null;
+  let lastRemoteRefreshAt = 0;
+  let hiddenAt = 0;
 
   function readJson(key, fallback) { if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.readJson === 'function') return RinchanStorage.readJson(key, fallback); try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { return fallback; } }
   function writeJson(key, value) { if (typeof RinchanStorage !== 'undefined' && RinchanStorage && typeof RinchanStorage.writeJson === 'function') return RinchanStorage.writeJson(key, value); localStorage.setItem(key, JSON.stringify(value)); return value; }
@@ -36,8 +40,79 @@ const RinchanSync = (() => {
   function renderStatus() { const page = document.querySelector('.app'); if (!page) return; let box = document.getElementById('rinchanSyncStatus'); if (!box) { box = document.createElement('div'); box.id = 'rinchanSyncStatus'; box.className = 'rinchan-sync-status'; const nav = page.querySelector('.nav'); if (nav) page.insertBefore(box, nav); else page.appendChild(box); } const status = readJson(SYNC_STATUS_KEY, null); const lastSync = localStorage.getItem(SYNC_TIME_KEY); const label = status && status.status === 'syncing' ? '同期中...' : '最終同期 ' + formatSyncTime(lastSync); const detail = status && status.status === 'error' ? '通信できませんでした。保存済みデータを表示中です。' : ''; box.innerHTML = '<span>' + label + '</span>' + (detail ? '<small>' + detail + '</small>' : ''); box.classList.toggle('is-syncing', !!status && status.status === 'syncing'); box.classList.toggle('is-error', !!status && status.status === 'error'); }
   function refreshUi() { try { if (typeof renderV078Chart === 'function') renderV078Chart(); } catch (e) {} try { if (typeof renderV070Mypage === 'function') renderV070Mypage(); } catch (e) {} try { if (window.RinchanMypage && typeof RinchanMypage.renderAll === 'function') RinchanMypage.renderAll(); } catch (e) {} try { if (window.RinchanPassportRender && typeof RinchanPassportRender.render === 'function') RinchanPassportRender.render(); } catch (e) {} try { if (window.RinchanPoints && typeof RinchanPoints.render === 'function') RinchanPoints.render(); } catch (e) {} try { if (typeof v100RenderSummary === 'function') v100RenderSummary(); } catch (e) {} try { if (typeof v100RenderThanksFlowSummary === 'function') v100RenderThanksFlowSummary(); } catch (e) {} try { if (typeof v100RenderGroupNews === 'function') v100RenderGroupNews(); } catch (e) {} try { if (typeof updateNewsBadgesV051 === 'function') updateNewsBadgesV051(); } catch (e) {} try { if (typeof updateNewsRowsV051 === 'function') updateNewsRowsV051(); } catch (e) {} try { if (typeof v100RenderNotices === 'function') v100RenderNotices(); } catch (e) {} try { if (window.RinchanNews && typeof RinchanNews.renderAll === 'function') RinchanNews.renderAll(); } catch (e) {} try { if (window.RinchanNews && typeof RinchanNews.updateBadges === 'function') RinchanNews.updateBadges(); } catch (e) {} try { if (window.RinchanThanksHomeNotice && typeof RinchanThanksHomeNotice.render === 'function') RinchanThanksHomeNotice.render(); } catch (e) {} try { if (window.RinchanMori && typeof RinchanMori.renderAll === 'function') RinchanMori.renderAll(); } catch (e) {} try { if (window.RinchanEventCalendarEngine && typeof RinchanEventCalendarEngine.install === 'function') RinchanEventCalendarEngine.install(); } catch (e) {} try { if (window.RinchanEventLoader && typeof RinchanEventLoader.install === 'function') RinchanEventLoader.install(); } catch (e) {} try { if (window.RinchanEventHighlightLock && typeof RinchanEventHighlightLock.install === 'function') RinchanEventHighlightLock.install(); } catch (e) {} try { if (window.RinchanMonthlyChallengeRender) RinchanMonthlyChallengeRender.render(); } catch (e) {} try { if (window.RinchanDepartmentChallengeRender) RinchanDepartmentChallengeRender.render(); } catch (e) {} try { if (window.RinchanHospitalChallengeRender) RinchanHospitalChallengeRender.render(); } catch (e) {} renderStatus(); }
   async function request(action, payload) { if (typeof RinchanApi !== 'undefined' && RinchanApi && typeof RinchanApi.request === 'function') return RinchanApi.request(action, payload || {}); if (window.RinchanApi && typeof window.RinchanApi.request === 'function') return window.RinchanApi.request(action, payload || {}); if (typeof v051Api === 'function') return v051Api(action, payload || {}); return { ok: false, reason: 'api_not_ready' }; }
-  async function sync(options) { const id = employeeId(); if (!id) { renderStatus(); return; } const silent = options && options.silent === true; if (!silent) setStatus('syncing', ''); try { const payload = { employeeId: id }; const token = syncToken(); if (token) payload.syncToken = token; const response = await request('getUserState', payload); if (!response || !response.ok || !response.state) throw new Error('sync_failed'); const changed = applyState(response.state); setStatus('synced', changed ? '' : 'unchanged'); refreshUi(); } catch (e) { setStatus('error', e.message || 'sync_failed'); refreshUi(); } }
+  async function sync(options) {
+    const id = employeeId();
+    if (!id) { renderStatus(); return null; }
+    if (syncInFlight) return syncInFlight;
+    const silent = options && options.silent === true;
+    syncInFlight = (async () => {
+      if (!silent) setStatus('syncing', '');
+      try {
+        const payload = { employeeId: id };
+        const token = syncToken();
+        if (token) payload.syncToken = token;
+        const response = await request('getUserState', payload);
+        if (!response || !response.ok || !response.state) throw new Error('sync_failed');
+        const changed = applyState(response.state);
+        lastRemoteRefreshAt = Date.now();
+        setStatus('synced', changed ? '' : 'unchanged');
+        refreshUi();
+        return response;
+      } catch (e) {
+        setStatus('error', e.message || 'sync_failed');
+        refreshUi();
+        return null;
+      }
+    })();
+    try { return await syncInFlight; } finally { syncInFlight = null; }
+  }
+
+  async function refreshActivities(options) {
+    const id = employeeId();
+    if (!id) return null;
+    if (syncInFlight) return syncInFlight;
+    if (activityRefreshInFlight) return activityRefreshInFlight;
+    const force = !!(options && options.force);
+    const minIntervalMs = Number(options && options.minIntervalMs || 2000);
+    if (!force && Date.now() - lastRemoteRefreshAt < minIntervalMs) return null;
+    activityRefreshInFlight = (async () => {
+      try {
+        const response = await request('activitySnapshot', { employeeId:id, inputSource:'app_resume' });
+        if (!response || !response.ok || !Array.isArray(response.activities)) throw new Error('activity_refresh_failed');
+        applyState({ activities:response.activities });
+        lastRemoteRefreshAt = Date.now();
+        setStatus('synced', '');
+        refreshUi();
+        return response;
+      } catch (e) {
+        return null;
+      }
+    })();
+    try { return await activityRefreshInFlight; } finally { activityRefreshInFlight = null; }
+  }
+
+  function scheduleResumeRefresh(force) {
+    setTimeout(() => {
+      if (document.visibilityState && document.visibilityState !== 'visible') return;
+      refreshActivities({ force:!!force, minIntervalMs:2000 });
+    }, 120);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      hiddenAt = Date.now();
+      return;
+    }
+    const wasAway = hiddenAt > 0;
+    hiddenAt = 0;
+    if (wasAway) scheduleResumeRefresh(true);
+  });
+  window.addEventListener('focus', () => scheduleResumeRefresh(false));
+  window.addEventListener('pageshow', event => {
+    if (event && event.persisted) scheduleResumeRefresh(true);
+  });
+
   function applyApiResult(response) { if (!response || !response.ok || !response.state) return response; applyState(response.state); setStatus('synced', ''); refreshUi(); return response; }
-  return { VERSION, sync, applyState, applyApiResult, refreshUi, renderStatus, setStatus, syncToken };
+  return { VERSION, sync, refreshActivities, applyState, applyApiResult, refreshUi, renderStatus, setStatus, syncToken };
 })();
 window.RinchanSync = RinchanSync;

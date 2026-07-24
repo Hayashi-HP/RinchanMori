@@ -191,6 +191,16 @@ function handlePost(action, data, ss) {
     return jsonOutput({ ok: true, action, activities, version: VERSION });
   }
 
+  if (action === 'activitySnapshot') {
+    return jsonOutput({
+      ok:true,
+      action,
+      activities:getMyActivities(ss, data),
+      serverAt:new Date().toISOString(),
+      version:VERSION
+    });
+  }
+
   if (action === 'thanksTimeline') {
     return jsonOutput({ ok: true, action, thanks: getPublicThanksTimeline(ss), version: VERSION });
   }
@@ -599,6 +609,17 @@ function handlePost(action, data, ss) {
       awardActivityPoints(ss, Object.assign({}, data, saved));
     } catch (pointError) {
       recordPointSideEffectError(ss, 'activity', employeeId, saved.activityId || data.activityId || '', pointError);
+    }
+    if (originalAction === 'saveHealthSteps') {
+      return jsonOutput({
+        ok:true,
+        action:originalAction,
+        normalizedAction:'saveActivity',
+        saved,
+        dailyCheckin,
+        serverAt:new Date().toISOString(),
+        version:VERSION
+      });
     }
     return jsonOutput({ ok: true, action: originalAction, normalizedAction: 'saveActivity', saved, state: getUserState(ss, {
       employeeId,
