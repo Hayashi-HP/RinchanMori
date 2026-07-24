@@ -1,5 +1,7 @@
 /* v1.5.28 home boot */
 (function(){
+  var bootInFlight=null;
+  var lastBootStartedAt=0;
   function getParticipant(){
     try{
       if(window.RinchanStorage&&typeof RinchanStorage.getParticipant==='function')return RinchanStorage.getParticipant();
@@ -30,29 +32,35 @@
     if(guest)guest.classList.toggle('hidden',loggedIn);
     [action,chart,tree,mori,dashboard].forEach(function(el){if(el)el.classList.toggle('hidden',!loggedIn);});
   }
-  async function boot(){
-    try{
-      renderGuestState();
-      if(window.RinchanAuth&&RinchanAuth.requireUser)RinchanAuth.requireUser({redirect:false});
-      if(window.RinchanSync&&RinchanSync.sync)await RinchanSync.sync({silent:true});
-      renderGuestState();
-      if(window.RinchanSeasonEngine&&RinchanSeasonEngine.install)RinchanSeasonEngine.install();
-      renderMoriLetter();
-      if(window.RinchanGrowth&&RinchanGrowth.renderHome)RinchanGrowth.renderHome();
-      if(window.RinchanChart&&RinchanChart.renderWeeklySteps)RinchanChart.renderWeeklySteps();
-      if(window.RinchanGuide&&RinchanGuide.render)RinchanGuide.render();
-      if(window.RinchanNews&&RinchanNews.updateBadges)RinchanNews.updateBadges();
-      if(window.RinchanVoice&&RinchanVoice.renderHome)RinchanVoice.renderHome();
-      if(window.RinchanHomeWorld&&RinchanHomeWorld.renderHome)RinchanHomeWorld.renderHome();
-      if(window.RinchanHomeDashboard&&RinchanHomeDashboard.render)RinchanHomeDashboard.render();
-      if(window.RinchanFlowerAlbum&&RinchanFlowerAlbum.renderAll)RinchanFlowerAlbum.renderAll();
-      if(window.RinchanGrowthAnimation&&RinchanGrowthAnimation.install)RinchanGrowthAnimation.install();
-      if(window.RinchanCreatureEngine&&RinchanCreatureEngine.install)RinchanCreatureEngine.install();
-      if(window.RinchanThanksHomeNotice&&RinchanThanksHomeNotice.install)RinchanThanksHomeNotice.install();
-      renderGuestState();
-      renderMoriLetter();
-    }catch(e){console.warn(e);renderGuestState();}
+  async function boot(force){
+    if(bootInFlight)return bootInFlight;
+    if(!force&&Date.now()-lastBootStartedAt<1500)return null;
+    lastBootStartedAt=Date.now();
+    bootInFlight=(async function(){
+      try{
+        renderGuestState();
+        if(window.RinchanAuth&&RinchanAuth.requireUser)RinchanAuth.requireUser({redirect:false});
+        if(window.RinchanSync&&RinchanSync.sync)await RinchanSync.sync({silent:true});
+        renderGuestState();
+        if(window.RinchanSeasonEngine&&RinchanSeasonEngine.install)RinchanSeasonEngine.install();
+        renderMoriLetter();
+        if(window.RinchanGrowth&&RinchanGrowth.renderHome)RinchanGrowth.renderHome();
+        if(window.RinchanChart&&RinchanChart.renderWeeklySteps)RinchanChart.renderWeeklySteps();
+        if(window.RinchanGuide&&RinchanGuide.render)RinchanGuide.render();
+        if(window.RinchanNews&&RinchanNews.updateBadges)RinchanNews.updateBadges();
+        if(window.RinchanVoice&&RinchanVoice.renderHome)RinchanVoice.renderHome();
+        if(window.RinchanHomeWorld&&RinchanHomeWorld.renderHome)RinchanHomeWorld.renderHome();
+        if(window.RinchanHomeDashboard&&RinchanHomeDashboard.render)RinchanHomeDashboard.render();
+        if(window.RinchanFlowerAlbum&&RinchanFlowerAlbum.renderAll)RinchanFlowerAlbum.renderAll();
+        if(window.RinchanGrowthAnimation&&RinchanGrowthAnimation.install)RinchanGrowthAnimation.install();
+        if(window.RinchanCreatureEngine&&RinchanCreatureEngine.install)RinchanCreatureEngine.install();
+        if(window.RinchanThanksHomeNotice&&RinchanThanksHomeNotice.install)RinchanThanksHomeNotice.install();
+        renderGuestState();
+        renderMoriLetter();
+      }catch(e){console.warn(e);renderGuestState();}
+    })();
+    try{return await bootInFlight;}finally{bootInFlight=null;}
   }
   document.addEventListener('DOMContentLoaded',boot);
-  window.addEventListener('pageshow',function(){setTimeout(boot,100);});
+  window.addEventListener('pageshow',function(event){if(event&&event.persisted)setTimeout(function(){boot(true);},100);});
 })();
