@@ -79,7 +79,9 @@ function handlePost(action, data, ss) {
       clearAppCache();
       auditAction(ss, 'adminSaveSettings', data, 'ok', 'app_settings_saved', {
         defaultWeeklyStepGoal:settings.defaultWeeklyStepGoal,
-        inactivityAlertDays:settings.inactivityAlertDays
+        inactivityAlertDays:settings.inactivityAlertDays,
+        commonDailyStepGoalEnabled:settings.commonDailyStepGoalEnabled,
+        commonDailyStepGoal:settings.commonDailyStepGoal
       });
       return jsonOutput({ ok: true, action, settings, version: VERSION });
     } catch (e) {
@@ -153,7 +155,6 @@ function handlePost(action, data, ss) {
   }
 
   if (action === 'getUserState') {
-    awardDailyOpenPoint(ss, data);
     return jsonOutput({ ok: true, action, state: getUserState(ss, data), version: VERSION });
   }
 
@@ -184,6 +185,7 @@ function handlePost(action, data, ss) {
 
   if (action === 'myActivities') {
     const activities = getMyActivities(ss, data);
+    awardDailyCheckinPoint(ss, data);
     writeLog(ss, action, data.deviceId, data.employeeId || data.id || data.participantId, 'ok', '');
     return jsonOutput({ ok: true, action, activities, version: VERSION });
   }
@@ -194,18 +196,21 @@ function handlePost(action, data, ss) {
 
   if (action === 'myThanks') {
     const thanks = getMyThanks(ss, data);
+    awardDailyCheckinPoint(ss, data);
     writeLog(ss, action, data.deviceId, data.employeeId || data.id || data.toParticipantId, 'ok', '');
     return jsonOutput({ ok: true, action, thanks, version: VERSION });
   }
 
   if (action === 'mySentThanks') {
     const thanks = getMySentThanks(ss, data);
+    awardDailyCheckinPoint(ss, data);
     writeLog(ss, action, data.deviceId, data.employeeId || data.id || data.fromParticipantId, 'ok', '');
     return jsonOutput({ ok: true, action, thanks, version: VERSION });
   }
 
   if (action === 'myThanksStats') {
     const stats = getMyThanksStats(ss, data);
+    awardDailyCheckinPoint(ss, data);
     writeLog(ss, action, data.deviceId, data.employeeId || data.id, 'ok', '');
     return jsonOutput({ ok: true, action, stats, version: VERSION });
   }
@@ -577,18 +582,29 @@ function handlePost(action, data, ss) {
 
   if (action === 'saveActivity' || action === 'saveHealthSteps') {
     const originalAction = action;
+    if (!data.inputSource) data.inputSource = originalAction === 'saveHealthSteps' ? 'shortcut' : normalizeActivityInputSource(data);
     data.action = 'saveActivity';
     const saved = saveActivity(ss, data);
     invalidateActivityCaches();
     const employeeId = data.participantId || data.employeeId || data.id;
     writeLog(ss, originalAction, data.deviceId, employeeId, 'ok', originalAction === 'saveHealthSteps' ? 'shortcut_alias_saveActivity' : '');
     auditAction(ss, 'saveActivity', Object.assign({}, data, { employeeId, originalAction }), 'ok', 'activity_saved', { date: data.date || '', steps: data.steps || '', activityId: saved.activityId || '' });
+    const dailyCheckin = awardDailyCheckinPoint(ss, {
+      employeeId,
+      inputSource:saved.inputSource || data.inputSource || 'manual',
+      relatedRecordId:saved.activityId || ''
+    });
     try {
-      awardActivityPoints(ss, data);
+      awardActivityPoints(ss, Object.assign({}, data, saved));
     } catch (pointError) {
       recordPointSideEffectError(ss, 'activity', employeeId, saved.activityId || data.activityId || '', pointError);
     }
-    return jsonOutput({ ok: true, action: originalAction, normalizedAction: 'saveActivity', saved, state: getUserState(ss, { employeeId }), version: VERSION });
+    return jsonOutput({ ok: true, action: originalAction, normalizedAction: 'saveActivity', saved, state: getUserState(ss, {
+      employeeId,
+      inputSource:saved.inputSource || data.inputSource || 'manual',
+      relatedRecordId:saved.activityId || '',
+      dailyCheckinResult:dailyCheckin
+    }), version: VERSION });
   }
 
   if (action === 'deleteActivity') {
@@ -605,6 +621,11 @@ function handlePost(action, data, ss) {
     try {
       const saved = saveThanks(ss, data);
       try { if (typeof invalidateThanksCaches === 'function') invalidateThanksCaches(); } catch (ignoreCache) {}
+      const dailyCheckin = awardDailyCheckinPoint(ss, {
+        employeeId,
+        inputSource:'app',
+        relatedRecordId:saved.thanksId || ''
+      });
       try {
         awardThanksReceivedPoint(ss, saved, data);
       } catch (pointError) {
@@ -620,7 +641,12 @@ function handlePost(action, data, ss) {
       let state = null;
       let stats = null;
       try { stats = getMyThanksStats(ss, { employeeId }); } catch (ignoreStats) {}
-      try { state = getUserState(ss, { employeeId }); } catch (ignoreState) {}
+      try { state = getUserState(ss, {
+        employeeId,
+        inputSource:'app',
+        relatedRecordId:saved.thanksId || '',
+        dailyCheckinResult:dailyCheckin
+      }); } catch (ignoreState) {}
       return jsonOutput({ ok: true, action, saved, stats, state, version: VERSION });
     } catch (err) {
       try { writeLog(ss, action, data.deviceId || data.fromParticipantId || '', data.toParticipantId || '', 'ng', err.message); } catch (ignoreErrorLog) {}

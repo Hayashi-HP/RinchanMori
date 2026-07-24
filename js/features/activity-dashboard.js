@@ -46,7 +46,11 @@ const RinchanActivityDashboard = (() => {
     const settings = readJson('rinchanAppSettings', {}) || {};
     const customGoal = Number(String(user.weeklyStepGoal || '').replace(/,/g, '')) || 0;
     const standardGoal = Number(settings.defaultWeeklyStepGoal || 56000) || 56000;
-    const dailyGoal = Number(String(user.dailyStepGoal || user.stepGoal || Math.round(standardGoal / 7)).replace(/,/g, '')) || Math.round(standardGoal / 7);
+    const personalDailyGoal = Number(String(user.dailyStepGoal || '').replace(/,/g, '')) || 0;
+    const commonDailyGoal = settings.commonDailyStepGoalEnabled === true
+      ? (Number(String(settings.commonDailyStepGoal || '').replace(/,/g, '')) || 0)
+      : 0;
+    const dailyGoal = personalDailyGoal || commonDailyGoal || 0;
     const goal = Math.max(1, customGoal || standardGoal);
     const selectedDate = new Date(selectedKey + 'T00:00:00');
     const days = weekDays(isNaN(selectedDate) ? new Date() : selectedDate);

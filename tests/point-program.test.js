@@ -18,7 +18,8 @@ function createSheet(name) {
         transactionId:values[0], employeeId:values[1], amount:values[2],
         type:values[3], sourceId:values[4], description:values[5],
         createdAt:values[6], createdBy:values[7], rewardId:values[8],
-        metadataJson:values[9], version:values[10]
+        metadataJson:values[9], version:values[10], inputSource:values[11],
+        relatedRecordId:values[12]
       });
     },
     getLastRow() { return this.rows.length + 1; },
@@ -41,6 +42,15 @@ function createSheet(name) {
 function createRuntime() {
   const settings = createSheet('app_settings');
   const transactions = createSheet('point_transactions');
+  const activities = { name:'activities', rows:[] };
+  let user = { employeeId:'A', weeklyStepGoal:56000, dailyStepGoal:'' };
+  let appSettings = {
+    defaultWeeklyStepGoal:56000,
+    commonDailyStepGoalEnabled:false,
+    commonDailyStepGoal:8000,
+    preferPersonalDailyStepGoal:true,
+    commonDailyStepGoalOnlyWhenUnset:true
+  };
   let uuid = 0;
   const context = {
     console, Date, Error, Math, Object, Array, String, Number, JSON, isFinite,
@@ -75,14 +85,15 @@ function createRuntime() {
     invalidatePointCaches() {},
     saveErrorLog() {},
     writeLog() {},
-    getPublicUserById:() => ({ weeklyStepGoal:56000 }),
-    getPublicAppSettings:() => ({ defaultWeeklyStepGoal:56000 })
+    normalizeActivityInputSource:data => String(data.inputSource || 'manual'),
+    getPublicUserById:(unused, id) => String(id || '') === String(user.employeeId || '') ? { ...user } : null,
+    getPublicAppSettings:() => ({ ...appSettings })
   };
   const ss = {
     getSheetByName(name) {
       if (name === 'app_settings') return settings;
       if (name === 'point_transactions') return transactions;
-      if (name === 'activities') return { rows:[] };
+      if (name === 'activities') return activities;
       return null;
     }
   };
@@ -96,7 +107,11 @@ function createRuntime() {
     if (row) row.value = value;
     else settings.rows.push({ settingKey:key, value, updatedAt:new Date().toISOString(), updatedBy:'test', version:'test' });
   }
-  return { context, ss, settings, transactions, setSetting };
+  return {
+    context, ss, settings, transactions, activities, setSetting,
+    setUser(next) { user = { ...user, ...next }; },
+    setAppSettings(next) { appSettings = { ...appSettings, ...next }; }
+  };
 }
 
 function addEarn(context, sheet, employeeId, amount, sourceId, date) {
@@ -172,7 +187,7 @@ function addEarn(context, sheet, employeeId, amount, sourceId, date) {
   setSetting('point.enabled', true);
   context.awardDailyOpenPoint(ss, { employeeId:'A' }, new Date('2026-07-23T03:00:00.000Z'));
   assert.equal(transactions.rows.length, 1);
-  assert.equal(transactions.rows[0].sourceId, 'open:2026-07-23');
+  assert.equal(transactions.rows[0].sourceId, 'daily_checkin:A:2026-07-23');
 }
 
 {
@@ -247,6 +262,131 @@ function addEarn(context, sheet, employeeId, amount, sourceId, date) {
   );
   setSetting('point.reward.limited_badge.enabled', false);
   assert.deepEqual(Array.from(context.getPointAccountState(ss, 'A').ownedBadgeIds), ['point_limited_100']);
+}
+
+{
+  const { context, ss, transactions } = createRuntime();
+  const beforeMidnight = context.awardDailyCheckinPoint(ss, { employeeId:'A' }, new Date('2026-07-23T14:59:59.000Z'));
+  const sameDayOtherDevice = context.awardDailyCheckinPoint(ss, { employeeId:'A', deviceId:'other' }, new Date('2026-07-23T14:59:59.500Z'));
+  const nextTokyoDay = context.awardDailyCheckinPoint(ss, { employeeId:'A' }, new Date('2026-07-23T15:00:00.000Z'));
+  assert.equal(beforeMidnight.granted, true);
+  assert.equal(sameDayOtherDevice.duplicate, true);
+  assert.equal(nextTokyoDay.granted, true);
+  assert.deepEqual(transactions.rows.map(row => row.sourceId), [
+    'daily_checkin:A:2026-07-23',
+    'daily_checkin:A:2026-07-24'
+  ]);
+}
+
+{
+  const { context, ss, transactions } = createRuntime();
+  const first = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:4200,
+    inputSource:'shortcut', relatedRecordId:'ACT1'
+  }, new Date('2026-07-23T03:00:00.000Z'));
+  const second = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:7500,
+    inputSource:'manual', relatedRecordId:'ACT1'
+  }, new Date('2026-07-23T08:00:00.000Z'));
+  assert.equal(first[0].granted, true);
+  assert.equal(second[0].duplicate, true);
+  assert.equal(transactions.rows.filter(row => row.type === 'earn:activity_sync').length, 1);
+  assert.equal(transactions.rows[0].sourceId, 'step_sync:A:2026-07-23');
+  assert.equal(transactions.rows[0].inputSource, 'shortcut');
+  assert.equal(transactions.rows[0].relatedRecordId, 'ACT1');
+}
+
+{
+  const { context, ss, transactions } = createRuntime();
+  const zero = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:0
+  }, new Date('2026-07-23T03:00:00.000Z'));
+  const invalid = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:'abc'
+  }, new Date('2026-07-23T03:00:00.000Z'));
+  assert.equal(zero[0].reason, 'point_invalid_steps');
+  assert.equal(invalid[0].reason, 'point_invalid_steps');
+  assert.equal(transactions.rows.length, 0);
+}
+
+{
+  const invalidGoals = ['', null, undefined, 0, -1, 'abc', 1000.5, 100001];
+  invalidGoals.forEach(goal => {
+    const runtime = createRuntime();
+    runtime.setUser({ dailyStepGoal:goal });
+    const result = runtime.context.awardActivityPoints(runtime.ss, {
+      employeeId:'A', date:'2026-07-23', savedSteps:50000
+    }, new Date('2026-07-23T03:00:00.000Z'));
+    assert.equal(result.some(row => row.transaction && row.transaction.type === 'earn:daily_step_goal'), false);
+  });
+}
+
+{
+  const { context, ss, transactions, setUser } = createRuntime();
+  setUser({ dailyStepGoal:8000 });
+  const below = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:7999, inputSource:'shortcut'
+  }, new Date('2026-07-23T03:00:00.000Z'));
+  assert.equal(below.some(row => row.transaction && row.transaction.type === 'earn:daily_step_goal'), false);
+  const reached = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:8000, inputSource:'manual'
+  }, new Date('2026-07-23T04:00:00.000Z'));
+  const duplicate = context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:9000, inputSource:'shortcut'
+  }, new Date('2026-07-23T05:00:00.000Z'));
+  assert.equal(reached.some(row => row.transaction && row.transaction.type === 'earn:daily_step_goal'), true);
+  assert.equal(duplicate.some(row => row.duplicate && row.type === 'earn:daily_step_goal'), true);
+  assert.equal(transactions.rows.filter(row => row.type === 'earn:daily_step_goal').length, 1);
+  assert.equal(transactions.rows.find(row => row.type === 'earn:daily_step_goal').sourceId, 'daily_goal:A:2026-07-23');
+}
+
+{
+  const { context, ss, transactions, setUser, setAppSettings } = createRuntime();
+  setUser({ dailyStepGoal:'' });
+  setAppSettings({ commonDailyStepGoalEnabled:false, commonDailyStepGoal:1000 });
+  context.awardActivityPoints(ss, {
+    employeeId:'A', date:'2026-07-23', savedSteps:10000
+  }, new Date('2026-07-23T03:00:00.000Z'));
+  assert.equal(transactions.rows.some(row => row.type === 'earn:daily_step_goal'), false);
+}
+
+{
+  const { context, ss, setUser, setAppSettings } = createRuntime();
+  setUser({ dailyStepGoal:'' });
+  setAppSettings({ commonDailyStepGoalEnabled:true, commonDailyStepGoal:8000 });
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(context.dailyStepGoalForUser(ss, 'A'))),
+    { hasValidGoal:true, goal:8000, source:'common' }
+  );
+  setUser({ dailyStepGoal:6000 });
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(context.dailyStepGoalForUser(ss, 'A'))),
+    { hasValidGoal:true, goal:6000, source:'personal' }
+  );
+  setAppSettings({ preferPersonalDailyStepGoal:false, commonDailyStepGoalOnlyWhenUnset:false });
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(context.dailyStepGoalForUser(ss, 'A'))),
+    { hasValidGoal:true, goal:8000, source:'common' }
+  );
+}
+
+{
+  const { context } = createRuntime();
+  assert.equal(context.validDailyStepGoal(1000), 1000);
+  assert.equal(context.validDailyStepGoal(100000), 100000);
+  assert.equal(context.validDailyStepGoal(999), null);
+  assert.equal(context.validDailyStepGoal(100001), null);
+}
+
+{
+  const { context, ss, activities } = createRuntime();
+  activities.rows.push(
+    { participantId:'A', date:'2026-07-20', steps:4000 },
+    { participantId:'A', date:'2026-07-20', steps:6500 },
+    { participantId:'A', date:'2026-07-21', steps:7000 }
+  );
+  assert.equal(context.savedStepsForDay(ss, 'A', '2026-07-20'), 6500);
+  assert.equal(context.weeklyStepTotal(ss, 'A', '2026-07-20'), 13500);
 }
 
 console.log('point program: ok');

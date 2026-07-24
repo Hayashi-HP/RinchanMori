@@ -21,7 +21,7 @@
 
 初回アクセス時に以下のシートが自動作成されます。
 
-H制度を追加した更新では、Apps Script側を保存後に `setupProjectManual()` を一度実行してください。`app_settings` に内部キー `point.*` の初期設定が追加され、`point_transactions` が作成されます。
+H制度を追加・更新した際は、Apps Script側を保存後に `setupProjectManual()` を一度実行してください。既存データを保持したまま、`users.dailyStepGoal`、H設定、`point_transactions` の不足列が追加されます。
 
 ### users
 
@@ -38,6 +38,7 @@ H制度を追加した更新では、Apps Script側を保存後に `setupProject
 | updatedAt | 更新日時 |
 | version | アプリバージョン |
 | lastSavedAt | Sheets保存日時 |
+| dailyStepGoal | 本人が明示設定した1日の歩数目標。空欄は未設定 |
 
 ### activities
 
@@ -80,6 +81,8 @@ H制度を追加した更新では、Apps Script側を保存後に `setupProject
 | rewardId | ご褒美キー |
 | metadataJson | 補足情報 |
 | version | 保存時バージョン |
+| inputSource | shortcut・manual・app・admin・system |
+| relatedRecordId | 関連する元レコードID |
 
 ### app_settings のH設定
 
@@ -90,5 +93,9 @@ H制度を追加した更新では、Apps Script側を保存後に `setupProject
 - `point.reward.{rewardKey}.name`
 - `point.reward.{rewardKey}.enabled`
 - `point.reward.{rewardKey}.cost`
+- `commonDailyStepGoalEnabled`（初期値 `FALSE`）
+- `commonDailyStepGoal`
+- `preferPersonalDailyStepGoal`
+- `commonDailyStepGoalOnlyWhenUnset`
 
 初回セットアップで初期値を作成する。運用開始後に一部の設定行が欠損した場合は、安全のため該当項目を無効・0Hとして扱う。

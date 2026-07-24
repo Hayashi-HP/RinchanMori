@@ -133,6 +133,7 @@ const RinchanAdminUsers = (() => {
         + '<div class="admin-user-row-detail"><div class="admin-user-meta">'
         + '<span><small>メール</small><b>' + escapeHtml(row.email || '未設定') + '</b></span>'
         + '<span><small>週間目標</small><b>' + escapeHtml(row.weeklyStepGoal ? number(row.weeklyStepGoal) + '歩' : '未設定') + '</b></span>'
+        + '<span><small>日次目標</small><b>' + escapeHtml(row.dailyStepGoal ? number(row.dailyStepGoal) + '歩' : '未設定') + '</b></span>'
         + '<span><small>累計歩数</small><b>' + escapeHtml(number(row.totalSteps)) + '歩</b></span>'
         + '<span><small>最終記録</small><b>' + escapeHtml(formatDate(row.lastDate)) + '</b></span>'
         + '</div><div class="admin-user-row-actions"><button type="button" class="soft-button" data-action="edit-user" data-id="' + escapeHtml(row.employeeId) + '">編集</button></div></div>'
@@ -184,6 +185,7 @@ const RinchanAdminUsers = (() => {
     byId('adminUserDept').value = row.dept || '';
     byId('adminUserRole').value = row.role || 'general';
     byId('adminUserWeeklyGoal').value = row.weeklyStepGoal || '';
+    byId('adminUserDailyGoal').value = row.dailyStepGoal || '';
     setMessage('', 'info');
     const editor = byId('adminUserEditor');
     editor.classList.remove('hidden');
@@ -200,10 +202,14 @@ const RinchanAdminUsers = (() => {
     const name = value('adminUserName');
     const email = value('adminUserEmail');
     const weeklyStepGoal = value('adminUserWeeklyGoal');
+    const dailyStepGoal = value('adminUserDailyGoal');
     if (!name) return { ok: false, message: '氏名を入力してください。' };
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, message: 'メールアドレスの形式を確認してください。' };
     if (weeklyStepGoal && (!/^\d+$/.test(weeklyStepGoal) || Number(weeklyStepGoal) < 1000 || Number(weeklyStepGoal) > 1000000)) {
       return { ok: false, message: '週間歩数目標は1,000〜1,000,000歩で入力してください。' };
+    }
+    if (dailyStepGoal && (!/^\d+$/.test(dailyStepGoal) || Number(dailyStepGoal) < 1000 || Number(dailyStepGoal) > 100000)) {
+      return { ok: false, message: '1日の歩数目標は1,000〜100,000歩で入力してください。' };
     }
     return {
       ok: true,
@@ -214,7 +220,8 @@ const RinchanAdminUsers = (() => {
         email,
         dept: value('adminUserDept'),
         role: value('adminUserRole'),
-        weeklyStepGoal
+        weeklyStepGoal,
+        dailyStepGoal
       }
     };
   }
@@ -236,7 +243,8 @@ const RinchanAdminUsers = (() => {
       role_invalid: '権限の選択を確認してください。',
       self_admin_role_required: '自分自身の管理者権限は外せません。',
       weekly_step_goal_integer_required: '週間歩数目標は数字で入力してください。',
-      weekly_step_goal_out_of_range: '週間歩数目標は1,000〜1,000,000歩で入力してください。'
+      weekly_step_goal_out_of_range: '週間歩数目標は1,000〜1,000,000歩で入力してください。',
+      daily_step_goal_out_of_range: '1日の歩数目標は1,000〜100,000歩で入力してください。'
     };
     return messages[String(reason || '')] || '通信に失敗しました。時間をおいてもう一度お試しください。';
   }

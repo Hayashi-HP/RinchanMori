@@ -4,7 +4,7 @@ function setupProject(ss) {
   const usersSheet = ensureSheet(ss, SHEET_USERS, [
     'id', 'deviceId', 'name', 'dept', 'nick', 'declaration', 'weeklyGoal',
     'createdAt', 'updatedAt', 'version', 'lastSavedAt', 'email', 'pin4',
-    'employeeId', 'admin', 'weeklyStepGoal', 'role'
+    'employeeId', 'admin', 'weeklyStepGoal', 'role', 'dailyStepGoal'
   ]);
 
   usersSheet.getRange(1, 13, Math.max(usersSheet.getMaxRows(), 1), 1).setNumberFormat('@');
@@ -61,7 +61,8 @@ function setupProject(ss) {
   ensurePointProgramSettings(ss);
   ensureSheet(ss, SHEET_POINT_TRANSACTIONS, [
     'transactionId', 'employeeId', 'amount', 'type', 'sourceId', 'description',
-    'createdAt', 'createdBy', 'rewardId', 'metadataJson', 'version'
+    'createdAt', 'createdBy', 'rewardId', 'metadataJson', 'version',
+    'inputSource', 'relatedRecordId'
   ]);
 
   const deptSheet = ensureSheet(ss, SHEET_DEPARTMENTS, ['deptId', 'deptName', 'displayOrder', 'active', 'mapKey']);

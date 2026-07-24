@@ -6,7 +6,7 @@ const POINT_MAX_REWARD_COST = 10000000;
 
 const DEFAULT_POINT_RULES = [
   { key:'initial_registration', name:'初回登録', enabled:true, amount:50 },
-  { key:'daily_open', name:'1日1回アプリを開く', enabled:true, amount:1 },
+  { key:'daily_open', name:'デイリーチェックイン', enabled:true, amount:1 },
   { key:'activity_sync', name:'歩数同期', enabled:true, amount:2 },
   { key:'daily_step_goal', name:'今日の歩数目標達成', enabled:true, amount:5 },
   { key:'weekly_step_goal', name:'週間歩数目標達成', enabled:true, amount:20 },
@@ -29,7 +29,8 @@ function pointConfiguredName(value, defaultItem) {
   const name = String(value || defaultItem.name).trim();
   const legacyNames = {
     limited_badge:['限定バッジ', '限定バッジ（りん杜サポーター）'],
-    rin_cafe:['りんカフェ']
+    rin_cafe:['りんカフェ'],
+    daily_open:['1日1回アプリを開く']
   };
   return (legacyNames[defaultItem.key] || []).indexOf(name) >= 0 ? defaultItem.name : name;
 }
@@ -191,7 +192,7 @@ function savePointProgramSettings(ss, data) {
 function pointDateKey(value) {
   const date = value instanceof Date ? value : new Date(value || '');
   if (isNaN(date.getTime())) return '';
-  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  return Utilities.formatDate(date, 'Asia/Tokyo', 'yyyy-MM-dd');
 }
 
 function pointWeekKey(value) {
@@ -236,7 +237,9 @@ function pointTransactionValues(transaction) {
     transaction.createdBy,
     transaction.rewardId || '',
     transaction.metadataJson || '',
-    VERSION
+    VERSION,
+    transaction.inputSource || 'system',
+    transaction.relatedRecordId || ''
   ];
 }
 
@@ -261,7 +264,9 @@ function getEmployeePointTransactions(ss, employeeId) {
       createdBy: String(row.createdBy || ''),
       rewardId: String(row.rewardId || ''),
       metadataJson: String(row.metadataJson || ''),
-      version: String(row.version || VERSION)
+      version: String(row.version || VERSION),
+      inputSource: String(row.inputSource || 'system'),
+      relatedRecordId: String(row.relatedRecordId || '')
     }))
     .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
 }
@@ -308,7 +313,7 @@ function getPointAccountState(ss, employeeId) {
   };
 }
 
-function grantPointForRule(ss, ruleKey, employeeId, sourceId, description, createdBy, nowValue) {
+function grantPointForRule(ss, ruleKey, employeeId, sourceId, description, createdBy, nowValue, inputSource, relatedRecordId) {
   const id = normalizeEmployeeId(employeeId);
   const source = String(sourceId || '').trim();
   if (!id) throw new Error('point_employee_required');
@@ -344,7 +349,9 @@ function grantPointForRule(ss, ruleKey, employeeId, sourceId, description, creat
       createdAt:now.toISOString(),
       createdBy:String(createdBy || 'system').slice(0, 80),
       rewardId:'',
-      metadataJson:JSON.stringify({ ruleKey:ruleKey }).slice(0, 1000)
+      metadataJson:JSON.stringify({ ruleKey:ruleKey }).slice(0, 1000),
+      inputSource:String(inputSource || 'system').slice(0, 40),
+      relatedRecordId:String(relatedRecordId || '').slice(0, 120)
     });
     try { invalidatePointCaches(id); } catch (ignoreCache) {}
     return { granted:true, transaction };
@@ -368,28 +375,65 @@ function recordPointSideEffectError(ss, ruleKey, employeeId, sourceId, error) {
   try { writeLog(ss, 'pointAwardError', '', employeeId, 'ng', message); } catch (ignoreLog) {}
 }
 
-function safelyGrantPointForRule(ss, ruleKey, employeeId, sourceId, description, createdBy, nowValue) {
+function safelyGrantPointForRule(ss, ruleKey, employeeId, sourceId, description, createdBy, nowValue, inputSource, relatedRecordId) {
   try {
-    return grantPointForRule(ss, ruleKey, employeeId, sourceId, description, createdBy, nowValue);
+    return grantPointForRule(ss, ruleKey, employeeId, sourceId, description, createdBy, nowValue, inputSource, relatedRecordId);
   } catch (error) {
     recordPointSideEffectError(ss, ruleKey, employeeId, sourceId, error);
     return { granted:false, failed:true, reason:String((error && error.message) || 'point_award_failed') };
   }
 }
 
-function awardDailyOpenPoint(ss, data, nowValue) {
+function awardDailyCheckinPoint(ss, data, nowValue) {
   const id = normalizeEmployeeId(data.employeeId || data.id || data.participantId || '');
   if (!id) return { granted:false, skipped:true, reason:'point_employee_required' };
+  if (!getPublicUserById(ss, id)) return { granted:false, skipped:true, reason:'point_user_not_found' };
   const now = nowValue instanceof Date ? nowValue : new Date();
   const day = pointDateKey(now);
-  return safelyGrantPointForRule(ss, 'daily_open', id, 'open:' + day, '本日のアプリ利用', 'system', now);
+  return safelyGrantPointForRule(
+    ss, 'daily_open', id, 'daily_checkin:' + id + ':' + day,
+    'デイリーチェックイン', 'system', now,
+    String(data.inputSource || 'app'), String(data.relatedRecordId || '')
+  );
+}
+
+function awardDailyOpenPoint(ss, data, nowValue) {
+  return awardDailyCheckinPoint(ss, data, nowValue);
+}
+
+function validDailyStepGoal(value) {
+  if (value === '' || value === null || value === undefined) return null;
+  const raw = String(value).trim();
+  if (!/^\d+$/.test(raw)) return null;
+  const goal = Number(raw);
+  return Number.isInteger(goal) && goal >= 1000 && goal <= 100000 ? goal : null;
 }
 
 function dailyStepGoalForUser(ss, employeeId) {
   const user = getPublicUserById(ss, normalizeEmployeeId(employeeId)) || {};
   const settings = getPublicAppSettings(ss);
-  const weekly = Number(user.weeklyStepGoal || settings.defaultWeeklyStepGoal || 56000);
-  return Math.max(1, Math.round(weekly / 7));
+  const personalGoal = validDailyStepGoal(user.dailyStepGoal);
+  const commonGoal = settings.commonDailyStepGoalEnabled === true
+    ? validDailyStepGoal(settings.commonDailyStepGoal)
+    : null;
+  const preferPersonal = settings.preferPersonalDailyStepGoal !== false;
+  const commonOnlyWhenUnset = settings.commonDailyStepGoalOnlyWhenUnset !== false;
+
+  if (personalGoal && (preferPersonal || commonOnlyWhenUnset || !commonGoal)) {
+    return { hasValidGoal:true, goal:personalGoal, source:'personal' };
+  }
+  if (commonGoal && (!commonOnlyWhenUnset || !personalGoal)) {
+    return { hasValidGoal:true, goal:commonGoal, source:'common' };
+  }
+  if (personalGoal) return { hasValidGoal:true, goal:personalGoal, source:'personal' };
+  return { hasValidGoal:false, goal:null, source:'unset' };
+}
+
+function savedStepsForDay(ss, employeeId, dateKey) {
+  return readTable(ss.getSheetByName(SHEET_ACTIVITIES))
+    .filter(row => normalizeEmployeeId(row.participantId || '') === normalizeEmployeeId(employeeId))
+    .filter(row => String(row.date || '').slice(0, 10) === String(dateKey || ''))
+    .reduce((max, row) => Math.max(max, Number(row.steps || 0)), 0);
 }
 
 function weeklyStepTotal(ss, employeeId, weekKey) {
@@ -399,10 +443,15 @@ function weeklyStepTotal(ss, employeeId, weekKey) {
   const endDate = new Date(startDate);
   endDate.setUTCDate(endDate.getUTCDate() + 6);
   const end = Utilities.formatDate(endDate, 'UTC', 'yyyy-MM-dd');
-  return readTable(ss.getSheetByName(SHEET_ACTIVITIES))
+  const byDate = readTable(ss.getSheetByName(SHEET_ACTIVITIES))
     .filter(row => normalizeEmployeeId(row.participantId || '') === normalizeEmployeeId(employeeId))
     .filter(row => String(row.date || '').slice(0, 10) >= start && String(row.date || '').slice(0, 10) <= end)
-    .reduce((sum, row) => sum + Number(row.steps || 0), 0);
+    .reduce((byDate, row) => {
+      const date = String(row.date || '').slice(0, 10);
+      byDate[date] = Math.max(Number(byDate[date] || 0), Number(row.steps || 0));
+      return byDate;
+    }, {});
+  return Object.keys(byDate).reduce((sum, date) => sum + Number(byDate[date] || 0), 0);
 }
 
 function awardActivityPoints(ss, data, nowValue) {
@@ -413,10 +462,24 @@ function awardActivityPoints(ss, data, nowValue) {
   const activityDate = String(data.date || '').slice(0, 10);
   if (activityDate !== today) return [{ granted:false, skipped:true, reason:'point_no_retroactive_activity' }];
 
+  const savedSteps = Number(data.savedSteps !== undefined ? data.savedSteps : data.steps);
+  const inputSource = normalizeActivityInputSource(data);
+  const relatedRecordId = String(data.relatedRecordId || data.activityId || '');
   const results = [];
-  results.push(safelyGrantPointForRule(ss, 'activity_sync', id, 'activity_sync:' + today, '本日の歩数同期', 'system', now));
-  if (Number(data.steps || 0) >= dailyStepGoalForUser(ss, id)) {
-    results.push(safelyGrantPointForRule(ss, 'daily_step_goal', id, 'daily_step_goal:' + today, '本日の歩数目標達成', 'system', now));
+  if (Number.isInteger(savedSteps) && savedSteps > 0) {
+    results.push(safelyGrantPointForRule(
+      ss, 'activity_sync', id, 'step_sync:' + id + ':' + today,
+      '本日の歩数同期', 'system', now, inputSource, relatedRecordId
+    ));
+  } else {
+    results.push({ granted:false, skipped:true, reason:'point_invalid_steps' });
+  }
+  const goalState = dailyStepGoalForUser(ss, id);
+  if (goalState.hasValidGoal && savedSteps >= goalState.goal) {
+    results.push(safelyGrantPointForRule(
+      ss, 'daily_step_goal', id, 'daily_goal:' + id + ':' + today,
+      '本日の歩数目標達成', 'system', now, inputSource, relatedRecordId
+    ));
   }
   const week = pointWeekKey(now);
   const user = getPublicUserById(ss, id) || {};
@@ -428,12 +491,36 @@ function awardActivityPoints(ss, data, nowValue) {
   return results;
 }
 
+function getTodayPointStatus(ss, employeeId, nowValue) {
+  const id = normalizeEmployeeId(employeeId);
+  const now = nowValue instanceof Date ? nowValue : new Date();
+  const date = pointDateKey(now);
+  const goalState = dailyStepGoalForUser(ss, id);
+  const rows = getEmployeePointTransactions(ss, id);
+  const has = (type, sourceId) => pointTransactionExists(rows, id, type, sourceId);
+  return {
+    date,
+    steps:savedStepsForDay(ss, id, date),
+    goal:goalState.goal,
+    hasValidGoal:goalState.hasValidGoal,
+    goalSource:goalState.source,
+    awards:{
+      dailyCheckin:has('earn:daily_open', 'daily_checkin:' + id + ':' + date),
+      stepSync:has('earn:activity_sync', 'step_sync:' + id + ':' + date),
+      dailyGoal:has('earn:daily_step_goal', 'daily_goal:' + id + ':' + date)
+    }
+  };
+}
+
 function awardThanksReceivedPoint(ss, savedThanks, data, nowValue) {
   if (!savedThanks || savedThanks.type !== 'inserted') return { granted:false, skipped:true, reason:'point_thanks_not_inserted' };
   const id = normalizeEmployeeId(data.toParticipantId || '');
   const now = nowValue instanceof Date ? nowValue : new Date(savedThanks.createdAt || new Date());
   const day = pointDateKey(now);
-  return safelyGrantPointForRule(ss, 'thanks_received', id, 'thanks_received:' + day, 'ありがとうを受け取りました', 'system', now);
+  return safelyGrantPointForRule(
+    ss, 'thanks_received', id, 'thanks_received:' + id + ':' + day,
+    'ありがとうを受け取りました', 'system', now, 'app', savedThanks.thanksId || ''
+  );
 }
 
 function redeemPointReward(ss, data, nowValue) {
@@ -486,7 +573,9 @@ function redeemPointReward(ss, data, nowValue) {
       createdAt:now.toISOString(),
       createdBy:id,
       rewardId:rewardKey,
-      metadataJson:JSON.stringify({ rewardKey:rewardKey, cost:reward.cost }).slice(0, 1000)
+      metadataJson:JSON.stringify({ rewardKey:rewardKey, cost:reward.cost }).slice(0, 1000),
+      inputSource:'app',
+      relatedRecordId:requestId
     });
     try { invalidatePointCaches(id); } catch (ignoreCache) {}
     return { redeemed:true, transaction, account:getPointAccountState(ss, id) };
@@ -507,7 +596,9 @@ function awardEventParticipationPoint(ss, data) {
     'event:' + eventId,
     String(data.description || 'イベント参加'),
     normalizeEmployeeId(data.employeeId || data.id || '') || 'admin',
-    new Date()
+    new Date(),
+    'admin',
+    eventId
   );
 }
 

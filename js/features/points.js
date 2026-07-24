@@ -51,12 +51,12 @@ const RinchanPoints = (() => {
     const balanceElement = document.getElementById('homePointBalance');
     const earnedElement = document.getElementById('homePointEarned');
     if (balanceElement) balanceElement.textContent = balance.toLocaleString('ja-JP') + 'H';
-    const todaySource = 'open:' + dateKey(new Date());
+    const todaySource = 'daily_checkin:' + id + ':' + dateKey(new Date());
     const dailyOpen = (Array.isArray(state.recentTransactions) ? state.recentTransactions : [])
       .find(row => String(row.type || '') === 'earn:daily_open' && String(row.sourceId || '') === todaySource);
     if (earnedElement) {
       earnedElement.textContent = dailyOpen
-        ? '今日の利用 ＋' + Number(dailyOpen.amount || 0).toLocaleString('ja-JP') + 'H'
+        ? 'デイリーチェックイン ＋' + Number(dailyOpen.amount || 0).toLocaleString('ja-JP') + 'H'
         : '今日もHを育てよう';
     }
   }
