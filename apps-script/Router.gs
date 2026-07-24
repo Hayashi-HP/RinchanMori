@@ -67,6 +67,7 @@ function handlePost(action, data, ss) {
     const denied = requireAdminAction('adminSettings', ss, data);
     if (denied) return denied;
     const settings = getAdminAppSettings(ss);
+    settings.pointBalanceRanking = getAdminPointBalanceRanking(ss);
     auditAction(ss, 'adminSettings', data, 'ok', 'view_app_settings');
     return jsonOutput({ ok: true, action, settings, version: VERSION });
   }
